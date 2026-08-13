@@ -27,7 +27,7 @@ import static org.mockito.Mockito.verify;
 @ExtendWith(MockitoExtension.class)
 class AuthenticationControllerTest
 {
-    private UserTestBuilder builder = new UserTestBuilder();
+    private final UserTestBuilder builder = new UserTestBuilder();
     @Mock
     private AuthenticationManager authenticationManager;
     @Mock
