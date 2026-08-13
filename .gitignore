@@ -31,3 +31,6 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### Contexto local para agentes de IA (não versionar) ###
+/AGENTS.md
