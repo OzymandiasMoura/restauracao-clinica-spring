@@ -3,7 +3,9 @@ package org.example.clinicarestauracao.Application.Controllers;
 import org.example.clinicarestauracao.Application.Dtos.SecurityDtos.AuthenticationDto;
 import org.example.clinicarestauracao.Application.Dtos.SecurityDtos.LoginResponseDto;
 import org.example.clinicarestauracao.Application.Dtos.SecurityDtos.RegisterDto;
+import org.example.clinicarestauracao.Application.Exceptions.UsernameAlredyInUseException;
 import org.example.clinicarestauracao.Application.Interfaces.UserRepository;
+import org.example.clinicarestauracao.Application.Services.UserService;
 import org.example.clinicarestauracao.Domain.Entities.User;
 import org.example.clinicarestauracao.Infrastruct.Security.TokenService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,14 +24,14 @@ public class AuthenticationController
 {
     private final AuthenticationManager authenticationManager;
     private final TokenService tokenService;
-    private UserRepository repository;
+    private UserService service;
 
     @Autowired
-    public AuthenticationController(AuthenticationManager authenticationManager, TokenService tokenService, UserRepository userRepository)
+    public AuthenticationController(AuthenticationManager authenticationManager, TokenService tokenService, UserService service)
     {
         this.authenticationManager = authenticationManager;
         this.tokenService = tokenService;
-        this.repository = userRepository;
+        this.service = service;
     }
 
     @PostMapping("/login")
@@ -45,16 +47,13 @@ public class AuthenticationController
     @PostMapping("/register")
     public ResponseEntity register(@RequestBody RegisterDto user)
     {
-        if(this.repository.findUserByUsername(user.username())!=null)
+        boolean response = this.service.registerUser(user);
+
+        if(!response)
         {
-            return ResponseEntity.badRequest().build();
+            throw new UsernameAlredyInUseException("Nome de usuário ja existe.");
         }
 
-        String cryptPassword =  new BCryptPasswordEncoder().encode(user.password());
-
-        User newUser = new User(user.username(), cryptPassword, user.role());
-
-        this.repository.save(newUser);
         return ResponseEntity.ok().build();
     }
 
