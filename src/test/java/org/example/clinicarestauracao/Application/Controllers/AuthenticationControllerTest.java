@@ -15,11 +15,13 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
@@ -100,5 +102,20 @@ class AuthenticationControllerTest
         assertEquals("Nome de usuário ja existe.", exception.getMessage());
 
         verify(userService).registerUser(any(User.class));
+    }
+
+    @Test
+    void shouldThrowBadCredentialsExceptionWhenLoginIsInvalid()
+    {
+        AuthenticationDto dto = new AuthenticationDto("Pedro", "senhaIncorreta");
+        Mockito.when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class))).thenThrow(new BadCredentialsException("Usuário ou senha inválidos"));
+
+        BadCredentialsException exception = assertThrows(BadCredentialsException.class, () -> controller.login(dto));
+
+        assertEquals("Usuário ou senha inválidos", exception.getMessage());
+
+        verify(authenticationManager).authenticate(any(UsernamePasswordAuthenticationToken.class));
+
+        verify(tokenService, never()).generateToken(any(User.class));
     }
 }
