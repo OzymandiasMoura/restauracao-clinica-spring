@@ -1,4 +1,6 @@
 package org.example.clinicarestauracao.Application.Controllers;
+import org.example.clinicarestauracao.Application.Dtos.SecurityDtos.AuthenticationDto;
+import org.example.clinicarestauracao.Application.Dtos.SecurityDtos.LoginResponseDto;
 import org.example.clinicarestauracao.Application.Dtos.SecurityDtos.RegisterDto;
 import org.example.clinicarestauracao.Application.Services.UserService;
 import org.example.clinicarestauracao.Builders.UserTestBuilder;
@@ -12,6 +14,8 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -50,5 +54,26 @@ class AuthenticationControllerTest
         assertEquals(dto.password(), userSentToService.getPassword());
 
         assertEquals(dto.role(), userSentToService.getRole());
+    }
+
+    @Test
+    void shouldLoginAndReturnToken()
+    {
+        AuthenticationDto dto = new AuthenticationDto("Pedro", "1234");
+        User userAuthenticated = (User) builder.build();
+
+        Authentication authentication = Mockito.mock(Authentication.class);
+
+        Mockito.when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class))).thenReturn(authentication);
+        Mockito.when(authentication.getPrincipal()).thenReturn(userAuthenticated);
+        Mockito.when(tokenService.generateToken(any())).thenReturn("jwt-token");
+
+        var response = controller.login(dto);
+        assertEquals(200, response.getStatusCode().value());
+        assertNotNull(response.getBody());
+
+        LoginResponseDto responseBody = (LoginResponseDto) response.getBody();
+        assertEquals("jwt-token", responseBody.token());
+        verify(tokenService).generateToken(userAuthenticated);
     }
 }
