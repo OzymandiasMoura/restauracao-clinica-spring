@@ -2,6 +2,7 @@ package org.example.clinicarestauracao.Application.Controllers;
 import org.example.clinicarestauracao.Application.Dtos.SecurityDtos.AuthenticationDto;
 import org.example.clinicarestauracao.Application.Dtos.SecurityDtos.LoginResponseDto;
 import org.example.clinicarestauracao.Application.Dtos.SecurityDtos.RegisterDto;
+import org.example.clinicarestauracao.Application.Exceptions.UsernameAlredyInUseException;
 import org.example.clinicarestauracao.Application.Services.UserService;
 import org.example.clinicarestauracao.Builders.UserTestBuilder;
 import org.example.clinicarestauracao.Domain.Entities.User;
@@ -75,5 +76,29 @@ class AuthenticationControllerTest
         LoginResponseDto responseBody = (LoginResponseDto) response.getBody();
         assertEquals("jwt-token", responseBody.token());
         verify(tokenService).generateToken(userAuthenticated);
+
+        ArgumentCaptor<UsernamePasswordAuthenticationToken> authenticationCaptor = ArgumentCaptor.forClass(UsernamePasswordAuthenticationToken.class);
+
+        verify(authenticationManager).authenticate(authenticationCaptor.capture());
+
+        UsernamePasswordAuthenticationToken credentials = authenticationCaptor.getValue();
+
+        assertEquals("Pedro", credentials.getPrincipal());
+        assertEquals("1234", credentials.getCredentials());
+    }
+
+    @Test
+    void shouldThrowExceptionWhenUsernameAlreadyInUse()
+    {
+        User user = (User) builder.buildForCreate();
+        RegisterDto dto = new RegisterDto(user.getUsername(), user.getPassword(), user.getRole());
+
+        Mockito.when(userService.registerUser(any(User.class))).thenReturn(false);
+
+        UsernameAlredyInUseException exception = assertThrows(UsernameAlredyInUseException.class, () -> controller.register(dto));
+
+        assertEquals("Nome de usuário ja existe.", exception.getMessage());
+
+        verify(userService).registerUser(any(User.class));
     }
 }

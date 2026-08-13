@@ -4,7 +4,6 @@ import org.example.clinicarestauracao.Application.Dtos.SecurityDtos.Authenticati
 import org.example.clinicarestauracao.Application.Dtos.SecurityDtos.LoginResponseDto;
 import org.example.clinicarestauracao.Application.Dtos.SecurityDtos.RegisterDto;
 import org.example.clinicarestauracao.Application.Exceptions.UsernameAlredyInUseException;
-import org.example.clinicarestauracao.Application.Interfaces.UserRepository;
 import org.example.clinicarestauracao.Application.Services.UserService;
 import org.example.clinicarestauracao.Domain.Entities.User;
 import org.example.clinicarestauracao.Infrastruct.Security.TokenService;
@@ -12,7 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -24,7 +22,7 @@ public class AuthenticationController
 {
     private final AuthenticationManager authenticationManager;
     private final TokenService tokenService;
-    private UserService service;
+    private final UserService service;
 
     @Autowired
     public AuthenticationController(AuthenticationManager authenticationManager, TokenService tokenService, UserService service)
