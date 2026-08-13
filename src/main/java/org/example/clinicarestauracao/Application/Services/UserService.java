@@ -1,9 +1,6 @@
 package org.example.clinicarestauracao.Application.Services;
-
-import org.example.clinicarestauracao.Application.Dtos.SecurityDtos.RegisterDto;
 import org.example.clinicarestauracao.Application.Interfaces.UserRepository;
 import org.example.clinicarestauracao.Domain.Entities.User;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -33,6 +30,4 @@ public class UserService
         userRepository.save(newUser);
         return true;
     }
-
-
 }
