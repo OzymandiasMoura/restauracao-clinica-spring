@@ -38,6 +38,11 @@ public class AuthenticationController
         var userPassword = new UsernamePasswordAuthenticationToken(user.username(), user.password());
         var auth = authenticationManager.authenticate(userPassword);
 
+        if (auth.getPrincipal() == null)
+        {
+            throw new NullPointerException("Nome de usuário ou senha invalidas");
+        }
+
         var token =  tokenService.generateToken((User)auth.getPrincipal());
         return ResponseEntity.ok(new LoginResponseDto(token));
     }
