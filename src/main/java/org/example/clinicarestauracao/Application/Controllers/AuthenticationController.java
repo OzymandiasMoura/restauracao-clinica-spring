@@ -10,6 +10,7 @@ import org.example.clinicarestauracao.Infrastruct.Security.TokenService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -40,7 +41,7 @@ public class AuthenticationController
 
         if (auth.getPrincipal() == null)
         {
-            throw new NullPointerException("Nome de usuário ou senha invalidas");
+            throw new BadCredentialsException("Usuário ou senha inválidos");
         }
 
         var token =  tokenService.generateToken((User)auth.getPrincipal());
