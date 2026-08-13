@@ -47,7 +47,7 @@ public class AuthenticationController
     @PostMapping("/register")
     public ResponseEntity register(@RequestBody RegisterDto user)
     {
-        boolean response = this.service.registerUser(user);
+        boolean response = this.service.registerUser(new User(user.username(), user.password(), user.role()));
 
         if(!response)
         {

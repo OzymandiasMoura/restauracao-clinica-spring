@@ -19,16 +19,16 @@ public class UserService
         this.passwordEncoder = passwordEncoder;
     }
 
-    public boolean registerUser(RegisterDto user)
+    public boolean registerUser(User user)
     {
-        if(userRepository.findUserByUsername(user.username())!=null)
+        if(userRepository.findUserByUsername(user.getUsername())!=null)
         {
             return false;
         }
 
-        String cryptPassword = passwordEncoder.encode(user.password());
+        String cryptPassword = passwordEncoder.encode(user.getPassword());
 
-        User newUser = new User(user.username(), cryptPassword, user.role());
+        User newUser = new User(user.getUsername(), cryptPassword, user.getRole());
 
         userRepository.save(newUser);
         return true;
