@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.example.clinicarestauracao.Domain.Enums.UserRoles;
+import org.jspecify.annotations.NullMarked;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -38,6 +39,7 @@ public class User implements UserDetails
 
 
     @Override
+    @NullMarked
     public Collection<? extends GrantedAuthority> getAuthorities()
     {
         if(this.role == UserRoles.ADMIN)
