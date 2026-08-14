@@ -39,10 +39,10 @@ public class AuthenticationController
         var userPassword = new UsernamePasswordAuthenticationToken(user.username(), user.password());
         var auth = authenticationManager.authenticate(userPassword);
 
-        if (auth.getPrincipal() == null)
-        {
-            throw new BadCredentialsException("Usuário ou senha inválidos");
-        }
+//        if (auth.getPrincipal() == null)
+//        {
+//            throw new BadCredentialsException("Usuário ou senha inválidos");
+//        }
 
         var token =  tokenService.generateToken((User)auth.getPrincipal());
         return ResponseEntity.ok(new LoginResponseDto(token));
