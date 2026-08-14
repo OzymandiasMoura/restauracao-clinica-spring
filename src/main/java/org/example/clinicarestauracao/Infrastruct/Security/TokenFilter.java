@@ -32,11 +32,16 @@ public class TokenFilter extends OncePerRequestFilter
         if(token!=null)
         {
             var subject = tokenService.validateToken(token);
-            UserDetails userDetails =userRepository.findUserByUsername(subject);
+            if(subject!=null && !subject.isBlank())
+            {
+                UserDetails userDetails =userRepository.findUserByUsername(subject);
 
-            var authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-
-            SecurityContextHolder.getContext().setAuthentication(authentication);
+                if(userDetails!=null)
+                {
+                    var authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+                    SecurityContextHolder.getContext().setAuthentication(authentication);
+                }
+            }
         }
 
         filterChain.doFilter(request, response);
