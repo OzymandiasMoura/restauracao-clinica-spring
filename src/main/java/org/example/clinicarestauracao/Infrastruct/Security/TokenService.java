@@ -23,8 +23,7 @@ public class TokenService
         try
         {
             Algorithm algorithm = Algorithm.HMAC256(secret);
-            String token = JWT.create().withIssuer("auth-api").withSubject(user.getUsername()).withExpiresAt(generateExpirationDate()).sign(algorithm);
-            return token;
+            return JWT.create().withIssuer("auth-api").withSubject(user.getUsername()).withExpiresAt(generateExpirationDate()).sign(algorithm);
         } catch (JWTCreationException e)
         {
             throw new RuntimeException("Erro ao gerar o token JWT", e);
