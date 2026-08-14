@@ -11,10 +11,10 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 public class GlobalExceptionHandler
 {
     @ExceptionHandler(BadCredentialsException.class)
-    public ResponseEntity<?> handleBadCredentialsException(BadCredentialsException ex)
+    public ResponseEntity<ErrorResponseDto> handleBadCredentialsException(BadCredentialsException ex)
     {
         var response = new ErrorResponseDto(ex.getMessage());
-        return ResponseEntity.status(HttpStatusCode.valueOf(401)).body(response);
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
     }
 
     @ExceptionHandler(UsernameAlredyInUseException.class)
