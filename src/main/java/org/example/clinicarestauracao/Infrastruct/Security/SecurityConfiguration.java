@@ -18,7 +18,7 @@ import static org.springframework.security.config.Customizer.withDefaults;
 @EnableWebSecurity
 public class SecurityConfiguration
 {
-    private TokenFilter tokenFilter;
+    private final TokenFilter tokenFilter;
 
     public SecurityConfiguration(TokenFilter tokenFilter)
     {

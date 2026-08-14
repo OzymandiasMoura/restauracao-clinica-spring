@@ -4,13 +4,11 @@ import org.example.clinicarestauracao.Builders.UserTestBuilder;
 import org.example.clinicarestauracao.Domain.Enums.UserRoles;
 import org.junit.jupiter.api.Test;
 import org.springframework.security.core.GrantedAuthority;
-
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
 
 class UserTest
 {
-    private UserTestBuilder builder = new UserTestBuilder();
+    private final UserTestBuilder builder = new UserTestBuilder();
 
     @Test
     void shouldReturnUserRole()
