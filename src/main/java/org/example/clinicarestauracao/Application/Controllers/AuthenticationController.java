@@ -1,5 +1,6 @@
 package org.example.clinicarestauracao.Application.Controllers;
 
+import lombok.AllArgsConstructor;
 import org.example.clinicarestauracao.Application.Dtos.SecurityDtos.AuthenticationDto;
 import org.example.clinicarestauracao.Application.Dtos.SecurityDtos.LoginResponseDto;
 import org.example.clinicarestauracao.Application.Dtos.SecurityDtos.RegisterDto;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+@AllArgsConstructor
 @RestController
 @RequestMapping("auth")
 public class AuthenticationController
@@ -24,13 +26,6 @@ public class AuthenticationController
     private final TokenService tokenService;
     private final UserService service;
 
-    @Autowired
-    public AuthenticationController(AuthenticationManager authenticationManager, TokenService tokenService, UserService service)
-    {
-        this.authenticationManager = authenticationManager;
-        this.tokenService = tokenService;
-        this.service = service;
-    }
 
     @PostMapping("/login")
     public ResponseEntity<LoginResponseDto> login(@RequestBody AuthenticationDto user)
