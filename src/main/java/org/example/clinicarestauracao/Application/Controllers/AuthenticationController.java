@@ -33,7 +33,7 @@ public class AuthenticationController
     }
 
     @PostMapping("/login")
-    public ResponseEntity login(@RequestBody AuthenticationDto user)
+    public ResponseEntity<LoginResponseDto> login(@RequestBody AuthenticationDto user)
     {
         var userPassword = new UsernamePasswordAuthenticationToken(user.username(), user.password());
         var auth = authenticationManager.authenticate(userPassword);
@@ -43,7 +43,7 @@ public class AuthenticationController
     }
 
     @PostMapping("/register")
-    public ResponseEntity register(@RequestBody RegisterDto user)
+    public ResponseEntity<Void> register(@RequestBody RegisterDto user)
     {
         boolean response = this.service.registerUser(new User(user.username(), user.password(), user.role()));
 
