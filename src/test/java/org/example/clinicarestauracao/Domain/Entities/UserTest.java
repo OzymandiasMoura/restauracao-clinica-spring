@@ -57,6 +57,15 @@ class UserTest
         assertThat(e.getMessage()).isEqualTo(message);
     }
 
+    @ParameterizedTest(name = "{index}")
+    @MethodSource(value = "dataProvider3")
+    void shouldThrowExceptionWhenUsernameOrPasswordHasLessThan3(String username, String password, UserRoles role, String message)
+    {
+        UserWithInvalidInformationException e = assertThrows(UserWithInvalidInformationException.class, () -> new User(username, password, role));
+
+        assertThat(e.getMessage()).isEqualTo(message);
+    }
+
     private static Stream<Arguments> dataProvider()
     {
         return Stream.of(
@@ -70,7 +79,17 @@ class UserTest
     {
         return Stream.of(
                 Arguments.of(" ", "123", UserRoles.ADMIN, "Nome de usuário não pode ser vazio."),
-                Arguments.of("Pedro", " ", UserRoles.ADMIN, "Senha de usuário não pode ser vazio.")
+                Arguments.of("Pedro", " ", UserRoles.ADMIN, "Senha de usuário não pode ser vazio."),
+                Arguments.of("", "123", UserRoles.ADMIN, "Nome de usuário não pode ser vazio."),
+                Arguments.of("Pedro", "", UserRoles.ADMIN, "Senha de usuário não pode ser vazio.")
+        );
+    }
+
+    private static Stream<Arguments> dataProvider3()
+    {
+        return Stream.of(
+                Arguments.of("Pe", "123", UserRoles.ADMIN, "Nome de usuário deve ter no mínimo 3 caracteres."),
+                Arguments.of("Pedro", "12", UserRoles.ADMIN, "Senha de usuário não pode ter menos que 3 caracteres.")
         );
     }
 
