@@ -13,7 +13,6 @@ import static org.junit.jupiter.api.Assertions.*;
 class ModalidadeTest
 {
     ModalidadeTestBuilder builder = new ModalidadeTestBuilder();
-    CnpjValidator cnpjValidator = Mockito.mock(CnpjValidator.class);
 
     @Test
     void shouldCreateValidModalidade()
