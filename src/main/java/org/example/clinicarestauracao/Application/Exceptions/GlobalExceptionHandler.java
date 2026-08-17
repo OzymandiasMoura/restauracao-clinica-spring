@@ -33,4 +33,12 @@ public class GlobalExceptionHandler
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
 
+    @ExceptionHandler(ModalidadeWithInvalidInformationException.class)
+    public ResponseEntity<ErrorResponseDto> handleUserWithNullInformation(ModalidadeWithInvalidInformationException ex)
+    {
+        var response = new ErrorResponseDto(ex.getMessage());
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
+
 }
