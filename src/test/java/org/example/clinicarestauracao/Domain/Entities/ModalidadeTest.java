@@ -2,11 +2,9 @@ package org.example.clinicarestauracao.Domain.Entities;
 
 import org.example.clinicarestauracao.Application.Exceptions.ModalidadeWithInvalidInformationException;
 import org.example.clinicarestauracao.Builders.ModalidadeTestBuilder;
-import org.example.clinicarestauracao.Domain.Validation.CnpjValidator;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
-import org.mockito.Mockito;
 
 import static org.junit.jupiter.api.Assertions.*;
 
