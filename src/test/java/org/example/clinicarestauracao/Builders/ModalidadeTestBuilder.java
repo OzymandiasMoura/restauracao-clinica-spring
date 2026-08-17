@@ -49,7 +49,7 @@ public class ModalidadeTestBuilder
 
     public Modalidade build()
     {
-        Modalidade mod = new Modalidade(id, descricao, cnpj, maxVagas, ativo, pagamento);
+        Modalidade mod = new Modalidade(id, descricao, cnpj, maxVagas, pagamento, ativo);
         return mod;
     }
 }
