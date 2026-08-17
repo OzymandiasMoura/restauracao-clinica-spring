@@ -1,7 +1,9 @@
 package org.example.clinicarestauracao.Builders;
 
+import lombok.Getter;
 import org.example.clinicarestauracao.Domain.Entities.Modalidade;
 
+@Getter
 public class ModalidadeTestBuilder
 {
     Long id = 1L;

@@ -97,7 +97,7 @@ public class Modalidade
     {
         if (maxVagas < 0)
         {
-            throw new ModalidadeWithInvalidInformationException("Numero de vagas deve ser 0 oou mais.");
+            throw new ModalidadeWithInvalidInformationException("Numero de vagas deve ser 0 ou mais.");
         }
         else
         {
