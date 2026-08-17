@@ -18,11 +18,19 @@ public class GlobalExceptionHandler
     }
 
     @ExceptionHandler(UsernameAlredyInUseException.class)
-    public ResponseEntity<ErrorResponseDto> handleUsernameAlreadyInUse(
-            UsernameAlredyInUseException exception)
+    public ResponseEntity<ErrorResponseDto> handleUsernameAlreadyInUse(UsernameAlredyInUseException exception)
     {
         var response = new ErrorResponseDto(exception.getMessage());
 
         return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
     }
+
+    @ExceptionHandler(UserWithInvalidInformationException.class)
+    public ResponseEntity<ErrorResponseDto> handleUserWithNullInformation(UserWithInvalidInformationException ex)
+    {
+        var response = new ErrorResponseDto(ex.getMessage());
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
+
 }
