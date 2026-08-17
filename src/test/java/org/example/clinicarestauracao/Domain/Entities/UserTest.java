@@ -40,7 +40,7 @@ class UserTest
 
     @ParameterizedTest(name = "{index}")
     @MethodSource(value = "dataProvider")
-    void shouldThrowExceptionWhenUserHasNullInformation(Long id, String username, String password, UserRoles role, String message)
+    void shouldThrowExceptionWhenUserHasNullInformation(String username, String password, UserRoles role, String message)
     {
         UserWithInvalidInformationException e = assertThrows(UserWithInvalidInformationException.class, () ->
                 new User(username, password, role));
@@ -48,20 +48,29 @@ class UserTest
         assertThat(e.getMessage()).isEqualTo(message);
     }
 
+    @ParameterizedTest(name = "{index}")
+    @MethodSource(value = "dataProvider2")
+    void shouldThrowExceptionWhenUserHasBlankInformation(String username, String password, UserRoles role, String message)
+    {
+        UserWithInvalidInformationException e = assertThrows(UserWithInvalidInformationException.class, () -> new User(username, password, role));
+
+        assertThat(e.getMessage()).isEqualTo(message);
+    }
+
     private static Stream<Arguments> dataProvider()
     {
         return Stream.of(
-                Arguments.of(1L, null, "123", UserRoles.ADMIN, "Nome de usuário não pode ser vazio."),
-                Arguments.of(1L, "Pedro", null, UserRoles.ADMIN, "Senha de usuário não pode ser vazio."),
-                Arguments.of(1L, "Pedro", "123", null, "Papel do usuário deve ser definido.")
+                Arguments.of(null, "123", UserRoles.ADMIN, "Nome de usuário não pode ser vazio."),
+                Arguments.of("Pedro", null, UserRoles.ADMIN, "Senha de usuário não pode ser vazio."),
+                Arguments.of("Pedro", "123", null, "Papel do usuário deve ser definido.")
         );
     }
 
     private static Stream<Arguments> dataProvider2()
     {
         return Stream.of(
-                Arguments.of(1L, " ", "123", UserRoles.ADMIN, "Nome de usuário não pode ser vazio."),
-                Arguments.of(1L, "Pedro", " ", UserRoles.ADMIN, "Senha de usuário não pode ser vazio.")
+                Arguments.of(" ", "123", UserRoles.ADMIN, "Nome de usuário não pode ser vazio."),
+                Arguments.of("Pedro", " ", UserRoles.ADMIN, "Senha de usuário não pode ser vazio.")
         );
     }
 
