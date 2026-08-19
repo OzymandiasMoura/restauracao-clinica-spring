@@ -8,4 +8,7 @@ import java.util.Optional;
 public interface ModalidadeRepository extends JpaRepository<Modalidade, Long>
 {
     Optional<Modalidade> findModalidadeByDescricao(String descricao);
+
+    Optional<Modalidade> findModalidadeByCnpj(String cnpj);
+
 }
