@@ -1,5 +1,6 @@
 package org.example.clinicarestauracao.Application.Services;
 
+import org.example.clinicarestauracao.Application.Exceptions.ModalidadeNotFoundException;
 import org.example.clinicarestauracao.Application.Exceptions.ModalidadeWithInvalidInformationException;
 import org.example.clinicarestauracao.Application.Interfaces.ModalidadeRepository;
 import org.example.clinicarestauracao.Builders.ModalidadeTestBuilder;
@@ -101,7 +102,37 @@ class ModalidadeServiceTest
         assertEquals(salva.getDescricao(), response.getDescricao());
 
         Mockito.verify(repository).save(entrada);
-        Mockito.verify(repository, Mockito.never()).findModalidadeByCnpj(Mockito.anyString());
-        Mockito.verify(repository).findModalidadeByDescricao(Mockito.anyString());
+        Mockito.verify(repository, Mockito.never()).findModalidadeByCnpj(Mockito.any());
+        Mockito.verify(repository).findModalidadeByDescricao(entrada.getDescricao());
+    }
+
+    @Test
+    void shouldFindModalidadeByIdSuccessfully()
+    {
+        Modalidade entrada = builder.build();
+
+        Mockito.when(repository.findById(entrada.getId())).thenReturn(Optional.of(entrada));
+
+        Modalidade response  = service.findModalidadeById(entrada.getId());
+
+        assertNotNull(response);
+        assertEquals(entrada.getId(), response.getId());
+        assertSame(entrada, response);
+
+        Mockito.verify(repository).findById(entrada.getId());
+    }
+
+    @Test
+    void shouldThrowExceptionWhenFindModalidadeByIdUnsuccessfully()
+    {
+        Modalidade entrada = builder.build();
+
+        Mockito.when(repository.findById(entrada.getId())).thenReturn(Optional.empty());
+
+        ModalidadeNotFoundException e = assertThrows(ModalidadeNotFoundException.class, () -> service.findModalidadeById(entrada.getId()));
+
+        assertEquals( "Modalidade não encontrada.", e.getMessage());
+
+        Mockito.verify(repository).findById(entrada.getId());
     }
 }
