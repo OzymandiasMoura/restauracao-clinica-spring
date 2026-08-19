@@ -83,7 +83,7 @@ public class ModalidadeService
         repository.save(m);
     }
 
-    public void reabrirModalidade(Long id)
+    public void reabrirModalidadeById(Long id)
     {
         Modalidade m = findModalidadeById(id);
 
