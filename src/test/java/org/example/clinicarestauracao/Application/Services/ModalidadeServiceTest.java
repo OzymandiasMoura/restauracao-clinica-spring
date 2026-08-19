@@ -11,7 +11,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -123,7 +123,7 @@ class ModalidadeServiceTest
     }
 
     @Test
-    void shouldThrowExceptionWhenFindModalidadeByIdUnsuccessfully()
+    void shouldThrowExceptionWhenModalidadeIsNotFoundById()
     {
         Modalidade entrada = builder.build();
 
@@ -134,5 +134,39 @@ class ModalidadeServiceTest
         assertEquals( "Modalidade não encontrada.", e.getMessage());
 
         Mockito.verify(repository).findById(entrada.getId());
+    }
+
+    @Test
+    void shouldFindAllModalidadesSuccessfully()
+    {
+        Modalidade entrada = builder.build();
+        Modalidade entrada2 = builder.setId(2L).setDescricao("descricao2").setCNPJ(null).build();
+
+        List<Modalidade> entradas = List.of(entrada, entrada2);
+
+        Mockito.when(repository.findAll()).thenReturn(entradas);
+
+        List<Modalidade> response  = service.findAllModalidades();
+
+        assertNotNull(response);
+        assertEquals(2, response.size());
+        assertEquals(entradas, response);
+        assertSame(entradas, response);
+        assertSame(entrada, response.get(0));
+        assertSame(entrada2, response.get(1));
+        Mockito.verify(repository).findAll();
+    }
+
+    @Test
+    void shouldReturnEmptyListWhenNoModalidadesExist()
+    {
+        Mockito.when(repository.findAll()).thenReturn(List.of());
+
+        List<Modalidade> response  = service.findAllModalidades();
+
+        assertNotNull(response);
+        assertTrue(response.isEmpty());
+
+        Mockito.verify(repository).findAll();
     }
 }
