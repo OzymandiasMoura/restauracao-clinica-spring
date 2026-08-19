@@ -61,7 +61,7 @@ class ModalidadeServiceTest
 
         ModalidadeWithInvalidInformationException e = assertThrows(ModalidadeWithInvalidInformationException.class, () -> service.createModalidade(entrada));
 
-        assertEquals("CNPJ ja cadastrado", e.getMessage());
+        assertEquals("CNPJ já cadastrado.", e.getMessage());
 
         Mockito.verify(repository).findModalidadeByCnpj(entrada.getCnpj());
         Mockito.verify(repository, Mockito.never()).findModalidadeByDescricao(Mockito.anyString());
@@ -79,7 +79,7 @@ class ModalidadeServiceTest
 
         ModalidadeWithInvalidInformationException e = assertThrows(ModalidadeWithInvalidInformationException.class, () -> service.createModalidade(entrada));
 
-        assertEquals("Descrição ja cadastrada", e.getMessage());
+        assertEquals("Descrição já cadastrada.", e.getMessage());
 
         Mockito.verify(repository).findModalidadeByCnpj(entrada.getCnpj());
         Mockito.verify(repository).findModalidadeByDescricao(entrada.getDescricao());
@@ -168,5 +168,281 @@ class ModalidadeServiceTest
         assertTrue(response.isEmpty());
 
         Mockito.verify(repository).findAll();
+    }
+
+    @Test
+    void shouldUpdateModalidadeSuccessfully()
+    {
+        Modalidade existente =  new ModalidadeTestBuilder().build();
+        Modalidade dadosAtualizados =  new ModalidadeTestBuilder().setDescricao("Nova Descrição").setCNPJ("12.ABC.345/01DE-35").setMaxVagas(30).setPagamento(false).build();
+
+        Mockito.when(repository.findById(existente.getId())).thenReturn(Optional.of(existente));
+        Mockito.when(repository.findModalidadeByDescricao(Mockito.anyString())).thenReturn(Optional.empty());
+        Mockito.when(repository.findModalidadeByCnpj(Mockito.anyString())).thenReturn(Optional.empty());
+        Mockito.when(repository.save(Mockito.same(existente))).thenReturn(existente);
+
+        Modalidade response = service.updateModalidade(existente.getId(), dadosAtualizados);
+
+        assertNotNull(response);
+        assertSame(existente, response);
+        assertEquals("Nova Descrição",  response.getDescricao());
+        assertEquals("12ABC34501DE35",response.getCnpj());
+        assertEquals(30, response.getMaxVagas());
+        assertFalse(response.isPagamento());
+        assertTrue(response.isAtivo());
+
+        Mockito.verify(repository).findById(existente.getId());
+        Mockito.verify(repository).findModalidadeByDescricao(dadosAtualizados.getDescricao());
+        Mockito.verify(repository).findModalidadeByCnpj(dadosAtualizados.getCnpj());
+        Mockito.verify(repository).save(Mockito.same(existente));
+    }
+
+    @Test
+    void shouldThrowExceptionWhenIdIsInvalid()
+    {
+        Modalidade existente =  new ModalidadeTestBuilder().build();
+        Modalidade dadosAtualizados =  new ModalidadeTestBuilder().setDescricao("Nova Descrição").setCNPJ("12.ABC.345/01DE-35").build();
+
+        Mockito.when(repository.findById(existente.getId())).thenReturn(Optional.empty());
+
+        ModalidadeNotFoundException response = assertThrows(ModalidadeNotFoundException.class ,() -> service.updateModalidade(existente.getId(), dadosAtualizados));
+
+        assertEquals("Modalidade não encontrada.", response.getMessage());
+
+        Mockito.verify(repository).findById(existente.getId());
+        Mockito.verify(repository, Mockito.never()).findModalidadeByDescricao(Mockito.anyString());
+        Mockito.verify(repository, Mockito.never()).findModalidadeByCnpj(Mockito.any());
+        Mockito.verify(repository, Mockito.never()).save(Mockito.any(Modalidade.class));
+    }
+
+    @Test
+    void shouldThrowExceptionWhenUpdatedDescricaoAlreadyExists()
+    {
+        Modalidade existente =  new ModalidadeTestBuilder().build();
+        Modalidade dadosAtualizados =  new ModalidadeTestBuilder().setId(2L).setDescricao("Nova Descrição").setCNPJ("12.ABC.345/01DE-35").build();
+        Modalidade duplicado =  new ModalidadeTestBuilder().setId(3L).setDescricao("Nova Descrição").build();
+
+        Mockito.when(repository.findById(existente.getId())).thenReturn(Optional.of(existente));
+        Mockito.when(repository.findModalidadeByDescricao(dadosAtualizados.getDescricao())).thenReturn(Optional.of(duplicado));
+
+        ModalidadeWithInvalidInformationException e = assertThrows(ModalidadeWithInvalidInformationException.class,() -> service.updateModalidade(existente.getId(), dadosAtualizados));
+
+        assertEquals("Descrição já cadastrada.", e.getMessage());
+
+        Mockito.verify(repository).findById(existente.getId());
+        Mockito.verify(repository).findModalidadeByDescricao(dadosAtualizados.getDescricao());
+        Mockito.verify(repository, Mockito.never()).findModalidadeByCnpj(Mockito.anyString());
+        Mockito.verify(repository, Mockito.never()).save(Mockito.any(Modalidade.class));
+    }
+
+    @Test
+    void shouldThrowExceptionWhenUpdatedCnpjAlreadyExists()
+    {
+        Modalidade existente = new ModalidadeTestBuilder().build();
+        Modalidade dadosAtualizados = new ModalidadeTestBuilder().setId(2L).setDescricao("Nova Descrição").setCNPJ("12.ABC.345/01DE-35").build();
+        Modalidade duplicado = new ModalidadeTestBuilder().setId(3L).setCNPJ("12.ABC.345/01DE-35").build();
+
+        Mockito.when(repository.findById(existente.getId())).thenReturn(Optional.of(existente));
+        Mockito.when(repository.findModalidadeByDescricao(dadosAtualizados.getDescricao())).thenReturn(Optional.empty());
+        Mockito.when(repository.findModalidadeByCnpj(dadosAtualizados.getCnpj())).thenReturn(Optional.of(duplicado));
+
+        ModalidadeWithInvalidInformationException e = assertThrows(ModalidadeWithInvalidInformationException.class,() -> service.updateModalidade(existente.getId(), dadosAtualizados));
+
+        assertEquals("CNPJ já cadastrado.", e.getMessage());
+
+        Mockito.verify(repository).findById(existente.getId());
+        Mockito.verify(repository).findModalidadeByDescricao(dadosAtualizados.getDescricao());
+        Mockito.verify(repository).findModalidadeByCnpj(dadosAtualizados.getCnpj());
+        Mockito.verify(repository, Mockito.never()).save(Mockito.any(Modalidade.class));
+    }
+
+    @Test
+    void shouldUpdateMaxVagasAndPagamentoWithoutCheckingDuplicates()
+    {
+        Modalidade existente =  new ModalidadeTestBuilder().build();
+        Modalidade dadosAtualizados =  new ModalidadeTestBuilder().setMaxVagas(30).setPagamento(false).build();
+
+        Mockito.when(repository.findById(existente.getId())).thenReturn(Optional.of(existente));
+        Mockito.when(repository.save(Mockito.same(existente))).thenReturn(existente);
+
+        Modalidade response = service.updateModalidade(existente.getId(), dadosAtualizados);
+
+        assertSame(existente, response);
+        assertEquals(30, response.getMaxVagas());
+        assertFalse(response.isPagamento());
+        assertEquals(dadosAtualizados.getDescricao(), response.getDescricao());
+        assertEquals(dadosAtualizados.getCnpj(), response.getCnpj());
+        assertTrue(response.isAtivo());
+
+        Mockito.verify(repository).findById(existente.getId());
+        Mockito.verify(repository, Mockito.never()).findModalidadeByDescricao(Mockito.anyString());
+        Mockito.verify(repository, Mockito.never()).findModalidadeByCnpj(Mockito.any());
+        Mockito.verify(repository).save(Mockito.same(existente));
+    }
+
+    @Test
+    void shouldRemoveCnpjSuccessfully()
+    {
+        Modalidade existente =  new ModalidadeTestBuilder().build();
+        Modalidade dadosAtualizados =  new ModalidadeTestBuilder().setCNPJ(null).build();
+
+        Mockito.when(repository.findById(existente.getId())).thenReturn(Optional.of(existente));
+        Mockito.when(repository.save(Mockito.same(existente))).thenReturn(existente);
+
+        Modalidade response =  service.updateModalidade(existente.getId(), dadosAtualizados);
+
+        assertSame(existente, response);
+        assertNull(response.getCnpj());
+        assertEquals(dadosAtualizados.getDescricao(), response.getDescricao());
+        assertEquals(dadosAtualizados.getMaxVagas(), response.getMaxVagas());
+        assertEquals(dadosAtualizados.isPagamento(), response.isPagamento());
+        assertTrue(response.isAtivo());
+
+        Mockito.verify(repository).findById(existente.getId());
+        Mockito.verify(repository, Mockito.never()).findModalidadeByDescricao(Mockito.anyString());
+        Mockito.verify(repository, Mockito.never()).findModalidadeByCnpj(Mockito.any());
+        Mockito.verify(repository).save(Mockito.same(existente));
+    }
+
+    @Test
+    void shouldAddCnpjSuccessfully()
+    {
+        Modalidade existente =  new ModalidadeTestBuilder().setCNPJ(null).build();
+        Modalidade dadosAtualizados =  new ModalidadeTestBuilder().setCNPJ("12.ABC.345/01DE-35").build();
+
+        Mockito.when(repository.findById(existente.getId())).thenReturn(Optional.of(existente));
+        Mockito.when(repository.save(Mockito.same(existente))).thenReturn(existente);
+        Mockito.when(repository.findModalidadeByCnpj(dadosAtualizados.getCnpj())).thenReturn(Optional.empty());
+
+        Modalidade response  =  service.updateModalidade(existente.getId(), dadosAtualizados);
+
+        assertSame(existente, response);
+        assertEquals("12ABC34501DE35", response.getCnpj());
+        assertEquals(dadosAtualizados.getDescricao(), response.getDescricao());
+        assertEquals(dadosAtualizados.getMaxVagas(), response.getMaxVagas());
+        assertEquals(dadosAtualizados.isPagamento(), response.isPagamento());
+        assertTrue(response.isAtivo());
+
+        Mockito.verify(repository).findById(existente.getId());
+        Mockito.verify(repository, Mockito.never()).findModalidadeByDescricao(Mockito.anyString());
+        Mockito.verify(repository).findModalidadeByCnpj(dadosAtualizados.getCnpj());
+        Mockito.verify(repository).save(Mockito.same(existente));
+    }
+
+    @Test
+    void shouldUpdateModalidadeWithoutChangingInactiveStatus()
+    {
+        Modalidade existente =  new ModalidadeTestBuilder().setAtivo(false).build();
+        Modalidade dadosAtualizados =  new ModalidadeTestBuilder().setMaxVagas(30).setAtivo(true).build();
+
+        Mockito.when(repository.findById(existente.getId())).thenReturn(Optional.of(existente));
+        Mockito.when(repository.save(Mockito.same(existente))).thenReturn(existente);
+
+        Modalidade  response =  service.updateModalidade(existente.getId(), dadosAtualizados);
+
+        assertSame(existente, response);
+        assertEquals(30, response.getMaxVagas());
+        assertFalse(response.isAtivo());
+
+        Mockito.verify(repository).findById(existente.getId());
+        Mockito.verify(repository, Mockito.never()).findModalidadeByDescricao(Mockito.anyString());
+        Mockito.verify(repository, Mockito.never()).findModalidadeByCnpj(Mockito.any());
+        Mockito.verify(repository).save(Mockito.same(existente));
+    }
+
+    @Test
+    void shouldKeepCnpjNullWithoutCheckingDuplicates()
+    {
+        Modalidade existente =  new ModalidadeTestBuilder().setCNPJ(null).build();
+        Modalidade dadosAtualizados = new ModalidadeTestBuilder().setCNPJ(null).setMaxVagas(30).build();
+
+        Mockito.when(repository.findById(existente.getId())).thenReturn(Optional.of(existente));
+        Mockito.when(repository.save(Mockito.same(existente))).thenReturn(existente);
+
+        Modalidade response =  service.updateModalidade(existente.getId(), dadosAtualizados);
+
+        assertSame(existente, response);
+        assertNull(response.getCnpj());
+        assertEquals(30, response.getMaxVagas());
+        assertTrue(response.isAtivo());
+
+        Mockito.verify(repository).findById(existente.getId());
+        Mockito.verify(repository, Mockito.never()).findModalidadeByDescricao(Mockito.anyString());
+        Mockito.verify(repository, Mockito.never()).findModalidadeByCnpj(Mockito.any());
+        Mockito.verify(repository).save(Mockito.same(existente));
+    }
+
+    @Test
+    void shouldUpdateOnlyDescricaoSuccessfully()
+    {
+        Modalidade existente = new ModalidadeTestBuilder().build();
+        Modalidade dadosAtualizados = new ModalidadeTestBuilder().setDescricao("Nova Descrição").build();
+
+        Mockito.when(repository.findById(existente.getId())).thenReturn(Optional.of(existente));
+        Mockito.when(repository.findModalidadeByDescricao(dadosAtualizados.getDescricao())).thenReturn(Optional.empty());
+        Mockito.when(repository.save(Mockito.same(existente))).thenReturn(existente);
+
+        Modalidade response = service.updateModalidade(existente.getId(), dadosAtualizados);
+
+        assertSame(existente, response);
+        assertEquals("Nova Descrição", response.getDescricao());
+        assertEquals(dadosAtualizados.getCnpj(), response.getCnpj());
+        assertEquals(dadosAtualizados.getMaxVagas(), response.getMaxVagas());
+        assertEquals(dadosAtualizados.isPagamento(), response.isPagamento());
+        assertTrue(response.isAtivo());
+
+        Mockito.verify(repository).findById(existente.getId());
+        Mockito.verify(repository).findModalidadeByDescricao(dadosAtualizados.getDescricao());
+        Mockito.verify(repository, Mockito.never()).findModalidadeByCnpj(Mockito.any());
+        Mockito.verify(repository).save(Mockito.same(existente));
+    }
+
+    @Test
+    void shouldUpdateOnlyCnpjSuccessfully()
+    {
+        Modalidade existente = new ModalidadeTestBuilder().build();
+        Modalidade dadosAtualizados = new ModalidadeTestBuilder().setCNPJ("12.ABC.345/01DE-35").build();
+
+        Mockito.when(repository.findById(existente.getId())).thenReturn(Optional.of(existente));
+        Mockito.when(repository.findModalidadeByCnpj(dadosAtualizados.getCnpj())).thenReturn(Optional.empty());
+        Mockito.when(repository.save(Mockito.same(existente))).thenReturn(existente);
+
+        Modalidade response = service.updateModalidade(existente.getId(), dadosAtualizados);
+
+        assertSame(existente, response);
+        assertEquals("12ABC34501DE35", response.getCnpj());
+        assertEquals(dadosAtualizados.getDescricao(), response.getDescricao());
+        assertEquals(dadosAtualizados.getMaxVagas(), response.getMaxVagas());
+        assertEquals(dadosAtualizados.isPagamento(), response.isPagamento());
+        assertTrue(response.isAtivo());
+
+        Mockito.verify(repository).findById(existente.getId());
+        Mockito.verify(repository, Mockito.never()).findModalidadeByDescricao(Mockito.anyString());
+        Mockito.verify(repository).findModalidadeByCnpj(dadosAtualizados.getCnpj());
+        Mockito.verify(repository).save(Mockito.same(existente));
+    }
+
+    @Test
+    void shouldNotPartiallyUpdateModalidadeWhenCnpjAlreadyExists()
+    {
+        Modalidade existente = new ModalidadeTestBuilder().build();
+        Modalidade dadosAtualizados = new ModalidadeTestBuilder().setDescricao("Nova Descrição").setCNPJ("12.ABC.345/01DE-35").build();
+        Modalidade duplicado = new ModalidadeTestBuilder().setId(2L).setCNPJ("12.ABC.345/01DE-35").build();
+
+        String descricaoOriginal = existente.getDescricao();
+        String cnpjOriginal = existente.getCnpj();
+
+        Mockito.when(repository.findById(existente.getId())).thenReturn(Optional.of(existente));
+
+        Mockito.when(repository.findModalidadeByDescricao(dadosAtualizados.getDescricao())).thenReturn(Optional.empty());
+
+        Mockito.when(repository.findModalidadeByCnpj(dadosAtualizados.getCnpj())).thenReturn(Optional.of(duplicado));
+
+        assertThrows(ModalidadeWithInvalidInformationException.class, () -> service.updateModalidade(existente.getId(), dadosAtualizados));
+
+        assertEquals(descricaoOriginal, existente.getDescricao());
+        assertEquals(cnpjOriginal, existente.getCnpj());
+
+        Mockito.verify(repository, Mockito.never()).save(Mockito.any(Modalidade.class));
     }
 }

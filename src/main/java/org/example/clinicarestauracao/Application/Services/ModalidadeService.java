@@ -19,11 +19,11 @@ public class ModalidadeService
     {
         if(modalidade.getCnpj() != null && repository.findModalidadeByCnpj(modalidade.getCnpj()).isPresent())
         {
-            throw new ModalidadeWithInvalidInformationException("CNPJ ja cadastrado");
+            throw new ModalidadeWithInvalidInformationException("CNPJ já cadastrado.");
         }
         if(repository.findModalidadeByDescricao(modalidade.getDescricao()).isPresent())
         {
-            throw new ModalidadeWithInvalidInformationException("Descrição ja cadastrada");
+            throw new ModalidadeWithInvalidInformationException("Descrição já cadastrada.");
         }
 
         return repository.save(modalidade);
@@ -43,25 +43,26 @@ public class ModalidadeService
     {
         Modalidade m = findModalidadeById(id);
 
-        if(!modalidade.getDescricao().equals(m.getDescricao()))
+        boolean descricaoFoiAlterada = !modalidade.getDescricao().equals(m.getDescricao());
+        boolean cnpjFoiAlterado = modalidade.getCnpj() == null && m.getCnpj() != null || modalidade.getCnpj() != null && !modalidade.getCnpj().equals(m.getCnpj());
+
+
+        if(descricaoFoiAlterada && repository.findModalidadeByDescricao(modalidade.getDescricao()).isPresent())
         {
-            if(repository.findModalidadeByDescricao(modalidade.getDescricao()).isPresent())
-            {
-                throw new ModalidadeWithInvalidInformationException("Descrição ja cadastrada");
-            }
-            m.setDescricao(modalidade.getDescricao());
+            throw new ModalidadeWithInvalidInformationException("Descrição já cadastrada.");
         }
 
-        boolean cnpjFoiAlterado = modalidade.getCnpj() == null && m.getCnpj() != null ||
-                        modalidade.getCnpj() != null && !modalidade.getCnpj().equals(m.getCnpj());
+        if(cnpjFoiAlterado && modalidade.getCnpj()!= null && repository.findModalidadeByCnpj(modalidade.getCnpj()).isPresent())
+        {
+            throw new ModalidadeWithInvalidInformationException("CNPJ já cadastrado.");
+        }
 
+        if(descricaoFoiAlterada)
+        {
+            m.setDescricao(modalidade.getDescricao());
+        }
         if(cnpjFoiAlterado)
         {
-            Modalidade m2 =  findModalidadeByCnpj(modalidade.getCnpj());
-            if (modalidade.getCnpj()!= null && repository.findModalidadeByCnpj(m2.getCnpj()).isPresent())
-            {
-                throw new ModalidadeWithInvalidInformationException("CNPJ ja cadastrado");
-            }
             m.setCnpj(modalidade.getCnpj());
         }
         m.setMaxVagas(modalidade.getMaxVagas());
