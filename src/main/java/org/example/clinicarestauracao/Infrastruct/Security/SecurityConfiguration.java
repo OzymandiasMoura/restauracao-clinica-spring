@@ -33,7 +33,7 @@ public class SecurityConfiguration
                 .cors(withDefaults())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/auth/login", "/auth/register", "/h2-console/**").permitAll()
+                        .requestMatchers("/auth/login", "/auth/register", "/h2-console/**", "/modalidades/**", "/modalidades").permitAll()
                         .anyRequest().authenticated()
                 )
                 .headers(headers -> headers.frameOptions(frameOptions -> frameOptions.sameOrigin()))
