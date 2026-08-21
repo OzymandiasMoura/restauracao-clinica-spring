@@ -6,13 +6,11 @@ import org.example.clinicarestauracao.Application.Dtos.ModalidadeDtos.Modalidade
 import org.example.clinicarestauracao.Application.Services.ModalidadeService;
 import org.example.clinicarestauracao.Domain.Entities.Modalidade;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
+import java.util.List;
 
 @RestController
 @RequestMapping("/modalidades")
@@ -35,5 +33,15 @@ public class ModalidadeController
         URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(m.getId()).toUri();
 
         return ResponseEntity.created(location).body(response);
+    }
+
+    @GetMapping
+    public ResponseEntity<List<ModalidadeResponseDto>> findAllModalidades()
+    {
+        List<Modalidade> modalidades = service.findAllModalidades();
+
+        List<ModalidadeResponseDto> dtos = modalidades.stream().map(ModalidadeMapper::entityToResponseDto).toList();
+
+        return ResponseEntity.ok().body(dtos);
     }
 }

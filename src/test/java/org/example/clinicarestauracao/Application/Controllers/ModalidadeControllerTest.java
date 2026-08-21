@@ -18,6 +18,7 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
 import java.net.URI;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -106,5 +107,48 @@ class ModalidadeControllerTest
         assertNull(captor.getValue().getCnpj());
     }
 
+    @Test
+    void shouldFindAllModalidadesAndReturnOk()
+    {
+        Modalidade primeira = builder.build();
+        Modalidade segunda = new ModalidadeTestBuilder().setId(2L).setDescricao("Prefeitura").setCNPJ("11444777000161").setMaxVagas(15).setPagamento(false).setAtivo(true).build();
+
+        Mockito.when(service.findAllModalidades()).thenReturn(List.of(primeira, segunda));
+
+        ResponseEntity<List<ModalidadeResponseDto>> response = controller.findAllModalidades();
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertNotNull(response.getBody());
+        assertEquals(2, response.getBody().size());
+
+        ModalidadeResponseDto responseDto = response.getBody().getFirst();
+
+        assertEquals(primeira.getId(), responseDto.id());
+        assertEquals(primeira.getDescricao(), responseDto.descricao());
+        assertEquals(primeira.getCnpj(), responseDto.cnpj());
+        assertEquals(primeira.getMaxVagas(), responseDto.maxVagas());
+        assertEquals(primeira.isAtivo(), responseDto.ativo());
+        assertEquals(primeira.isPagamento(), responseDto.pagamento());
+
+        ModalidadeResponseDto segundoDto = response.getBody().get(1);
+
+        assertEquals(segunda.getId(), segundoDto.id());
+        assertEquals(segunda.getDescricao(), segundoDto.descricao());
+
+        Mockito.verify(service).findAllModalidades();
+    }
+
+    @Test
+    void shouldReturnEmptyListWhenNoModalidadesExist()
+    {
+        Mockito.when(service.findAllModalidades()).thenReturn(List.of());
+
+        ResponseEntity<List<ModalidadeResponseDto>> response = controller.findAllModalidades();
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertNotNull(response.getBody());
+        assertTrue(response.getBody().isEmpty());
+
+        Mockito.verify(service).findAllModalidades();
+    }
 
 }
