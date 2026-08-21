@@ -11,11 +11,11 @@ public final class ModalidadeMapper
 
     public static Modalidade requestDtoToEntity(ModalidadeRequestDto dto)
     {
-        return new Modalidade(dto.descricao(), dto.cnpj(), dto.maxVagas(), dto.pagamento());
+        return new Modalidade(dto.descricao(), dto.cnpj(), dto.maxVagas(), dto.pagamento(), dto.cor());
     }
 
     public static ModalidadeResponseDto entityToResponseDto(Modalidade entity)
     {
-        return new ModalidadeResponseDto(entity.getId(), entity.getDescricao(), entity.getCnpj(), entity.getMaxVagas(), entity.isAtivo(), entity.isPagamento());
+        return new ModalidadeResponseDto(entity.getId(), entity.getDescricao(), entity.getCnpj(), entity.getMaxVagas(), entity.isAtivo(), entity.isPagamento(),  entity.getCor());
     }
 }

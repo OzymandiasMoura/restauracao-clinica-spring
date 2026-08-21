@@ -67,6 +67,7 @@ public class ModalidadeService
         }
         m.setMaxVagas(modalidade.getMaxVagas());
         m.setPagamento(modalidade.isPagamento());
+        m.setCor(modalidade.getCor());
 
         return repository.save(m);
     }

@@ -28,9 +28,9 @@ class ModalidadeTest
     @Test
     void shouldCreateNewModalidadeAsActive()
     {
-        Modalidade modalidade = new Modalidade(builder.getDescricao(), builder.getCnpj(), builder.getMaxVagas(), builder.isPagamento());
+        Modalidade modalidade = new Modalidade(builder.getDescricao(), builder.getCnpj(), builder.getMaxVagas(), builder.isPagamento(), builder.getCor());
 
-        assertEquals(true, modalidade.isAtivo());
+        assertTrue(modalidade.isAtivo());
     }
 
     @Test
@@ -58,7 +58,7 @@ class ModalidadeTest
     })
     void shouldRejectInvalidProvidedCnpj(String cnpj)
     {
-        ModalidadeWithInvalidInformationException exception = assertThrows(ModalidadeWithInvalidInformationException.class, () -> new Modalidade(builder.getDescricao(), cnpj, builder.getMaxVagas(), builder.isPagamento()));
+        ModalidadeWithInvalidInformationException exception = assertThrows(ModalidadeWithInvalidInformationException.class, () -> new Modalidade(builder.getDescricao(), cnpj, builder.getMaxVagas(), builder.isPagamento(),  builder.getCor()));
 
         assertEquals("CNPJ é invalido.", exception.getMessage());
     }
@@ -66,7 +66,7 @@ class ModalidadeTest
     @Test
     void shouldRejectMissingDescription()
     {
-        ModalidadeWithInvalidInformationException exception = assertThrows(ModalidadeWithInvalidInformationException.class, () -> new Modalidade(null, builder.getCnpj(), builder.getMaxVagas(), builder.isPagamento()));
+        ModalidadeWithInvalidInformationException exception = assertThrows(ModalidadeWithInvalidInformationException.class, () -> new Modalidade(null, builder.getCnpj(), builder.getMaxVagas(), builder.isPagamento(),  builder.getCor()));
 
         assertEquals("Descrição não pode ser nulo ou vazia", exception.getMessage());
     }
@@ -74,7 +74,7 @@ class ModalidadeTest
     @Test
     void shouldRejectBlankDescription()
     {
-        ModalidadeWithInvalidInformationException exception = assertThrows(ModalidadeWithInvalidInformationException.class, () -> new Modalidade(" ", builder.getCnpj(), builder.getMaxVagas(), builder.isPagamento()));
+        ModalidadeWithInvalidInformationException exception = assertThrows(ModalidadeWithInvalidInformationException.class, () -> new Modalidade(" ", builder.getCnpj(), builder.getMaxVagas(), builder.isPagamento(),   builder.getCor()));
 
         assertEquals("Descrição não pode ser nulo ou vazia", exception.getMessage());
     }
@@ -82,7 +82,7 @@ class ModalidadeTest
     @Test
     void shouldRejectDescriptionWithLessThanThreeCharacters()
     {
-        ModalidadeWithInvalidInformationException exception = assertThrows(ModalidadeWithInvalidInformationException.class, () -> new Modalidade("as", builder.getCnpj(), builder.getMaxVagas(), builder.isPagamento()));
+        ModalidadeWithInvalidInformationException exception = assertThrows(ModalidadeWithInvalidInformationException.class, () -> new Modalidade("as", builder.getCnpj(), builder.getMaxVagas(), builder.isPagamento(), builder.getCor()));
 
         assertEquals("Descrição não pode ter menos de 3 caracteres", exception.getMessage());
     }
@@ -98,8 +98,31 @@ class ModalidadeTest
     @Test
     void shouldRejectNegativeMaximumVacancies()
     {
-        ModalidadeWithInvalidInformationException exception = assertThrows(ModalidadeWithInvalidInformationException.class, () -> new Modalidade(builder.getDescricao(), builder.getCnpj(), -1, builder.isPagamento()));
+        ModalidadeWithInvalidInformationException exception = assertThrows(ModalidadeWithInvalidInformationException.class, () -> new Modalidade(builder.getDescricao(), builder.getCnpj(), -1, builder.isPagamento(),  builder.getCor()));
 
         assertEquals("Numero de vagas deve ser 0 ou mais.", exception.getMessage());
+    }
+
+    @Test
+    void shouldNormalizeHexadecimalColor()
+    {
+        Modalidade modalidade = new ModalidadeTestBuilder().setCor("#abcdef").build();
+
+        assertEquals("#ABCDEF", modalidade.getCor());
+    }
+
+    @Test
+    void shouldThrowExceptionWhenColorIsInvalid()
+    {
+        assertThrows(ModalidadeWithInvalidInformationException.class, () -> new ModalidadeTestBuilder().setCor("azul").build());
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"   ", "FFFFFF", "#FFFF", "#FFFFFFFF", "#GGGGGG"})
+    void shouldRejectInvalidColor(String cor)
+    {
+        ModalidadeWithInvalidInformationException exception = assertThrows(ModalidadeWithInvalidInformationException.class, () -> new ModalidadeTestBuilder().setCor(cor).build());
+
+        assertEquals("Cor deve estar no formato hexadecimal #RRGGBB.", exception.getMessage());
     }
 }

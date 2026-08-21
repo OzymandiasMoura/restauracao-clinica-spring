@@ -26,16 +26,19 @@ public class Modalidade
     private boolean ativo;
     @Column(nullable = false)
     private boolean pagamento;
+    @Column(nullable = false, length = 7, unique = true)
+    private String cor;
 
-    public Modalidade(String descricao, String cnpj, int maxVagas, boolean pagamento)
+    public Modalidade(String descricao, String cnpj, int maxVagas, boolean pagamento, String cor)
     {
         setDescricao(descricao);
         setCnpj(cnpj);
         setMaxVagas(maxVagas);
         setPagamento(pagamento);
         setAtivo(true);
+        setCor(cor);
     }
-    public Modalidade(long id, String descricao, String cnpj, int maxVagas, boolean pagamento, boolean ativo)
+    public Modalidade(long id, String descricao, String cnpj, int maxVagas, boolean pagamento, boolean ativo, String cor)
     {
         setId(id);
         setDescricao(descricao);
@@ -43,21 +46,24 @@ public class Modalidade
         setMaxVagas(maxVagas);
         setPagamento(pagamento);
         setAtivo(ativo);
+        setCor(cor);
     }
-    public Modalidade(long id, String descricao,  int maxVagas, boolean pagamento, boolean ativo)
+    public Modalidade(long id, String descricao,  int maxVagas, boolean pagamento, boolean ativo, String cor)
     {
         setId(id);
         setDescricao(descricao);
         setMaxVagas(maxVagas);
         setPagamento(pagamento);
         setAtivo(ativo);
+        setCor(cor);
     }
-    public Modalidade(String descricao,  int maxVagas, boolean pagamento, boolean ativo)
+    public Modalidade(String descricao,  int maxVagas, boolean pagamento, boolean ativo, String cor)
     {
         setDescricao(descricao);
         setMaxVagas(maxVagas);
         setPagamento(pagamento);
         setAtivo(ativo);
+        setCor(cor);
     }
 
     public void setDescricao(String descricao)
@@ -103,5 +109,19 @@ public class Modalidade
         {
             this.maxVagas = maxVagas;
         }
+    }
+
+    public void setCor(String cor)
+    {
+        if (cor == null || cor.isBlank())
+        {
+            throw new ModalidadeWithInvalidInformationException("Cor não pode ser nula ou vazia.");
+        }
+        if(!cor.matches("^#[0-9A-Fa-f]{6}$"))
+        {
+            throw new ModalidadeWithInvalidInformationException("Cor deve estar no formato hexadecimal #RRGGBB.");
+        }
+
+        this.cor = cor.toUpperCase();
     }
 }

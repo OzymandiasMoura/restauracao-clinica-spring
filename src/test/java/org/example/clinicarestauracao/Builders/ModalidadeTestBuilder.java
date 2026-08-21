@@ -12,6 +12,7 @@ public class ModalidadeTestBuilder
     int maxVagas = 20;
     boolean ativo = true;
     boolean pagamento = true;
+    String cor = "#2E86C1";
 
     public ModalidadeTestBuilder setId(Long id)
     {
@@ -49,15 +50,22 @@ public class ModalidadeTestBuilder
         return this;
     }
 
+    public ModalidadeTestBuilder setCor(String cor)
+    {
+        this.cor = cor;
+        return this;
+    }
+
+
     public Modalidade build()
     {
-        Modalidade mod = new Modalidade(id, descricao, cnpj, maxVagas, pagamento, ativo);
+        Modalidade mod = new Modalidade(id, descricao, cnpj, maxVagas, pagamento, ativo, cor);
         return mod;
     }
 
     public Modalidade buildForCreate()
     {
-        Modalidade mod = new Modalidade(descricao, cnpj ,maxVagas, pagamento);
+        Modalidade mod = new Modalidade(descricao, cnpj ,maxVagas, pagamento, cor);
         return mod;
     }
 }

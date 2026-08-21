@@ -56,7 +56,7 @@ class ModalidadeControllerTest
     void shouldCreateModalidadeAndReturnCreated()
     {
         Modalidade criada = builder.build();
-        ModalidadeRequestDto request = new ModalidadeRequestDto(criada.getDescricao(), criada.getCnpj(), criada.getMaxVagas(), criada.isPagamento());
+        ModalidadeRequestDto request = new ModalidadeRequestDto(criada.getDescricao(), criada.getCnpj(), criada.getMaxVagas(), criada.isPagamento(), criada.getCor());
 
         Mockito.when(service.createModalidade(Mockito.any(Modalidade.class))).thenReturn(criada);
 
@@ -71,6 +71,7 @@ class ModalidadeControllerTest
         assertEquals(criada.getMaxVagas(), response.getBody().maxVagas());
         assertEquals(criada.isPagamento(), response.getBody().pagamento());
         assertEquals(criada.isAtivo(), response.getBody().ativo());
+        assertEquals(criada.getCor(), response.getBody().cor());
 
         ArgumentCaptor<Modalidade> captor = ArgumentCaptor.forClass(Modalidade.class);
 
@@ -84,14 +85,15 @@ class ModalidadeControllerTest
         assertEquals(request.maxVagas(), enviadaAoService.getMaxVagas());
         assertEquals(request.pagamento(), enviadaAoService.isPagamento());
         assertTrue(enviadaAoService.isAtivo());
+        assertEquals(request.cor(), enviadaAoService.getCor());
     }
 
     @Test
     void shouldCreateModalidadeWithoutCnpj()
     {
-        ModalidadeRequestDto request = new ModalidadeRequestDto("Modalidade", null, 20, true);
+        ModalidadeRequestDto request = new ModalidadeRequestDto("Modalidade", null, 20, true, "#FF5733");
 
-        Modalidade criada  = new Modalidade(1L, "Modalidade", 20, true, true);
+        Modalidade criada  = new Modalidade(1L, "Modalidade", 20, true, true, "#FF5733");
 
         Mockito.when(service.createModalidade(Mockito.any(Modalidade.class))).thenReturn(criada);
 
@@ -129,6 +131,7 @@ class ModalidadeControllerTest
         assertEquals(primeira.getMaxVagas(), responseDto.maxVagas());
         assertEquals(primeira.isAtivo(), responseDto.ativo());
         assertEquals(primeira.isPagamento(), responseDto.pagamento());
+        assertEquals(primeira.getCor(), responseDto.cor());
 
         ModalidadeResponseDto segundoDto = response.getBody().get(1);
 
@@ -170,6 +173,7 @@ class ModalidadeControllerTest
         assertEquals(modalidade.getMaxVagas(), responseDto.maxVagas());
         assertEquals(modalidade.isAtivo(), responseDto.ativo());
         assertEquals(modalidade.isPagamento(), responseDto.pagamento());
+        assertEquals(modalidade.getCor(), responseDto.cor());
 
         Mockito.verify(service).findModalidadeById(modalidade.getId());
     }

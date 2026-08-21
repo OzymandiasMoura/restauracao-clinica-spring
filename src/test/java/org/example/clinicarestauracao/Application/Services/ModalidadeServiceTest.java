@@ -45,6 +45,7 @@ class ModalidadeServiceTest
         assertEquals(salva.getMaxVagas(), response.getMaxVagas());
         assertEquals(salva.isAtivo(), response.isAtivo());
         assertEquals(salva.isPagamento(), response.isPagamento());
+        assertEquals(salva.getCor(), response.getCor());
 
         Mockito.verify(repository).save(entrada);
         Mockito.verify(repository).findModalidadeByCnpj(entrada.getCnpj());
@@ -174,7 +175,7 @@ class ModalidadeServiceTest
     void shouldUpdateModalidadeSuccessfully()
     {
         Modalidade existente = new ModalidadeTestBuilder().build();
-        Modalidade dadosAtualizados = new ModalidadeTestBuilder().setDescricao("Nova Descrição").setCNPJ("12.ABC.345/01DE-35").setMaxVagas(30).setPagamento(false).build();
+        Modalidade dadosAtualizados = new ModalidadeTestBuilder().setDescricao("Nova Descrição").setCNPJ("12.ABC.345/01DE-35").setMaxVagas(30).setPagamento(false).setCor("#FF5733").build();
 
         Mockito.when(repository.findById(existente.getId())).thenReturn(Optional.of(existente));
         Mockito.when(repository.findModalidadeByDescricao(Mockito.anyString())).thenReturn(Optional.empty());
@@ -190,6 +191,7 @@ class ModalidadeServiceTest
         assertEquals(30, response.getMaxVagas());
         assertFalse(response.isPagamento());
         assertTrue(response.isAtivo());
+        assertEquals("#FF5733", response.getCor());
 
         Mockito.verify(repository).findById(existente.getId());
         Mockito.verify(repository).findModalidadeByDescricao(dadosAtualizados.getDescricao());
