@@ -2,8 +2,6 @@ package org.example.clinicarestauracao.Application.Services;
 
 import lombok.AllArgsConstructor;
 import org.example.clinicarestauracao.Application.Interfaces.UserRepository;
-import org.example.clinicarestauracao.Domain.Entities.User;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -18,11 +16,6 @@ public class AuthorizationService implements UserDetailsService
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException
     {
-        UserDetails user = repository.findUserByUsername(username);
-        if (user == null)
-        {
-            throw new BadCredentialsException("Nome de usuário ou senha inválidos.");
-        }
-        return user;
+        return repository.findUserByUsername(username);
     }
 }
