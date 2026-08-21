@@ -2,6 +2,7 @@ package org.example.clinicarestauracao.Infrastruct.Security;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.interfaces.DecodedJWT;
 import org.example.clinicarestauracao.Builders.UserTestBuilder;
 import org.example.clinicarestauracao.Domain.Entities.User;
 import org.junit.jupiter.api.BeforeEach;
@@ -15,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class TokenServiceTest
 {
     UserTestBuilder builder = new UserTestBuilder();
-    private final String SECRET = "SECRET";
+    private final String secret = "SECRET";
     private TokenService tokenService;
     private User user;
 
@@ -23,7 +24,7 @@ class TokenServiceTest
     void setUp()
     {
         tokenService = new TokenService();
-        ReflectionTestUtils.setField(tokenService, "secret", SECRET);
+        ReflectionTestUtils.setField(tokenService, "secret", secret);
 
         user = (User) builder.build();
     }
@@ -85,6 +86,18 @@ class TokenServiceTest
         String token = JWT.create().withIssuer("another-issuer").withSubject("Pedro").withExpiresAt(Instant.now().minusSeconds(60)).sign(Algorithm.HMAC256("another-secret"));
         String subject = tokenService.validateToken(token);
         assertEquals("", subject);
+    }
+
+    @Test
+    void shouldGenerateTokenWithUserRole()
+    {
+        User user = (User) builder.build();
+
+        String token = tokenService.generateToken(user);
+
+        DecodedJWT decodedToken = JWT.require(Algorithm.HMAC256(secret)).withIssuer("auth-api").build().verify(token);
+
+        assertEquals(user.getRole().name(), decodedToken.getClaim("role").asString());
     }
 
 }
