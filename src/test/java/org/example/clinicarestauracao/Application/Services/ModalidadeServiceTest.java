@@ -665,4 +665,34 @@ class ModalidadeServiceTest
 
         Mockito.verify(repository).findModalidadeByDescricao(descricao);
     }
+
+    @Test
+    void shouldFindModalidadeByCorSuccessfully()
+    {
+        Modalidade existente = new ModalidadeTestBuilder().setCor("#2E86C1").build();
+
+        Mockito.when(repository.findModalidadeByCor("#2E86C1")).thenReturn(Optional.of(existente));
+
+        Modalidade response = service.findModalidadeByCor("#2E86C1");
+
+        assertNotNull(response);
+        assertSame(existente, response);
+        assertEquals("#2E86C1", response.getCor());
+
+        Mockito.verify(repository).findModalidadeByCor("#2E86C1");
+    }
+
+    @Test
+    void shouldThrowExceptionWhenModalidadeIsNotFoundByCor()
+    {
+        String cor = "#FF5733";
+
+        Mockito.when(repository.findModalidadeByCor(cor)).thenReturn(Optional.empty());
+
+        ModalidadeNotFoundException exception = assertThrows(ModalidadeNotFoundException.class, () -> service.findModalidadeByCor(cor));
+
+        assertEquals("Modalidade não encontrada.", exception.getMessage());
+
+        Mockito.verify(repository).findModalidadeByCor(cor);
+    }
 }

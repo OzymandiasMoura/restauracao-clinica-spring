@@ -118,11 +118,19 @@ class ModalidadeTest
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {"   ", "FFFFFF", "#FFFF", "#FFFFFFFF", "#GGGGGG"})
+    @ValueSource(strings = {"FFFFFF", "#FFFF", "#FFFFFFFF", "#GGGGGG", "azul"})
     void shouldRejectInvalidColor(String cor)
     {
         ModalidadeWithInvalidInformationException exception = assertThrows(ModalidadeWithInvalidInformationException.class, () -> new ModalidadeTestBuilder().setCor(cor).build());
 
         assertEquals("Cor deve estar no formato hexadecimal #RRGGBB.", exception.getMessage());
+    }
+    @ParameterizedTest
+    @ValueSource(strings = {"   "})
+    void shouldRejectMissingColor(String cor)
+    {
+        ModalidadeWithInvalidInformationException exception = assertThrows(ModalidadeWithInvalidInformationException.class, () -> new ModalidadeTestBuilder().setCor(cor).build());
+
+        assertEquals("Cor não pode ser nula ou vazia.", exception.getMessage());
     }
 }
