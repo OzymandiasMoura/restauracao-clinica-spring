@@ -151,4 +151,27 @@ class ModalidadeControllerTest
         Mockito.verify(service).findAllModalidades();
     }
 
+    @Test
+    void shouldFindModalidadeByIdAndReturnOk()
+    {
+        Modalidade modalidade = builder.build();
+
+        Mockito.when(service.findModalidadeById(modalidade.getId())).thenReturn(modalidade);
+
+        ResponseEntity<ModalidadeResponseDto> response = controller.findModalidadeById(modalidade.getId());
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertNotNull(response.getBody());
+
+        ModalidadeResponseDto responseDto = response.getBody();
+        assertEquals(modalidade.getId(), responseDto.id());
+        assertEquals(modalidade.getDescricao(), responseDto.descricao());
+        assertEquals(modalidade.getCnpj(), responseDto.cnpj());
+        assertEquals(modalidade.getMaxVagas(), responseDto.maxVagas());
+        assertEquals(modalidade.isAtivo(), responseDto.ativo());
+        assertEquals(modalidade.isPagamento(), responseDto.pagamento());
+
+        Mockito.verify(service).findModalidadeById(modalidade.getId());
+    }
+
 }

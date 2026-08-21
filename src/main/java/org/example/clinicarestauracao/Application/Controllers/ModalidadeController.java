@@ -44,4 +44,14 @@ public class ModalidadeController
 
         return ResponseEntity.ok().body(dtos);
     }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<ModalidadeResponseDto> findModalidadeById(@PathVariable Long id)
+    {
+        Modalidade modalidade = service.findModalidadeById(id);
+
+        ModalidadeResponseDto response = ModalidadeMapper.entityToResponseDto(modalidade);
+
+        return ResponseEntity.ok().body(response);
+    }
 }
