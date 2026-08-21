@@ -9,6 +9,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -36,5 +37,16 @@ class AuthorizationServiceTest
         assertEquals(user.getUsername(), result.getUsername());
         assertEquals(user.getPassword(), result.getPassword());
         assertNotNull(result.getAuthorities());
+    }
+
+
+    @Test
+    void shouldThrowExceptionWhenUsernameDoesNotExist()
+    {
+        Mockito.when(repository.findUserByUsername("inexistente"))
+                .thenReturn(null);
+
+        assertThrows(UsernameNotFoundException.class, () -> authorizationService.loadUserByUsername("inexistente")
+        );
     }
 }

@@ -19,7 +19,7 @@ class GlobalExceptionHandlerTest
 
         assertEquals(401, response.getStatusCode().value());
         assertNotNull(response.getBody());
-        assertEquals("mensagem interna", response.getBody().message());
+        assertEquals("Usuário ou senha inválidos.", response.getBody().message());
     }
 
     @Test

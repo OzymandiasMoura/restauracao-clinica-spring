@@ -13,7 +13,7 @@ public class GlobalExceptionHandler
     @ExceptionHandler(BadCredentialsException.class)
     public ResponseEntity<ErrorResponseDto> handleBadCredentialsException(BadCredentialsException ex)
     {
-        var response = new ErrorResponseDto(ex.getMessage());
+        var response = new ErrorResponseDto("Usuário ou senha inválidos.");
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
     }
 
