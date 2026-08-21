@@ -25,6 +25,10 @@ public class ModalidadeService
         {
             throw new ModalidadeWithInvalidInformationException("Descrição já cadastrada.");
         }
+        if(repository.findModalidadeByCor(modalidade.getCor()).isPresent())
+        {
+            throw new ModalidadeWithInvalidInformationException("Cor já cadastrada.");
+        }
 
         return repository.save(modalidade);
     }
@@ -45,7 +49,7 @@ public class ModalidadeService
 
         boolean descricaoFoiAlterada = !modalidade.getDescricao().equals(m.getDescricao());
         boolean cnpjFoiAlterado = modalidade.getCnpj() == null && m.getCnpj() != null || modalidade.getCnpj() != null && !modalidade.getCnpj().equals(m.getCnpj());
-
+        boolean corAlterada =  !modalidade.getCor().equals(m.getCor());
 
         if(descricaoFoiAlterada && repository.findModalidadeByDescricao(modalidade.getDescricao()).isPresent())
         {
@@ -55,6 +59,10 @@ public class ModalidadeService
         if(cnpjFoiAlterado && modalidade.getCnpj()!= null && repository.findModalidadeByCnpj(modalidade.getCnpj()).isPresent())
         {
             throw new ModalidadeWithInvalidInformationException("CNPJ já cadastrado.");
+        }
+        if(corAlterada && repository.findModalidadeByCor(modalidade.getCor()).isPresent())
+        {
+            throw new ModalidadeWithInvalidInformationException("Cor já cadastrada.");
         }
 
         if(descricaoFoiAlterada)
@@ -67,7 +75,11 @@ public class ModalidadeService
         }
         m.setMaxVagas(modalidade.getMaxVagas());
         m.setPagamento(modalidade.isPagamento());
-        m.setCor(modalidade.getCor());
+        if(corAlterada)
+        {
+            m.setCor(modalidade.getCor());
+        }
+
 
         return repository.save(m);
     }
@@ -104,5 +116,10 @@ public class ModalidadeService
     public Modalidade findModalidadeByDescricao(String descricao)
     {
         return repository.findModalidadeByDescricao(descricao).orElseThrow(() -> new ModalidadeNotFoundException("Modalidade não encontrada."));
+    }
+
+    public Modalidade findModalidadeByCor(String cor)
+    {
+        return repository.findModalidadeByCor(cor).orElseThrow(() -> new ModalidadeNotFoundException("Modalidade não encontrada."));
     }
 }

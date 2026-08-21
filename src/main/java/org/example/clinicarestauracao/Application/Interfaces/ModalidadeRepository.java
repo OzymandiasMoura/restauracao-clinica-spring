@@ -11,4 +11,6 @@ public interface ModalidadeRepository extends JpaRepository<Modalidade, Long>
 
     Optional<Modalidade> findModalidadeByCnpj(String cnpj);
 
+    Optional<Modalidade> findModalidadeByCor(String cor);
+
 }

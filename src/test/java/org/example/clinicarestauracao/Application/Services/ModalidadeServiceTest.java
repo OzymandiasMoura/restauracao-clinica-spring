@@ -19,7 +19,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @ExtendWith(MockitoExtension.class)
 class ModalidadeServiceTest
 {
-    private ModalidadeTestBuilder builder = new ModalidadeTestBuilder();
+    private final ModalidadeTestBuilder builder = new ModalidadeTestBuilder();
     @Mock
     private ModalidadeRepository repository;
     @InjectMocks
@@ -34,6 +34,8 @@ class ModalidadeServiceTest
         Mockito.when(repository.save(Mockito.any(Modalidade.class))).thenReturn(salva);
         Mockito.when(repository.findModalidadeByCnpj(Mockito.anyString())).thenReturn(Optional.empty());
         Mockito.when(repository.findModalidadeByDescricao(Mockito.anyString())).thenReturn(Optional.empty());
+        Mockito.when(repository.findModalidadeByCor(Mockito.anyString())).thenReturn(Optional.empty());
+
 
 
         Modalidade response = service.createModalidade(entrada);
@@ -50,6 +52,7 @@ class ModalidadeServiceTest
         Mockito.verify(repository).save(entrada);
         Mockito.verify(repository).findModalidadeByCnpj(entrada.getCnpj());
         Mockito.verify(repository).findModalidadeByDescricao(entrada.getDescricao());
+        Mockito.verify(repository).findModalidadeByCor(entrada.getCor());
     }
 
     @Test
@@ -95,6 +98,8 @@ class ModalidadeServiceTest
 
         Mockito.when(repository.save(Mockito.any(Modalidade.class))).thenReturn(salva);
         Mockito.when(repository.findModalidadeByDescricao(Mockito.anyString())).thenReturn(Optional.empty());
+        Mockito.when(repository.findModalidadeByCor(entrada.getCor())).thenReturn(Optional.empty());
+
 
         Modalidade response = service.createModalidade(entrada);
 
@@ -105,6 +110,7 @@ class ModalidadeServiceTest
         Mockito.verify(repository).save(entrada);
         Mockito.verify(repository, Mockito.never()).findModalidadeByCnpj(Mockito.any());
         Mockito.verify(repository).findModalidadeByDescricao(entrada.getDescricao());
+        Mockito.verify(repository).findModalidadeByCor(entrada.getCor());
     }
 
     @Test
@@ -180,6 +186,7 @@ class ModalidadeServiceTest
         Mockito.when(repository.findById(existente.getId())).thenReturn(Optional.of(existente));
         Mockito.when(repository.findModalidadeByDescricao(Mockito.anyString())).thenReturn(Optional.empty());
         Mockito.when(repository.findModalidadeByCnpj(Mockito.anyString())).thenReturn(Optional.empty());
+        Mockito.when(repository.findModalidadeByCor(Mockito.anyString())).thenReturn(Optional.empty());
         Mockito.when(repository.save(Mockito.same(existente))).thenReturn(existente);
 
         Modalidade response = service.updateModalidade(existente.getId(), dadosAtualizados);
@@ -196,6 +203,7 @@ class ModalidadeServiceTest
         Mockito.verify(repository).findById(existente.getId());
         Mockito.verify(repository).findModalidadeByDescricao(dadosAtualizados.getDescricao());
         Mockito.verify(repository).findModalidadeByCnpj(dadosAtualizados.getCnpj());
+        Mockito.verify(repository).findModalidadeByCor("#FF5733");
         Mockito.verify(repository).save(Mockito.same(existente));
     }
 
@@ -234,6 +242,7 @@ class ModalidadeServiceTest
         Mockito.verify(repository).findById(existente.getId());
         Mockito.verify(repository).findModalidadeByDescricao(dadosAtualizados.getDescricao());
         Mockito.verify(repository, Mockito.never()).findModalidadeByCnpj(Mockito.anyString());
+        Mockito.verify(repository, Mockito.never()).findModalidadeByCor(Mockito.anyString());
         Mockito.verify(repository, Mockito.never()).save(Mockito.any(Modalidade.class));
     }
 
@@ -255,7 +264,61 @@ class ModalidadeServiceTest
         Mockito.verify(repository).findById(existente.getId());
         Mockito.verify(repository).findModalidadeByDescricao(dadosAtualizados.getDescricao());
         Mockito.verify(repository).findModalidadeByCnpj(dadosAtualizados.getCnpj());
+        Mockito.verify(repository, Mockito.never()).findModalidadeByCor(Mockito.anyString());
         Mockito.verify(repository, Mockito.never()).save(Mockito.any(Modalidade.class));
+    }
+
+    @Test
+    void shouldThrowExceptionWhenUpdatingToDuplicatedColor()
+    {
+        Modalidade existente = new ModalidadeTestBuilder().setCor("#2E86C1").build();
+        Modalidade dadosAtualizados = new ModalidadeTestBuilder().setCor("#FF5733").build();
+        Modalidade outraModalidade = new ModalidadeTestBuilder().setId(2L).setCor("#FF5733").build();
+
+        Mockito.when(repository.findById(existente.getId())).thenReturn(Optional.of(existente));
+        Mockito.when(repository.findModalidadeByCor("#FF5733")).thenReturn(Optional.of(outraModalidade));
+
+        ModalidadeWithInvalidInformationException exception = assertThrows(ModalidadeWithInvalidInformationException.class, () -> service.updateModalidade(existente.getId(), dadosAtualizados));
+
+        assertEquals("Cor já cadastrada.", exception.getMessage());
+
+        Mockito.verify(repository, Mockito.never()).save(Mockito.any(Modalidade.class));
+        Mockito.verify(repository).findModalidadeByCor("#FF5733");
+    }
+
+    @Test
+    void shouldThrowExceptionWhenCreatingModalidadeWithDuplicatedColor()
+    {
+        Modalidade entrada = builder.buildForCreate();
+        Modalidade existente = builder.build();
+
+        Mockito.when(repository.findModalidadeByCnpj(entrada.getCnpj())).thenReturn(Optional.empty());
+        Mockito.when(repository.findModalidadeByDescricao(entrada.getDescricao())).thenReturn(Optional.empty());
+        Mockito.when(repository.findModalidadeByCor(entrada.getCor())).thenReturn(Optional.of(existente));
+
+        ModalidadeWithInvalidInformationException exception = assertThrows(ModalidadeWithInvalidInformationException.class, () -> service.createModalidade(entrada));
+
+        assertEquals("Cor já cadastrada.", exception.getMessage());
+
+        Mockito.verify(repository).findModalidadeByCor(entrada.getCor());
+        Mockito.verify(repository, Mockito.never()).save(Mockito.any(Modalidade.class));
+    }
+
+    @Test
+    void shouldNotSearchDuplicatedColorWhenColorIsUnchanged()
+    {
+        Modalidade existente = new ModalidadeTestBuilder().setCor("#2E86C1").build();
+        Modalidade dadosAtualizados = new ModalidadeTestBuilder().setCor("#2E86C1").setMaxVagas(30).build();
+
+        Mockito.when(repository.findById(existente.getId())).thenReturn(Optional.of(existente));
+        Mockito.when(repository.save(existente)).thenReturn(existente);
+
+        Modalidade response = service.updateModalidade(existente.getId(), dadosAtualizados);
+
+        assertEquals("#2E86C1", response.getCor());
+
+        Mockito.verify(repository, Mockito.never()).findModalidadeByCor(Mockito.anyString());
+        Mockito.verify(repository).save(existente);
     }
 
     @Test
