@@ -1,6 +1,5 @@
 package org.example.clinicarestauracao.Application.Controllers;
 
-import lombok.AllArgsConstructor;
 import org.example.clinicarestauracao.Application.Dtos.ModalidadeDtos.ModalidadeRequestDto;
 import org.example.clinicarestauracao.Application.Dtos.ModalidadeDtos.ModalidadeResponseDto;
 import org.example.clinicarestauracao.Application.Services.ModalidadeService;
@@ -15,7 +14,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mock.web.MockHttpServletRequest;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
@@ -29,14 +27,14 @@ class ModalidadeControllerTest
     private final ModalidadeTestBuilder builder = new ModalidadeTestBuilder();
 
     @Mock
-    private ModalidadeService modalidadeService;
+    private ModalidadeService service;
     @InjectMocks
-    private ModalidadeController modalidadeController;
+    private ModalidadeController controller;
 
     @BeforeEach
     void setUpRequestContext()
     {
-        //Isso é necessario para poder caber na construção dinamica do endereço par ao create
+        // Simula uma requisição HTTP para que o ServletUriComponentsBuilder consiga construir dinamicamente a URI do recurso criado.
         MockHttpServletRequest request = new MockHttpServletRequest();
 
         request.setScheme("http");
@@ -59,12 +57,12 @@ class ModalidadeControllerTest
         Modalidade criada = builder.build();
         ModalidadeRequestDto request = new ModalidadeRequestDto(criada.getDescricao(), criada.getCnpj(), criada.getMaxVagas(), criada.isPagamento());
 
-        Mockito.when(modalidadeService.createModalidade(Mockito.any(Modalidade.class))).thenReturn(criada);
+        Mockito.when(service.createModalidade(Mockito.any(Modalidade.class))).thenReturn(criada);
 
-        ResponseEntity<ModalidadeResponseDto> response = modalidadeController.createModalidade(request);
+        ResponseEntity<ModalidadeResponseDto> response = controller.createModalidade(request);
 
         assertEquals(HttpStatus.CREATED, response.getStatusCode());
-        assertEquals(URI.create("http://localhost:8080/modalidades/1"), response.getHeaders().getLocation());
+        assertEquals(URI.create("http://localhost:8080/modalidades/" + criada.getId()), response.getHeaders().getLocation());
         assertNotNull(response.getBody());
         assertEquals(criada.getId(), response.getBody().id());
         assertEquals(criada.getDescricao(), response.getBody().descricao());
@@ -75,7 +73,7 @@ class ModalidadeControllerTest
 
         ArgumentCaptor<Modalidade> captor = ArgumentCaptor.forClass(Modalidade.class);
 
-        Mockito.verify(modalidadeService).createModalidade(captor.capture());
+        Mockito.verify(service).createModalidade(captor.capture());
 
         Modalidade enviadaAoService = captor.getValue();
 
@@ -86,4 +84,27 @@ class ModalidadeControllerTest
         assertEquals(request.pagamento(), enviadaAoService.isPagamento());
         assertTrue(enviadaAoService.isAtivo());
     }
+
+    @Test
+    void shouldCreateModalidadeWithoutCnpj()
+    {
+        ModalidadeRequestDto request = new ModalidadeRequestDto("Modalidade", null, 20, true);
+
+        Modalidade criada  = new Modalidade(1L, "Modalidade", 20, true, true);
+
+        Mockito.when(service.createModalidade(Mockito.any(Modalidade.class))).thenReturn(criada);
+
+        ResponseEntity<ModalidadeResponseDto> response = controller.createModalidade(request);
+
+        assertEquals(HttpStatus.CREATED, response.getStatusCode());
+        assertNotNull(response.getBody());
+        assertNull(response.getBody().cnpj());
+
+        ArgumentCaptor<Modalidade> captor = ArgumentCaptor.forClass(Modalidade.class);
+        Mockito.verify(service).createModalidade(captor.capture());
+
+        assertNull(captor.getValue().getCnpj());
+    }
+
+
 }
