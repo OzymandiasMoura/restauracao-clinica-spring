@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.example.clinicarestauracao.Application.Exceptions.FuncionarioWithInvalidInformationException;
 import org.example.clinicarestauracao.Domain.Validation.CpfValidator;
+import org.example.clinicarestauracao.Domain.Validation.EmailValidator;
 
 import java.time.LocalDate;
 
@@ -105,6 +106,25 @@ public class Funcionario
         else
         {
             this.cpf = cpfNormalizado;
+        }
+    }
+
+    public void setEmail(String email)
+    {
+        if(email == null || email.isBlank())
+        {
+            throw new FuncionarioWithInvalidInformationException("E-mail não pode ser vazio ou em branco.");
+        }
+
+        String emailNormalizado = EmailValidator.normalize(email);
+
+        if(!EmailValidator.validate(emailNormalizado))
+        {
+            throw new FuncionarioWithInvalidInformationException("E-mail é inválido.");
+        }
+        else
+        {
+            this.email = emailNormalizado;
         }
     }
 }

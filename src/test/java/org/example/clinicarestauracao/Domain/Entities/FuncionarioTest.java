@@ -91,4 +91,32 @@ class FuncionarioTest
         assertEquals("CPF é inválido.", ex.getMessage());
     }
 
+    //Testes de email
+
+    @Test
+    void shouldNormalizeEmail()
+    {
+        Funcionario funcionario = FuncionarioTestBuilder.newFuncionario().setEmail("  PEDRO@EMAIL.COM  ").build();
+
+        assertEquals("pedro@email.com", funcionario.getEmail());
+    }
+
+    @ParameterizedTest
+    @NullAndEmptySource
+    @ValueSource(strings = {" "})
+    void shouldRejectNullOrBlankEmail(String email)
+    {
+        FuncionarioWithInvalidInformationException exception = assertThrows(FuncionarioWithInvalidInformationException.class, () -> FuncionarioTestBuilder.newFuncionario().setEmail(email).build());
+
+        assertEquals("E-mail não pode ser vazio ou em branco.", exception.getMessage());
+    }
+
+    @Test
+    void shouldRejectInvalidEmail()
+    {
+        FuncionarioWithInvalidInformationException exception = assertThrows(FuncionarioWithInvalidInformationException.class, () -> FuncionarioTestBuilder.newFuncionario().setEmail("pedro@email").build());
+
+        assertEquals("E-mail é inválido.", exception.getMessage());
+    }
+
 }
