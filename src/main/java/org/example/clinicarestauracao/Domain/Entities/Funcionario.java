@@ -17,21 +17,21 @@ public class Funcionario
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column(unique = true, nullable = false)
+    @Column(nullable = false)
     private String nome;
     @Column(unique = true, nullable = false)
     private String cpf;
     @Column(unique = true, nullable = false)
     private String email;
-    @Column(unique = true, nullable = false)
+    @Column(nullable = false)
     private LocalDate dataNascimento;
-    @Column(unique = true, nullable = false)
+    @Column(nullable = false)
     private boolean ativo;
     @OneToOne
     @JoinColumn(name = "user_id", nullable = true)
     private User user;
 
-    public Funcionario(Long id, String nome, String cpf,  String email, LocalDate dataNascimento, Boolean ativo, User user)
+    public Funcionario(Long id, String nome, String cpf,  String email, LocalDate dataNascimento, boolean ativo, User user)
     {
         setId(id);
         setNome(nome);
@@ -42,7 +42,7 @@ public class Funcionario
         setUser(user);
     }
 
-    public Funcionario(String nome, String cpf,  String email, LocalDate dataNascimento, Boolean ativo, User user)
+    public Funcionario(String nome, String cpf,  String email, LocalDate dataNascimento, boolean ativo, User user)
     {
         setNome(nome);
         setCpf(cpf);
@@ -52,7 +52,7 @@ public class Funcionario
         setUser(user);
     }
 
-    public Funcionario(Long id, String nome, String cpf,  String email, LocalDate dataNascimento, Boolean ativo)
+    public Funcionario(Long id, String nome, String cpf,  String email, LocalDate dataNascimento, boolean ativo)
     {
         setId(id);
         setNome(nome);
@@ -62,7 +62,7 @@ public class Funcionario
         setAtivo(ativo);
     }
 
-    public Funcionario(String nome, String cpf,  String email, LocalDate dataNascimento, Boolean ativo)
+    public Funcionario(String nome, String cpf,  String email, LocalDate dataNascimento, boolean ativo)
     {
         setNome(nome);
         setCpf(cpf);
@@ -77,13 +77,16 @@ public class Funcionario
         {
             throw new FuncionarioWithInvalidInformationException("Funcionário não pode ter o nome vazio ou em branco.");
         }
-        if (nome.length() < 3)
+
+        String nomeNormalizado = nome.strip();
+
+        if (nomeNormalizado.length() < 3)
         {
             throw new FuncionarioWithInvalidInformationException("Nome deve ter no mínimo 3 caracteres.");
         }
         else
         {
-            this.nome = nome;
+            this.nome = nomeNormalizado;
         }
     }
 

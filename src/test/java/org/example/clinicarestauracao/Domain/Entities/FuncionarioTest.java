@@ -4,6 +4,7 @@ import org.example.clinicarestauracao.Application.Exceptions.FuncionarioWithInva
 import org.example.clinicarestauracao.Builders.FuncionarioTestBuilder;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.junit.jupiter.params.provider.NullSource;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -13,6 +14,19 @@ import static org.junit.jupiter.api.Assertions.*;
 class FuncionarioTest
 {
     //Testes para o nome
+
+    @ParameterizedTest
+    @CsvSource({
+            "'       Pedro      ', 'Pedro'",
+            "'  Pedro Moura  ', 'Pedro Moura'",
+            "'Pedro Moura', 'Pedro Moura'"
+    })
+    void shouldNormalizeLeadingAndTrailingSpaces(String nome, String nomeEsperado)
+    {
+        Funcionario funcionario = FuncionarioTestBuilder.newFuncionario().setNome(nome).build();
+
+        assertEquals(nomeEsperado, funcionario.getNome());
+    }
 
     @ParameterizedTest
     @NullAndEmptySource
@@ -39,6 +53,14 @@ class FuncionarioTest
         Funcionario funcionario = FuncionarioTestBuilder.newFuncionario().setNome("Pedro Moura").build();
 
         assertEquals("Pedro Moura", funcionario.getNome());
+    }
+
+    @Test
+    void shouldRejectShortNameAfterNormalization()
+    {
+        var exception = assertThrows(FuncionarioWithInvalidInformationException.class, () -> FuncionarioTestBuilder.newFuncionario().setNome("  Pe  ").build());
+
+        assertEquals("Nome deve ter no mínimo 3 caracteres.", exception.getMessage());
     }
 
     //Testes para o CPF
