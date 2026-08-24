@@ -54,4 +54,39 @@ public class ModalidadeController
 
         return ResponseEntity.ok().body(response);
     }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<ModalidadeResponseDto> updateModalidadeById(@PathVariable Long id, @RequestBody ModalidadeRequestDto dto)
+    {
+        Modalidade updated = service.updateModalidade(id,  ModalidadeMapper.requestDtoToEntity(dto));
+
+        ModalidadeResponseDto response = ModalidadeMapper.entityToResponseDto(updated);
+
+        return ResponseEntity.ok().body(response);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> softDeleteModalidadeById(@PathVariable Long id)
+    {
+        service.deleteModalidadeById(id);
+
+        return ResponseEntity.noContent().build();
+    }
+
+    @PutMapping("/{id}/activate")
+    public ResponseEntity<Void> activateModalidadeById(@PathVariable Long id)
+    {
+        service.reabrirModalidadeById(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<ModalidadeResponseDto> findModalidadeByDescricao(@RequestParam String descricao)
+    {
+        Modalidade modalidade = service.findModalidadeByDescricao(descricao);
+
+        ModalidadeResponseDto response = ModalidadeMapper.entityToResponseDto(modalidade);
+
+        return ResponseEntity.ok().body(response);
+    }
 }

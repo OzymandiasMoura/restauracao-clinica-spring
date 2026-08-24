@@ -19,6 +19,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 
 import java.net.URI;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -93,7 +94,7 @@ class ModalidadeControllerTest
     {
         ModalidadeRequestDto request = new ModalidadeRequestDto("Modalidade", null, 20, true, "#FF5733");
 
-        Modalidade criada  = new Modalidade(1L, "Modalidade", 20, true, true, "#FF5733");
+        Modalidade criada = new Modalidade(1L, "Modalidade", 20, true, true, "#FF5733");
 
         Mockito.when(service.createModalidade(Mockito.any(Modalidade.class))).thenReturn(criada);
 
@@ -178,4 +179,96 @@ class ModalidadeControllerTest
         Mockito.verify(service).findModalidadeById(modalidade.getId());
     }
 
+    @Test
+    void shouldUpdateModalidadeAndReturnOk()
+    {
+        Long id = 1L;
+        ModalidadeRequestDto request = new ModalidadeRequestDto("Prefeitura atualizada", "11222333000181", 30, false, "#FF5733");
+        Modalidade atualizada = builder.setId(id).setDescricao("Prefeitura atualizada").setCNPJ(request.cnpj()).setMaxVagas(30).setPagamento(false).setCor("#FF5733").build();
+
+        Mockito.when(service.updateModalidade(Mockito.eq(id), Mockito.any(Modalidade.class))). thenReturn(atualizada);
+
+        ResponseEntity<ModalidadeResponseDto> response = controller.updateModalidadeById(id, request);
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertNotNull(response.getBody());
+
+        ModalidadeResponseDto responseDto = response.getBody();
+
+        assertEquals(atualizada.getId(), responseDto.id());
+        assertEquals(atualizada.getDescricao(), responseDto.descricao());
+        assertEquals(atualizada.getCnpj(), responseDto.cnpj());
+        assertEquals(atualizada.getMaxVagas(), responseDto.maxVagas());
+        assertEquals(atualizada.isAtivo(), responseDto.ativo());
+        assertEquals(atualizada.isPagamento(), responseDto.pagamento());
+        assertEquals(atualizada.getCor(), responseDto.cor());
+
+        ArgumentCaptor<Modalidade> captor = ArgumentCaptor.forClass(Modalidade.class);
+        Mockito.verify(service).updateModalidade(Mockito.eq(id),  captor.capture());
+
+        Modalidade modalidade = captor.getValue();
+
+        assertNull(modalidade.getId());
+        assertEquals(request.descricao(), modalidade.getDescricao());
+        assertEquals(request.cnpj(), modalidade.getCnpj());
+        assertEquals(request.maxVagas(), modalidade.getMaxVagas());
+        assertEquals(request.pagamento(), modalidade.isPagamento());
+        assertEquals(request.cor(), modalidade.getCor());
+
+        Mockito.verifyNoMoreInteractions(service);
+    }
+
+    @Test
+    void shouldDeleteModalidadeAndReturnNoContent()
+    {
+        Long id = 1L;
+
+        ResponseEntity<Void> response = controller.softDeleteModalidadeById(id);
+
+        assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
+        assertNull(response.getBody());
+
+        Mockito.verify(service).deleteModalidadeById(id);
+        Mockito.verifyNoMoreInteractions(service);
+    }
+
+    @Test
+    void shouldReactivateModalidadeAndReturnNoContent()
+    {
+        Long id = 1L;
+
+        ResponseEntity<Void> response = controller.activateModalidadeById(id);
+
+        assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
+        assertNull(response.getBody());
+
+        Mockito.verify(service).reabrirModalidadeById(id);
+        Mockito.verifyNoMoreInteractions(service);
+    }
+
+    @Test
+    void shouldFindModalidadeByDescricao()
+    {
+        String descricao = "Prefeitura";
+        Modalidade modalidade = builder.setDescricao(descricao).build();
+
+        Mockito.when(service.findModalidadeByDescricao(descricao)).thenReturn(modalidade);
+
+        ResponseEntity<ModalidadeResponseDto> response = controller.findModalidadeByDescricao(descricao);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertNotNull(response.getBody());
+
+        ModalidadeResponseDto responseDto = response.getBody();
+
+        assertEquals(modalidade.getId(), responseDto.id());
+        assertEquals(modalidade.getDescricao(), responseDto.descricao());
+        assertEquals(modalidade.getCnpj(), responseDto.cnpj());
+        assertEquals(modalidade.getMaxVagas(), responseDto.maxVagas());
+        assertEquals(modalidade.isAtivo(), responseDto.ativo());
+        assertEquals(modalidade.isPagamento(), responseDto.pagamento());
+        assertEquals(modalidade.getCor(), responseDto.cor());
+
+        Mockito.verify(service).findModalidadeByDescricao(descricao);
+        Mockito.verifyNoMoreInteractions(service);
+    }
 }
