@@ -33,7 +33,7 @@ class FuncionarioTest
     @ValueSource(strings = {" ", "   "})
     void shouldRejectNullOrBlankName(String nome)
     {
-        var exception = assertThrows(FuncionarioWithInvalidInformationException.class, () -> FuncionarioTestBuilder.newFuncionario().setNome(nome).build());
+        FuncionarioWithInvalidInformationException exception = assertThrows(FuncionarioWithInvalidInformationException.class, () -> FuncionarioTestBuilder.newFuncionario().setNome(nome).build());
 
         assertEquals("Funcionário não pode ter o nome vazio ou em branco.", exception.getMessage());
     }
