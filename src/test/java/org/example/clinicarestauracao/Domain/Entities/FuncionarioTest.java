@@ -42,7 +42,7 @@ class FuncionarioTest
     @ValueSource(strings = {"A", "Pe"})
     void shouldRejectNameWithLessThanThreeCharacters(String nome)
     {
-        var exception = assertThrows(FuncionarioWithInvalidInformationException.class, () -> FuncionarioTestBuilder.newFuncionario().setNome(nome).build());
+        FuncionarioWithInvalidInformationException exception = assertThrows(FuncionarioWithInvalidInformationException.class, () -> FuncionarioTestBuilder.newFuncionario().setNome(nome).build());
 
         assertEquals("Nome deve ter no mínimo 3 caracteres.", exception.getMessage());
     }
@@ -58,7 +58,7 @@ class FuncionarioTest
     @Test
     void shouldRejectShortNameAfterNormalization()
     {
-        var exception = assertThrows(FuncionarioWithInvalidInformationException.class, () -> FuncionarioTestBuilder.newFuncionario().setNome("  Pe  ").build());
+        FuncionarioWithInvalidInformationException exception = assertThrows(FuncionarioWithInvalidInformationException.class, () -> FuncionarioTestBuilder.newFuncionario().setNome("  Pe  ").build());
 
         assertEquals("Nome deve ter no mínimo 3 caracteres.", exception.getMessage());
     }
@@ -78,7 +78,7 @@ class FuncionarioTest
     @ValueSource(strings = {" ", ""})
     void shouldRejectNullOrBlankCpf(String cpf)
     {
-        var exception = assertThrows(FuncionarioWithInvalidInformationException.class, () -> FuncionarioTestBuilder.newFuncionario().setCpf(cpf).build());
+        FuncionarioWithInvalidInformationException exception = assertThrows(FuncionarioWithInvalidInformationException.class, () -> FuncionarioTestBuilder.newFuncionario().setCpf(cpf).build());
 
         assertEquals("CPF não pode ser vazio ou em branco.", exception.getMessage());
     }
