@@ -37,6 +37,17 @@ class GlobalExceptionHandlerTest
         assertEquals("mensagem interna", response.getBody().message());
     }
 
+    @Test
+    void shouldReturnBadRequestWhenUserInformationIsInvalid()
+    {
+        var exception = new UserWithInvalidInformationException("Nome de usuário não pode ser vazio.");
+
+        var response = handler.handleUserWithNullInformation(exception);
+
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertNotNull(response.getBody());
+        assertEquals("Nome de usuário não pode ser vazio.", response.getBody().message());
+    }
 
     @Test
     void shouldReturnNotFoundWhenModalidadeDoesNotExist()
@@ -50,4 +61,15 @@ class GlobalExceptionHandlerTest
         assertEquals("Modalidade não encontrada.", response.getBody().message());
     }
 
+    @Test
+    void shouldReturnBadRequestWhenModalidadeInformationIsInvalid()
+    {
+        var exception = new ModalidadeWithInvalidInformationException("Nome da modalidade não pode ser vazio.");
+
+        var response = handler.handleUserWithNullInformation(exception);
+
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertNotNull(response.getBody());
+        assertEquals("Nome da modalidade não pode ser vazio.", response.getBody().message());
+    }
 }
