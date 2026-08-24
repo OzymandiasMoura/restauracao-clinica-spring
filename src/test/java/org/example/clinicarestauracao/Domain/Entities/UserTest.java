@@ -75,6 +75,15 @@ class UserTest
         assertEquals("Pedro", user.getUsername());
     }
 
+    @Test
+    void shouldValidateUsernameLengthAfterTrim()
+    {
+        UserWithInvalidInformationException exception = assertThrows(UserWithInvalidInformationException.class, () -> new User("  Pe  ", "123", UserRoles.ADMIN));
+
+        assertEquals("Nome de usuário deve ter no mínimo 3 caracteres.", exception.getMessage());
+    }
+
+
     private static Stream<Arguments> dataProvider()
     {
         return Stream.of(
