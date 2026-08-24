@@ -34,5 +34,16 @@ class GlobalExceptionHandlerTest
         assertEquals("mensagem interna", response.getBody().message());
     }
 
+    @Test
+    void shouldReturnBadRequestWhenFuncionarioInformationIsInvalid()
+    {
+        var exception = new FuncionarioWithInvalidInformationException("Nome do funcionário não pode ser vazio.");
+
+        var response = handler.handleFuncionarioWithInvalidInformation(exception);
+
+        assertEquals(400, response.getStatusCode().value());
+        assertNotNull(response.getBody());
+        assertEquals("Nome do funcionário não pode ser vazio.", response.getBody().message());
+    }
 
 }

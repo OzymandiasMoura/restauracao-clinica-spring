@@ -33,4 +33,11 @@ public class GlobalExceptionHandler
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
 
+    @ExceptionHandler(FuncionarioWithInvalidInformationException.class)
+    public ResponseEntity<ErrorResponseDto> handleFuncionarioWithInvalidInformation(FuncionarioWithInvalidInformationException ex)
+    {
+        var response = new ErrorResponseDto(ex.getMessage());
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
 }
