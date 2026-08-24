@@ -12,6 +12,7 @@ import org.springframework.security.core.GrantedAuthority;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class UserTest
@@ -64,6 +65,14 @@ class UserTest
         UserWithInvalidInformationException e = assertThrows(UserWithInvalidInformationException.class, () -> new User(username, password, role));
 
         assertThat(e.getMessage()).isEqualTo(message);
+    }
+
+    @Test
+    void shouldTrimUsername()
+    {
+        User user = new User("  Pedro  ", "123", UserRoles.ADMIN);
+
+        assertEquals("Pedro", user.getUsername());
     }
 
     private static Stream<Arguments> dataProvider()
