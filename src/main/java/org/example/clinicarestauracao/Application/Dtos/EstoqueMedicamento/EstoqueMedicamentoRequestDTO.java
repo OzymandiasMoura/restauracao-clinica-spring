@@ -1,0 +1,23 @@
+package org.example.clinicarestauracao.Application.Dtos.EstoqueMedicamento;
+
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
+import org.example.clinicarestauracao.Domain.Enums.TipoEstoque;
+
+public record EstoqueMedicamentoRequestDTO(
+        @NotNull(message = "O ID do medicamento é obrigatório")
+        Long medicamentoId,
+
+        @NotNull(message = "A quantidade é obrigatória")
+        @Min(value = 1, message = "A quantidade mínima para adicionar ao estoque é 1")
+        Integer quantidadeEstoque,
+
+        @NotNull(message = "O tipo de estoque é obrigatório")
+        TipoEstoque tipoEstoque,
+
+        Long id_acolhido,
+
+        Long id_modalidade
+
+) {
+}
