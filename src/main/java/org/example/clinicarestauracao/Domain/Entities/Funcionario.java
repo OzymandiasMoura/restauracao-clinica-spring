@@ -27,48 +27,60 @@ public class Funcionario
     @Column(nullable = false)
     private LocalDate dataNascimento;
     @Column(nullable = false)
+    private String endereco;
+    @Column(nullable = false)
+    private String cep;
+    @Column(nullable = false)
     private boolean ativo;
     @OneToOne
     @JoinColumn(name = "user_id", nullable = true)
     private User user;
 
-    public Funcionario(Long id, String nome, String cpf,  String email, LocalDate dataNascimento, boolean ativo, User user)
+    public Funcionario(Long id, String nome, String cpf,  String email, LocalDate dataNascimento, String endereco, String cep, boolean ativo, User user)
     {
         setId(id);
         setNome(nome);
         setCpf(cpf);
         setEmail(email);
         setDataNascimento(dataNascimento);
+        setEndereco(endereco);
+        setCep(cep);
         setAtivo(ativo);
         setUser(user);
     }
 
-    public Funcionario(String nome, String cpf,  String email, LocalDate dataNascimento, boolean ativo, User user)
+    public Funcionario(String nome, String cpf,  String email, LocalDate dataNascimento, String endereco, String cep, boolean ativo, User user)
     {
         setNome(nome);
         setCpf(cpf);
         setEmail(email);
         setDataNascimento(dataNascimento);
+        setEndereco(endereco);
+        setCep(cep);
         setAtivo(ativo);
         setUser(user);
     }
 
-    public Funcionario(Long id, String nome, String cpf,  String email, LocalDate dataNascimento, boolean ativo)
+    public Funcionario(Long id, String nome, String cpf,  String email, LocalDate dataNascimento, String endereco, String cep, boolean ativo)
     {
         setId(id);
         setNome(nome);
         setCpf(cpf);
         setEmail(email);
         setDataNascimento(dataNascimento);
+        setEndereco(endereco);
+        setCep(cep);
         setAtivo(ativo);
     }
 
-    public Funcionario(String nome, String cpf,  String email, LocalDate dataNascimento, boolean ativo)
+    public Funcionario(String nome, String cpf,  String email, LocalDate dataNascimento, String endereco, String cep, boolean ativo)
     {
         setNome(nome);
         setCpf(cpf);
         setEmail(email);
         setDataNascimento(dataNascimento);
+        setEndereco(endereco);
+        setCep(cep);
         setAtivo(ativo);
     }
 

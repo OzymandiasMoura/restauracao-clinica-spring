@@ -12,6 +12,8 @@ public class FuncionarioTestBuilder
     private String cpf = "52998224725";
     private String email = "pedro@email.com";
     private LocalDate dataNascimento = LocalDate.of(1990, 1, 10);
+    private String endereco = "Praça da Sé, 1 - Sé, São Paulo - SP";
+    private String cep = "01001000";
     private boolean ativo = true;
     private User user = null;
 
@@ -50,6 +52,18 @@ public class FuncionarioTestBuilder
         return this;
     }
 
+    public FuncionarioTestBuilder setEndereco(String endereco)
+    {
+        this.endereco = endereco;
+        return this;
+    }
+
+    public FuncionarioTestBuilder setCep(String cep)
+    {
+        this.cep = cep;
+        return this;
+    }
+
     public FuncionarioTestBuilder setAtivo(boolean ativo)
     {
         this.ativo = ativo;
@@ -64,11 +78,11 @@ public class FuncionarioTestBuilder
 
     public Funcionario build()
     {
-        return new Funcionario(id, nome, cpf, email, dataNascimento, ativo, user);
+        return new Funcionario(id, nome, cpf, email, dataNascimento, endereco, cep, ativo, user);
     }
 
     public Funcionario buildForCreate()
     {
-        return new Funcionario(nome, cpf, email, dataNascimento, ativo, user);
+        return new Funcionario(nome, cpf, email, dataNascimento, endereco, cep, ativo, user);
     }
 }
