@@ -258,4 +258,12 @@ class FuncionarioTest
         assertEquals(ativo, funcionario.isAtivo());
     }
 
+    @Test
+    void shouldCreateNewFuncionarioWithoutUserAsActive()
+    {
+        Funcionario funcionario = new Funcionario("Pedro Moura", "52998224725", "pedro@email.com", LocalDate.of(1990, 1, 10), "Praça da Sé, 1 - São Paulo - SP", "01001000");
+
+        assertTrue(funcionario.isAtivo());
+        assertNull(funcionario.getUser());
+    }
 }

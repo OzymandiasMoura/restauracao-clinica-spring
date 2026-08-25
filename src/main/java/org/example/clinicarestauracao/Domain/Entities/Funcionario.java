@@ -1,9 +1,7 @@
 package org.example.clinicarestauracao.Domain.Entities;
 
 import jakarta.persistence.*;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.example.clinicarestauracao.Application.Exceptions.FuncionarioWithInvalidInformationException;
 import org.example.clinicarestauracao.Domain.Validation.CepValidator;
 import org.example.clinicarestauracao.Domain.Validation.CpfValidator;
@@ -12,7 +10,8 @@ import org.example.clinicarestauracao.Domain.Validation.EmailValidator;
 import java.time.LocalDate;
 
 @Entity
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @EqualsAndHashCode(of = "id")
 @Table(name = "Funcionarios")
@@ -87,6 +86,11 @@ public class Funcionario
         setAtivo(true);
     }
 
+    private void setId(Long id)
+    {
+        this.id = id;
+    }
+
     public void setNome(String nome)
     {
         if (nome == null || nome.isBlank())
@@ -134,8 +138,7 @@ public class Funcionario
         if (!EmailValidator.validate(emailNormalizado))
         {
             throw new FuncionarioWithInvalidInformationException("E-mail é inválido.");
-        }
-        else
+        } else
         {
             this.email = emailNormalizado;
         }
@@ -146,12 +149,10 @@ public class Funcionario
         if (dataNascimento == null)
         {
             throw new FuncionarioWithInvalidInformationException("É necessário definir a data de nascimento.");
-        }
-        else if(dataNascimento.isAfter(LocalDate.now()))
+        } else if (dataNascimento.isAfter(LocalDate.now()))
         {
             throw new FuncionarioWithInvalidInformationException("Data de nascimento não pode ser futura.");
-        }
-        else
+        } else
         {
             this.dataNascimento = dataNascimento;
         }
@@ -175,7 +176,7 @@ public class Funcionario
 
         String cepNormalizado = CepValidator.normalize(cep);
 
-        if(!CepValidator.validate(cepNormalizado))
+        if (!CepValidator.validate(cepNormalizado))
         {
             throw new FuncionarioWithInvalidInformationException("CEP é inválido.");
         }
