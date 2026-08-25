@@ -240,5 +240,22 @@ class FuncionarioTest
         assertNull(funcionario.getUser());
     }
 
+    //Testar ativo
+    @Test
+    void shouldCreateNewFuncionarioAsActive()
+    {
+        Funcionario funcionario =  FuncionarioTestBuilder.newFuncionario().setAtivo(false).buildForCreate();
+
+        assertTrue(funcionario.isAtivo());
+    }
+
+    @ParameterizedTest
+    @ValueSource(booleans = {true, false})
+    void shouldPreserveActiveStatusWhenRebuildingFuncionario(boolean ativo)
+    {
+        Funcionario funcionario = FuncionarioTestBuilder.newFuncionario().setAtivo(ativo).build();
+
+        assertEquals(ativo, funcionario.isAtivo());
+    }
 
 }

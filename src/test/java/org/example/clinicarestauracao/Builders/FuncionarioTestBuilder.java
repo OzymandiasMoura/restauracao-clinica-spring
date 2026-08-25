@@ -83,6 +83,6 @@ public class FuncionarioTestBuilder
 
     public Funcionario buildForCreate()
     {
-        return new Funcionario(nome, cpf, email, dataNascimento, endereco, cep, ativo, user);
+        return new Funcionario(nome, cpf, email, dataNascimento, endereco, cep, user);
     }
 }

@@ -52,7 +52,7 @@ public class Funcionario
         setUser(user);
     }
 
-    public Funcionario(String nome, String cpf, String email, LocalDate dataNascimento, String endereco, String cep, boolean ativo, User user)
+    public Funcionario(String nome, String cpf, String email, LocalDate dataNascimento, String endereco, String cep, User user)
     {
         setNome(nome);
         setCpf(cpf);
@@ -60,7 +60,7 @@ public class Funcionario
         setDataNascimento(dataNascimento);
         setEndereco(endereco);
         setCep(cep);
-        setAtivo(ativo);
+        setAtivo(true);
         setUser(user);
     }
 
@@ -76,7 +76,7 @@ public class Funcionario
         setAtivo(ativo);
     }
 
-    public Funcionario(String nome, String cpf, String email, LocalDate dataNascimento, String endereco, String cep, boolean ativo)
+    public Funcionario(String nome, String cpf, String email, LocalDate dataNascimento, String endereco, String cep)
     {
         setNome(nome);
         setCpf(cpf);
@@ -84,7 +84,7 @@ public class Funcionario
         setDataNascimento(dataNascimento);
         setEndereco(endereco);
         setCep(cep);
-        setAtivo(ativo);
+        setAtivo(true);
     }
 
     public void setNome(String nome)
