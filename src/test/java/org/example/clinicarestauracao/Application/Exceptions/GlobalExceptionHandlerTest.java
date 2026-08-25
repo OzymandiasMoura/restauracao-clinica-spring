@@ -1,6 +1,9 @@
 package org.example.clinicarestauracao.Application.Exceptions;
 
+import org.example.clinicarestauracao.Application.Dtos.SecurityDtos.ErrorResponseDto;
 import org.junit.jupiter.api.Test;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -50,6 +53,13 @@ class GlobalExceptionHandlerTest
     void shouldReturnNotFoundWhenModalidadeDoesNotExist()
     {
         ModalidadeNotFoundException exception = new ModalidadeNotFoundException("Modalidade não encontrada.");
+
+        ResponseEntity<ErrorResponseDto> response = handler.handleModalidadeNotFound(exception);
+
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        assertNotNull(response.getBody());
+        assertEquals("Modalidade não encontrada.", response.getBody().message());
+    }
     @Test
     void shouldReturnBadRequestWhenFuncionarioInformationIsInvalid()
     {
@@ -60,13 +70,6 @@ class GlobalExceptionHandlerTest
         assertEquals(400, response.getStatusCode().value());
         assertNotNull(response.getBody());
         assertEquals("Nome do funcionário não pode ser vazio.", response.getBody().message());
-    }
-
-        ResponseEntity<ErrorResponseDto> response = handler.handleModalidadeNotFound(exception);
-
-        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
-        assertNotNull(response.getBody());
-        assertEquals("Modalidade não encontrada.", response.getBody().message());
     }
 
     @Test
