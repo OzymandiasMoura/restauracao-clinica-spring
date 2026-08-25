@@ -20,7 +20,9 @@ public class Medicamento {
     @Column(name = "nome", nullable = false)
     private String nome;
 
-    @Column(name = "double", nullable = false)
+    @Column(name = "preco", nullable = false)
     private double preco;
+
+
 
 }

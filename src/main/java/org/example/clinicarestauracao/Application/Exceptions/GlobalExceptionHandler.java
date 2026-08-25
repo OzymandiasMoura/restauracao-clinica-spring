@@ -1,6 +1,8 @@
 package org.example.clinicarestauracao.Application.Exceptions;
 
 import org.example.clinicarestauracao.Application.Dtos.SecurityDtos.ErrorResponseDto;
+import org.example.clinicarestauracao.Application.Exceptions.Medicamento.MedicamentoNotFoundException;
+import org.example.clinicarestauracao.Application.Exceptions.Medicamento.MedicamentoWithInvalidInformationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -33,4 +35,18 @@ public class GlobalExceptionHandler
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
 
+    @ExceptionHandler(MedicamentoNotFoundException.class)
+    public ResponseEntity<ErrorResponseDto> handleUserWithNullInformation(MedicamentoWithInvalidInformationException ex)
+    {
+        var response = new ErrorResponseDto(ex.getMessage());
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
+
+    @ExceptionHandler(MedicamentoWithInvalidInformationException.class)
+    public ResponseEntity<ErrorResponseDto> handleModalidadeNotFound(MedicamentoWithInvalidInformationException ex)
+    {
+        var response = new ErrorResponseDto(ex.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+    }
 }
