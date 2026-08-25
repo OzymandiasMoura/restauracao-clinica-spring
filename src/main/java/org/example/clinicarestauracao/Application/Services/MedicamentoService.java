@@ -2,6 +2,8 @@ package org.example.clinicarestauracao.Application.Services;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.example.clinicarestauracao.Application.Exceptions.Medicamento.MedicamentoNotFoundException;
+import org.example.clinicarestauracao.Application.Exceptions.Medicamento.MedicamentoWithInvalidInformationException;
 import org.example.clinicarestauracao.Application.Interfaces.MedicamentoRepository;
 import org.example.clinicarestauracao.Domain.Entities.Medicamento;
 import org.springframework.stereotype.Service;
@@ -18,8 +20,14 @@ public class MedicamentoService {
         return medicamentoRepository.findAll();
     }
 
-    public Medicamento findById(Long id){
-        return medicamentoRepository.findById(id).orElseThrow(() ->new RuntimeException("Medicamento não encontrado com o ID: " + id));
+    public Medicamento findMedicamentoById(Long id){
+        return medicamentoRepository.findById(id)
+                .orElseThrow(() -> new MedicamentoNotFoundException("Medicamento não encontrado com o ID: " + id));
+    }
+
+    public Medicamento findMedicamentoByNome(String nome){
+        return medicamentoRepository.findByNome(nome)
+                .orElseThrow(() -> new MedicamentoNotFoundException("Medicamento não encontradi com o nome: " + nome));
     }
 
     @Transactional
@@ -30,7 +38,7 @@ public class MedicamentoService {
 
     @Transactional
     public Medicamento update(Long id, Medicamento dadosAtualizados){
-        Medicamento exists = findById(id);
+        Medicamento exists = findMedicamentoById(id);
 
         if (!exists.getNome().equalsIgnoreCase(dadosAtualizados.getNome())){
             validarNomeDuplicado(dadosAtualizados.getNome());
@@ -44,13 +52,13 @@ public class MedicamentoService {
 
     @Transactional
     public void delete(Long id){
-        Medicamento exists = findById(id);
+        Medicamento exists = findMedicamentoById(id);
         medicamentoRepository.delete(exists);
     }
 
     private void validarNomeDuplicado(String nome){
         if (medicamentoRepository.existsByNomeIgnoreCase(nome)){
-            throw new IllegalArgumentException("Já existe um medicamento cadastrado com esse nome!");
+            throw new MedicamentoWithInvalidInformationException("Já existe um medicamento cadastrado com esse nome");
         }
     }
 }

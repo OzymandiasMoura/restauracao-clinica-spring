@@ -36,7 +36,7 @@ public class Medicamento {
 
     public void setNome(String nome){
         if (nome == null || nome.isBlank()){
-            throw new MedicamentoWithInvalidInformationException("O nome não pode ser nulo ou vazia.");
+            throw new MedicamentoWithInvalidInformationException("O nome não pode ser nulo ou vazio.");
         } else if(nome.length() < 3){
             throw new MedicamentoWithInvalidInformationException("O nome não pode ser menor que 3 caracteres.");
         } else{
