@@ -179,5 +179,43 @@ class FuncionarioTest
         assertEquals("Praça da Sé, 1 - São Paulo - SP", funcionario.getEndereco());
     }
 
+    //Testes para CEP
 
+    @ParameterizedTest
+    @CsvSource({
+            "'12345678', '12345678'",
+            "'12345-678', '12345678'",
+            "'  12345-678  ', '12345678'"
+    })
+    void shouldNormalizeCep(String cep, String cepEsperado)
+    {
+        Funcionario funcionario =  FuncionarioTestBuilder.newFuncionario().setCep(cep).build();
+
+        assertEquals(cepEsperado, funcionario.getCep());
+    }
+
+    @ParameterizedTest
+    @NullAndEmptySource
+    @ValueSource(strings = {" ", "   "})
+    void shouldRejectNullOrBlankCep(String cep)
+    {
+        FuncionarioWithInvalidInformationException ex = assertThrows(FuncionarioWithInvalidInformationException.class, () -> FuncionarioTestBuilder.newFuncionario().setCep(cep).build());
+
+        assertEquals("CEP não pode ser nulo ou vazio.",  ex.getMessage());
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {
+            "1234567",
+            "123456789",
+            "12345-67A",
+            "12345 678",
+            "12345@678"
+    })
+    void shouldRejectInvalidCep(String cep)
+    {
+        FuncionarioWithInvalidInformationException ex = assertThrows(FuncionarioWithInvalidInformationException.class, () -> FuncionarioTestBuilder.newFuncionario().setCep(cep).build());
+
+        assertEquals("CEP é inválido.", ex.getMessage());
+    }
 }
