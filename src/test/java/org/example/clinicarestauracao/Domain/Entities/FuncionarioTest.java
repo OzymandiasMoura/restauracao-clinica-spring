@@ -9,6 +9,8 @@ import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.junit.jupiter.params.provider.NullSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
+import java.time.LocalDate;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class FuncionarioTest
@@ -117,6 +119,26 @@ class FuncionarioTest
         FuncionarioWithInvalidInformationException exception = assertThrows(FuncionarioWithInvalidInformationException.class, () -> FuncionarioTestBuilder.newFuncionario().setEmail("pedro@email").build());
 
         assertEquals("E-mail é inválido.", exception.getMessage());
+    }
+
+    //Testes para dataNascimento
+
+    @Test
+    void shouldCreateFuncionarioWithValidBirthDate()
+    {
+        LocalDate dataNascimento = LocalDate.of(1990, 1, 10);
+
+        Funcionario funcionario = FuncionarioTestBuilder.newFuncionario().setDataNascimento(dataNascimento).build();
+
+        assertEquals(dataNascimento, funcionario.getDataNascimento());
+    }
+
+    @Test
+    void shouldRejectNullBirthDate()
+    {
+        FuncionarioWithInvalidInformationException ex = assertThrows(FuncionarioWithInvalidInformationException.class, () -> FuncionarioTestBuilder.newFuncionario().setDataNascimento(null).build());
+
+        assertEquals("É necessário definir a data de nascimento.", ex.getMessage());
     }
 
 }

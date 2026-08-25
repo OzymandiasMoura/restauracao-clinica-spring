@@ -2,6 +2,7 @@ package org.example.clinicarestauracao.Domain.Entities;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.example.clinicarestauracao.Application.Exceptions.FuncionarioWithInvalidInformationException;
 import org.example.clinicarestauracao.Domain.Validation.CpfValidator;
@@ -12,6 +13,7 @@ import java.time.LocalDate;
 @Entity
 @Data
 @NoArgsConstructor
+@EqualsAndHashCode(of = "id")
 @Table(name = "Funcionarios")
 public class Funcionario
 {
@@ -36,7 +38,7 @@ public class Funcionario
     @JoinColumn(name = "user_id", nullable = true)
     private User user;
 
-    public Funcionario(Long id, String nome, String cpf,  String email, LocalDate dataNascimento, String endereco, String cep, boolean ativo, User user)
+    public Funcionario(Long id, String nome, String cpf, String email, LocalDate dataNascimento, String endereco, String cep, boolean ativo, User user)
     {
         setId(id);
         setNome(nome);
@@ -49,7 +51,7 @@ public class Funcionario
         setUser(user);
     }
 
-    public Funcionario(String nome, String cpf,  String email, LocalDate dataNascimento, String endereco, String cep, boolean ativo, User user)
+    public Funcionario(String nome, String cpf, String email, LocalDate dataNascimento, String endereco, String cep, boolean ativo, User user)
     {
         setNome(nome);
         setCpf(cpf);
@@ -61,7 +63,7 @@ public class Funcionario
         setUser(user);
     }
 
-    public Funcionario(Long id, String nome, String cpf,  String email, LocalDate dataNascimento, String endereco, String cep, boolean ativo)
+    public Funcionario(Long id, String nome, String cpf, String email, LocalDate dataNascimento, String endereco, String cep, boolean ativo)
     {
         setId(id);
         setNome(nome);
@@ -73,7 +75,7 @@ public class Funcionario
         setAtivo(ativo);
     }
 
-    public Funcionario(String nome, String cpf,  String email, LocalDate dataNascimento, String endereco, String cep, boolean ativo)
+    public Funcionario(String nome, String cpf, String email, LocalDate dataNascimento, String endereco, String cep, boolean ativo)
     {
         setNome(nome);
         setCpf(cpf);
@@ -96,8 +98,7 @@ public class Funcionario
         if (nomeNormalizado.length() < 3)
         {
             throw new FuncionarioWithInvalidInformationException("Nome deve ter no mínimo 3 caracteres.");
-        }
-        else
+        } else
         {
             this.nome = nomeNormalizado;
         }
@@ -107,15 +108,14 @@ public class Funcionario
     {
         String cpfNormalizado = CpfValidator.normalize(cpf);
 
-        if(cpfNormalizado == null || cpfNormalizado.isBlank())
+        if (cpfNormalizado == null || cpfNormalizado.isBlank())
         {
             throw new FuncionarioWithInvalidInformationException("CPF não pode ser vazio ou em branco.");
         }
-        if(!CpfValidator.validate(cpfNormalizado))
+        if (!CpfValidator.validate(cpfNormalizado))
         {
             throw new FuncionarioWithInvalidInformationException("CPF é inválido.");
-        }
-        else
+        } else
         {
             this.cpf = cpfNormalizado;
         }
@@ -123,20 +123,30 @@ public class Funcionario
 
     public void setEmail(String email)
     {
-        if(email == null || email.isBlank())
+        if (email == null || email.isBlank())
         {
             throw new FuncionarioWithInvalidInformationException("E-mail não pode ser vazio ou em branco.");
         }
 
         String emailNormalizado = EmailValidator.normalize(email);
 
-        if(!EmailValidator.validate(emailNormalizado))
+        if (!EmailValidator.validate(emailNormalizado))
         {
             throw new FuncionarioWithInvalidInformationException("E-mail é inválido.");
-        }
-        else
+        } else
         {
             this.email = emailNormalizado;
+        }
+    }
+
+    public void setDataNascimento(LocalDate dataNascimento)
+    {
+        if (dataNascimento == null)
+        {
+            throw new FuncionarioWithInvalidInformationException("É necessário definir a data de nascimento.");
+        } else
+        {
+            this.dataNascimento = dataNascimento;
         }
     }
 }
