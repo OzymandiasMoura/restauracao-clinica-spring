@@ -9,5 +9,5 @@ public interface MedicamentoRepository extends JpaRepository<Medicamento, Long> 
 
     boolean existsByNomeIgnoreCase(String nome);
 
-    Optional<Medicamento> findByNome(String nome);
+    Optional<Medicamento> findByNomeIgnoreCase(String nome);
 }
