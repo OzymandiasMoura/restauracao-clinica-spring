@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.example.clinicarestauracao.Application.Exceptions.FuncionarioWithInvalidInformationException;
+import org.example.clinicarestauracao.Domain.Validation.CepValidator;
 import org.example.clinicarestauracao.Domain.Validation.CpfValidator;
 import org.example.clinicarestauracao.Domain.Validation.EmailValidator;
 
@@ -133,7 +134,8 @@ public class Funcionario
         if (!EmailValidator.validate(emailNormalizado))
         {
             throw new FuncionarioWithInvalidInformationException("E-mail é inválido.");
-        } else
+        }
+        else
         {
             this.email = emailNormalizado;
         }
@@ -144,9 +146,39 @@ public class Funcionario
         if (dataNascimento == null)
         {
             throw new FuncionarioWithInvalidInformationException("É necessário definir a data de nascimento.");
-        } else
+        }
+        else if(dataNascimento.isAfter(LocalDate.now()))
+        {
+            throw new FuncionarioWithInvalidInformationException("Data de nascimento não pode ser futura.");
+        }
+        else
         {
             this.dataNascimento = dataNascimento;
         }
+    }
+
+    public void setEndereco(String endereco)
+    {
+        if (endereco == null || endereco.isBlank())
+        {
+            throw new FuncionarioWithInvalidInformationException("Endereço não pode ser nulo ou vazio.");
+        }
+        this.endereco = endereco.strip();
+    }
+
+    public void setCep(String cep)
+    {
+        if (cep == null || cep.isBlank())
+        {
+            throw new FuncionarioWithInvalidInformationException("CEP não pode ser nulo ou vazio.");
+        }
+
+        String cepNormalizado = CepValidator.normalize(cep);
+
+        if(!CepValidator.validate(cepNormalizado))
+        {
+            throw new FuncionarioWithInvalidInformationException("CEP é inválido.");
+        }
+        this.cep = cepNormalizado;
     }
 }

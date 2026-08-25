@@ -141,4 +141,43 @@ class FuncionarioTest
         assertEquals("É necessário definir a data de nascimento.", ex.getMessage());
     }
 
+    @Test
+    void shouldRejectFutureBirthDate()
+    {
+        LocalDate dataFutura = LocalDate.now().plusDays(1);
+
+        FuncionarioWithInvalidInformationException exception = assertThrows(FuncionarioWithInvalidInformationException.class, () -> FuncionarioTestBuilder.newFuncionario().setDataNascimento(dataFutura).build());
+
+        assertEquals("Data de nascimento não pode ser futura.", exception.getMessage());
+    }
+
+    //Testes de endereço
+
+    @Test
+    void shouldCreateFuncionarioWithValidAddress()
+    {
+        Funcionario funcionario = FuncionarioTestBuilder.newFuncionario().setEndereco("Praça da Sé, 1 - São Paulo - SP").build();
+
+        assertEquals("Praça da Sé, 1 - São Paulo - SP", funcionario.getEndereco());
+    }
+
+    @ParameterizedTest
+    @NullAndEmptySource
+    @ValueSource(strings = {" ", "   "})
+    void shouldRejectNullOrBlankAddress(String endereco)
+    {
+        FuncionarioWithInvalidInformationException exception = assertThrows(FuncionarioWithInvalidInformationException.class, () -> FuncionarioTestBuilder.newFuncionario().setEndereco(endereco).build());
+
+        assertEquals("Endereço não pode ser nulo ou vazio.", exception.getMessage());
+    }
+
+    @Test
+    void shouldNormalizeLeadingAndTrailingSpacesFromAddress()
+    {
+        Funcionario funcionario = FuncionarioTestBuilder.newFuncionario().setEndereco("   Praça da Sé, 1 - São Paulo - SP   ").build();
+
+        assertEquals("Praça da Sé, 1 - São Paulo - SP", funcionario.getEndereco());
+    }
+
+
 }
