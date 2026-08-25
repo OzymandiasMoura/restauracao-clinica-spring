@@ -2,6 +2,7 @@ package org.example.clinicarestauracao.Domain.Entities;
 
 import org.example.clinicarestauracao.Application.Exceptions.FuncionarioWithInvalidInformationException;
 import org.example.clinicarestauracao.Builders.FuncionarioTestBuilder;
+import org.example.clinicarestauracao.Domain.Enums.UserRoles;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -218,4 +219,26 @@ class FuncionarioTest
 
         assertEquals("CEP é inválido.", ex.getMessage());
     }
+
+    //Testes para User
+
+    @Test
+    void shouldAssociateUserWithFuncionario()
+    {
+        User user = new User("pedro", "senha123", UserRoles.USER);
+
+        Funcionario funcionario = FuncionarioTestBuilder.newFuncionario().setUser(user).build();
+
+        assertSame(user, funcionario.getUser());
+    }
+
+    @Test
+    void shouldAllowFuncionarioWithoutUser()
+    {
+        Funcionario funcionario = FuncionarioTestBuilder.newFuncionario().setUser(null).build();
+
+        assertNull(funcionario.getUser());
+    }
+
+
 }
