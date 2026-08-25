@@ -35,6 +35,22 @@ class GlobalExceptionHandlerTest
     }
 
     @Test
+    void shouldReturnBadRequestWhenUserInformationIsInvalid()
+    {
+        var exception = new UserWithInvalidInformationException("Nome de usuário não pode ser vazio.");
+
+        var response = handler.handleUserWithNullInformation(exception);
+
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertNotNull(response.getBody());
+        assertEquals("Nome de usuário não pode ser vazio.", response.getBody().message());
+    }
+
+    @Test
+    void shouldReturnNotFoundWhenModalidadeDoesNotExist()
+    {
+        ModalidadeNotFoundException exception = new ModalidadeNotFoundException("Modalidade não encontrada.");
+    @Test
     void shouldReturnBadRequestWhenFuncionarioInformationIsInvalid()
     {
         var exception = new FuncionarioWithInvalidInformationException("Nome do funcionário não pode ser vazio.");
@@ -46,4 +62,22 @@ class GlobalExceptionHandlerTest
         assertEquals("Nome do funcionário não pode ser vazio.", response.getBody().message());
     }
 
+        ResponseEntity<ErrorResponseDto> response = handler.handleModalidadeNotFound(exception);
+
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        assertNotNull(response.getBody());
+        assertEquals("Modalidade não encontrada.", response.getBody().message());
+    }
+
+    @Test
+    void shouldReturnBadRequestWhenModalidadeInformationIsInvalid()
+    {
+        var exception = new ModalidadeWithInvalidInformationException("Nome da modalidade não pode ser vazio.");
+
+        var response = handler.handleUserWithNullInformation(exception);
+
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertNotNull(response.getBody());
+        assertEquals("Nome da modalidade não pode ser vazio.", response.getBody().message());
+    }
 }
