@@ -26,7 +26,7 @@ public class MedicamentoService {
     }
 
     public Medicamento findMedicamentoByNome(String nome){
-        return medicamentoRepository.findByNome(nome)
+        return medicamentoRepository.findByNomeIgnoreCase(nome)
                 .orElseThrow(() -> new MedicamentoNotFoundException("Medicamento não encontradi com o nome: " + nome));
     }
 
