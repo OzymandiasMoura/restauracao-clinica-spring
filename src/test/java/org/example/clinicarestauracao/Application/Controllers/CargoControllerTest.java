@@ -150,7 +150,7 @@ class CargoControllerTest
 
         Mockito.when(service.findCargoByNome("Monitor")).thenReturn(existing);
 
-        ResponseEntity<CargoResponseDto> response = controller.findCargoByName("Monitor");
+        ResponseEntity<CargoResponseDto> response = controller.findCargoByNome("Monitor");
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody());

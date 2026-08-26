@@ -58,7 +58,7 @@ public class CargoController
     }
 
     @GetMapping("/search/{nome}")
-    public ResponseEntity<CargoResponseDto> findCargoByName(@PathVariable String nome)
+    public ResponseEntity<CargoResponseDto> findCargoByNome(@PathVariable String nome)
     {
         Cargo cargo = service.findCargoByNome(nome);
 
