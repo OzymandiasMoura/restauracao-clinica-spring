@@ -1,6 +1,7 @@
 package org.example.clinicarestauracao.Application.Exceptions;
 
 import org.example.clinicarestauracao.Application.Dtos.SecurityDtos.ErrorResponseDto;
+import org.example.clinicarestauracao.Application.Exceptions.Cargo.CargoNotFoundException;
 import org.example.clinicarestauracao.Application.Exceptions.Cargo.CargoWithInvalidInformationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -54,5 +55,12 @@ public class GlobalExceptionHandler
     {
         var response = new ErrorResponseDto(ex.getMessage());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
+
+    @ExceptionHandler(CargoNotFoundException.class)
+    public ResponseEntity<ErrorResponseDto> handleCargoNotFound(CargoNotFoundException ex)
+    {
+        var response = new ErrorResponseDto(ex.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
 }
