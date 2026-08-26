@@ -5,7 +5,6 @@ import org.example.clinicarestauracao.Application.Dtos.CargoDtos.CargoRequestDto
 import org.example.clinicarestauracao.Application.Dtos.CargoDtos.CargoResponseDto;
 import org.example.clinicarestauracao.Application.Services.CargoService;
 import org.example.clinicarestauracao.Domain.Entities.Cargo;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -46,6 +45,15 @@ public class CargoController
         List<CargoResponseDto> response = cargos.stream().map(CargoMapper::entityToResponseDto).toList();
 
         return ResponseEntity.ok().body(response);
+    }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<CargoResponseDto> findCargoById(@PathVariable Long id)
+    {
+        Cargo cargo = service.findCargoById(id);
+
+        CargoResponseDto response = CargoMapper.entityToResponseDto(cargo);
+
+        return ResponseEntity.ok().body(response);
     }
 }

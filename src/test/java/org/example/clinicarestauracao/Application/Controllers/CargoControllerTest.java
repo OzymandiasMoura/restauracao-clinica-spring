@@ -90,8 +90,8 @@ class CargoControllerTest
 
         ResponseEntity<List<CargoResponseDto>> response = controller.findAllCargos();
         assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals(2, response.getBody().size());
         assertNotNull(response.getBody());
+        assertEquals(2, response.getBody().size());
 
         CargoResponseDto first = response.getBody().getFirst();
 
@@ -119,5 +119,25 @@ class CargoControllerTest
         assertTrue(response.getBody().isEmpty());
 
         Mockito.verify(service).findAllCargo();
+    }
+
+    //Testes FindById
+
+    @Test
+    void shouldFindCargoByIdSuccessfully()
+    {
+        Cargo existing = CargoTestBuilder.newCargo().setId(1L).build();
+
+        Mockito.when(service.findCargoById(1L)).thenReturn(existing);
+
+        ResponseEntity<CargoResponseDto> response = controller.findCargoById(1L);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertNotNull(response.getBody());
+        assertEquals(1L, response.getBody().id());
+        assertEquals("Monitor", response.getBody().nome());
+        assertTrue(response.getBody().ativo());
+
+        Mockito.verify(service).findCargoById(1L);
     }
 }
