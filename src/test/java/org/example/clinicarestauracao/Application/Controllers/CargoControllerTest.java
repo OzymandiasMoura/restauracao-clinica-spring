@@ -187,4 +187,18 @@ class CargoControllerTest
         assertNull(sentToService.getId());
         assertEquals("Recepcionista", sentToService.getNome());
     }
+
+    //Teste softDelete
+
+    @Test
+    void shouldSoftDeleteCargoAndReturnNoContent()
+    {
+        ResponseEntity<Void> response = controller.softDeleteCargoById(1L);
+
+        assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
+
+        assertNull(response.getBody());
+
+        Mockito.verify(service).softDeleteCargoById(1L);
+    }
 }

@@ -78,4 +78,12 @@ public class CargoController
 
         return ResponseEntity.ok().body(response);
     }
+
+    @PatchMapping("/{id}")
+    public ResponseEntity<Void> softDeleteCargoById(@PathVariable Long id)
+    {
+        service.softDeleteCargoById(id);
+
+        return ResponseEntity.noContent().build();
+    }
 }
