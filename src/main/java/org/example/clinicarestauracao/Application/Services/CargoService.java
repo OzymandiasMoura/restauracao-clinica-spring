@@ -6,6 +6,8 @@ import org.example.clinicarestauracao.Application.Interfaces.CargoRepository;
 import org.example.clinicarestauracao.Domain.Entities.Cargo;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class CargoService
 {
@@ -35,5 +37,20 @@ public class CargoService
         String nomeNormalizado = nome.strip();
 
         return repository.findCargoByNome(nomeNormalizado).orElseThrow(() -> new CargoNotFoundException("Cargo não encontrado."));
+    }
+
+    public Cargo findCargoById(Long id)
+    {
+        if(id == null || id <= 0)
+        {
+            throw new CargoNotFoundException("Cargo não encontrado.");
+        }
+
+        return repository.findCargoById(id).orElseThrow(() -> new CargoNotFoundException("Cargo não encontrado."));
+    }
+
+    public List<Cargo> findAllCargo()
+    {
+        return repository.findAll();
     }
 }

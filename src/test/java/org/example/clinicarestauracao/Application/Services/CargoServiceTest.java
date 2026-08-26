@@ -8,6 +8,7 @@ import org.example.clinicarestauracao.Domain.Entities.Cargo;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.NullSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
@@ -15,6 +16,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -128,4 +130,73 @@ class CargoServiceTest
         Mockito.verifyNoInteractions(repository);
     }
 
+    //Testes findById
+
+    @Test
+    void shouldFindCargoByIdSuccessfully()
+    {
+        Cargo existed = CargoTestBuilder.newCargo().build();
+
+        Mockito.when(repository.findCargoById(1L)).thenReturn(Optional.of(existed));
+
+        Cargo response = service.findCargoById(1L);
+
+        assertSame(existed, response);
+        Mockito.verify(repository).findCargoById(1L);
+    }
+
+    @Test
+    void shouldThrowExceptionWhenCargoIsNotFoundById()
+    {
+        Mockito.when(repository.findCargoById(1L)).thenReturn(Optional.empty());
+
+        CargoNotFoundException ex = assertThrows(CargoNotFoundException.class, () -> service.findCargoById(1L));
+
+        assertEquals("Cargo não encontrado.", ex.getMessage());
+        Mockito.verify(repository).findCargoById(1L);
+    }
+
+    @ParameterizedTest
+    @NullSource
+    @ValueSource(longs = {0, -1, -10})
+    void shouldThrowExceptionWhenCargoIdIsInvalid(Long id)
+    {
+        CargoNotFoundException exception = assertThrows(CargoNotFoundException.class, () -> service.findCargoById(id));
+
+        assertEquals("Cargo não encontrado.", exception.getMessage());
+        Mockito.verifyNoInteractions(repository);
+    }
+
+    @Test
+    void shouldFindAllCargosSuccessfully()
+    {
+        Cargo first = CargoTestBuilder.newCargo().setId(1L).setNome("Monitor").build();
+        Cargo second = CargoTestBuilder.newCargo().setId(2L).setNome("Recepcionista").build();
+
+        List<Cargo> cargoList = List.of(first, second);
+
+        Mockito.when(repository.findAll()).thenReturn(cargoList);
+
+        List<Cargo> response = service.findAllCargo();
+
+        assertSame(cargoList, response);
+        assertEquals(2, response.size());
+        assertSame(first, response.get(0));
+        assertSame(second, response.get(1));
+
+        Mockito.verify(repository).findAll();
+    }
+
+    @Test
+    void  shouldReturnEmptyListWhenThereAreNoCargos()
+    {
+        Mockito.when(repository.findAll()).thenReturn(List.of());
+
+        List<Cargo> response = service.findAllCargo();
+
+        assertNotNull(response);
+        assertTrue(response.isEmpty());
+
+        Mockito.verify(repository).findAll();
+    }
 }
