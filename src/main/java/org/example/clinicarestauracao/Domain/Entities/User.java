@@ -58,17 +58,22 @@ public class User implements UserDetails
 
     public void setUsername(String username)
     {
+
+
         if(username == null || username.isBlank())
         {
             throw new UserWithInvalidInformationException("Nome de usuário não pode ser vazio.");
         }
-        else if(username.length() < 3)
+
+        String usernameTrimmed = username.trim();
+
+        if(usernameTrimmed.length() < 3)
         {
             throw new UserWithInvalidInformationException("Nome de usuário deve ter no mínimo 3 caracteres.");
         }
         else
         {
-            this.username = username;
+            this.username = usernameTrimmed;
         }
     }
 

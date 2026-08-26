@@ -12,6 +12,7 @@ import org.springframework.security.core.GrantedAuthority;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class UserTest
@@ -65,6 +66,23 @@ class UserTest
 
         assertThat(e.getMessage()).isEqualTo(message);
     }
+
+    @Test
+    void shouldTrimUsername()
+    {
+        User user = new User("  Pedro  ", "123", UserRoles.ADMIN);
+
+        assertEquals("Pedro", user.getUsername());
+    }
+
+    @Test
+    void shouldValidateUsernameLengthAfterTrim()
+    {
+        UserWithInvalidInformationException exception = assertThrows(UserWithInvalidInformationException.class, () -> new User("  Pe  ", "123", UserRoles.ADMIN));
+
+        assertEquals("Nome de usuário deve ter no mínimo 3 caracteres.", exception.getMessage());
+    }
+
 
     private static Stream<Arguments> dataProvider()
     {

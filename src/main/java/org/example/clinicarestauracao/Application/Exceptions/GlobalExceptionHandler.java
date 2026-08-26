@@ -28,6 +28,7 @@ public class GlobalExceptionHandler
     public ResponseEntity<ErrorResponseDto> handleUsernameAlreadyInUse(UsernameAlredyInUseException exception)
     {
         var response = new ErrorResponseDto(exception.getMessage());
+
         return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
     }
 
@@ -62,5 +63,20 @@ public class GlobalExceptionHandler
         var response = new ValidationErrorResponseDto("Falha na validação dos dados.", errosDeCampo);
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
+
+    @ExceptionHandler(ModalidadeWithInvalidInformationException.class)
+    public ResponseEntity<ErrorResponseDto> handleUserWithNullInformation(ModalidadeWithInvalidInformationException ex)
+    {
+        var response = new ErrorResponseDto(ex.getMessage());
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
+
+    @ExceptionHandler(ModalidadeNotFoundException.class)
+    public ResponseEntity<ErrorResponseDto> handleModalidadeNotFound(ModalidadeNotFoundException ex)
+    {
+        var response = new ErrorResponseDto(ex.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
 }

@@ -12,12 +12,7 @@ public record EstoqueMedicamentoRequestDTO(
         @Min(value = 1, message = "A quantidade mínima para adicionar ao estoque é 1")
         Integer quantidadeEstoque,
 
-        @NotNull(message = "O tipo de estoque é obrigatório")
-        TipoEstoque tipoEstoque,
-
-        Long id_acolhido,
-
-        Long id_modalidade
+       
 
 ) {
 }
