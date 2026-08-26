@@ -8,6 +8,7 @@ public class CargoTestBuilder
 {
     private Long id = 1L;
     private String nome = "Monitor";
+    private boolean ativo = true;
 
     public static CargoTestBuilder newCargo()
     {
@@ -26,9 +27,15 @@ public class CargoTestBuilder
         return this;
     }
 
+    public CargoTestBuilder setAtivo(boolean ativo)
+    {
+        this.ativo = ativo;
+        return this;
+    }
+
     public Cargo build()
     {
-        return new Cargo(id, nome);
+        return new Cargo(id, nome, ativo);
     }
 
     public Cargo buildForCreate()

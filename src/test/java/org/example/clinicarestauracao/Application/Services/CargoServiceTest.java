@@ -46,6 +46,7 @@ class CargoServiceTest
         assertSame(cargoSalvo, response);
         assertEquals(1L, response.getId());
         assertEquals("Monitor", response.getNome());
+        assertTrue(response.isAtivo());
 
         Mockito.verify(repository).findCargoByNome(entrada.getNome());
 
@@ -55,6 +56,7 @@ class CargoServiceTest
         Cargo cargo = captor.getValue();
         assertNull(cargo.getId());
         assertEquals("Monitor", cargo.getNome());
+        assertTrue(cargo.isAtivo());
     }
 
     @Test
@@ -120,8 +122,9 @@ class CargoServiceTest
     }
 
     @ParameterizedTest
+    @NullSource
     @ValueSource(strings = {"", " ", "    "})
-    void shouldThrowExceptionWhenNameIsEmptyOrBlank(String nome)
+    void shouldThrowExceptionWhenNameIsNullEmptyOrBlank(String nome)
     {
         CargoNotFoundException exception = assertThrows(CargoNotFoundException.class, () -> service.findCargoByNome(nome));
 
@@ -206,7 +209,7 @@ class CargoServiceTest
     @Test
     void shouldUpdateCargoSuccessfully()
     {
-        Cargo existing = CargoTestBuilder.newCargo().setId(1L).setNome("Monitor").build();
+        Cargo existing = CargoTestBuilder.newCargo().setId(1L).setNome("Monitor").setAtivo(false).build();
 
         Cargo input = CargoTestBuilder.newCargo().setNome("Recepcionista").buildForCreate();
 
@@ -219,6 +222,7 @@ class CargoServiceTest
         assertSame(existing, response);
         assertEquals(1L, response.getId());
         assertEquals("Recepcionista", response.getNome());
+        assertFalse(response.isAtivo());
 
         Mockito.verify(repository).findCargoById(1L);
         Mockito.verify(repository).findCargoByNome(input.getNome());
@@ -236,6 +240,7 @@ class CargoServiceTest
 
         assertEquals("Cargo não encontrado.", exception.getMessage());
         Mockito.verify(repository).findCargoById(1L);
+        Mockito.verify(repository, Mockito.never()).findCargoByNome(Mockito.anyString());
         Mockito.verify(repository, Mockito.never()).save(Mockito.any());
     }
 
@@ -287,6 +292,7 @@ class CargoServiceTest
         assertSame(existing, response);
         assertEquals(1L, response.getId());
         assertEquals("Monitor", response.getNome());
+        assertTrue(response.isAtivo());
 
         Mockito.verify(repository).findCargoById(1L);
         Mockito.verify(repository).findCargoByNome("Monitor");

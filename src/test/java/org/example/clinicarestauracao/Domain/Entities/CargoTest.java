@@ -5,6 +5,7 @@ import org.example.clinicarestauracao.Builders.CargoTestBuilder;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.NullSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -18,6 +19,7 @@ class CargoTest
 
         assertEquals(1L, cargo.getId());
         assertEquals("Monitor", cargo.getNome());
+        assertTrue(cargo.isAtivo());
     }
 
     @Test
@@ -27,6 +29,15 @@ class CargoTest
 
         assertNull(cargo.getId());
         assertEquals("Monitor", cargo.getNome());
+        assertTrue(cargo.isAtivo());
+    }
+
+    @Test
+    void shouldCreateInactiveCargo()
+    {
+        Cargo cargo = CargoTestBuilder.newCargo().setAtivo(false).build();
+
+        assertFalse(cargo.isAtivo());
     }
 
     @Test
@@ -38,6 +49,7 @@ class CargoTest
     }
 
     @ParameterizedTest
+    @NullSource
     @ValueSource(strings = {
             "",
             " ",
@@ -108,6 +120,37 @@ class CargoTest
 
         assertEquals(message, ex.getMessage());
         assertEquals("Monitor", cargo.getNome());
+    }
+
+    @Test
+    void shouldDeactivateCargo()
+    {
+        Cargo cargo = CargoTestBuilder.newCargo().setAtivo(true).build();
+
+        cargo.deactivate();
+
+        assertFalse(cargo.isAtivo());
+    }
+
+    @Test
+    void shouldActivateCargo()
+    {
+        Cargo cargo = CargoTestBuilder.newCargo().setAtivo(false).build();
+
+        cargo.activate();
+
+        assertTrue(cargo.isAtivo());
+    }
+
+    @Test
+    void shouldRemainInactiveWhenDeactivatedMoreThanOnce()
+    {
+        Cargo cargo = CargoTestBuilder.newCargo().setAtivo(false).build();
+
+        cargo.deactivate();
+        cargo.deactivate();
+
+        assertFalse(cargo.isAtivo());
     }
 
 }

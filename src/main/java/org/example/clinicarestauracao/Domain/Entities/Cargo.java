@@ -1,9 +1,10 @@
 package org.example.clinicarestauracao.Domain.Entities;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
+import lombok.AccessLevel;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.example.clinicarestauracao.Application.Exceptions.Cargo.CargoWithInvalidInformationException;
 
 @Entity
@@ -17,16 +18,21 @@ public class Cargo
     private Long id;
     @Column(nullable = false, unique = true)
     private String nome;
+    @Column(nullable = false)
+    @Setter(AccessLevel.PRIVATE)
+    private boolean ativo;
 
     public Cargo(String nome)
     {
         setNome(nome);
+        setAtivo(true);
     }
 
-    public Cargo(Long id, String nome)
+    public Cargo(Long id, String nome, boolean ativo)
     {
         setId(id);
         setNome(nome);
+        setAtivo(ativo);
     }
 
     public void setNome(String nome)
@@ -44,5 +50,15 @@ public class Cargo
         }
 
         this.nome = nomeNormalized;
+    }
+
+    public void deactivate()
+    {
+        setAtivo(false);
+    }
+
+    public void activate()
+    {
+        setAtivo(true);
     }
 }
