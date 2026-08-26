@@ -7,6 +7,7 @@ import org.example.clinicarestauracao.Domain.Entities.Cargo;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class CargoService
@@ -52,5 +53,21 @@ public class CargoService
     public List<Cargo> findAllCargo()
     {
         return repository.findAll();
+    }
+
+    public Cargo updateCargo(Cargo cargo, Long id)
+    {
+        Cargo newCargo = this.findCargoById(id);
+
+        Optional<Cargo> sameName = repository.findCargoByNome(cargo.getNome());
+
+        if(sameName.isPresent() && !(sameName.get().getId().equals(newCargo.getId())))
+        {
+            throw new CargoWithInvalidInformationException("Nome do cargo já existente.");
+        }
+
+        newCargo.setNome(cargo.getNome());
+
+        return repository.save(newCargo);
     }
 }
