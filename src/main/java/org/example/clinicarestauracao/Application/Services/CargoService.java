@@ -70,4 +70,31 @@ public class CargoService
 
         return repository.save(newCargo);
     }
+
+    public void softDeleteCargoById(Long id)
+    {
+        Cargo newCargo = this.findCargoById(id);
+
+        if(!newCargo.isAtivo())
+        {
+            return;
+        }
+
+        newCargo.deactivate();
+
+        repository.save(newCargo);
+    }
+
+    public void reactivateCargoById(Long id)
+    {
+        Cargo cargo = this.findCargoById(id);
+
+        if(cargo.isAtivo())
+        {
+            return;
+        }
+
+        cargo.activate();
+        repository.save(cargo);
+    }
 }

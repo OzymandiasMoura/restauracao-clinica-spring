@@ -298,4 +298,124 @@ class CargoServiceTest
         Mockito.verify(repository).findCargoByNome("Monitor");
         Mockito.verify(repository).save(existing);
     }
+
+    //Testes softDelete
+
+    @Test
+    void shouldDeactivateCargoSuccessfully()
+    {
+        Cargo existing = CargoTestBuilder.newCargo().setId(1L).setAtivo(true).build();
+
+        Mockito.when(repository.findCargoById(1L)).thenReturn(Optional.of(existing));
+
+        Mockito.when(repository.save(existing)).thenReturn(existing);
+
+        service.softDeleteCargoById(1L);
+
+        assertFalse(existing.isAtivo());
+
+        Mockito.verify(repository).findCargoById(1L);
+        Mockito.verify(repository).save(existing);
+        Mockito.verify(repository, Mockito.never()).delete(Mockito.any());
+        Mockito.verify(repository, Mockito.never()).deleteById(Mockito.anyLong());
+    }
+
+
+    @Test
+    void shouldNotSaveWhenCargoIsAlreadyInactive()
+    {
+        Cargo existing = CargoTestBuilder.newCargo().setId(1L).setAtivo(false).build();
+
+        Mockito.when(repository.findCargoById(1L)).thenReturn(Optional.of(existing));
+
+        service.softDeleteCargoById(1L);
+
+        assertFalse(existing.isAtivo());
+
+        Mockito.verify(repository).findCargoById(1L);
+        Mockito.verify(repository, Mockito.never()).save(Mockito.any());
+    }
+
+    @Test
+    void shouldThrowExceptionWhenSoftDeletingNonexistentCargo()
+    {
+        Mockito.when(repository.findCargoById(1L)).thenReturn(Optional.empty());
+
+        CargoNotFoundException exception = assertThrows(CargoNotFoundException.class, () -> service.softDeleteCargoById(1L));
+
+        assertEquals("Cargo não encontrado.", exception.getMessage());
+
+        Mockito.verify(repository).findCargoById(1L);
+        Mockito.verify(repository, Mockito.never()).save(Mockito.any());
+    }
+
+    @ParameterizedTest
+    @NullSource
+    @ValueSource(longs = {0, -1, -10})
+    void shouldThrowExceptionWhenSoftDeletingCargoWithInvalidId(Long id)
+    {
+        CargoNotFoundException exception = assertThrows(CargoNotFoundException.class, () -> service.softDeleteCargoById(id));
+
+        assertEquals("Cargo não encontrado.", exception.getMessage());
+        Mockito.verifyNoInteractions(repository);
+    }
+
+    //Testes reativação de cargo
+
+    @Test
+    void shouldReactivateCargoSuccessfully()
+    {
+        Cargo existing = CargoTestBuilder.newCargo().setId(1L).setAtivo(false).build();
+
+        Mockito.when(repository.findCargoById(1L)).thenReturn(Optional.of(existing));
+        Mockito.when(repository.save(existing)).thenReturn(existing);
+
+        service.reactivateCargoById(1L);
+
+        assertTrue(existing.isAtivo());
+
+        Mockito.verify(repository).findCargoById(1L);
+        Mockito.verify(repository).save(existing);
+    }
+
+    @Test
+    void shouldNotSaveWhenCargoIsAlreadyActive()
+    {
+        Cargo existing = CargoTestBuilder.newCargo().setId(1L).setAtivo(true).build();
+
+        Mockito.when(repository.findCargoById(1L)).thenReturn(Optional.of(existing));
+
+        service.reactivateCargoById(1L);
+
+        assertTrue(existing.isAtivo());
+
+        Mockito.verify(repository).findCargoById(1L);
+        Mockito.verify(repository, Mockito.never()).save(Mockito.any());
+    }
+
+    @Test
+    void shouldThrowExceptionWhenReactivatingNonexistentCargo()
+    {
+        Mockito.when(repository.findCargoById(1L)).thenReturn(Optional.empty());
+
+        CargoNotFoundException exception = assertThrows(CargoNotFoundException.class, () -> service.reactivateCargoById(1L));
+
+        assertEquals("Cargo não encontrado.", exception.getMessage());
+
+        Mockito.verify(repository).findCargoById(1L);
+        Mockito.verify(repository, Mockito.never()).save(Mockito.any());
+    }
+
+    @ParameterizedTest
+    @NullSource
+    @ValueSource(longs = {0, -1, -10})
+    void shouldThrowExceptionWhenReactivatingCargoWithInvalidId(Long id)
+    {
+        CargoNotFoundException exception = assertThrows(CargoNotFoundException.class, () -> service.reactivateCargoById(id));
+
+        assertEquals("Cargo não encontrado.", exception.getMessage());
+        Mockito.verifyNoInteractions(repository);
+    }
+
+
 }
