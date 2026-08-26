@@ -66,4 +66,16 @@ public class CargoController
 
         return ResponseEntity.ok().body(response);
     }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<CargoResponseDto> updateCargoById(@PathVariable Long id, @RequestBody CargoRequestDto cargoRequestDto)
+    {
+        Cargo cargo = CargoMapper.requestDtoToEntity(cargoRequestDto);
+
+        Cargo updated = service.updateCargo(cargo, id);
+
+        CargoResponseDto response = CargoMapper.entityToResponseDto(updated);
+
+        return ResponseEntity.ok().body(response);
+    }
 }

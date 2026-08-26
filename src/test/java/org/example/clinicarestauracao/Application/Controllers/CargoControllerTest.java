@@ -160,4 +160,31 @@ class CargoControllerTest
 
         Mockito.verify(service).findCargoByNome("Monitor");
     }
+
+    @Test
+    void shouldUpdateCargoSuccessfully()
+    {
+        CargoRequestDto request = new CargoRequestDto("Recepcionista");
+
+        Cargo updated = CargoTestBuilder.newCargo().setId(1L).setNome("Recepcionista").setAtivo(false).build();
+
+        Mockito.when(service.updateCargo(Mockito.any(Cargo.class), Mockito.eq(1L))).thenReturn(updated);
+
+        ResponseEntity<CargoResponseDto> response = controller.updateCargoById(1L, request);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertNotNull(response.getBody());
+        assertEquals(1L, response.getBody().id());
+        assertEquals("Recepcionista", response.getBody().nome());
+        assertFalse(response.getBody().ativo());
+
+        ArgumentCaptor<Cargo> captor = ArgumentCaptor.forClass(Cargo.class);
+
+        Mockito.verify(service).updateCargo(captor.capture(), Mockito.eq(1L));
+
+        Cargo sentToService = captor.getValue();
+
+        assertNull(sentToService.getId());
+        assertEquals("Recepcionista", sentToService.getNome());
+    }
 }
