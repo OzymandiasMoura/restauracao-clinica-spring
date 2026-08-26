@@ -140,4 +140,24 @@ class CargoControllerTest
 
         Mockito.verify(service).findCargoById(1L);
     }
+
+    //Teste FindByName
+
+    @Test
+    void shouldFindCargoByNameSuccessfully()
+    {
+        Cargo existing = CargoTestBuilder.newCargo().setId(1L).setNome("Monitor").setAtivo(true).build();
+
+        Mockito.when(service.findCargoByNome("Monitor")).thenReturn(existing);
+
+        ResponseEntity<CargoResponseDto> response = controller.findCargoByName("Monitor");
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertNotNull(response.getBody());
+        assertEquals(1L, response.getBody().id());
+        assertEquals("Monitor", response.getBody().nome());
+        assertTrue(response.getBody().ativo());
+
+        Mockito.verify(service).findCargoByNome("Monitor");
+    }
 }
