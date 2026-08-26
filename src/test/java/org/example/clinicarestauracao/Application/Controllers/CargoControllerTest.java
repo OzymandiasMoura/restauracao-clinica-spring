@@ -21,6 +21,7 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
 import java.net.URI;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -75,5 +76,48 @@ class CargoControllerTest
         assertNull(cargo.getId());
         assertEquals("Monitor", cargo.getNome());
         assertTrue(cargo.isAtivo());
+    }
+
+    //Testes findAll
+
+    @Test
+    void shouldReturnAllCargos()
+    {
+        Cargo activeCargo = CargoTestBuilder.newCargo().setId(1L).setNome("Monitor").setAtivo(true).build();
+        Cargo inactiveCargo = CargoTestBuilder.newCargo().setId(2L).setNome("Recepcionista").setAtivo(false).build();
+
+        Mockito.when(service.findAllCargo()).thenReturn(List.of(activeCargo, inactiveCargo));
+
+        ResponseEntity<List<CargoResponseDto>> response = controller.findAllCargos();
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(2, response.getBody().size());
+        assertNotNull(response.getBody());
+
+        CargoResponseDto first = response.getBody().getFirst();
+
+        assertEquals(1L, first.id());
+        assertEquals("Monitor", first.nome());
+        assertTrue(first.ativo());
+
+        CargoResponseDto second = response.getBody().get(1);
+        assertEquals(2L, second.id());
+        assertEquals("Recepcionista", second.nome());
+        assertFalse(second.ativo());
+
+        Mockito.verify(service).findAllCargo();
+    }
+
+    @Test
+    void shouldReturnEmptyListWhenThereAreNoCargos()
+    {
+        Mockito.when(service.findAllCargo()).thenReturn(List.of());
+
+        ResponseEntity<List<CargoResponseDto>> response = controller.findAllCargos();
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertNotNull(response.getBody());
+        assertTrue(response.getBody().isEmpty());
+
+        Mockito.verify(service).findAllCargo();
     }
 }

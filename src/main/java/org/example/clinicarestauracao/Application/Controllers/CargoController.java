@@ -7,13 +7,11 @@ import org.example.clinicarestauracao.Application.Services.CargoService;
 import org.example.clinicarestauracao.Domain.Entities.Cargo;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
+import java.util.List;
 
 @RestController
 @RequestMapping("/cargos")
@@ -31,12 +29,23 @@ public class CargoController
     {
         Cargo cargo = CargoMapper.requestDtoToEntity(cargoRequestDto);
 
-        Cargo created =  service.createCargo(cargo);
+        Cargo created = service.createCargo(cargo);
 
         CargoResponseDto response = CargoMapper.entityToResponseDto(created);
 
         URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(created.getId()).toUri();
 
         return ResponseEntity.created(location).body(response);
+    }
+
+    @GetMapping
+    public ResponseEntity<List<CargoResponseDto>> findAllCargos()
+    {
+        List<Cargo> cargos = service.findAllCargo();
+
+        List<CargoResponseDto> response = cargos.stream().map(CargoMapper::entityToResponseDto).toList();
+
+        return ResponseEntity.ok().body(response);
+
     }
 }
