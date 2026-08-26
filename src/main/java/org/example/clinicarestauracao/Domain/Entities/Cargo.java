@@ -36,13 +36,13 @@ public class Cargo
             throw new CargoWithInvalidInformationException("Nome do cargo não pode ser nulo ou vazio.");
         }
 
-        String nomeNormalized = nome.toLowerCase().strip();
+        String nomeNormalized = nome.strip();
 
         if (nomeNormalized.length() < 3)
         {
             throw new CargoWithInvalidInformationException("Nome deve ter pelo menos 3 caracteres.");
         }
 
-        this.nome = nome;
+        this.nome = nomeNormalized;
     }
 }
