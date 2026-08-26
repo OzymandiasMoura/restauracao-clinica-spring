@@ -86,4 +86,12 @@ public class CargoController
 
         return ResponseEntity.noContent().build();
     }
+
+    @PatchMapping("/{id}/activate")
+    public ResponseEntity<Void> activateCargoById(@PathVariable Long id)
+    {
+        service.reactivateCargoById(id);
+
+        return ResponseEntity.noContent().build();
+    }
 }

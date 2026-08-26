@@ -201,4 +201,19 @@ class CargoControllerTest
 
         Mockito.verify(service).softDeleteCargoById(1L);
     }
+
+    //Teste activateCargo
+
+    @Test
+    void shouldActivateCargoAndReturnNoContent()
+    {
+        ResponseEntity<Void> response = controller.activateCargoById(1L);
+
+        assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
+
+        assertNull(response.getBody());
+
+        Mockito.verify(service).reactivateCargoById(1L);
+    }
+
 }
