@@ -29,7 +29,7 @@ class FuncionarioServiceTest
     void shouldCreateFuncionarioWithoutUserSuccessfully()
     {
         Funcionario entrada = FuncionarioTestBuilder.newFuncionario().setUser(null).buildForCreate();
-        Funcionario salvo = FuncionarioTestBuilder.newFuncionario().setUser(null).buildForCreate();
+        Funcionario salvo = FuncionarioTestBuilder.newFuncionario().setUser(null).build();
 
         Mockito.when(repository.findFuncionarioByCpf(entrada.getCpf())).thenReturn(Optional.empty());
         Mockito.when(repository.findFuncionarioByEmail(entrada.getEmail())).thenReturn(Optional.empty());
@@ -38,6 +38,7 @@ class FuncionarioServiceTest
         Funcionario resultado = service.createFuncionario(entrada);
 
         assertSame(salvo, resultado);
+        assertNotNull(resultado.getId());
 
         Mockito.verify(repository).findFuncionarioByCpf(entrada.getCpf());
         Mockito.verify(repository).findFuncionarioByEmail(entrada.getEmail());
