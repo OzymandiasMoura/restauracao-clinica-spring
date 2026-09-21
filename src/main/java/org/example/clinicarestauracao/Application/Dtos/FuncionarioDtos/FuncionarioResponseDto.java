@@ -1,7 +1,10 @@
 package org.example.clinicarestauracao.Application.Dtos.FuncionarioDtos;
 
+import org.example.clinicarestauracao.Application.Dtos.CargoDtos.CargoResponseDto;
+import org.example.clinicarestauracao.Application.Dtos.SecurityDtos.UserSummaryDto;
+
 import java.time.LocalDate;
 
-public record FuncionarioResponseDto(Long id, String nome, String cpf, String email, LocalDate dataNascimento, String endereco, String cep, boolean ativo, Long cargoId, String cargoNome, Long userId)
+public record FuncionarioResponseDto(Long id, String nome, String cpf, String email, LocalDate dataNascimento, String endereco, String cep, boolean ativo, CargoResponseDto cargo, UserSummaryDto user)
 {
 }
