@@ -1,4 +1,4 @@
-package org.example.clinicarestauracao.Application.Exceptions;
+package org.example.clinicarestauracao.Application.Exceptions.Funcionario;
 
 public class FuncionarioWithInvalidInformationException extends RuntimeException
 {

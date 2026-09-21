@@ -3,6 +3,8 @@ package org.example.clinicarestauracao.Application.Exceptions;
 import org.example.clinicarestauracao.Application.Dtos.SecurityDtos.ErrorResponseDto;
 import org.example.clinicarestauracao.Application.Exceptions.Cargo.CargoNotFoundException;
 import org.example.clinicarestauracao.Application.Exceptions.Cargo.CargoWithInvalidInformationException;
+import org.example.clinicarestauracao.Application.Exceptions.Funcionario.FuncionarioNotFoundException;
+import org.example.clinicarestauracao.Application.Exceptions.Funcionario.FuncionarioWithInvalidInformationException;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -108,5 +110,17 @@ class GlobalExceptionHandlerTest
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
         assertNotNull(response.getBody());
         assertEquals("Cargo não encontrado.", response.getBody().message());
+    }
+
+    @Test
+    void shouldReturnNotFoundWhenFuncionarioDoesNotExist()
+    {
+        var exception = new FuncionarioNotFoundException("Funcionário não encontrado.");
+
+        var response = handler.handleFuncionarioNotFound(exception);
+
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        assertNotNull(response.getBody());
+        assertEquals("Funcionário não encontrado.", response.getBody().message());
     }
 }
