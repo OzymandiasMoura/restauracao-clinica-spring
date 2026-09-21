@@ -1,6 +1,7 @@
 package org.example.clinicarestauracao.Domain.Entities;
 
-import org.example.clinicarestauracao.Application.Exceptions.FuncionarioWithInvalidInformationException;
+import org.example.clinicarestauracao.Application.Exceptions.Funcionario.FuncionarioWithInvalidInformationException;
+import org.example.clinicarestauracao.Builders.CargoTestBuilder;
 import org.example.clinicarestauracao.Builders.FuncionarioTestBuilder;
 import org.example.clinicarestauracao.Domain.Enums.UserRoles;
 import org.junit.jupiter.api.Test;
@@ -190,7 +191,7 @@ class FuncionarioTest
     })
     void shouldNormalizeCep(String cep, String cepEsperado)
     {
-        Funcionario funcionario =  FuncionarioTestBuilder.newFuncionario().setCep(cep).build();
+        Funcionario funcionario = FuncionarioTestBuilder.newFuncionario().setCep(cep).build();
 
         assertEquals(cepEsperado, funcionario.getCep());
     }
@@ -202,7 +203,7 @@ class FuncionarioTest
     {
         FuncionarioWithInvalidInformationException ex = assertThrows(FuncionarioWithInvalidInformationException.class, () -> FuncionarioTestBuilder.newFuncionario().setCep(cep).build());
 
-        assertEquals("CEP não pode ser nulo ou vazio.",  ex.getMessage());
+        assertEquals("CEP não pode ser nulo ou vazio.", ex.getMessage());
     }
 
     @ParameterizedTest
@@ -244,7 +245,7 @@ class FuncionarioTest
     @Test
     void shouldCreateNewFuncionarioAsActive()
     {
-        Funcionario funcionario =  FuncionarioTestBuilder.newFuncionario().setAtivo(false).buildForCreate();
+        Funcionario funcionario = FuncionarioTestBuilder.newFuncionario().setAtivo(false).buildForCreate();
 
         assertTrue(funcionario.isAtivo());
     }
@@ -261,9 +262,25 @@ class FuncionarioTest
     @Test
     void shouldCreateNewFuncionarioWithoutUserAsActive()
     {
-        Funcionario funcionario = new Funcionario("Pedro Moura", "52998224725", "pedro@email.com", LocalDate.of(1990, 1, 10), "Praça da Sé, 1 - São Paulo - SP", "01001000");
+        Funcionario funcionario = new Funcionario("Pedro Moura", "52998224725", "pedro@email.com", LocalDate.of(1990, 1, 10), "Praça da Sé, 1 - São Paulo - SP", "01001000", CargoTestBuilder.newCargo().build());
 
         assertTrue(funcionario.isAtivo());
         assertNull(funcionario.getUser());
+    }
+
+    @Test
+    void shouldAssociateCargoWithFuncionario()
+    {
+        Cargo cargo = CargoTestBuilder.newCargo().build();
+
+        Funcionario funcionario = FuncionarioTestBuilder.newFuncionario().setCargo(cargo).build();
+        assertSame(cargo, funcionario.getCargo());
+    }
+
+    @Test
+    void shouldRejectNullCargo()
+    {
+        var exception = assertThrows(FuncionarioWithInvalidInformationException.class, () -> FuncionarioTestBuilder.newFuncionario().setCargo(null).build());
+        assertEquals("Cargo do funcionário deve ser informado.", exception.getMessage());
     }
 }

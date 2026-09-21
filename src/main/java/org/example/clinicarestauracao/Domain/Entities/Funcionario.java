@@ -2,7 +2,7 @@ package org.example.clinicarestauracao.Domain.Entities;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.example.clinicarestauracao.Application.Exceptions.FuncionarioWithInvalidInformationException;
+import org.example.clinicarestauracao.Application.Exceptions.Funcionario.FuncionarioWithInvalidInformationException;
 import org.example.clinicarestauracao.Domain.Validation.CepValidator;
 import org.example.clinicarestauracao.Domain.Validation.CpfValidator;
 import org.example.clinicarestauracao.Domain.Validation.EmailValidator;
@@ -37,8 +37,11 @@ public class Funcionario
     @OneToOne
     @JoinColumn(name = "user_id", nullable = true)
     private User user;
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "cargo_id", nullable = false)
+    private Cargo cargo;
 
-    public Funcionario(Long id, String nome, String cpf, String email, LocalDate dataNascimento, String endereco, String cep, boolean ativo, User user)
+    public Funcionario(Long id, String nome, String cpf, String email, LocalDate dataNascimento, String endereco, String cep, boolean ativo, User user, Cargo cargo)
     {
         setId(id);
         setNome(nome);
@@ -49,9 +52,10 @@ public class Funcionario
         setCep(cep);
         setAtivo(ativo);
         setUser(user);
+        setCargo(cargo);
     }
 
-    public Funcionario(String nome, String cpf, String email, LocalDate dataNascimento, String endereco, String cep, User user)
+    public Funcionario(String nome, String cpf, String email, LocalDate dataNascimento, String endereco, String cep, User user, Cargo cargo)
     {
         setNome(nome);
         setCpf(cpf);
@@ -61,9 +65,10 @@ public class Funcionario
         setCep(cep);
         setAtivo(true);
         setUser(user);
+        setCargo(cargo);
     }
 
-    public Funcionario(Long id, String nome, String cpf, String email, LocalDate dataNascimento, String endereco, String cep, boolean ativo)
+    public Funcionario(Long id, String nome, String cpf, String email, LocalDate dataNascimento, String endereco, String cep, boolean ativo, Cargo cargo)
     {
         setId(id);
         setNome(nome);
@@ -73,9 +78,10 @@ public class Funcionario
         setEndereco(endereco);
         setCep(cep);
         setAtivo(ativo);
+        setCargo(cargo);
     }
 
-    public Funcionario(String nome, String cpf, String email, LocalDate dataNascimento, String endereco, String cep)
+    public Funcionario(String nome, String cpf, String email, LocalDate dataNascimento, String endereco, String cep, Cargo cargo)
     {
         setNome(nome);
         setCpf(cpf);
@@ -84,6 +90,7 @@ public class Funcionario
         setEndereco(endereco);
         setCep(cep);
         setAtivo(true);
+        setCargo(cargo);
     }
 
     private void setId(Long id)
@@ -182,4 +189,14 @@ public class Funcionario
         }
         this.cep = cepNormalizado;
     }
+
+    public void setCargo(Cargo cargo)
+    {
+        if (cargo == null)
+        {
+            throw new FuncionarioWithInvalidInformationException("Cargo do funcionário deve ser informado.");
+        }
+        this.cargo = cargo;
+    }
+
 }

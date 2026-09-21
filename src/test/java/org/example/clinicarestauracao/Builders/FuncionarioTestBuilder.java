@@ -1,5 +1,6 @@
 package org.example.clinicarestauracao.Builders;
 
+import org.example.clinicarestauracao.Domain.Entities.Cargo;
 import org.example.clinicarestauracao.Domain.Entities.Funcionario;
 import org.example.clinicarestauracao.Domain.Entities.User;
 
@@ -16,6 +17,7 @@ public class FuncionarioTestBuilder
     private String cep = "01001000";
     private boolean ativo = true;
     private User user = null;
+    private Cargo cargo = CargoTestBuilder.newCargo().build();
 
     public static FuncionarioTestBuilder newFuncionario()
     {
@@ -76,13 +78,19 @@ public class FuncionarioTestBuilder
         return this;
     }
 
+    public FuncionarioTestBuilder setCargo(Cargo cargo)
+    {
+        this.cargo = cargo;
+        return this;
+    }
+
     public Funcionario build()
     {
-        return new Funcionario(id, nome, cpf, email, dataNascimento, endereco, cep, ativo, user);
+        return new Funcionario(id, nome, cpf, email, dataNascimento, endereco, cep, ativo, user, cargo);
     }
 
     public Funcionario buildForCreate()
     {
-        return new Funcionario(nome, cpf, email, dataNascimento, endereco, cep, user);
+        return new Funcionario(nome, cpf, email, dataNascimento, endereco, cep, user, cargo);
     }
 }
