@@ -1,7 +1,9 @@
 package org.example.clinicarestauracao.Application.Controllers.Mappers;
 
+import org.example.clinicarestauracao.Application.Dtos.CargoDtos.CargoResponseDto;
 import org.example.clinicarestauracao.Application.Dtos.FuncionarioDtos.FuncionarioRequestDto;
 import org.example.clinicarestauracao.Application.Dtos.FuncionarioDtos.FuncionarioResponseDto;
+import org.example.clinicarestauracao.Application.Dtos.SecurityDtos.UserSummaryDto;
 import org.example.clinicarestauracao.Domain.Entities.Cargo;
 import org.example.clinicarestauracao.Domain.Entities.Funcionario;
 import org.example.clinicarestauracao.Domain.Entities.User;
@@ -18,9 +20,15 @@ public final class FuncionarioMapper
 
     public static FuncionarioResponseDto entityToResponseDto(Funcionario entity)
     {
-        Long userId = entity.getUser() == null ? null : entity.getUser().getId();
-
-        return new FuncionarioResponseDto(entity.getId(), entity.getNome(), entity.getCpf(), entity.getEmail(), entity.getDataNascimento(), entity.getEndereco(), entity.getCep(), entity.isAtivo(), entity.getCargo().getId(), entity.getCargo().getNome(), userId
+        CargoResponseDto cargo = CargoMapper.entityToResponseDto(entity.getCargo());
+        UserSummaryDto user = entity.getUser() == null
+                ? null
+                : new UserSummaryDto(
+                entity.getUser().getId(),
+                entity.getUser().getUsername(),
+                entity.getUser().getRole()
         );
+
+        return new FuncionarioResponseDto(entity.getId(), entity.getNome(), entity.getCpf(), entity.getEmail(), entity.getDataNascimento(), entity.getEndereco(), entity.getCep(), entity.isAtivo(), cargo, user);
     }
 }
