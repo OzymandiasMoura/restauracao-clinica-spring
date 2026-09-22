@@ -1,5 +1,6 @@
 package org.example.clinicarestauracao.Application.Services;
 
+import org.example.clinicarestauracao.Application.Exceptions.Funcionario.FuncionarioNotFoundException;
 import org.example.clinicarestauracao.Application.Exceptions.Funcionario.FuncionarioWithInvalidInformationException;
 import org.example.clinicarestauracao.Application.Interfaces.FuncionarioRepository;
 import org.example.clinicarestauracao.Domain.Entities.Funcionario;
@@ -30,5 +31,14 @@ public class FuncionarioService
             throw new FuncionarioWithInvalidInformationException("Usuário já vinculado a outro funcionário.");
         }
         return repository.save(funcionario);
+    }
+
+    public Funcionario findFuncionarioById(Long id)
+    {
+        if (id == null || id <= 0)
+        {
+            throw new FuncionarioNotFoundException("Funcionário não encontrado.");
+        }
+        return repository.findFuncionarioById(id).orElseThrow(() -> new FuncionarioNotFoundException("Funcionário não encontrado."));
     }
 }

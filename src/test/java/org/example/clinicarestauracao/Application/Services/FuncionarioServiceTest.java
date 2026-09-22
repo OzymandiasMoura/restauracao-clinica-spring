@@ -1,5 +1,6 @@
 package org.example.clinicarestauracao.Application.Services;
 
+import org.example.clinicarestauracao.Application.Exceptions.Funcionario.FuncionarioNotFoundException;
 import org.example.clinicarestauracao.Application.Exceptions.Funcionario.FuncionarioWithInvalidInformationException;
 import org.example.clinicarestauracao.Application.Interfaces.FuncionarioRepository;
 import org.example.clinicarestauracao.Builders.FuncionarioTestBuilder;
@@ -8,6 +9,9 @@ import org.example.clinicarestauracao.Domain.Entities.User;
 import org.example.clinicarestauracao.Domain.Enums.UserRoles;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.NullSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -118,4 +122,45 @@ class FuncionarioServiceTest
 
         Mockito.verify(repository, Mockito.never()).save(Mockito.any());
     }
+
+    @Test
+    void shouldFindFuncionarioByIdSuccessfully()
+    {
+        Funcionario func = FuncionarioTestBuilder.newFuncionario().build();
+
+        Mockito.when(repository.findFuncionarioById(func.getId())).thenReturn(Optional.of(func));
+
+        Funcionario response = service.findFuncionarioById(func.getId());
+
+        assertSame(func, response);
+
+        Mockito.verify(repository).findFuncionarioById(func.getId());
+    }
+
+    @Test
+    void shouldThrowFuncionarioNotFoundExceptionWhenFuncionarioDoesNotExist()
+    {
+        Long id =  1L;
+        Mockito.when(repository.findFuncionarioById(id)).thenReturn(Optional.empty());
+
+        var exception = assertThrows(FuncionarioNotFoundException.class, () -> service.findFuncionarioById(id));
+
+        assertEquals("Funcionário não encontrado.",  exception.getMessage());
+
+        Mockito.verify(repository).findFuncionarioById(id);
+    }
+
+    @ParameterizedTest
+    @NullSource
+    @ValueSource(longs = {0, -1, -10})
+    void shouldThrowFuncionarioNotFoundExceptionWhenFuncionarioIdIsInvalid(Long id)
+    {
+        FuncionarioNotFoundException exception = assertThrows(FuncionarioNotFoundException.class, () -> service.findFuncionarioById(id));
+
+        assertEquals("Funcionário não encontrado.", exception.getMessage());
+
+        Mockito.verifyNoInteractions(repository);
+    }
+
+
 }
