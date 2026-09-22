@@ -18,6 +18,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -244,5 +245,37 @@ class FuncionarioServiceTest
         assertEquals("Funcionário não encontrado.",  exception.getMessage());
 
         Mockito.verifyNoInteractions(repository);
+    }
+
+    @Test
+    void shouldFindAllFuncionariosSuccessfully()
+    {
+        Funcionario activeFuncionario = FuncionarioTestBuilder.newFuncionario().setId(1L).setAtivo(true).build();
+        Funcionario inactiveFuncionario = FuncionarioTestBuilder.newFuncionario().setId(2L).setAtivo(false).build();
+        List<Funcionario>  funcionarios = List.of(activeFuncionario, inactiveFuncionario);
+
+        Mockito.when(repository.findAll()).thenReturn(funcionarios);
+
+        List<Funcionario> response = service.findAllFuncionarios();
+
+        assertSame(funcionarios, response);
+        assertSame(activeFuncionario, response.get(0));
+        assertSame(inactiveFuncionario, response.get(1));
+        assertEquals(2, response.size());
+
+        Mockito.verify(repository).findAll();
+    }
+
+    @Test
+    void shouldReturnEmptyListWhenNoFuncionariosExist()
+    {
+        Mockito.when(repository.findAll()).thenReturn(List.of());
+
+        List<Funcionario> response = service.findAllFuncionarios();
+
+        assertNotNull(response);
+        assertTrue(response.isEmpty());
+
+        Mockito.verify(repository).findAll();
     }
 }
