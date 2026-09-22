@@ -7,6 +7,7 @@ import org.example.clinicarestauracao.Builders.FuncionarioTestBuilder;
 import org.example.clinicarestauracao.Domain.Entities.Funcionario;
 import org.example.clinicarestauracao.Domain.Entities.User;
 import org.example.clinicarestauracao.Domain.Enums.UserRoles;
+import org.example.clinicarestauracao.Domain.Validation.EmailValidator;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -140,12 +141,12 @@ class FuncionarioServiceTest
     @Test
     void shouldThrowFuncionarioNotFoundExceptionWhenFuncionarioDoesNotExist()
     {
-        Long id =  1L;
+        Long id = 1L;
         Mockito.when(repository.findFuncionarioById(id)).thenReturn(Optional.empty());
 
         var exception = assertThrows(FuncionarioNotFoundException.class, () -> service.findFuncionarioById(id));
 
-        assertEquals("Funcionário não encontrado.",  exception.getMessage());
+        assertEquals("Funcionário não encontrado.", exception.getMessage());
 
         Mockito.verify(repository).findFuncionarioById(id);
     }
@@ -162,5 +163,86 @@ class FuncionarioServiceTest
         Mockito.verifyNoInteractions(repository);
     }
 
+    @Test
+    void shouldFindFuncionarioByEmailSuccessfully()
+    {
+        String entryEmail = " PEDRO@EMAIL.COM ";
+        String formatedEmail = "pedro@email.com";
+        Funcionario func = FuncionarioTestBuilder.newFuncionario().build();
 
+        Mockito.when(repository.findFuncionarioByEmail(formatedEmail)).thenReturn(Optional.of(func));
+
+        Funcionario response = service.findFuncionarioByEmail(entryEmail);
+
+        assertSame(func, response);
+
+        Mockito.verify(repository).findFuncionarioByEmail(formatedEmail);
+    }
+
+    @Test
+    void shouldThrowFuncionarioNotFoundExceptionWhenEmailDoesNotExist()
+    {
+        String entryEmail = "pedro@email.com";
+        Mockito.when(repository.findFuncionarioByEmail(entryEmail)).thenReturn(Optional.empty());
+
+        var exception = assertThrows(FuncionarioNotFoundException.class, () -> service.findFuncionarioByEmail(entryEmail));
+
+        assertEquals("Funcionário não encontrado.", exception.getMessage());
+
+        Mockito.verify(repository).findFuncionarioByEmail(entryEmail);
+    }
+
+    @ParameterizedTest
+    @NullSource
+    @ValueSource(strings = {"", " ", "    "})
+    void shouldThrowFuncionarioNotFoundExceptionWhenEmailIsInvalid(String email)
+    {
+        FuncionarioNotFoundException exception = assertThrows(FuncionarioNotFoundException.class, () -> service.findFuncionarioByEmail(email));
+
+        assertEquals("Funcionário não encontrado.", exception.getMessage());
+
+        Mockito.verifyNoInteractions(repository);
+    }
+
+    @Test
+    void shouldFindFuncionarioByCpfSuccessfully()
+    {
+        String entryCpf = "529.982.247-25";
+        String formatedCpf = "52998224725";
+        Funcionario func = FuncionarioTestBuilder.newFuncionario().build();
+
+        Mockito.when(repository.findFuncionarioByCpf(formatedCpf)).thenReturn(Optional.of(func));
+
+        Funcionario response = service.findFuncionarioByCpf(entryCpf);
+
+        assertSame(func, response);
+
+        Mockito.verify(repository).findFuncionarioByCpf(formatedCpf);
+    }
+
+    @Test
+    void shouldThrowFuncionarioNotFoundExceptionWhenCpfDoesNotExist()
+    {
+        String entryCpf = "52998224725";
+
+        Mockito.when(repository.findFuncionarioByCpf(entryCpf)).thenReturn(Optional.empty());
+
+        FuncionarioNotFoundException exception =  assertThrows(FuncionarioNotFoundException.class, () -> service.findFuncionarioByCpf(entryCpf));
+
+        assertEquals( "Funcionário não encontrado.",  exception.getMessage());
+
+        Mockito.verify(repository).findFuncionarioByCpf(entryCpf);
+    }
+
+    @ParameterizedTest
+    @NullSource
+    @ValueSource(strings = {"", " ", "   ", " . - "})
+    void shouldThrowFuncionarioNotFoundExceptionWhenCpfIsInvalid(String cpf)
+    {
+        FuncionarioNotFoundException exception = assertThrows(FuncionarioNotFoundException.class, () -> service.findFuncionarioByCpf(cpf));
+
+        assertEquals("Funcionário não encontrado.",  exception.getMessage());
+
+        Mockito.verifyNoInteractions(repository);
+    }
 }

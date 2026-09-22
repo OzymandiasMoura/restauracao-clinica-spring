@@ -4,7 +4,11 @@ import org.example.clinicarestauracao.Application.Exceptions.Funcionario.Funcion
 import org.example.clinicarestauracao.Application.Exceptions.Funcionario.FuncionarioWithInvalidInformationException;
 import org.example.clinicarestauracao.Application.Interfaces.FuncionarioRepository;
 import org.example.clinicarestauracao.Domain.Entities.Funcionario;
+import org.example.clinicarestauracao.Domain.Validation.CpfValidator;
+import org.example.clinicarestauracao.Domain.Validation.EmailValidator;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public class FuncionarioService
@@ -40,5 +44,34 @@ public class FuncionarioService
             throw new FuncionarioNotFoundException("Funcionário não encontrado.");
         }
         return repository.findFuncionarioById(id).orElseThrow(() -> new FuncionarioNotFoundException("Funcionário não encontrado."));
+    }
+
+    public Funcionario findFuncionarioByEmail(String email)
+    {
+        if (email == null || email.isBlank())
+        {
+            throw new FuncionarioNotFoundException("Funcionário não encontrado.");
+        }
+
+        String normalized = EmailValidator.normalize(email);
+
+        return repository.findFuncionarioByEmail(normalized).orElseThrow(() -> new FuncionarioNotFoundException("Funcionário não encontrado."));
+    }
+
+    public Funcionario findFuncionarioByCpf(String cpf)
+    {
+        String normalized = CpfValidator.normalize(cpf);
+
+        if(normalized == null || normalized.isBlank())
+        {
+            throw new FuncionarioNotFoundException("Funcionário não encontrado.");
+        }
+
+        return repository.findFuncionarioByCpf(normalized).orElseThrow(() -> new FuncionarioNotFoundException("Funcionário não encontrado."));
+    }
+
+    public List<Funcionario> findAllFuncionarios()
+    {
+        return repository.findAll();
     }
 }
