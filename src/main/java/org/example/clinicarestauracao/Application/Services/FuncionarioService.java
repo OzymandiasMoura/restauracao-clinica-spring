@@ -4,11 +4,13 @@ import org.example.clinicarestauracao.Application.Exceptions.Funcionario.Funcion
 import org.example.clinicarestauracao.Application.Exceptions.Funcionario.FuncionarioWithInvalidInformationException;
 import org.example.clinicarestauracao.Application.Interfaces.FuncionarioRepository;
 import org.example.clinicarestauracao.Domain.Entities.Funcionario;
+import org.example.clinicarestauracao.Domain.Entities.User;
 import org.example.clinicarestauracao.Domain.Validation.CpfValidator;
 import org.example.clinicarestauracao.Domain.Validation.EmailValidator;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class FuncionarioService
@@ -73,5 +75,104 @@ public class FuncionarioService
     public List<Funcionario> findAllFuncionarios()
     {
         return repository.findAll();
+    }
+
+    public Funcionario updateFuncionario(Long id, Funcionario funcionario)
+    {
+        Funcionario existed = this.findFuncionarioById(id);
+
+        Optional<Funcionario> sameCpf = repository.findFuncionarioByCpf(funcionario.getCpf());
+        if(sameCpf.isPresent() && !sameCpf.get().getId().equals(existed.getId()))
+        {
+            throw new FuncionarioWithInvalidInformationException("CPF já cadastrado.");
+        }
+
+        Optional<Funcionario> sameEmail = repository.findFuncionarioByEmail(funcionario.getEmail());
+        if(sameEmail.isPresent() && !sameEmail.get().getId().equals(existed.getId()))
+        {
+            throw new FuncionarioWithInvalidInformationException("E-mail já cadastrado.");
+        }
+
+        existed.setNome(funcionario.getNome());
+        existed.setCpf(funcionario.getCpf());
+        existed.setEmail(funcionario.getEmail());
+        existed.setDataNascimento(funcionario.getDataNascimento());
+        existed.setEndereco(funcionario.getEndereco());
+        existed.setCep(funcionario.getCep());
+        existed.setCargo(funcionario.getCargo());
+        return repository.save(existed);
+    }
+
+    public void softDeleteFuncionarioById(Long id)
+    {
+        if (id == null || id <= 0)
+        {
+            throw new FuncionarioNotFoundException("Funcionário não encontrado.");
+        }
+
+        Funcionario f  = this.findFuncionarioById(id);
+
+        if(!f.isAtivo())
+        {
+            return;
+        }
+
+        f.setAtivo(false);
+        repository.save(f);
+    }
+
+    public void reactivateFuncionarioById(Long id)
+    {
+        if (id == null || id <= 0)
+        {
+            throw new FuncionarioNotFoundException("Funcionário não encontrado.");
+        }
+
+        Funcionario f  = this.findFuncionarioById(id);
+
+        if(f.isAtivo())
+        {
+            return;
+        }
+
+        f.setAtivo(true);
+        repository.save(f);
+    }
+
+    public void linkUserToFuncionario(Long id, User user)
+    {
+        if(user == null)
+        {
+            throw new FuncionarioWithInvalidInformationException("Usuário inválido.");
+        }
+
+        Funcionario f = this.findFuncionarioById(id);
+
+        if(user.equals(f.getUser()))
+        {
+            return;
+        }
+
+        Optional<Funcionario> sameUser = repository.findFuncionarioByUser(user);
+
+        if (sameUser.isPresent())
+        {
+            throw new FuncionarioWithInvalidInformationException("Usuário já vinculado a outro funcionário.");
+        }
+
+        f.setUser(user);
+        repository.save(f);
+    }
+
+    public void unlinkUserFromFuncionario(Long id)
+    {
+        Funcionario f = this.findFuncionarioById(id);
+
+        if (f.getUser() == null)
+        {
+            return;
+        }
+        f.setUser(null);
+        repository.save(f);
     }
 }
