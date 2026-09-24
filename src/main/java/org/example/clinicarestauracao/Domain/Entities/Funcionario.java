@@ -40,14 +40,18 @@ public class Funcionario
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "cargo_id", nullable = false)
     private Cargo cargo;
+    @Column(nullable = false)
+    private LocalDate dataAdmissao;
+    private LocalDate dataDemissao;
 
-    public Funcionario(Long id, String nome, String cpf, String email, LocalDate dataNascimento, String endereco, String cep, boolean ativo, User user, Cargo cargo)
+    public Funcionario(Long id, String nome, String cpf, String email, LocalDate dataNascimento, String endereco, String cep, boolean ativo, User user, Cargo cargo, LocalDate dataAdmissao)
     {
         setId(id);
         setNome(nome);
         setCpf(cpf);
         setEmail(email);
         setDataNascimento(dataNascimento);
+        setDataAdmissao(dataAdmissao);
         setEndereco(endereco);
         setCep(cep);
         setAtivo(ativo);
@@ -55,12 +59,13 @@ public class Funcionario
         setCargo(cargo);
     }
 
-    public Funcionario(String nome, String cpf, String email, LocalDate dataNascimento, String endereco, String cep, User user, Cargo cargo)
+    public Funcionario(String nome, String cpf, String email, LocalDate dataNascimento, String endereco, String cep, User user, Cargo cargo, LocalDate dataAdmissao)
     {
         setNome(nome);
         setCpf(cpf);
         setEmail(email);
         setDataNascimento(dataNascimento);
+        setDataAdmissao(dataAdmissao);
         setEndereco(endereco);
         setCep(cep);
         setAtivo(true);
@@ -68,29 +73,33 @@ public class Funcionario
         setCargo(cargo);
     }
 
-    public Funcionario(Long id, String nome, String cpf, String email, LocalDate dataNascimento, String endereco, String cep, boolean ativo, Cargo cargo)
+    public Funcionario(Long id, String nome, String cpf, String email, LocalDate dataNascimento, String endereco, String cep, boolean ativo, Cargo cargo, LocalDate dataAdmissao)
     {
         setId(id);
         setNome(nome);
         setCpf(cpf);
         setEmail(email);
         setDataNascimento(dataNascimento);
+        setDataAdmissao(dataAdmissao);
         setEndereco(endereco);
         setCep(cep);
         setAtivo(ativo);
         setCargo(cargo);
+
     }
 
-    public Funcionario(String nome, String cpf, String email, LocalDate dataNascimento, String endereco, String cep, Cargo cargo)
+    public Funcionario(String nome, String cpf, String email, LocalDate dataNascimento, String endereco, String cep, Cargo cargo,  LocalDate dataAdmissao)
     {
         setNome(nome);
         setCpf(cpf);
         setEmail(email);
         setDataNascimento(dataNascimento);
+        setDataAdmissao(dataAdmissao);
         setEndereco(endereco);
         setCep(cep);
         setAtivo(true);
         setCargo(cargo);
+
     }
 
     private void setId(Long id)
@@ -156,10 +165,16 @@ public class Funcionario
         if (dataNascimento == null)
         {
             throw new FuncionarioWithInvalidInformationException("É necessário definir a data de nascimento.");
-        } else if (dataNascimento.isAfter(LocalDate.now()))
+        }
+        else if (dataNascimento.isAfter(LocalDate.now()))
         {
             throw new FuncionarioWithInvalidInformationException("Data de nascimento não pode ser futura.");
-        } else
+        }
+        else if (dataAdmissao != null && dataNascimento.isAfter(dataAdmissao))
+        {
+            throw new FuncionarioWithInvalidInformationException("Data de nascimento não pode ser depois da admissão.");
+        }
+        else
         {
             this.dataNascimento = dataNascimento;
         }
@@ -197,6 +212,23 @@ public class Funcionario
             throw new FuncionarioWithInvalidInformationException("Cargo do funcionário deve ser informado.");
         }
         this.cargo = cargo;
+    }
+
+    public void setDataAdmissao(LocalDate dataAdmissao)
+    {
+        if (dataAdmissao == null)
+        {
+            throw new FuncionarioWithInvalidInformationException("Data de admissão não pode ser nula.");
+        }
+        if (dataAdmissao.isAfter(LocalDate.now()))
+        {
+            throw new FuncionarioWithInvalidInformationException("Data de admissão não pode ser futura.");
+        }
+        if (dataNascimento != null && dataAdmissao.isBefore(dataNascimento))
+        {
+            throw new FuncionarioWithInvalidInformationException("Data de admissão não pode ser anterior ao nascimento.");
+        }
+        this.dataAdmissao = dataAdmissao;
     }
 
 }

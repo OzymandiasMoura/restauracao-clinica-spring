@@ -153,6 +153,18 @@ class FuncionarioTest
         assertEquals("Data de nascimento não pode ser futura.", exception.getMessage());
     }
 
+    @Test
+    void shouldRejectBirthDateAfterAdmissionDate()
+    {
+        Funcionario funcionario = FuncionarioTestBuilder.newFuncionario().setDataNascimento(LocalDate.of(1990, 1, 10)).setDataAdmissao(LocalDate.of(2020, 1, 10)).build();
+
+        LocalDate nascimentoPosteriorAdmissao = LocalDate.of(2021, 1, 10);
+
+        FuncionarioWithInvalidInformationException exception = assertThrows(FuncionarioWithInvalidInformationException.class, () -> funcionario.setDataNascimento(nascimentoPosteriorAdmissao));
+
+        assertEquals("Data de nascimento não pode ser depois da admissão.", exception.getMessage());
+    }
+
     //Testes de endereço
 
     @Test
@@ -262,7 +274,7 @@ class FuncionarioTest
     @Test
     void shouldCreateNewFuncionarioWithoutUserAsActive()
     {
-        Funcionario funcionario = new Funcionario("Pedro Moura", "52998224725", "pedro@email.com", LocalDate.of(1990, 1, 10), "Praça da Sé, 1 - São Paulo - SP", "01001000", CargoTestBuilder.newCargo().build());
+        Funcionario funcionario = new Funcionario("Pedro Moura", "52998224725", "pedro@email.com", LocalDate.of(1990, 1, 10), "Praça da Sé, 1 - São Paulo - SP", "01001000", CargoTestBuilder.newCargo().build(), LocalDate.now());
 
         assertTrue(funcionario.isAtivo());
         assertNull(funcionario.getUser());
@@ -283,4 +295,44 @@ class FuncionarioTest
         var exception = assertThrows(FuncionarioWithInvalidInformationException.class, () -> FuncionarioTestBuilder.newFuncionario().setCargo(null).build());
         assertEquals("Cargo do funcionário deve ser informado.", exception.getMessage());
     }
+
+    // Testes para dataAdmissao
+
+    @Test
+    void shouldCreateFuncionarioWithValidAdmissionDate()
+    {
+        LocalDate dataAdmissao = LocalDate.of(2020, 1, 10);
+        Funcionario funcionario = FuncionarioTestBuilder.newFuncionario().setDataAdmissao(dataAdmissao).build();
+
+        assertEquals(dataAdmissao, funcionario.getDataAdmissao());
+    }
+
+    @Test
+    void shouldRejectNullAdmissionDate()
+    {
+        FuncionarioWithInvalidInformationException exception = assertThrows(FuncionarioWithInvalidInformationException.class, () -> FuncionarioTestBuilder.newFuncionario().setDataAdmissao(null).build());
+
+        assertEquals("Data de admissão não pode ser nula.", exception.getMessage());
+    }
+
+    @Test
+    void shouldRejectFutureAdmissionDate()
+    {
+        LocalDate dataFutura = LocalDate.now().plusDays(1);
+        FuncionarioWithInvalidInformationException exception = assertThrows(FuncionarioWithInvalidInformationException.class, () -> FuncionarioTestBuilder.newFuncionario().setDataAdmissao(dataFutura).build());
+
+        assertEquals("Data de admissão não pode ser futura.", exception.getMessage());
+    }
+
+    @Test
+    void shouldRejectAdmissionDateBeforeBirthDate()
+    {
+        LocalDate dataNascimento = LocalDate.of(1990, 1, 10);
+        LocalDate dataAdmissao = LocalDate.of(1989, 12, 31);
+
+        FuncionarioWithInvalidInformationException exception = assertThrows(FuncionarioWithInvalidInformationException.class, () -> FuncionarioTestBuilder.newFuncionario().setDataNascimento(dataNascimento).setDataAdmissao(dataAdmissao).build());
+
+        assertEquals("Data de admissão não pode ser anterior ao nascimento.", exception.getMessage());
+    }
+
 }

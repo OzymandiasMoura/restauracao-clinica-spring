@@ -15,7 +15,7 @@ public final class FuncionarioMapper
 
     public static Funcionario requestDtoToEntity(FuncionarioRequestDto dto, User user, Cargo cargo)
     {
-        return new Funcionario(dto.nome(), dto.cpf(), dto.email(), dto.dataNascimento(), dto.endereco(), dto.cep(), user, cargo);
+        return new Funcionario(dto.nome(), dto.cpf(), dto.email(), dto.dataNascimento(), dto.endereco(), dto.cep(), user, cargo, dto.dataAdmissao());
     }
 
     public static FuncionarioResponseDto entityToResponseDto(Funcionario entity)
@@ -29,6 +29,6 @@ public final class FuncionarioMapper
                 entity.getUser().getRole()
         );
 
-        return new FuncionarioResponseDto(entity.getId(), entity.getNome(), entity.getCpf(), entity.getEmail(), entity.getDataNascimento(), entity.getEndereco(), entity.getCep(), entity.isAtivo(), cargo, user);
+        return new FuncionarioResponseDto(entity.getId(), entity.getNome(), entity.getCpf(), entity.getEmail(), entity.getDataNascimento(), entity.getEndereco(), entity.getCep(), entity.isAtivo(), cargo, user, entity.getDataAdmissao());
     }
 }
