@@ -29,6 +29,6 @@ public final class FuncionarioMapper
                 entity.getUser().getRole()
         );
 
-        return new FuncionarioResponseDto(entity.getId(), entity.getNome(), entity.getCpf(), entity.getEmail(), entity.getDataNascimento(), entity.getEndereco(), entity.getCep(), entity.isAtivo(), cargo, user, entity.getDataAdmissao());
+        return new FuncionarioResponseDto(entity.getId(), entity.getNome(), entity.getCpf(), entity.getEmail(), entity.getDataNascimento(), entity.getEndereco(), entity.getCep(), entity.isAtivo(), cargo, user, entity.getDataAdmissao(), entity.getDataDemissao());
     }
 }
