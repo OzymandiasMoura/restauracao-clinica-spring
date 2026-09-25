@@ -5,6 +5,7 @@ import org.example.clinicarestauracao.Application.Exceptions.Cargo.CargoNotFound
 import org.example.clinicarestauracao.Application.Exceptions.Cargo.CargoWithInvalidInformationException;
 import org.example.clinicarestauracao.Application.Exceptions.Funcionario.FuncionarioNotFoundException;
 import org.example.clinicarestauracao.Application.Exceptions.Funcionario.FuncionarioWithInvalidInformationException;
+import org.example.clinicarestauracao.Application.Exceptions.User.UserNotFoundException;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -122,5 +123,17 @@ class GlobalExceptionHandlerTest
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
         assertNotNull(response.getBody());
         assertEquals("Funcionário não encontrado.", response.getBody().message());
+    }
+
+    @Test
+    void shouldReturnNotFoundWhenUserDoesNotExist()
+    {
+        UserNotFoundException exception = new UserNotFoundException("Usuário não encontrado.");
+
+        ResponseEntity<ErrorResponseDto> response = handler.handleUserNotFound(exception);
+
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        assertNotNull(response.getBody());
+        assertEquals("Usuário não encontrado.", response.getBody().message());
     }
 }
