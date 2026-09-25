@@ -335,4 +335,109 @@ class FuncionarioTest
         assertEquals("Data de admissão não pode ser anterior ao nascimento.", exception.getMessage());
     }
 
+    // Testes para dataDemissao
+
+    @Test
+    void shouldDismissActiveFuncionarioWithValidDate()
+    {
+        LocalDate hoje = LocalDate.now();
+        LocalDate dataAdmissao = hoje.minusYears(1);
+
+        Funcionario funcionario = FuncionarioTestBuilder.newFuncionario().setDataAdmissao(dataAdmissao).setAtivo(true).build();
+
+        funcionario.demitir(hoje);
+
+        assertFalse(funcionario.isAtivo());
+        assertEquals(hoje, funcionario.getDataDemissao());
+    }
+
+    @Test
+    void shouldRejectDismissalWithoutDate()
+    {
+        Funcionario funcionario = FuncionarioTestBuilder.newFuncionario().setAtivo(true).build();
+
+        FuncionarioWithInvalidInformationException exception = assertThrows(FuncionarioWithInvalidInformationException.class, () -> funcionario.demitir(null));
+
+        assertEquals("Data de demissão deve ser informada.", exception.getMessage());
+        assertTrue(funcionario.isAtivo());
+        assertNull(funcionario.getDataDemissao());
+    }
+
+    @Test
+    void shouldRejectDismissalDateBeforeAdmissionDate()
+    {
+        LocalDate dataAdmissao = LocalDate.of(2026, 1, 10);
+        LocalDate dataDemissao = dataAdmissao.minusDays(1);
+
+        Funcionario funcionario = FuncionarioTestBuilder.newFuncionario().setDataAdmissao(dataAdmissao).setAtivo(true).build();
+
+        FuncionarioWithInvalidInformationException exception = assertThrows(FuncionarioWithInvalidInformationException.class, () -> funcionario.demitir(dataDemissao));
+
+        assertEquals("Data de demissão não pode ser anterior ou igual a data de admissão.", exception.getMessage());
+        assertTrue(funcionario.isAtivo());
+        assertNull(funcionario.getDataDemissao());
+    }
+
+    @Test
+    void shouldRejectDismissalDateEqualToAdmissionDate()
+    {
+        LocalDate dataAdmissao = LocalDate.of(2026, 1, 10);
+
+        Funcionario funcionario = FuncionarioTestBuilder.newFuncionario().setDataAdmissao(dataAdmissao).setAtivo(true).build();
+
+        FuncionarioWithInvalidInformationException exception = assertThrows(FuncionarioWithInvalidInformationException.class, () -> funcionario.demitir(dataAdmissao));
+
+        assertEquals("Data de demissão não pode ser anterior ou igual a data de admissão.", exception.getMessage());
+        assertTrue(funcionario.isAtivo());
+        assertNull(funcionario.getDataDemissao());
+    }
+
+    @Test
+    void shouldRejectFutureDismissalDate()
+    {
+        LocalDate hoje = LocalDate.now();
+        LocalDate dataAdmissao = hoje.minusYears(1);
+        LocalDate dataDemissao = hoje.plusDays(1);
+
+        Funcionario funcionario = FuncionarioTestBuilder.newFuncionario().setDataAdmissao(dataAdmissao).setAtivo(true).build();
+
+        FuncionarioWithInvalidInformationException exception = assertThrows(FuncionarioWithInvalidInformationException.class, () -> funcionario.demitir(dataDemissao));
+
+        assertEquals("Data de demissão não pode ser futura.", exception.getMessage());
+        assertTrue(funcionario.isAtivo());
+        assertNull(funcionario.getDataDemissao());
+    }
+
+    @Test
+    void shouldPreserveDismissalDateWhenNewDismissalDateIsInvalid()
+    {
+        LocalDate hoje = LocalDate.now();
+        LocalDate dataAdmissao = hoje.minusYears(1);
+        LocalDate primeiraDemissao = hoje.minusDays(1);
+
+        Funcionario funcionario = FuncionarioTestBuilder.newFuncionario().setDataAdmissao(dataAdmissao).setAtivo(true).build();
+
+        funcionario.demitir(primeiraDemissao);
+
+        assertThrows(FuncionarioWithInvalidInformationException.class, () -> funcionario.demitir(hoje.plusDays(1)));
+        assertFalse(funcionario.isAtivo());
+        assertEquals(primeiraDemissao, funcionario.getDataDemissao());
+    }
+
+    @Test
+    void shouldUpdateDismissalDateWhenFuncionarioIsAlreadyInactive()
+    {
+        LocalDate hoje = LocalDate.now();
+        LocalDate primeiraDemissao = hoje.minusDays(2);
+        LocalDate novaDemissao = hoje.minusDays(1);
+
+        Funcionario funcionario = FuncionarioTestBuilder.newFuncionario().setDataAdmissao(hoje.minusYears(1)).setAtivo(true).build();
+
+        funcionario.demitir(primeiraDemissao);
+        funcionario.demitir(novaDemissao);
+
+        assertFalse(funcionario.isAtivo());
+        assertEquals(novaDemissao, funcionario.getDataDemissao());
+    }
+
 }

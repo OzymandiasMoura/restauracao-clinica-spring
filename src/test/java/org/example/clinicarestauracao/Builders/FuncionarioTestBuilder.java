@@ -18,7 +18,8 @@ public class FuncionarioTestBuilder
     private boolean ativo = true;
     private User user = null;
     private Cargo cargo = CargoTestBuilder.newCargo().build();
-    private LocalDate dataAdmissao = LocalDate.now();
+    private LocalDate dataAdmissao = LocalDate.of(2026, 1, 10);
+    private LocalDate dataDemissao = null;
 
     public static FuncionarioTestBuilder newFuncionario()
     {
@@ -91,8 +92,15 @@ public class FuncionarioTestBuilder
         return this;
     }
 
+    public FuncionarioTestBuilder setDataDemissao(LocalDate dataDemissao)
+    {
+        this.dataDemissao = dataDemissao;
+        return this;
+    }
+
     public Funcionario build()
     {
+
         return new Funcionario(id, nome, cpf, email, dataNascimento, endereco, cep, ativo, user, cargo, dataAdmissao);
     }
 

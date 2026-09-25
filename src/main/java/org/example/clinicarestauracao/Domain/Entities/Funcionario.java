@@ -42,6 +42,7 @@ public class Funcionario
     private Cargo cargo;
     @Column(nullable = false)
     private LocalDate dataAdmissao;
+    @Column(nullable = true)
     private LocalDate dataDemissao;
 
     public Funcionario(Long id, String nome, String cpf, String email, LocalDate dataNascimento, String endereco, String cep, boolean ativo, User user, Cargo cargo, LocalDate dataAdmissao)
@@ -231,4 +232,28 @@ public class Funcionario
         this.dataAdmissao = dataAdmissao;
     }
 
+    private void setDataDemissao(LocalDate dataDemissao)
+    {
+        if (dataDemissao.isBefore(dataAdmissao) ||  dataDemissao.isEqual(dataAdmissao))
+        {
+            throw new FuncionarioWithInvalidInformationException("Data de demissão não pode ser anterior ou igual a data de admissão.");
+        }
+        if (dataDemissao.isAfter(LocalDate.now()))
+        {
+            throw new FuncionarioWithInvalidInformationException("Data de demissão não pode ser futura.");
+        }
+
+        this.dataDemissao = dataDemissao;
+    }
+
+    public void demitir(LocalDate dataDemissao)
+    {
+        if (dataDemissao == null)
+        {
+            throw new FuncionarioWithInvalidInformationException("Data de demissão deve ser informada.");
+        }
+
+        setDataDemissao(dataDemissao);
+        setAtivo(false);
+    }
 }
