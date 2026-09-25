@@ -101,6 +101,7 @@ public class FuncionarioService
         existed.setEndereco(funcionario.getEndereco());
         existed.setCep(funcionario.getCep());
         existed.setCargo(funcionario.getCargo());
+        existed.setDataAdmissao(funcionario.getDataAdmissao());
         return repository.save(existed);
     }
 
