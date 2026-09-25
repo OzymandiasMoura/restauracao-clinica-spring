@@ -5,6 +5,7 @@ import org.example.clinicarestauracao.Application.Exceptions.Cargo.CargoNotFound
 import org.example.clinicarestauracao.Application.Exceptions.Cargo.CargoWithInvalidInformationException;
 import org.example.clinicarestauracao.Application.Exceptions.Funcionario.FuncionarioNotFoundException;
 import org.example.clinicarestauracao.Application.Exceptions.Funcionario.FuncionarioWithInvalidInformationException;
+import org.example.clinicarestauracao.Application.Exceptions.User.UserNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -76,6 +77,14 @@ public class GlobalExceptionHandler
 
     @ExceptionHandler(FuncionarioNotFoundException.class)
     public ResponseEntity<ErrorResponseDto> handleFuncionarioNotFound(FuncionarioNotFoundException ex)
+    {
+        var response = new ErrorResponseDto(ex.getMessage());
+
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+    }
+
+    @ExceptionHandler(UserNotFoundException.class)
+    public ResponseEntity<ErrorResponseDto> handleUserNotFound(UserNotFoundException ex)
     {
         var response = new ErrorResponseDto(ex.getMessage());
 
