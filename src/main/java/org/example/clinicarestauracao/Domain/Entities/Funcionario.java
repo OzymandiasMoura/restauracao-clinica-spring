@@ -256,4 +256,10 @@ public class Funcionario
         setDataDemissao(dataDemissao);
         setAtivo(false);
     }
+
+    public void reactivate()
+    {
+        this.dataDemissao = null;
+        setAtivo(true);
+    }
 }

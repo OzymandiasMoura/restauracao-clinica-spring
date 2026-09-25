@@ -440,4 +440,21 @@ class FuncionarioTest
         assertEquals(novaDemissao, funcionario.getDataDemissao());
     }
 
+    //Teste para reactivate
+    @Test
+    void shouldReactivateDismissedFuncionario()
+    {
+        LocalDate hoje = LocalDate.now();
+        LocalDate dataAdmissao = hoje.minusYears(1);
+        LocalDate dataDemissao = hoje.minusDays(1);
+
+        Funcionario funcionario = FuncionarioTestBuilder.newFuncionario().setDataAdmissao(dataAdmissao).setDataDemissao(dataDemissao).setAtivo(false).build();
+
+        funcionario.reactivate();
+
+        assertTrue(funcionario.isAtivo());
+        assertNull(funcionario.getDataDemissao());
+        assertEquals(dataAdmissao, funcionario.getDataAdmissao());
+    }
+
 }

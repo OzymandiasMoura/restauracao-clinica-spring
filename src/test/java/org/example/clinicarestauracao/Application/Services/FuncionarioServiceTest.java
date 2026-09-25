@@ -483,6 +483,33 @@ class FuncionarioServiceTest
         Mockito.verify(repository).save(existing);
     }
 
+    @Test
+    void shouldPreserveEmploymentDatesWhenUpdatingFuncionario()
+    {
+        LocalDate hoje = LocalDate.now();
+        LocalDate dataAdmissaoExistente = hoje.minusYears(2);
+        LocalDate dataDemissaoExistente = hoje.minusDays(2);
+        Funcionario existing = FuncionarioTestBuilder.newFuncionario().setId(1L).setAtivo(false).setDataAdmissao(dataAdmissaoExistente).setDataDemissao(dataDemissaoExistente).build();
+        Funcionario updatedData = FuncionarioTestBuilder.newFuncionario().setNome("Pedro Moura Atualizado").setCpf("12345678909").setEmail("pedro.atualizado@email.com").setDataAdmissao(hoje.minusYears(1)).setDataDemissao(hoje.minusDays(1)).buildForCreate();
+
+        Mockito.when(repository.findFuncionarioById(1L)).thenReturn(Optional.of(existing));
+        Mockito.when(repository.findFuncionarioByCpf(updatedData.getCpf())).thenReturn(Optional.empty());
+        Mockito.when(repository.findFuncionarioByEmail(updatedData.getEmail())).thenReturn(Optional.empty());
+        Mockito.when(repository.save(existing)).thenReturn(existing);
+
+        Funcionario response = service.updateFuncionario(1L, updatedData);
+
+        assertSame(existing, response);
+        assertEquals(dataAdmissaoExistente, response.getDataAdmissao());
+        assertEquals(dataDemissaoExistente, response.getDataDemissao());
+        assertFalse(response.isAtivo());
+
+        Mockito.verify(repository).findFuncionarioById(1L);
+        Mockito.verify(repository).findFuncionarioByCpf(updatedData.getCpf());
+        Mockito.verify(repository).findFuncionarioByEmail(updatedData.getEmail());
+        Mockito.verify(repository).save(existing);
+    }
+
     @ParameterizedTest
     @NullSource
     @ValueSource(longs = {0, -1, -10})
@@ -497,41 +524,84 @@ class FuncionarioServiceTest
     }
 
     @Test
-    void shouldDeactivateFuncionarioSuccessfully()
+    void shouldDismissFuncionarioSuccessfully()
     {
-        Funcionario exited =  FuncionarioTestBuilder.newFuncionario().setId(1L).setAtivo(true).build();
+        LocalDate hoje = LocalDate.now();
+        Funcionario existing = FuncionarioTestBuilder.newFuncionario().setId(1L).setDataAdmissao(hoje.minusYears(1)).setAtivo(true).build();
 
-        Mockito.when(repository.findFuncionarioById(1L)).thenReturn(Optional.of(exited));
+        Mockito.when(repository.findFuncionarioById(1L)).thenReturn(Optional.of(existing));
 
-        service.softDeleteFuncionarioById(1L);
+        service.dismissFuncionarioById(1L, hoje);
 
-        assertFalse(exited.isAtivo());
+        assertFalse(existing.isAtivo());
+        assertEquals(hoje, existing.getDataDemissao());
 
         Mockito.verify(repository).findFuncionarioById(1L);
-        Mockito.verify(repository).save(exited);
+        Mockito.verify(repository).save(existing);
     }
 
     @Test
-    void shouldNotSaveWhenFuncionarioIsAlreadyInactive()
+    void shouldUpdateDismissalDateWhenFuncionarioIsAlreadyInactive()
     {
-        Funcionario existed = FuncionarioTestBuilder.newFuncionario().setId(1L).setAtivo(false).build();
+        LocalDate hoje = LocalDate.now();
+        LocalDate primeiraDemissao = hoje.minusDays(2);
+        LocalDate novaDemissao = hoje.minusDays(1);
+        Funcionario existing = FuncionarioTestBuilder.newFuncionario().setId(1L).setDataAdmissao(hoje.minusYears(1)).setAtivo(false).setDataDemissao(primeiraDemissao).build();
 
-        Mockito.when(repository.findFuncionarioById(1L)).thenReturn(Optional.of(existed));
+        Mockito.when(repository.findFuncionarioById(1L)).thenReturn(Optional.of(existing));
 
-        service.softDeleteFuncionarioById(1L);
+        service.dismissFuncionarioById(1L, novaDemissao);
 
-        assertFalse(existed.isAtivo());
+        assertFalse(existing.isAtivo());
+        assertEquals(novaDemissao, existing.getDataDemissao());
+
+        Mockito.verify(repository).findFuncionarioById(1L);
+        Mockito.verify(repository).save(existing);
+    }
+
+    @Test
+    void shouldNotSaveFuncionarioWhenDismissalDateIsNull()
+    {
+        Funcionario existing = FuncionarioTestBuilder.newFuncionario().setId(1L).setAtivo(true).build();
+
+        Mockito.when(repository.findFuncionarioById(1L)).thenReturn(Optional.of(existing));
+
+        FuncionarioWithInvalidInformationException exception = assertThrows(FuncionarioWithInvalidInformationException.class, () -> service.dismissFuncionarioById(1L, null));
+
+        assertEquals("Data de demissão deve ser informada.", exception.getMessage());
+        assertTrue(existing.isAtivo());
+        assertNull(existing.getDataDemissao());
 
         Mockito.verify(repository).findFuncionarioById(1L);
         Mockito.verify(repository, Mockito.never()).save(Mockito.any());
     }
 
     @Test
-    void shouldThrowFuncionarioNotFoundExceptionWhenSoftDeletingNonexistentFuncionario()
+    void shouldNotSaveFuncionarioWhenDismissalDateIsInvalid()
     {
+        LocalDate hoje = LocalDate.now();
+        LocalDate dataDemissaoFutura = hoje.plusDays(1);
+        Funcionario existing = FuncionarioTestBuilder.newFuncionario().setId(1L).setDataAdmissao(hoje.minusYears(1)).setAtivo(true).build();
+
+        Mockito.when(repository.findFuncionarioById(1L)).thenReturn(Optional.of(existing));
+
+        FuncionarioWithInvalidInformationException exception = assertThrows(FuncionarioWithInvalidInformationException.class, () -> service.dismissFuncionarioById(1L, dataDemissaoFutura));
+
+        assertEquals("Data de demissão não pode ser futura.", exception.getMessage());
+        assertTrue(existing.isAtivo());
+        assertNull(existing.getDataDemissao());
+
+        Mockito.verify(repository).findFuncionarioById(1L);
+        Mockito.verify(repository, Mockito.never()).save(Mockito.any());
+    }
+
+    @Test
+    void shouldThrowFuncionarioNotFoundExceptionWhenDismissingNonexistentFuncionario()
+    {
+        LocalDate dataDemissao = LocalDate.now();
         Mockito.when(repository.findFuncionarioById(1L)).thenReturn(Optional.empty());
 
-        FuncionarioNotFoundException exception = assertThrows(FuncionarioNotFoundException.class, () -> service.softDeleteFuncionarioById(1L));
+        FuncionarioNotFoundException exception = assertThrows(FuncionarioNotFoundException.class, () -> service.dismissFuncionarioById(1L, dataDemissao));
 
         assertEquals("Funcionário não encontrado.",  exception.getMessage());
 
@@ -542,9 +612,9 @@ class FuncionarioServiceTest
     @ParameterizedTest
     @NullSource
     @ValueSource(longs = {0, -1, -10})
-    void shouldThrowFuncionarioNotFoundExceptionWhenSoftDeletingWithInvalidId(Long id)
+    void shouldThrowFuncionarioNotFoundExceptionWhenDismissingWithInvalidId(Long id)
     {
-        FuncionarioNotFoundException exception = assertThrows(FuncionarioNotFoundException.class, () -> service.softDeleteFuncionarioById(id));
+        FuncionarioNotFoundException exception = assertThrows(FuncionarioNotFoundException.class, () -> service.dismissFuncionarioById(id, LocalDate.now()));
 
         assertEquals("Funcionário não encontrado.", exception.getMessage());
 
@@ -554,16 +624,22 @@ class FuncionarioServiceTest
     @Test
     void shouldReactivateFuncionarioSuccessfully()
     {
-        Funcionario existed  = FuncionarioTestBuilder.newFuncionario().setId(1L).setAtivo(false).build();
+        LocalDate hoje = LocalDate.now();
+        LocalDate dataAdmissao = hoje.minusYears(1);
+        LocalDate dataDemissao = hoje.minusDays(1);
 
-        Mockito.when(repository.findFuncionarioById(1L)).thenReturn(Optional.of(existed));
+        Funcionario existing = FuncionarioTestBuilder.newFuncionario().setId(1L).setDataAdmissao(dataAdmissao).setDataDemissao(dataDemissao).setAtivo(false).build();
+
+        Mockito.when(repository.findFuncionarioById(1L)).thenReturn(Optional.of(existing));
 
         service.reactivateFuncionarioById(1L);
 
-        assertTrue(existed.isAtivo());
+        assertTrue(existing.isAtivo());
+        assertNull(existing.getDataDemissao());
+        assertEquals(dataAdmissao, existing.getDataAdmissao());
 
         Mockito.verify(repository).findFuncionarioById(1L);
-        Mockito.verify(repository).save(existed);
+        Mockito.verify(repository).save(existing);
     }
 
     @Test
@@ -772,6 +848,27 @@ class FuncionarioServiceTest
         assertEquals("Funcionário não encontrado.", exception.getMessage());
 
         Mockito.verifyNoInteractions(repository);
+    }
+
+    @Test
+    void shouldReactivateFuncionarioSuccessfullyWhenReactivating()
+    {
+        LocalDate hoje = LocalDate.now();
+        LocalDate dataAdmissao = hoje.minusYears(1);
+        LocalDate dataDemissao = hoje.minusDays(1);
+
+        Funcionario existing = FuncionarioTestBuilder.newFuncionario().setId(1L).setDataAdmissao(dataAdmissao).setDataDemissao(dataDemissao).setAtivo(false).build();
+
+        Mockito.when(repository.findFuncionarioById(1L)).thenReturn(Optional.of(existing));
+
+        service.reactivateFuncionarioById(1L);
+
+        assertTrue(existing.isAtivo());
+        assertNull(existing.getDataDemissao());
+        assertEquals(dataAdmissao, existing.getDataAdmissao());
+
+        Mockito.verify(repository).findFuncionarioById(1L);
+        Mockito.verify(repository).save(existing);
     }
 
 }

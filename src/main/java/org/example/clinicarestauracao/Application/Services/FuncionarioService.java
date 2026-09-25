@@ -9,6 +9,7 @@ import org.example.clinicarestauracao.Domain.Validation.CpfValidator;
 import org.example.clinicarestauracao.Domain.Validation.EmailValidator;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -103,7 +104,7 @@ public class FuncionarioService
         return repository.save(existed);
     }
 
-    public void softDeleteFuncionarioById(Long id)
+    public void dismissFuncionarioById(Long id, LocalDate dataDemissao)
     {
         if (id == null || id <= 0)
         {
@@ -112,12 +113,7 @@ public class FuncionarioService
 
         Funcionario f  = this.findFuncionarioById(id);
 
-        if(!f.isAtivo())
-        {
-            return;
-        }
-
-        f.setAtivo(false);
+        f.demitir(dataDemissao);
         repository.save(f);
     }
 
@@ -128,15 +124,15 @@ public class FuncionarioService
             throw new FuncionarioNotFoundException("Funcionário não encontrado.");
         }
 
-        Funcionario f  = this.findFuncionarioById(id);
+        Funcionario funcionario = this.findFuncionarioById(id);
 
-        if(f.isAtivo())
+        if (funcionario.isAtivo())
         {
             return;
         }
 
-        f.setAtivo(true);
-        repository.save(f);
+        funcionario.reactivate();
+        repository.save(funcionario);
     }
 
     public void linkUserToFuncionario(Long id, User user)

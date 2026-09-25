@@ -3,6 +3,7 @@ package org.example.clinicarestauracao.Builders;
 import org.example.clinicarestauracao.Domain.Entities.Cargo;
 import org.example.clinicarestauracao.Domain.Entities.Funcionario;
 import org.example.clinicarestauracao.Domain.Entities.User;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.time.LocalDate;
 
@@ -100,12 +101,25 @@ public class FuncionarioTestBuilder
 
     public Funcionario build()
     {
+        Funcionario funcionario = new Funcionario(id, nome, cpf, email, dataNascimento, endereco, cep, ativo, user, cargo, dataAdmissao);
 
-        return new Funcionario(id, nome, cpf, email, dataNascimento, endereco, cep, ativo, user, cargo, dataAdmissao);
+        if (dataDemissao != null)
+        {
+            ReflectionTestUtils.setField(funcionario, "dataDemissao", dataDemissao);
+        }
+
+        return funcionario;
     }
 
     public Funcionario buildForCreate()
     {
-        return new Funcionario(nome, cpf, email, dataNascimento, endereco, cep, user, cargo, dataAdmissao);
+        Funcionario funcionario = new Funcionario(nome, cpf, email, dataNascimento, endereco, cep, user, cargo, dataAdmissao);
+
+        if (dataDemissao != null)
+        {
+            ReflectionTestUtils.setField(funcionario, "dataDemissao", dataDemissao);
+        }
+
+        return funcionario;
     }
 }
