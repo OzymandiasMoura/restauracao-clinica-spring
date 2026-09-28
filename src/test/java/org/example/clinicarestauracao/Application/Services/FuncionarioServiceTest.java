@@ -484,7 +484,7 @@ class FuncionarioServiceTest
     }
 
     @Test
-    void shouldPreserveEmploymentDatesWhenUpdatingFuncionario()
+    void shouldUpdateAdmissionAndPreserveDismissalWhenUpdatingFuncionario()
     {
         LocalDate hoje = LocalDate.now();
         LocalDate dataAdmissaoExistente = hoje.minusYears(2);
@@ -500,7 +500,7 @@ class FuncionarioServiceTest
         Funcionario response = service.updateFuncionario(1L, updatedData);
 
         assertSame(existing, response);
-        assertEquals(dataAdmissaoExistente, response.getDataAdmissao());
+        assertEquals(updatedData.getDataAdmissao(), response.getDataAdmissao());
         assertEquals(dataDemissaoExistente, response.getDataDemissao());
         assertFalse(response.isAtivo());
 
@@ -508,6 +508,52 @@ class FuncionarioServiceTest
         Mockito.verify(repository).findFuncionarioByCpf(updatedData.getCpf());
         Mockito.verify(repository).findFuncionarioByEmail(updatedData.getEmail());
         Mockito.verify(repository).save(existing);
+    }
+
+    @Test
+    void shouldRejectUpdateWhenAdmissionIsNotBeforeDismissal()
+    {
+        LocalDate hoje = LocalDate.now();
+        LocalDate dataAdmissaoExistente = hoje.minusYears(2);
+        LocalDate dataDemissaoExistente = hoje.minusDays(2);
+
+        Funcionario existing = FuncionarioTestBuilder.newFuncionario()
+                .setId(1L)
+                .setNome("Pedro Moura")
+                .setAtivo(false)
+                .setDataAdmissao(dataAdmissaoExistente)
+                .setDataDemissao(dataDemissaoExistente)
+                .build();
+
+        Funcionario updatedData = FuncionarioTestBuilder.newFuncionario()
+                .setNome("Pedro Moura Atualizado")
+                .setCpf("12345678909")
+                .setEmail("pedro.atualizado@email.com")
+                .setDataAdmissao(dataDemissaoExistente)
+                .buildForCreate();
+
+        Mockito.when(repository.findFuncionarioById(1L))
+                .thenReturn(Optional.of(existing));
+        Mockito.when(repository.findFuncionarioByCpf(updatedData.getCpf()))
+                .thenReturn(Optional.empty());
+        Mockito.when(repository.findFuncionarioByEmail(updatedData.getEmail()))
+                .thenReturn(Optional.empty());
+
+        FuncionarioWithInvalidInformationException exception =
+                assertThrows(
+                        FuncionarioWithInvalidInformationException.class,
+                        () -> service.updateFuncionario(1L, updatedData)
+                );
+
+        assertEquals(
+                "Data de admissão deve ser anterior à data de demissão.",
+                exception.getMessage()
+        );
+        assertEquals("Pedro Moura", existing.getNome());
+        assertEquals(dataAdmissaoExistente, existing.getDataAdmissao());
+        assertEquals(dataDemissaoExistente, existing.getDataDemissao());
+
+        Mockito.verify(repository, Mockito.never()).save(Mockito.any());
     }
 
     @ParameterizedTest

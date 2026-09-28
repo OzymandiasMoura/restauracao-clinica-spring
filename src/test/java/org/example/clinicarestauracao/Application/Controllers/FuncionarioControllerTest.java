@@ -293,10 +293,9 @@ class FuncionarioControllerTest
 
     //Testes update
     @Test
-    void shouldUpdateFuncionarioAndPreserveUserAndEmploymentDates()
+    void shouldUpdateFuncionarioAndPreserveUserAndDismissalDate()
     {
         LocalDate hoje = LocalDate.now();
-        LocalDate dataAdmissaoExistente = hoje.minusYears(2);
         LocalDate dataDemissaoExistente = hoje.minusDays(1);
         LocalDate dataAdmissaoRecebida = hoje.minusYears(1);
 
@@ -316,7 +315,7 @@ class FuncionarioControllerTest
                 dataAdmissaoRecebida
         );
 
-        Funcionario updated = FuncionarioTestBuilder.newFuncionario().setId(1L).setNome(dto.nome()).setCpf(dto.cpf()).setEmail(dto.email()).setDataNascimento(dto.dataNascimento()).setEndereco(dto.endereco()).setCep(dto.cep()).setCargo(cargoAtualizado).setUser(usuarioExistente).setDataAdmissao(dataAdmissaoExistente).setDataDemissao(dataDemissaoExistente).setAtivo(false).build();
+        Funcionario updated = FuncionarioTestBuilder.newFuncionario().setId(1L).setNome(dto.nome()).setCpf(dto.cpf()).setEmail(dto.email()).setDataNascimento(dto.dataNascimento()).setEndereco(dto.endereco()).setCep(dto.cep()).setCargo(cargoAtualizado).setUser(usuarioExistente).setDataAdmissao(dataAdmissaoRecebida).setDataDemissao(dataDemissaoExistente).setAtivo(false).build();
 
         Mockito.when(cargoService.findCargoById(cargoAtualizado.getId())).thenReturn(cargoAtualizado);
 
@@ -334,7 +333,7 @@ class FuncionarioControllerTest
         assertEquals(cargoAtualizado.getId(), response.getBody().cargo().id());
         assertNotNull(response.getBody().user());
         assertEquals(usuarioExistente.getId(), response.getBody().user().id());
-        assertEquals(dataAdmissaoExistente, response.getBody().dataAdmissao());
+        assertEquals(dataAdmissaoRecebida, response.getBody().dataAdmissao());
         assertEquals(dataDemissaoExistente, response.getBody().dataDemissao());
 
         Mockito.verify(cargoService).findCargoById(cargoAtualizado.getId());
@@ -350,6 +349,8 @@ class FuncionarioControllerTest
         assertEquals(dto.nome(), sentToService.getNome());
         assertEquals(dto.cpf(), sentToService.getCpf());
         assertEquals(dto.email(), sentToService.getEmail());
+        assertEquals(dto.dataNascimento(), sentToService.getDataNascimento());
+        assertEquals(dto.dataAdmissao(), sentToService.getDataAdmissao());
         assertSame(cargoAtualizado, sentToService.getCargo());
         assertNull(sentToService.getUser());
     }

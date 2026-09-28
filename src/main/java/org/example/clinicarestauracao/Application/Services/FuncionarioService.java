@@ -94,14 +94,14 @@ public class FuncionarioService
             throw new FuncionarioWithInvalidInformationException("E-mail já cadastrado.");
         }
 
+        existed.atualizarDatas(funcionario.getDataNascimento(), funcionario.getDataAdmissao());
         existed.setNome(funcionario.getNome());
         existed.setCpf(funcionario.getCpf());
         existed.setEmail(funcionario.getEmail());
-        existed.setDataNascimento(funcionario.getDataNascimento());
         existed.setEndereco(funcionario.getEndereco());
         existed.setCep(funcionario.getCep());
         existed.setCargo(funcionario.getCargo());
-        existed.setDataAdmissao(funcionario.getDataAdmissao());
+
         return repository.save(existed);
     }
 

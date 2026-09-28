@@ -163,22 +163,14 @@ public class Funcionario
 
     public void setDataNascimento(LocalDate dataNascimento)
     {
-        if (dataNascimento == null)
+        validarDataNascimento(dataNascimento);
+
+        if (this.dataAdmissao != null)
         {
-            throw new FuncionarioWithInvalidInformationException("É necessário definir a data de nascimento.");
+            validarOrdemDasDatas(dataNascimento, this.dataAdmissao, this.dataDemissao);
         }
-        else if (dataNascimento.isAfter(LocalDate.now()))
-        {
-            throw new FuncionarioWithInvalidInformationException("Data de nascimento não pode ser futura.");
-        }
-        else if (dataAdmissao != null && dataNascimento.isAfter(dataAdmissao))
-        {
-            throw new FuncionarioWithInvalidInformationException("Data de nascimento não pode ser depois da admissão.");
-        }
-        else
-        {
-            this.dataNascimento = dataNascimento;
-        }
+
+        this.dataNascimento = dataNascimento;
     }
 
     public void setEndereco(String endereco)
@@ -217,18 +209,13 @@ public class Funcionario
 
     public void setDataAdmissao(LocalDate dataAdmissao)
     {
-        if (dataAdmissao == null)
+        validarDataAdmissao(dataAdmissao);
+
+        if (this.dataNascimento != null)
         {
-            throw new FuncionarioWithInvalidInformationException("Data de admissão não pode ser nula.");
+            validarOrdemDasDatas(this.dataNascimento, dataAdmissao, this.dataDemissao);
         }
-        if (dataAdmissao.isAfter(LocalDate.now()))
-        {
-            throw new FuncionarioWithInvalidInformationException("Data de admissão não pode ser futura.");
-        }
-        if (dataNascimento != null && dataAdmissao.isBefore(dataNascimento))
-        {
-            throw new FuncionarioWithInvalidInformationException("Data de admissão não pode ser anterior ao nascimento.");
-        }
+
         this.dataAdmissao = dataAdmissao;
     }
 
@@ -262,4 +249,55 @@ public class Funcionario
         this.dataDemissao = null;
         setAtivo(true);
     }
+
+    private void validarDataNascimento(LocalDate dataNascimento)
+    {
+        if (dataNascimento == null)
+        {
+            throw new FuncionarioWithInvalidInformationException("É necessário definir a data de nascimento.");
+        }
+
+        if (dataNascimento.isAfter(LocalDate.now()))
+        {
+            throw new FuncionarioWithInvalidInformationException("Data de nascimento não pode ser futura.");
+        }
+    }
+
+    private void validarDataAdmissao(LocalDate dataAdmissao)
+    {
+        if (dataAdmissao == null)
+        {
+            throw new FuncionarioWithInvalidInformationException("Data de admissão não pode ser nula.");
+        }
+
+        if (dataAdmissao.isAfter(LocalDate.now()))
+        {
+            throw new FuncionarioWithInvalidInformationException("Data de admissão não pode ser futura.");
+        }
+    }
+
+    private void validarOrdemDasDatas(LocalDate dataNascimento, LocalDate dataAdmissao, LocalDate dataDemissao)
+    {
+        if (dataAdmissao.isBefore(dataNascimento))
+        {
+            throw new FuncionarioWithInvalidInformationException("Data de admissão não pode ser anterior ao nascimento.");
+        }
+
+        if (dataDemissao != null
+                && !dataAdmissao.isBefore(dataDemissao))
+        {
+            throw new FuncionarioWithInvalidInformationException("Data de admissão deve ser anterior à data de demissão.");
+        }
+    }
+
+    public void atualizarDatas(LocalDate novaDataNascimento, LocalDate novaDataAdmissao)
+    {
+        validarDataNascimento(novaDataNascimento);
+        validarDataAdmissao(novaDataAdmissao);
+        validarOrdemDasDatas(novaDataNascimento, novaDataAdmissao, this.dataDemissao);
+
+        this.dataNascimento = novaDataNascimento;
+        this.dataAdmissao = novaDataAdmissao;
+    }
+
 }

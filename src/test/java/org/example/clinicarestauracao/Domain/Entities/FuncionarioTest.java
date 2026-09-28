@@ -162,7 +162,7 @@ class FuncionarioTest
 
         FuncionarioWithInvalidInformationException exception = assertThrows(FuncionarioWithInvalidInformationException.class, () -> funcionario.setDataNascimento(nascimentoPosteriorAdmissao));
 
-        assertEquals("Data de nascimento não pode ser depois da admissão.", exception.getMessage());
+        assertEquals("Data de admissão não pode ser anterior ao nascimento.", exception.getMessage());
     }
 
     //Testes de endereço
@@ -335,6 +335,79 @@ class FuncionarioTest
         assertEquals("Data de admissão não pode ser anterior ao nascimento.", exception.getMessage());
     }
 
+    @Test
+    void shouldUpdateBirthAndAdmissionDatesTogether()
+    {
+        Funcionario funcionario = FuncionarioTestBuilder.newFuncionario().setDataNascimento(LocalDate.of(1990, 1, 10)).setDataAdmissao(LocalDate.of(2000, 1, 10)).build();
+
+        LocalDate novaDataNascimento = LocalDate.of(2005, 1, 10);
+        LocalDate novaDataAdmissao = LocalDate.of(2010, 1, 10);
+
+        funcionario.atualizarDatas(novaDataNascimento, novaDataAdmissao);
+
+        assertEquals(novaDataNascimento, funcionario.getDataNascimento());
+        assertEquals(novaDataAdmissao, funcionario.getDataAdmissao());
+    }
+
+    @Test
+    void shouldPreserveDatesWhenUpdatedDatesAreInvalid()
+    {
+        LocalDate dataNascimentoExistente = LocalDate.of(1990, 1, 10);
+        LocalDate dataAdmissaoExistente = LocalDate.of(2010, 1, 10);
+
+        Funcionario funcionario = FuncionarioTestBuilder.newFuncionario()
+                .setDataNascimento(dataNascimentoExistente)
+                .setDataAdmissao(dataAdmissaoExistente)
+                .build();
+
+        FuncionarioWithInvalidInformationException exception =
+                assertThrows(
+                        FuncionarioWithInvalidInformationException.class,
+                        () -> funcionario.atualizarDatas(
+                                LocalDate.of(2000, 1, 10),
+                                LocalDate.of(1999, 1, 10)
+                        )
+                );
+
+        assertEquals(
+                "Data de admissão não pode ser anterior ao nascimento.",
+                exception.getMessage()
+        );
+        assertEquals(dataNascimentoExistente, funcionario.getDataNascimento());
+        assertEquals(dataAdmissaoExistente, funcionario.getDataAdmissao());
+    }
+
+    @Test
+    void shouldPreserveDatesWhenNewAdmissionIsNotBeforeDismissal()
+    {
+        LocalDate dataNascimentoExistente = LocalDate.of(1990, 1, 10);
+        LocalDate dataAdmissaoExistente = LocalDate.of(2010, 1, 10);
+        LocalDate dataDemissaoExistente = LocalDate.of(2020, 1, 10);
+
+        Funcionario funcionario = FuncionarioTestBuilder.newFuncionario()
+                .setDataNascimento(dataNascimentoExistente)
+                .setDataAdmissao(dataAdmissaoExistente)
+                .setDataDemissao(dataDemissaoExistente)
+                .setAtivo(false)
+                .build();
+
+        FuncionarioWithInvalidInformationException exception =
+                assertThrows(
+                        FuncionarioWithInvalidInformationException.class,
+                        () -> funcionario.atualizarDatas(
+                                LocalDate.of(1995, 1, 10),
+                                dataDemissaoExistente
+                        )
+                );
+
+        assertEquals(
+                "Data de admissão deve ser anterior à data de demissão.",
+                exception.getMessage()
+        );
+        assertEquals(dataNascimentoExistente, funcionario.getDataNascimento());
+        assertEquals(dataAdmissaoExistente, funcionario.getDataAdmissao());
+        assertEquals(dataDemissaoExistente, funcionario.getDataDemissao());
+    }
     // Testes para dataDemissao
 
     @Test
