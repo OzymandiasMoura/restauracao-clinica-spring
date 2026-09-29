@@ -33,7 +33,7 @@ class ModalidadeServiceTest
 
         Mockito.when(repository.save(Mockito.any(Modalidade.class))).thenReturn(salva);
         Mockito.when(repository.findModalidadeByCnpj(Mockito.anyString())).thenReturn(Optional.empty());
-        Mockito.when(repository.findModalidadeByDescricao(Mockito.anyString())).thenReturn(Optional.empty());
+        Mockito.when(repository.findModalidadeByDescricaoIgnoreCase(Mockito.anyString())).thenReturn(Optional.empty());
         Mockito.when(repository.findModalidadeByCor(Mockito.anyString())).thenReturn(Optional.empty());
 
 
@@ -51,7 +51,7 @@ class ModalidadeServiceTest
 
         Mockito.verify(repository).save(entrada);
         Mockito.verify(repository).findModalidadeByCnpj(entrada.getCnpj());
-        Mockito.verify(repository).findModalidadeByDescricao(entrada.getDescricao());
+        Mockito.verify(repository).findModalidadeByDescricaoIgnoreCase(entrada.getDescricao());
         Mockito.verify(repository).findModalidadeByCor(entrada.getCor());
     }
 
@@ -68,7 +68,7 @@ class ModalidadeServiceTest
         assertEquals("CNPJ já cadastrado.", e.getMessage());
 
         Mockito.verify(repository).findModalidadeByCnpj(entrada.getCnpj());
-        Mockito.verify(repository, Mockito.never()).findModalidadeByDescricao(Mockito.anyString());
+        Mockito.verify(repository, Mockito.never()).findModalidadeByDescricaoIgnoreCase(Mockito.anyString());
         Mockito.verify(repository, Mockito.never()).save(Mockito.any(Modalidade.class));
     }
 
@@ -79,15 +79,38 @@ class ModalidadeServiceTest
         Modalidade entrada = builder.buildForCreate();
 
         Mockito.when(repository.findModalidadeByCnpj(Mockito.anyString())).thenReturn(Optional.empty());
-        Mockito.when(repository.findModalidadeByDescricao(Mockito.anyString())).thenReturn(Optional.of(retornoDescricao));
+        Mockito.when(repository.findModalidadeByDescricaoIgnoreCase(Mockito.anyString())).thenReturn(Optional.of(retornoDescricao));
 
         ModalidadeWithInvalidInformationException e = assertThrows(ModalidadeWithInvalidInformationException.class, () -> service.createModalidade(entrada));
 
         assertEquals("Descrição já cadastrada.", e.getMessage());
 
         Mockito.verify(repository).findModalidadeByCnpj(entrada.getCnpj());
-        Mockito.verify(repository).findModalidadeByDescricao(entrada.getDescricao());
+        Mockito.verify(repository).findModalidadeByDescricaoIgnoreCase(entrada.getDescricao());
         Mockito.verify(repository, Mockito.never()).save(Mockito.any(Modalidade.class));
+    }
+
+    @Test
+    void shouldRejectDuplicatedDescricaoIgnoringCase()
+    {
+        Modalidade entrada = new ModalidadeTestBuilder()
+                .setDescricao("pilates")
+                .buildForCreate();
+        Modalidade existente = new ModalidadeTestBuilder()
+                .setDescricao("Pilates")
+                .build();
+
+        Mockito.when(repository.findModalidadeByCnpj(entrada.getCnpj())).thenReturn(Optional.empty());
+        Mockito.when(repository.findModalidadeByDescricaoIgnoreCase("pilates")).thenReturn(Optional.of(existente));
+
+        ModalidadeWithInvalidInformationException exception = assertThrows(
+                ModalidadeWithInvalidInformationException.class,
+                () -> service.createModalidade(entrada)
+        );
+
+        assertEquals("Descrição já cadastrada.", exception.getMessage());
+        Mockito.verify(repository).findModalidadeByDescricaoIgnoreCase("pilates");
+        Mockito.verify(repository, Mockito.never()).save(Mockito.any());
     }
 
     @Test
@@ -97,7 +120,7 @@ class ModalidadeServiceTest
         Modalidade salva = builder.build();
 
         Mockito.when(repository.save(Mockito.any(Modalidade.class))).thenReturn(salva);
-        Mockito.when(repository.findModalidadeByDescricao(Mockito.anyString())).thenReturn(Optional.empty());
+        Mockito.when(repository.findModalidadeByDescricaoIgnoreCase(Mockito.anyString())).thenReturn(Optional.empty());
         Mockito.when(repository.findModalidadeByCor(entrada.getCor())).thenReturn(Optional.empty());
 
 
@@ -109,7 +132,7 @@ class ModalidadeServiceTest
 
         Mockito.verify(repository).save(entrada);
         Mockito.verify(repository, Mockito.never()).findModalidadeByCnpj(Mockito.any());
-        Mockito.verify(repository).findModalidadeByDescricao(entrada.getDescricao());
+        Mockito.verify(repository).findModalidadeByDescricaoIgnoreCase(entrada.getDescricao());
         Mockito.verify(repository).findModalidadeByCor(entrada.getCor());
     }
 
@@ -184,7 +207,7 @@ class ModalidadeServiceTest
         Modalidade dadosAtualizados = new ModalidadeTestBuilder().setDescricao("Nova Descrição").setCNPJ("12.ABC.345/01DE-35").setMaxVagas(30).setPagamento(false).setCor("#FF5733").build();
 
         Mockito.when(repository.findById(existente.getId())).thenReturn(Optional.of(existente));
-        Mockito.when(repository.findModalidadeByDescricao(Mockito.anyString())).thenReturn(Optional.empty());
+        Mockito.when(repository.findModalidadeByDescricaoIgnoreCase(Mockito.anyString())).thenReturn(Optional.empty());
         Mockito.when(repository.findModalidadeByCnpj(Mockito.anyString())).thenReturn(Optional.empty());
         Mockito.when(repository.findModalidadeByCor(Mockito.anyString())).thenReturn(Optional.empty());
         Mockito.when(repository.save(Mockito.same(existente))).thenReturn(existente);
@@ -201,7 +224,7 @@ class ModalidadeServiceTest
         assertEquals("#FF5733", response.getCor());
 
         Mockito.verify(repository).findById(existente.getId());
-        Mockito.verify(repository).findModalidadeByDescricao(dadosAtualizados.getDescricao());
+        Mockito.verify(repository).findModalidadeByDescricaoIgnoreCase(dadosAtualizados.getDescricao());
         Mockito.verify(repository).findModalidadeByCnpj(dadosAtualizados.getCnpj());
         Mockito.verify(repository).findModalidadeByCor("#FF5733");
         Mockito.verify(repository).save(Mockito.same(existente));
@@ -220,7 +243,7 @@ class ModalidadeServiceTest
         assertEquals("Modalidade não encontrada.", response.getMessage());
 
         Mockito.verify(repository).findById(existente.getId());
-        Mockito.verify(repository, Mockito.never()).findModalidadeByDescricao(Mockito.anyString());
+        Mockito.verify(repository, Mockito.never()).findModalidadeByDescricaoIgnoreCase(Mockito.anyString());
         Mockito.verify(repository, Mockito.never()).findModalidadeByCnpj(Mockito.any());
         Mockito.verify(repository, Mockito.never()).save(Mockito.any(Modalidade.class));
     }
@@ -233,17 +256,70 @@ class ModalidadeServiceTest
         Modalidade duplicado = new ModalidadeTestBuilder().setId(3L).setDescricao("Nova Descrição").build();
 
         Mockito.when(repository.findById(existente.getId())).thenReturn(Optional.of(existente));
-        Mockito.when(repository.findModalidadeByDescricao(dadosAtualizados.getDescricao())).thenReturn(Optional.of(duplicado));
+        Mockito.when(repository.findModalidadeByDescricaoIgnoreCase(dadosAtualizados.getDescricao())).thenReturn(Optional.of(duplicado));
 
         ModalidadeWithInvalidInformationException e = assertThrows(ModalidadeWithInvalidInformationException.class, () -> service.updateModalidade(existente.getId(), dadosAtualizados));
 
         assertEquals("Descrição já cadastrada.", e.getMessage());
 
         Mockito.verify(repository).findById(existente.getId());
-        Mockito.verify(repository).findModalidadeByDescricao(dadosAtualizados.getDescricao());
+        Mockito.verify(repository).findModalidadeByDescricaoIgnoreCase(dadosAtualizados.getDescricao());
         Mockito.verify(repository, Mockito.never()).findModalidadeByCnpj(Mockito.anyString());
         Mockito.verify(repository, Mockito.never()).findModalidadeByCor(Mockito.anyString());
         Mockito.verify(repository, Mockito.never()).save(Mockito.any(Modalidade.class));
+    }
+
+    @Test
+    void shouldRejectUpdatingDescricaoUsedByAnotherModalidadeIgnoringCase()
+    {
+        Modalidade existente = new ModalidadeTestBuilder()
+                .setId(1L)
+                .setDescricao("Alongamento")
+                .build();
+        Modalidade dadosAtualizados = new ModalidadeTestBuilder()
+                .setDescricao("pilates")
+                .build();
+        Modalidade outraModalidade = new ModalidadeTestBuilder()
+                .setId(2L)
+                .setDescricao("Pilates")
+                .build();
+
+        Mockito.when(repository.findById(1L)).thenReturn(Optional.of(existente));
+        Mockito.when(repository.findModalidadeByDescricaoIgnoreCase("pilates"))
+                .thenReturn(Optional.of(outraModalidade));
+
+        ModalidadeWithInvalidInformationException exception = assertThrows(
+                ModalidadeWithInvalidInformationException.class,
+                () -> service.updateModalidade(1L, dadosAtualizados)
+        );
+
+        assertEquals("Descrição já cadastrada.", exception.getMessage());
+        assertEquals("Alongamento", existente.getDescricao());
+        Mockito.verify(repository, Mockito.never()).save(Mockito.any());
+    }
+
+    @Test
+    void shouldAllowChangingOnlyDescricaoCaseForSameModalidade()
+    {
+        Modalidade existente = new ModalidadeTestBuilder()
+                .setId(1L)
+                .setDescricao("Pilates")
+                .build();
+        Modalidade dadosAtualizados = new ModalidadeTestBuilder()
+                .setId(1L)
+                .setDescricao("pilates")
+                .build();
+
+        Mockito.when(repository.findById(1L)).thenReturn(Optional.of(existente));
+        Mockito.when(repository.findModalidadeByDescricaoIgnoreCase("pilates"))
+                .thenReturn(Optional.of(existente));
+        Mockito.when(repository.save(existente)).thenReturn(existente);
+
+        Modalidade response = service.updateModalidade(1L, dadosAtualizados);
+
+        assertSame(existente, response);
+        assertEquals("pilates", response.getDescricao());
+        Mockito.verify(repository).save(existente);
     }
 
     @Test
@@ -254,7 +330,7 @@ class ModalidadeServiceTest
         Modalidade duplicado = new ModalidadeTestBuilder().setId(3L).setCNPJ("12.ABC.345/01DE-35").build();
 
         Mockito.when(repository.findById(existente.getId())).thenReturn(Optional.of(existente));
-        Mockito.when(repository.findModalidadeByDescricao(dadosAtualizados.getDescricao())).thenReturn(Optional.empty());
+        Mockito.when(repository.findModalidadeByDescricaoIgnoreCase(dadosAtualizados.getDescricao())).thenReturn(Optional.empty());
         Mockito.when(repository.findModalidadeByCnpj(dadosAtualizados.getCnpj())).thenReturn(Optional.of(duplicado));
 
         ModalidadeWithInvalidInformationException e = assertThrows(ModalidadeWithInvalidInformationException.class, () -> service.updateModalidade(existente.getId(), dadosAtualizados));
@@ -262,7 +338,7 @@ class ModalidadeServiceTest
         assertEquals("CNPJ já cadastrado.", e.getMessage());
 
         Mockito.verify(repository).findById(existente.getId());
-        Mockito.verify(repository).findModalidadeByDescricao(dadosAtualizados.getDescricao());
+        Mockito.verify(repository).findModalidadeByDescricaoIgnoreCase(dadosAtualizados.getDescricao());
         Mockito.verify(repository).findModalidadeByCnpj(dadosAtualizados.getCnpj());
         Mockito.verify(repository, Mockito.never()).findModalidadeByCor(Mockito.anyString());
         Mockito.verify(repository, Mockito.never()).save(Mockito.any(Modalidade.class));
@@ -293,7 +369,7 @@ class ModalidadeServiceTest
         Modalidade existente = builder.build();
 
         Mockito.when(repository.findModalidadeByCnpj(entrada.getCnpj())).thenReturn(Optional.empty());
-        Mockito.when(repository.findModalidadeByDescricao(entrada.getDescricao())).thenReturn(Optional.empty());
+        Mockito.when(repository.findModalidadeByDescricaoIgnoreCase(entrada.getDescricao())).thenReturn(Optional.empty());
         Mockito.when(repository.findModalidadeByCor(entrada.getCor())).thenReturn(Optional.of(existente));
 
         ModalidadeWithInvalidInformationException exception = assertThrows(ModalidadeWithInvalidInformationException.class, () -> service.createModalidade(entrada));
@@ -340,7 +416,7 @@ class ModalidadeServiceTest
         assertTrue(response.isAtivo());
 
         Mockito.verify(repository).findById(existente.getId());
-        Mockito.verify(repository, Mockito.never()).findModalidadeByDescricao(Mockito.anyString());
+        Mockito.verify(repository, Mockito.never()).findModalidadeByDescricaoIgnoreCase(Mockito.anyString());
         Mockito.verify(repository, Mockito.never()).findModalidadeByCnpj(Mockito.any());
         Mockito.verify(repository).save(Mockito.same(existente));
     }
@@ -364,7 +440,7 @@ class ModalidadeServiceTest
         assertTrue(response.isAtivo());
 
         Mockito.verify(repository).findById(existente.getId());
-        Mockito.verify(repository, Mockito.never()).findModalidadeByDescricao(Mockito.anyString());
+        Mockito.verify(repository, Mockito.never()).findModalidadeByDescricaoIgnoreCase(Mockito.anyString());
         Mockito.verify(repository, Mockito.never()).findModalidadeByCnpj(Mockito.any());
         Mockito.verify(repository).save(Mockito.same(existente));
     }
@@ -389,7 +465,7 @@ class ModalidadeServiceTest
         assertTrue(response.isAtivo());
 
         Mockito.verify(repository).findById(existente.getId());
-        Mockito.verify(repository, Mockito.never()).findModalidadeByDescricao(Mockito.anyString());
+        Mockito.verify(repository, Mockito.never()).findModalidadeByDescricaoIgnoreCase(Mockito.anyString());
         Mockito.verify(repository).findModalidadeByCnpj(dadosAtualizados.getCnpj());
         Mockito.verify(repository).save(Mockito.same(existente));
     }
@@ -410,7 +486,7 @@ class ModalidadeServiceTest
         assertFalse(response.isAtivo());
 
         Mockito.verify(repository).findById(existente.getId());
-        Mockito.verify(repository, Mockito.never()).findModalidadeByDescricao(Mockito.anyString());
+        Mockito.verify(repository, Mockito.never()).findModalidadeByDescricaoIgnoreCase(Mockito.anyString());
         Mockito.verify(repository, Mockito.never()).findModalidadeByCnpj(Mockito.any());
         Mockito.verify(repository).save(Mockito.same(existente));
     }
@@ -432,7 +508,7 @@ class ModalidadeServiceTest
         assertTrue(response.isAtivo());
 
         Mockito.verify(repository).findById(existente.getId());
-        Mockito.verify(repository, Mockito.never()).findModalidadeByDescricao(Mockito.anyString());
+        Mockito.verify(repository, Mockito.never()).findModalidadeByDescricaoIgnoreCase(Mockito.anyString());
         Mockito.verify(repository, Mockito.never()).findModalidadeByCnpj(Mockito.any());
         Mockito.verify(repository).save(Mockito.same(existente));
     }
@@ -444,7 +520,7 @@ class ModalidadeServiceTest
         Modalidade dadosAtualizados = new ModalidadeTestBuilder().setDescricao("Nova Descrição").build();
 
         Mockito.when(repository.findById(existente.getId())).thenReturn(Optional.of(existente));
-        Mockito.when(repository.findModalidadeByDescricao(dadosAtualizados.getDescricao())).thenReturn(Optional.empty());
+        Mockito.when(repository.findModalidadeByDescricaoIgnoreCase(dadosAtualizados.getDescricao())).thenReturn(Optional.empty());
         Mockito.when(repository.save(Mockito.same(existente))).thenReturn(existente);
 
         Modalidade response = service.updateModalidade(existente.getId(), dadosAtualizados);
@@ -457,7 +533,7 @@ class ModalidadeServiceTest
         assertTrue(response.isAtivo());
 
         Mockito.verify(repository).findById(existente.getId());
-        Mockito.verify(repository).findModalidadeByDescricao(dadosAtualizados.getDescricao());
+        Mockito.verify(repository).findModalidadeByDescricaoIgnoreCase(dadosAtualizados.getDescricao());
         Mockito.verify(repository, Mockito.never()).findModalidadeByCnpj(Mockito.any());
         Mockito.verify(repository).save(Mockito.same(existente));
     }
@@ -482,7 +558,7 @@ class ModalidadeServiceTest
         assertTrue(response.isAtivo());
 
         Mockito.verify(repository).findById(existente.getId());
-        Mockito.verify(repository, Mockito.never()).findModalidadeByDescricao(Mockito.anyString());
+        Mockito.verify(repository, Mockito.never()).findModalidadeByDescricaoIgnoreCase(Mockito.anyString());
         Mockito.verify(repository).findModalidadeByCnpj(dadosAtualizados.getCnpj());
         Mockito.verify(repository).save(Mockito.same(existente));
     }
@@ -499,7 +575,7 @@ class ModalidadeServiceTest
 
         Mockito.when(repository.findById(existente.getId())).thenReturn(Optional.of(existente));
 
-        Mockito.when(repository.findModalidadeByDescricao(dadosAtualizados.getDescricao())).thenReturn(Optional.empty());
+        Mockito.when(repository.findModalidadeByDescricaoIgnoreCase(dadosAtualizados.getDescricao())).thenReturn(Optional.empty());
 
         Mockito.when(repository.findModalidadeByCnpj(dadosAtualizados.getCnpj())).thenReturn(Optional.of(duplicado));
 
@@ -636,20 +712,20 @@ class ModalidadeServiceTest
     }
 
     @Test
-    void shouldFindModalidadeByDescricaoSuccessfully()
+    void shouldFindModalidadeByDescricaoIgnoringCase()
     {
         Modalidade existente = new ModalidadeTestBuilder().build();
-        String descricao = existente.getDescricao();
+        String descricaoPesquisada = "modalidade";
 
-        Mockito.when(repository.findModalidadeByDescricao(descricao)).thenReturn(Optional.of(existente));
+        Mockito.when(repository.findModalidadeByDescricaoIgnoreCase(descricaoPesquisada)).thenReturn(Optional.of(existente));
 
-        Modalidade response = service.findModalidadeByDescricao(descricao);
+        Modalidade response = service.findModalidadeByDescricao(descricaoPesquisada);
 
         assertNotNull(response);
         assertSame(existente, response);
-        assertEquals(descricao, response.getDescricao());
+        assertEquals("Modalidade", response.getDescricao());
 
-        Mockito.verify(repository).findModalidadeByDescricao(descricao);
+        Mockito.verify(repository).findModalidadeByDescricaoIgnoreCase(descricaoPesquisada);
     }
 
     @Test
@@ -657,13 +733,13 @@ class ModalidadeServiceTest
     {
         String descricao = "ababa";
 
-        Mockito.when(repository.findModalidadeByDescricao(descricao)).thenReturn(Optional.empty());
+        Mockito.when(repository.findModalidadeByDescricaoIgnoreCase(descricao)).thenReturn(Optional.empty());
 
         ModalidadeNotFoundException e = assertThrows(ModalidadeNotFoundException.class, () -> service.findModalidadeByDescricao(descricao));
 
         assertEquals("Modalidade não encontrada.", e.getMessage());
 
-        Mockito.verify(repository).findModalidadeByDescricao(descricao);
+        Mockito.verify(repository).findModalidadeByDescricaoIgnoreCase(descricao);
     }
 
     @Test

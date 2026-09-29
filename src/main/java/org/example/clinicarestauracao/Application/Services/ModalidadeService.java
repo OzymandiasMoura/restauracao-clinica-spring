@@ -8,6 +8,7 @@ import org.example.clinicarestauracao.Domain.Entities.Modalidade;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @AllArgsConstructor
@@ -21,7 +22,7 @@ public class ModalidadeService
         {
             throw new ModalidadeWithInvalidInformationException("CNPJ já cadastrado.");
         }
-        if(repository.findModalidadeByDescricao(modalidade.getDescricao()).isPresent())
+        if(repository.findModalidadeByDescricaoIgnoreCase(modalidade.getDescricao()).isPresent())
         {
             throw new ModalidadeWithInvalidInformationException("Descrição já cadastrada.");
         }
@@ -51,7 +52,11 @@ public class ModalidadeService
         boolean cnpjFoiAlterado = modalidade.getCnpj() == null && m.getCnpj() != null || modalidade.getCnpj() != null && !modalidade.getCnpj().equals(m.getCnpj());
         boolean corAlterada =  !modalidade.getCor().equals(m.getCor());
 
-        if(descricaoFoiAlterada && repository.findModalidadeByDescricao(modalidade.getDescricao()).isPresent())
+        Optional<Modalidade> mesmaDescricao = descricaoFoiAlterada
+                ? repository.findModalidadeByDescricaoIgnoreCase(modalidade.getDescricao())
+                : Optional.empty();
+
+        if(mesmaDescricao.isPresent() && !mesmaDescricao.get().getId().equals(m.getId()))
         {
             throw new ModalidadeWithInvalidInformationException("Descrição já cadastrada.");
         }
@@ -115,7 +120,7 @@ public class ModalidadeService
 
     public Modalidade findModalidadeByDescricao(String descricao)
     {
-        return repository.findModalidadeByDescricao(descricao).orElseThrow(() -> new ModalidadeNotFoundException("Modalidade não encontrada."));
+        return repository.findModalidadeByDescricaoIgnoreCase(descricao).orElseThrow(() -> new ModalidadeNotFoundException("Modalidade não encontrada."));
     }
 
     public Modalidade findModalidadeByCor(String cor)
