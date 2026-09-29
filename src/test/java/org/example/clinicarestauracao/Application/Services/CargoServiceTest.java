@@ -31,13 +31,14 @@ class CargoServiceTest
 
     //Testes para o createCargo
 
+
     @Test
     void shouldCreateCargoSuccessfully()
     {
         Cargo entrada = CargoTestBuilder.newCargo().buildForCreate();
         Cargo cargoSalvo = CargoTestBuilder.newCargo().build();
 
-        Mockito.when(repository.findCargoByNome(entrada.getNome())).thenReturn(Optional.empty());
+        Mockito.when(repository.findCargoByNomeIgnoreCase(entrada.getNome())).thenReturn(Optional.empty());
         Mockito.when(repository.save(Mockito.any())).thenReturn(cargoSalvo);
 
         Cargo response = service.createCargo(entrada);
@@ -48,7 +49,7 @@ class CargoServiceTest
         assertEquals("Monitor", response.getNome());
         assertTrue(response.isAtivo());
 
-        Mockito.verify(repository).findCargoByNome(entrada.getNome());
+        Mockito.verify(repository).findCargoByNomeIgnoreCase(entrada.getNome());
 
         ArgumentCaptor<Cargo> captor = ArgumentCaptor.forClass(Cargo.class);
         Mockito.verify(repository).save(captor.capture());
@@ -65,15 +66,32 @@ class CargoServiceTest
         Cargo entry = CargoTestBuilder.newCargo().buildForCreate();
         Cargo existed = CargoTestBuilder.newCargo().build();
 
-        Mockito.when(repository.findCargoByNome(entry.getNome())).thenReturn(Optional.of(existed));
+        Mockito.when(repository.findCargoByNomeIgnoreCase(entry.getNome())).thenReturn(Optional.of(existed));
 
         CargoWithInvalidInformationException ex = assertThrows(CargoWithInvalidInformationException.class, () -> service.createCargo(entry));
 
         assertEquals("Nome do cargo já existente.", ex.getMessage());
 
-        Mockito.verify(repository).findCargoByNome(entry.getNome());
+        Mockito.verify(repository).findCargoByNomeIgnoreCase(entry.getNome());
         Mockito.verify(repository, Mockito.never()).save(Mockito.any(Cargo.class));
     }
+
+    @Test
+    void shouldRejectCargoNameDuplicatedIgnoringCase()
+    {
+        Cargo entrada = CargoTestBuilder.newCargo().setNome("recepcionista").buildForCreate();
+        Cargo existente = CargoTestBuilder.newCargo().setNome("Recepcionista").build();
+
+        Mockito.when(repository.findCargoByNomeIgnoreCase("recepcionista")).thenReturn(Optional.of(existente));
+
+        CargoWithInvalidInformationException exception = assertThrows(CargoWithInvalidInformationException.class, () -> service.createCargo(entrada));
+
+        assertEquals("Nome do cargo já existente.", exception.getMessage());
+
+        Mockito.verify(repository).findCargoByNomeIgnoreCase("recepcionista");
+        Mockito.verify(repository, Mockito.never()).save(Mockito.any());
+    }
+
 
     //Testes para findByNome
 
@@ -83,7 +101,7 @@ class CargoServiceTest
         String name = "Monitor";
         Cargo existed = CargoTestBuilder.newCargo().build();
 
-        Mockito.when(repository.findCargoByNome(name)).thenReturn(Optional.of(existed));
+        Mockito.when(repository.findCargoByNomeIgnoreCase(name)).thenReturn(Optional.of(existed));
 
         Cargo response = service.findCargoByNome(name);
 
@@ -92,19 +110,19 @@ class CargoServiceTest
         assertEquals(1L, response.getId());
         assertEquals("Monitor", response.getNome());
 
-        Mockito.verify(repository).findCargoByNome(name);
+        Mockito.verify(repository).findCargoByNomeIgnoreCase(name);
     }
 
     @Test
     void shouldThrowExceptionWhenCargoIsNotFoundByName()
     {
-        Mockito.when(repository.findCargoByNome("Monitor")).thenReturn(Optional.empty());
+        Mockito.when(repository.findCargoByNomeIgnoreCase("Monitor")).thenReturn(Optional.empty());
 
         CargoNotFoundException ex = assertThrows(CargoNotFoundException.class, () -> service.findCargoByNome("Monitor"));
 
         assertEquals("Cargo não encontrado.", ex.getMessage());
 
-        Mockito.verify(repository).findCargoByNome("Monitor");
+        Mockito.verify(repository).findCargoByNomeIgnoreCase("Monitor");
     }
 
     @Test
@@ -112,12 +130,12 @@ class CargoServiceTest
     {
         Cargo existed = CargoTestBuilder.newCargo().build();
 
-        Mockito.when(repository.findCargoByNome("Monitor")).thenReturn(Optional.of(existed));
+        Mockito.when(repository.findCargoByNomeIgnoreCase("Monitor")).thenReturn(Optional.of(existed));
 
         Cargo response = service.findCargoByNome("  Monitor  ");
 
         assertSame(existed, response);
-        Mockito.verify(repository).findCargoByNome("Monitor");
+        Mockito.verify(repository).findCargoByNomeIgnoreCase("Monitor");
 
     }
 
@@ -214,7 +232,7 @@ class CargoServiceTest
         Cargo input = CargoTestBuilder.newCargo().setNome("Recepcionista").buildForCreate();
 
         Mockito.when(repository.findCargoById(1L)).thenReturn(Optional.of(existing));
-        Mockito.when(repository.findCargoByNome(input.getNome())).thenReturn(Optional.empty());
+        Mockito.when(repository.findCargoByNomeIgnoreCase(input.getNome())).thenReturn(Optional.empty());
         Mockito.when(repository.save(existing)).thenReturn(existing);
 
         Cargo response = service.updateCargo(input, 1L);
@@ -225,7 +243,7 @@ class CargoServiceTest
         assertFalse(response.isAtivo());
 
         Mockito.verify(repository).findCargoById(1L);
-        Mockito.verify(repository).findCargoByNome(input.getNome());
+        Mockito.verify(repository).findCargoByNomeIgnoreCase(input.getNome());
         Mockito.verify(repository).save(existing);
     }
 
@@ -240,7 +258,7 @@ class CargoServiceTest
 
         assertEquals("Cargo não encontrado.", exception.getMessage());
         Mockito.verify(repository).findCargoById(1L);
-        Mockito.verify(repository, Mockito.never()).findCargoByNome(Mockito.anyString());
+        Mockito.verify(repository, Mockito.never()).findCargoByNomeIgnoreCase(Mockito.anyString());
         Mockito.verify(repository, Mockito.never()).save(Mockito.any());
     }
 
@@ -265,7 +283,7 @@ class CargoServiceTest
         Cargo another = CargoTestBuilder.newCargo().setId(2L).setNome("Recepcionista").build();
 
         Mockito.when(repository.findCargoById(1L)).thenReturn(Optional.of(existing));
-        Mockito.when(repository.findCargoByNome("Recepcionista")).thenReturn(Optional.of(another));
+        Mockito.when(repository.findCargoByNomeIgnoreCase("Recepcionista")).thenReturn(Optional.of(another));
 
         CargoWithInvalidInformationException ex = assertThrows(CargoWithInvalidInformationException.class, () -> service.updateCargo(input, 1L));
 
@@ -273,7 +291,7 @@ class CargoServiceTest
         assertEquals("Monitor", existing.getNome());
 
         Mockito.verify(repository).findCargoById(1L);
-        Mockito.verify(repository).findCargoByNome("Recepcionista");
+        Mockito.verify(repository).findCargoByNomeIgnoreCase("Recepcionista");
         Mockito.verify(repository, Mockito.never()).save(Mockito.any());
     }
 
@@ -284,7 +302,7 @@ class CargoServiceTest
         Cargo input = CargoTestBuilder.newCargo().setNome("Monitor").buildForCreate();
 
         Mockito.when(repository.findCargoById(1L)).thenReturn(Optional.of(existing));
-        Mockito.when(repository.findCargoByNome("Monitor")).thenReturn(Optional.of(existing));
+        Mockito.when(repository.findCargoByNomeIgnoreCase("Monitor")).thenReturn(Optional.of(existing));
         Mockito.when(repository.save(existing)).thenReturn(existing);
 
         Cargo response = service.updateCargo(input, 1L);
@@ -295,8 +313,26 @@ class CargoServiceTest
         assertTrue(response.isAtivo());
 
         Mockito.verify(repository).findCargoById(1L);
-        Mockito.verify(repository).findCargoByNome("Monitor");
+        Mockito.verify(repository).findCargoByNomeIgnoreCase("Monitor");
         Mockito.verify(repository).save(existing);
+    }
+
+    @Test
+    void shouldRejectUpdatingCargoWithNameUsedByAnotherCargoIgnoringCase()
+    {
+        Cargo cargoAtual = CargoTestBuilder.newCargo().setId(1L).setNome("Monitor").build();
+        Cargo entrada = CargoTestBuilder.newCargo().setNome("recepcionista").buildForCreate();
+        Cargo outroCargo = CargoTestBuilder.newCargo().setId(2L).setNome("Recepcionista").build();
+
+        Mockito.when(repository.findCargoById(1L)).thenReturn(Optional.of(cargoAtual));
+        Mockito.when(repository.findCargoByNomeIgnoreCase("recepcionista")).thenReturn(Optional.of(outroCargo));
+
+        CargoWithInvalidInformationException exception = assertThrows(CargoWithInvalidInformationException.class, () -> service.updateCargo(entrada, 1L));
+
+        assertEquals("Nome do cargo já existente.", exception.getMessage());
+        assertEquals("Monitor", cargoAtual.getNome());
+
+        Mockito.verify(repository, Mockito.never()).save(Mockito.any());
     }
 
     //Testes softDelete

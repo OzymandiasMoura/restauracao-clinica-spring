@@ -21,7 +21,7 @@ public class CargoService
 
     public Cargo createCargo(Cargo cargo)
     {
-        if(repository.findCargoByNome(cargo.getNome()).isPresent())
+        if(repository.findCargoByNomeIgnoreCase(cargo.getNome()).isPresent())
         {
             throw new CargoWithInvalidInformationException("Nome do cargo já existente.");
         }
@@ -37,7 +37,7 @@ public class CargoService
 
         String nomeNormalizado = nome.strip();
 
-        return repository.findCargoByNome(nomeNormalizado).orElseThrow(() -> new CargoNotFoundException("Cargo não encontrado."));
+        return repository.findCargoByNomeIgnoreCase(nomeNormalizado).orElseThrow(() -> new CargoNotFoundException("Cargo não encontrado."));
     }
 
     public Cargo findCargoById(Long id)
@@ -59,7 +59,7 @@ public class CargoService
     {
         Cargo newCargo = this.findCargoById(id);
 
-        Optional<Cargo> sameName = repository.findCargoByNome(cargo.getNome());
+        Optional<Cargo> sameName = repository.findCargoByNomeIgnoreCase(cargo.getNome());
 
         if(sameName.isPresent() && !(sameName.get().getId().equals(newCargo.getId())))
         {
