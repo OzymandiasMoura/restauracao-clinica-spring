@@ -68,17 +68,26 @@ public class Modalidade
 
     public void setDescricao(String descricao)
     {
-        if(descricao == null || descricao.isBlank())
+        if (descricao == null)
         {
             throw new ModalidadeWithInvalidInformationException("Descrição não pode ser nulo ou vazia");
         }
-        else if(descricao.length()<3)
+        String descricaoNormalizada = descricao.strip();
+        if(descricaoNormalizada.isBlank())
+        {
+            throw new ModalidadeWithInvalidInformationException("Descrição não pode ser nulo ou vazia");
+        }
+        else if(descricaoNormalizada.length()<3)
         {
             throw new ModalidadeWithInvalidInformationException("Descrição não pode ter menos de 3 caracteres");
         }
+        else if(descricaoNormalizada.length()>200)
+        {
+            throw new ModalidadeWithInvalidInformationException("Descrição não pode ter mais que 200 caracteres");
+        }
         else
         {
-            this.descricao = descricao;
+            this.descricao = descricaoNormalizada;
         }
     }
 

@@ -133,4 +133,21 @@ class ModalidadeTest
 
         assertEquals("Cor não pode ser nula ou vazia.", exception.getMessage());
     }
+
+    @Test
+    void shouldNormalizeLeadingAndTrailingSpacesFromDescricao()
+    {
+        Modalidade modalidade = new ModalidadeTestBuilder().setDescricao("  Pilates  ").build();
+
+        assertEquals("Pilates", modalidade.getDescricao());
+    }
+
+    @Test
+    void shouldRejectDescricaoWithLessThanThreeCharactersAfterNormalization()
+    {
+        ModalidadeWithInvalidInformationException exception = assertThrows(ModalidadeWithInvalidInformationException.class, () -> new ModalidadeTestBuilder().setDescricao("  ab  ").build());
+
+        assertEquals("Descrição não pode ter menos de 3 caracteres", exception.getMessage());
+    }
+
 }
