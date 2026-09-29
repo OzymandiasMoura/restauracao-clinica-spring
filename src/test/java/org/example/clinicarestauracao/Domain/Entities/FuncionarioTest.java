@@ -165,6 +165,26 @@ class FuncionarioTest
         assertEquals("Data de admissão não pode ser anterior ao nascimento.", exception.getMessage());
     }
 
+    @Test
+    void shouldRejectBirthDateBefore1900()
+    {
+        LocalDate dataNascimento = LocalDate.of(1899, 12, 31);
+
+        FuncionarioWithInvalidInformationException exception = assertThrows(FuncionarioWithInvalidInformationException.class, () -> FuncionarioTestBuilder.newFuncionario().setDataNascimento(dataNascimento).build());
+
+        assertEquals("Data de nascimento não pode ser anterior a 1900.", exception.getMessage());
+    }
+
+    @Test
+    void shouldAcceptBirthDateAtMinimumAllowedDate()
+    {
+        LocalDate dataNascimento = LocalDate.of(1900, 1, 1);
+
+        Funcionario funcionario = FuncionarioTestBuilder.newFuncionario().setDataNascimento(dataNascimento).build();
+
+        assertEquals(dataNascimento, funcionario.getDataNascimento());
+    }
+
     //Testes de endereço
 
     @Test
@@ -408,6 +428,26 @@ class FuncionarioTest
         assertEquals(dataAdmissaoExistente, funcionario.getDataAdmissao());
         assertEquals(dataDemissaoExistente, funcionario.getDataDemissao());
     }
+
+    @Test
+    void shouldRejectAdmissionDateBefore1900()
+    {
+        LocalDate dataAdmissao = LocalDate.of(1899, 12, 31);
+
+        FuncionarioWithInvalidInformationException exception = assertThrows(FuncionarioWithInvalidInformationException.class, () -> FuncionarioTestBuilder.newFuncionario().setDataAdmissao(dataAdmissao).build());
+
+        assertEquals("Data de admissão não pode ser anterior a 1900.", exception.getMessage());
+    }
+
+    @Test
+    void shouldAcceptAdmissionDateAtMinimumAllowedDate()
+    {
+        LocalDate dataLimite = LocalDate.of(1900, 1, 1);
+
+        Funcionario funcionario = FuncionarioTestBuilder.newFuncionario().setDataNascimento(dataLimite).setDataAdmissao(dataLimite).build();
+
+        assertEquals(dataLimite, funcionario.getDataAdmissao());
+    }
     // Testes para dataDemissao
 
     @Test
@@ -513,7 +553,7 @@ class FuncionarioTest
         assertEquals(novaDemissao, funcionario.getDataDemissao());
     }
 
-    //Teste para reactivate
+    //Testes para reactivate
     @Test
     void shouldReactivateDismissedFuncionario()
     {
@@ -530,4 +570,28 @@ class FuncionarioTest
         assertEquals(dataAdmissao, funcionario.getDataAdmissao());
     }
 
+    //Testes para cargo
+
+    @Test
+    void shouldRejectInactiveCargo()
+    {
+        Cargo cargoInativo = CargoTestBuilder.newCargo().setAtivo(false).build();
+
+        FuncionarioWithInvalidInformationException exception = assertThrows(FuncionarioWithInvalidInformationException.class, () -> FuncionarioTestBuilder.newFuncionario().setCargo(cargoInativo).build());
+
+        assertEquals("Cargo não pode estar inativo.", exception.getMessage());
+    }
+
+    @Test
+    void shouldPreserveCurrentCargoWhenNewCargoIsInactive()
+    {
+        Cargo cargoAtual = CargoTestBuilder.newCargo().setId(1L).setAtivo(true).build();
+        Cargo cargoInativo = CargoTestBuilder.newCargo().setId(2L).setAtivo(false).build();
+        Funcionario funcionario = FuncionarioTestBuilder.newFuncionario().setCargo(cargoAtual).build();
+
+        FuncionarioWithInvalidInformationException exception = assertThrows(FuncionarioWithInvalidInformationException.class, () -> funcionario.setCargo(cargoInativo));
+
+        assertEquals("Cargo não pode estar inativo.", exception.getMessage());
+        assertSame(cargoAtual, funcionario.getCargo());
+    }
 }

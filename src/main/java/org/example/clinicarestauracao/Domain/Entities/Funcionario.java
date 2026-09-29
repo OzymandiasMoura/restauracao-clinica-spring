@@ -37,7 +37,7 @@ public class Funcionario
     @OneToOne
     @JoinColumn(name = "user_id", nullable = true)
     private User user;
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @ManyToOne(optional = false)
     @JoinColumn(name = "cargo_id", nullable = false)
     private Cargo cargo;
     @Column(nullable = false)
@@ -204,6 +204,10 @@ public class Funcionario
         {
             throw new FuncionarioWithInvalidInformationException("Cargo do funcionário deve ser informado.");
         }
+        if (!cargo.isAtivo())
+        {
+            throw new FuncionarioWithInvalidInformationException("Cargo não pode estar inativo.");
+        }
         this.cargo = cargo;
     }
 
@@ -261,6 +265,11 @@ public class Funcionario
         {
             throw new FuncionarioWithInvalidInformationException("Data de nascimento não pode ser futura.");
         }
+
+        if (dataNascimento.isBefore(LocalDate.of(1900, 1, 1)))
+        {
+            throw new FuncionarioWithInvalidInformationException("Data de nascimento não pode ser anterior a 1900.");
+        }
     }
 
     private void validarDataAdmissao(LocalDate dataAdmissao)
@@ -274,6 +283,11 @@ public class Funcionario
         {
             throw new FuncionarioWithInvalidInformationException("Data de admissão não pode ser futura.");
         }
+
+        if (dataAdmissao.isBefore(LocalDate.of(1900, 1, 1)))
+        {
+            throw new FuncionarioWithInvalidInformationException("Data de admissão não pode ser anterior a 1900.");
+        }
     }
 
     private void validarOrdemDasDatas(LocalDate dataNascimento, LocalDate dataAdmissao, LocalDate dataDemissao)
@@ -283,8 +297,7 @@ public class Funcionario
             throw new FuncionarioWithInvalidInformationException("Data de admissão não pode ser anterior ao nascimento.");
         }
 
-        if (dataDemissao != null
-                && !dataAdmissao.isBefore(dataDemissao))
+        if (dataDemissao != null && !dataAdmissao.isBefore(dataDemissao))
         {
             throw new FuncionarioWithInvalidInformationException("Data de admissão deve ser anterior à data de demissão.");
         }
