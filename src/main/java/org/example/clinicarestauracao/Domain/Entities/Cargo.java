@@ -48,6 +48,10 @@ public class Cargo
         {
             throw new CargoWithInvalidInformationException("Nome deve ter pelo menos 3 caracteres.");
         }
+        else if (nomeNormalized.length() > 250)
+        {
+            throw new CargoWithInvalidInformationException("Nome deve ter no máximo 250 caracteres.");
+        }
 
         this.nome = nomeNormalized;
     }

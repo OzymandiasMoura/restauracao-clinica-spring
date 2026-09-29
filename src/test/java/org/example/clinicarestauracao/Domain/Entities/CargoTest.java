@@ -76,6 +76,19 @@ class CargoTest
         assertEquals("Nome deve ter pelo menos 3 caracteres.", ex.getMessage());
     }
 
+    @Test
+    void shouldRejectNameWithMoreThan250Characters()
+    {
+        String nome = "A".repeat(251);
+
+        CargoWithInvalidInformationException exception = assertThrows(
+                CargoWithInvalidInformationException.class,
+                () -> CargoTestBuilder.newCargo().setNome(nome).build()
+        );
+
+        assertEquals("Nome deve ter no máximo 250 caracteres.", exception.getMessage());
+    }
+
     @ParameterizedTest
     @ValueSource(strings = {
             "asa",
