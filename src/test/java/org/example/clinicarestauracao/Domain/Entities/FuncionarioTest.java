@@ -67,6 +67,36 @@ class FuncionarioTest
         assertEquals("Nome deve ter no mínimo 3 caracteres.", exception.getMessage());
     }
 
+    @Test
+    void shouldRejectNameWithMoreThan250Characters()
+    {
+        String nome = "A".repeat(251);
+
+        FuncionarioWithInvalidInformationException exception = assertThrows(FuncionarioWithInvalidInformationException.class, () -> FuncionarioTestBuilder.newFuncionario().setNome(nome).build());
+
+        assertEquals("Nome deve ter no máximo 250 caracteres.", exception.getMessage());
+    }
+
+    @Test
+    void shouldAcceptNameWithExactly250Characters()
+    {
+        String nome = "A".repeat(250);
+
+        Funcionario funcionario = FuncionarioTestBuilder.newFuncionario().setNome(nome).build();
+
+        assertEquals(nome, funcionario.getNome());
+    }
+
+    @Test
+    void shouldValidateMaximumNameLengthAfterNormalization()
+    {
+        String nomeNormalizado = "A".repeat(250);
+
+        Funcionario funcionario = FuncionarioTestBuilder.newFuncionario().setNome("  " + nomeNormalizado + "  ").build();
+
+        assertEquals(nomeNormalizado, funcionario.getNome());
+    }
+
     //Testes para o CPF
 
     @Test
