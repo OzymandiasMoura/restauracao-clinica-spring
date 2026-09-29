@@ -120,7 +120,12 @@ public class Funcionario
         if (nomeNormalizado.length() < 3)
         {
             throw new FuncionarioWithInvalidInformationException("Nome deve ter no mínimo 3 caracteres.");
-        } else
+        }
+        else if (nomeNormalizado.length() > 250)
+        {
+            throw new FuncionarioWithInvalidInformationException("Nome deve ter no máximo 250 caracteres.");
+        }
+        else
         {
             this.nome = nomeNormalizado;
         }
