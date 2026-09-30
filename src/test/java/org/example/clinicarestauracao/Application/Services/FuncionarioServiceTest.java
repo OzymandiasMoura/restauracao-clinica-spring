@@ -12,6 +12,7 @@ import org.example.clinicarestauracao.Domain.Enums.UserRoles;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.NullSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.InjectMocks;
@@ -569,11 +570,17 @@ class FuncionarioServiceTest
         Mockito.verifyNoInteractions(repository);
     }
 
-    @Test
-    void shouldDismissFuncionarioSuccessfully()
+    @ParameterizedTest
+    @EnumSource(
+            value = UserRoles.class,
+            names = {"USER", "ADMIN"}
+    )
+    void shouldDismissFuncionarioAndDeactivateUser(UserRoles originalRole)
     {
         LocalDate hoje = LocalDate.now();
-        Funcionario existing = FuncionarioTestBuilder.newFuncionario().setId(1L).setDataAdmissao(hoje.minusYears(1)).setAtivo(true).build();
+        User user = new User(1L, "Pedro", "senha123", originalRole);
+
+        Funcionario existing = FuncionarioTestBuilder.newFuncionario().setId(1L).setUser(user).setDataAdmissao(hoje.minusYears(1)).setAtivo(true).build();
 
         Mockito.when(repository.findFuncionarioById(1L)).thenReturn(Optional.of(existing));
 
@@ -581,18 +588,23 @@ class FuncionarioServiceTest
 
         assertFalse(existing.isAtivo());
         assertEquals(hoje, existing.getDataDemissao());
+        assertEquals(UserRoles.NO_ACCESS, user.getRole());
+        assertEquals(originalRole, user.getPreviousRole());
 
         Mockito.verify(repository).findFuncionarioById(1L);
         Mockito.verify(repository).save(existing);
     }
 
+
     @Test
     void shouldUpdateDismissalDateWhenFuncionarioIsAlreadyInactive()
     {
+        User user = new User(1L, "Pedro", "senha123", UserRoles.ADMIN);
+        user.deactivate();
         LocalDate hoje = LocalDate.now();
         LocalDate primeiraDemissao = hoje.minusDays(2);
         LocalDate novaDemissao = hoje.minusDays(1);
-        Funcionario existing = FuncionarioTestBuilder.newFuncionario().setId(1L).setDataAdmissao(hoje.minusYears(1)).setAtivo(false).setDataDemissao(primeiraDemissao).build();
+        Funcionario existing = FuncionarioTestBuilder.newFuncionario().setId(1L).setDataAdmissao(hoje.minusYears(1)).setAtivo(false).setDataDemissao(primeiraDemissao).setUser(user).build();
 
         Mockito.when(repository.findFuncionarioById(1L)).thenReturn(Optional.of(existing));
 
@@ -600,6 +612,8 @@ class FuncionarioServiceTest
 
         assertFalse(existing.isAtivo());
         assertEquals(novaDemissao, existing.getDataDemissao());
+        assertEquals(UserRoles.NO_ACCESS, user.getRole());
+        assertEquals(UserRoles.ADMIN, user.getPreviousRole());
 
         Mockito.verify(repository).findFuncionarioById(1L);
         Mockito.verify(repository).save(existing);
@@ -608,7 +622,9 @@ class FuncionarioServiceTest
     @Test
     void shouldNotSaveFuncionarioWhenDismissalDateIsNull()
     {
-        Funcionario existing = FuncionarioTestBuilder.newFuncionario().setId(1L).setAtivo(true).build();
+        User user = new User(1L, "Pedro", "senha123", UserRoles.USER);
+
+        Funcionario existing = FuncionarioTestBuilder.newFuncionario().setId(1L).setAtivo(true).setUser(user).build();
 
         Mockito.when(repository.findFuncionarioById(1L)).thenReturn(Optional.of(existing));
 
@@ -617,6 +633,9 @@ class FuncionarioServiceTest
         assertEquals("Data de demissão deve ser informada.", exception.getMessage());
         assertTrue(existing.isAtivo());
         assertNull(existing.getDataDemissao());
+        assertTrue(user.isEnabled());
+        assertNull(user.getPreviousRole());
+
 
         Mockito.verify(repository).findFuncionarioById(1L);
         Mockito.verify(repository, Mockito.never()).save(Mockito.any());
@@ -625,9 +644,10 @@ class FuncionarioServiceTest
     @Test
     void shouldNotSaveFuncionarioWhenDismissalDateIsInvalid()
     {
+        User user = new User(1L, "Pedro", "senha123", UserRoles.USER);
         LocalDate hoje = LocalDate.now();
         LocalDate dataDemissaoFutura = hoje.plusDays(1);
-        Funcionario existing = FuncionarioTestBuilder.newFuncionario().setId(1L).setDataAdmissao(hoje.minusYears(1)).setAtivo(true).build();
+        Funcionario existing = FuncionarioTestBuilder.newFuncionario().setId(1L).setDataAdmissao(hoje.minusYears(1)).setAtivo(true).setUser(user).build();
 
         Mockito.when(repository.findFuncionarioById(1L)).thenReturn(Optional.of(existing));
 
@@ -636,6 +656,8 @@ class FuncionarioServiceTest
         assertEquals("Data de demissão não pode ser futura.", exception.getMessage());
         assertTrue(existing.isAtivo());
         assertNull(existing.getDataDemissao());
+        assertTrue(user.isEnabled());
+        assertNull(user.getPreviousRole());
 
         Mockito.verify(repository).findFuncionarioById(1L);
         Mockito.verify(repository, Mockito.never()).save(Mockito.any());
@@ -700,6 +722,22 @@ class FuncionarioServiceTest
 
         Mockito.verify(repository).findFuncionarioById(1L);
         Mockito.verify(repository, Mockito.never()).save(Mockito.any());
+    }
+
+    @Test
+    void shouldNotDismissFuncionarioWithoutUser()
+    {
+        Funcionario existing = FuncionarioTestBuilder.newFuncionario().setId(1L).setUser(null).build();
+        Mockito.when(repository.findFuncionarioById(1L)).thenReturn(Optional.of(existing));
+        FuncionarioWithInvalidInformationException exception = assertThrows(FuncionarioWithInvalidInformationException.class, () -> service.dismissFuncionarioById(1L, LocalDate.now()));
+
+        assertEquals("Funcionário não possui usuário vinculado.", exception.getMessage());
+        assertTrue(existing.isAtivo());
+        assertNull(existing.getDataDemissao());
+
+        Mockito.verify(repository).findFuncionarioById(1L);
+        Mockito.verify(repository, Mockito.never())
+                .save(Mockito.any());
     }
 
     @Test
@@ -916,5 +954,27 @@ class FuncionarioServiceTest
         Mockito.verify(repository).findFuncionarioById(1L);
         Mockito.verify(repository).save(existing);
     }
+
+    @Test
+    void shouldDismissFuncionarioAndDeactivateUser()
+    {
+        LocalDate hoje = LocalDate.now();
+        User user = new User(1L, "Pedro", "senha123", UserRoles.USER);
+
+        Funcionario existing = FuncionarioTestBuilder.newFuncionario().setId(1L).setUser(user).setDataAdmissao(hoje.minusYears(1)).setAtivo(true).build();
+
+        Mockito.when(repository.findFuncionarioById(1L)).thenReturn(Optional.of(existing));
+
+        service.dismissFuncionarioById(1L, hoje);
+
+        assertFalse(existing.isAtivo());
+        assertEquals(hoje, existing.getDataDemissao());
+        assertEquals(UserRoles.NO_ACCESS, user.getRole());
+        assertEquals(UserRoles.USER, user.getPreviousRole());
+
+        Mockito.verify(repository).findFuncionarioById(1L);
+        Mockito.verify(repository).save(existing);
+    }
+
 
 }

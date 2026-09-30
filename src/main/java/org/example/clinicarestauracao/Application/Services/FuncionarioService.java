@@ -1,5 +1,6 @@
 package org.example.clinicarestauracao.Application.Services;
 
+import jakarta.transaction.Transactional;
 import org.example.clinicarestauracao.Application.Exceptions.Funcionario.FuncionarioNotFoundException;
 import org.example.clinicarestauracao.Application.Exceptions.Funcionario.FuncionarioWithInvalidInformationException;
 import org.example.clinicarestauracao.Application.Interfaces.FuncionarioRepository;
@@ -105,6 +106,7 @@ public class FuncionarioService
         return repository.save(existed);
     }
 
+    @Transactional
     public void dismissFuncionarioById(Long id, LocalDate dataDemissao)
     {
         if (id == null || id <= 0)
@@ -112,11 +114,24 @@ public class FuncionarioService
             throw new FuncionarioNotFoundException("Funcionário não encontrado.");
         }
 
-        Funcionario f  = this.findFuncionarioById(id);
+        Funcionario funcionario = this.findFuncionarioById(id);
+        User user = funcionario.getUser();
 
-        f.demitir(dataDemissao);
-        repository.save(f);
+        if (user == null)
+        {
+            throw new FuncionarioWithInvalidInformationException("Funcionário não possui usuário vinculado.");
+        }
+
+        funcionario.demitir(dataDemissao);
+
+        if (user.isEnabled())
+        {
+            user.deactivate();
+        }
+
+        repository.save(funcionario);
     }
+
 
     public void reactivateFuncionarioById(Long id)
     {
