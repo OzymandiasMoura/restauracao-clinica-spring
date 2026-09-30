@@ -1,8 +1,10 @@
 package org.example.clinicarestauracao.Application.Controllers;
 
 import org.example.clinicarestauracao.Application.Dtos.FuncionarioDtos.FuncionarioDismissalRequestDto;
+import org.example.clinicarestauracao.Application.Dtos.FuncionarioDtos.FuncionarioCreateRequestDto;
 import org.example.clinicarestauracao.Application.Dtos.FuncionarioDtos.FuncionarioRequestDto;
 import org.example.clinicarestauracao.Application.Dtos.FuncionarioDtos.FuncionarioResponseDto;
+import org.example.clinicarestauracao.Application.Dtos.FuncionarioDtos.FuncionarioUserDataDto;
 import org.example.clinicarestauracao.Application.Dtos.FuncionarioDtos.FuncionarioUserRequestDto;
 import org.example.clinicarestauracao.Application.Services.CargoService;
 import org.example.clinicarestauracao.Application.Services.FuncionarioService;
@@ -189,12 +191,12 @@ class FuncionarioControllerTest
 
     //Testes create
     @Test
-    void shouldCreateFuncionarioWithUserSuccessfully()
+    void shouldCreateFuncionarioAndUserSuccessfully()
     {
         Cargo cargo = CargoTestBuilder.newCargo().setId(1L).build();
-        User user = new User(2L, "pedro", "senha123", UserRoles.USER);
+        FuncionarioUserDataDto userData = new FuncionarioUserDataDto("pedro", "senha123");
 
-        FuncionarioRequestDto dto = new FuncionarioRequestDto(
+        FuncionarioCreateRequestDto dto = new FuncionarioCreateRequestDto(
                 "Pedro Moura",
                 "52998224725",
                 "pedro@email.com",
@@ -202,14 +204,14 @@ class FuncionarioControllerTest
                 "Praça da Sé, 1 - São Paulo",
                 "01001000",
                 cargo.getId(),
-                user.getId(),
-                LocalDate.of(2026, 1, 10)
+                LocalDate.of(2026, 1, 10),
+                userData
         );
 
-        Funcionario created = FuncionarioTestBuilder.newFuncionario().setId(10L).setCargo(cargo).setUser(user).build();
+        User savedUser = new User(2L, "pedro", "senha-criptografada", UserRoles.USER);
+        Funcionario created = FuncionarioTestBuilder.newFuncionario().setId(10L).setCargo(cargo).setUser(savedUser).build();
 
         Mockito.when(cargoService.findCargoById(cargo.getId())).thenReturn(cargo);
-        Mockito.when(userService.findUserById(user.getId())).thenReturn(user);
         Mockito.when(service.createFuncionario(Mockito.any(Funcionario.class))).thenReturn(created);
 
         ResponseEntity<FuncionarioResponseDto> response = controller.createFuncionario(dto);
@@ -224,10 +226,10 @@ class FuncionarioControllerTest
         assertNotNull(response.getBody().cargo());
         assertEquals(cargo.getId(), response.getBody().cargo().id());
         assertNotNull(response.getBody().user());
-        assertEquals(user.getId(), response.getBody().user().id());
+        assertEquals(savedUser.getId(), response.getBody().user().id());
 
         Mockito.verify(cargoService).findCargoById(cargo.getId());
-        Mockito.verify(userService).findUserById(user.getId());
+        Mockito.verifyNoInteractions(userService);
 
         ArgumentCaptor<Funcionario> captor = ArgumentCaptor.forClass(Funcionario.class);
 
@@ -240,55 +242,11 @@ class FuncionarioControllerTest
         assertEquals(dto.cpf(), sentToService.getCpf());
         assertEquals(dto.email(), sentToService.getEmail());
         assertSame(cargo, sentToService.getCargo());
-        assertSame(user, sentToService.getUser());
-    }
-
-    @Test
-    void shouldCreateFuncionarioWithoutUserSuccessfully()
-    {
-        Cargo cargo = CargoTestBuilder.newCargo().setId(1L).build();
-
-        FuncionarioRequestDto dto = new FuncionarioRequestDto(
-                "Pedro Moura",
-                "52998224725",
-                "pedro@email.com",
-                LocalDate.of(1990, 1, 10),
-                "Praça da Sé, 1 - São Paulo",
-                "01001000",
-                cargo.getId(),
-                null,
-                LocalDate.of(2026, 1, 10)
-        );
-
-        Funcionario created = FuncionarioTestBuilder.newFuncionario().setId(10L).setCargo(cargo).setUser(null).build();
-
-        Mockito.when(cargoService.findCargoById(cargo.getId())).thenReturn(cargo);
-        Mockito.when(service.createFuncionario(Mockito.any(Funcionario.class))).thenReturn(created);
-
-        ResponseEntity<FuncionarioResponseDto> response = controller.createFuncionario(dto);
-
-        assertEquals(HttpStatus.CREATED, response.getStatusCode());
-        assertEquals(
-                URI.create("http://localhost/funcionarios/10"),
-                response.getHeaders().getLocation()
-        );
-        assertNotNull(response.getBody());
-        assertEquals(created.getId(), response.getBody().id());
-        assertNotNull(response.getBody().cargo());
-        assertNull(response.getBody().user());
-
-        Mockito.verify(cargoService).findCargoById(cargo.getId());
-        Mockito.verifyNoInteractions(userService);
-
-        ArgumentCaptor<Funcionario> captor = ArgumentCaptor.forClass(Funcionario.class);
-
-        Mockito.verify(service).createFuncionario(captor.capture());
-
-        Funcionario sentToService = captor.getValue();
-
-        assertNull(sentToService.getId());
-        assertSame(cargo, sentToService.getCargo());
-        assertNull(sentToService.getUser());
+        assertNotNull(sentToService.getUser());
+        assertNull(sentToService.getUser().getId());
+        assertEquals(dto.user().username(), sentToService.getUser().getUsername());
+        assertEquals(dto.user().password(), sentToService.getUser().getPassword());
+        assertEquals(UserRoles.USER, sentToService.getUser().getRole());
     }
 
     //Testes update

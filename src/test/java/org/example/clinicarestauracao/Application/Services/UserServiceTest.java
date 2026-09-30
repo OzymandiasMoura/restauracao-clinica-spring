@@ -1,6 +1,7 @@
 package org.example.clinicarestauracao.Application.Services;
 
 import org.example.clinicarestauracao.Application.Exceptions.User.UserNotFoundException;
+import org.example.clinicarestauracao.Application.Exceptions.UsernameAlredyInUseException;
 import org.example.clinicarestauracao.Application.Interfaces.UserRepository;
 import org.example.clinicarestauracao.Builders.UserTestBuilder;
 import org.example.clinicarestauracao.Domain.Entities.User;
@@ -36,31 +37,34 @@ class UserServiceTest
     private UserService service;
 
     @Test
-    void shouldRegisterNewUser()
+    void shouldRegisterAndReturnNewUser()
     {
-        User user = (User) builder.build();
+        User receivedUser = new User("Pedro", "1234", UserRoles.USER);
 
-        Mockito.when(repository.findUserByUsername(user.getUsername())).thenReturn(null);
-        Mockito.when(repository.save(Mockito.any(User.class))).thenReturn(user);
-        Mockito.when(passwordEncoder.encode(user.getPassword())).thenReturn(user.getPassword());
+        User savedUser = new User(1L, "Pedro", "senha-criptografada", UserRoles.USER);
 
-        var result = service.registerUser(user);
+        Mockito.when(repository.findUserByUsername("Pedro")).thenReturn(null);
+        Mockito.when(passwordEncoder.encode("1234")).thenReturn("senha-criptografada");
+        Mockito.when(repository.save(Mockito.any(User.class))).thenReturn(savedUser);
 
-        assertTrue(result);
+        User result = service.registerUser(receivedUser);
 
-        ArgumentCaptor<User> userCaptor = ArgumentCaptor.forClass(User.class);
+        assertSame(savedUser, result);
 
-        verify(repository).save(userCaptor.capture());
+        ArgumentCaptor<User> captor = ArgumentCaptor.forClass(User.class);
 
-        User userCaptorValue = userCaptor.getValue();
+        verify(repository).save(captor.capture());
 
-        assertEquals("Pedro", userCaptorValue.getUsername());
-        assertEquals("1234", userCaptorValue.getPassword());
-        assertEquals(UserRoles.ADMIN, userCaptorValue.getRole());
+        User persistedUser = captor.getValue();
+
+        assertEquals("Pedro", persistedUser.getUsername());
+        assertEquals("senha-criptografada", persistedUser.getPassword());
+        assertEquals(UserRoles.USER, persistedUser.getRole());
 
         verify(repository).findUserByUsername("Pedro");
         verify(passwordEncoder).encode("1234");
     }
+
 
     @Test
     void shouldFindUserByIdSuccessfully()
@@ -97,6 +101,43 @@ class UserServiceTest
 
         Mockito.verifyNoInteractions(repository);
     }
+
+    @Test
+    void shouldRejectDuplicatedUsernameWhenRegisteringUser()
+    {
+        User receivedUser = new User(
+                "Pedro",
+                "1234",
+                UserRoles.USER
+        );
+
+        User existingUser = new User(
+                1L,
+                "Pedro",
+                "senha-criptografada",
+                UserRoles.USER
+        );
+
+        Mockito.when(repository.findUserByUsername("Pedro"))
+                .thenReturn(existingUser);
+
+        UsernameAlredyInUseException exception =
+                assertThrows(
+                        UsernameAlredyInUseException.class,
+                        () -> service.registerUser(receivedUser)
+                );
+
+        assertEquals(
+                "Nome de usuário já existe.",
+                exception.getMessage()
+        );
+
+        verify(repository).findUserByUsername("Pedro");
+        Mockito.verifyNoInteractions(passwordEncoder);
+        Mockito.verify(repository, Mockito.never())
+                .save(Mockito.any());
+    }
+
 
 
 }

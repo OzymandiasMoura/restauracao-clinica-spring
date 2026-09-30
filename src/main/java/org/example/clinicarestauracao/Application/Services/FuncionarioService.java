@@ -6,6 +6,7 @@ import org.example.clinicarestauracao.Application.Exceptions.Funcionario.Funcion
 import org.example.clinicarestauracao.Application.Interfaces.FuncionarioRepository;
 import org.example.clinicarestauracao.Domain.Entities.Funcionario;
 import org.example.clinicarestauracao.Domain.Entities.User;
+import org.example.clinicarestauracao.Domain.Enums.UserRoles;
 import org.example.clinicarestauracao.Domain.Validation.CpfValidator;
 import org.example.clinicarestauracao.Domain.Validation.EmailValidator;
 import org.springframework.stereotype.Service;
@@ -18,26 +19,35 @@ import java.util.Optional;
 public class FuncionarioService
 {
     private final FuncionarioRepository repository;
+    private final UserService userService;
 
-    public FuncionarioService(FuncionarioRepository repository)
+    public FuncionarioService(FuncionarioRepository repository, UserService userService)
     {
         this.repository = repository;
+        this.userService = userService;
     }
 
+    @Transactional
     public Funcionario createFuncionario(Funcionario funcionario)
     {
-        if(repository.findFuncionarioByCpf(funcionario.getCpf()).isPresent())
+        if (repository.findFuncionarioByCpf(funcionario.getCpf()).isPresent())
         {
             throw new FuncionarioWithInvalidInformationException("CPF já cadastrado.");
         }
-        if(repository.findFuncionarioByEmail(funcionario.getEmail()).isPresent())
+        if (repository.findFuncionarioByEmail(funcionario.getEmail()).isPresent())
         {
             throw new FuncionarioWithInvalidInformationException("E-mail já cadastrado.");
         }
-        if(funcionario.getUser() != null && repository.findFuncionarioByUser(funcionario.getUser()).isPresent())
+        User receivedUser = funcionario.getUser();
+        if (receivedUser == null)
         {
-            throw new FuncionarioWithInvalidInformationException("Usuário já vinculado a outro funcionário.");
+            throw new FuncionarioWithInvalidInformationException("Funcionário deve possuir um usuário.");
         }
+
+        User savedUser = userService.registerUser(new User(receivedUser.getUsername(), receivedUser.getPassword(), UserRoles.USER));
+
+        funcionario.setUser(savedUser);
+
         return repository.save(funcionario);
     }
 

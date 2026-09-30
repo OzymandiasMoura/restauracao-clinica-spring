@@ -75,11 +75,6 @@ public class DevDataInitializer implements ApplicationRunner
         cargoService.softDeleteCargoById(estagiario.getId());
 
         userService.registerUser(new User("admin.dev", TEST_PASSWORD, UserRoles.ADMIN));
-        userService.registerUser(new User("profissional.dev", TEST_PASSWORD, UserRoles.USER));
-        userService.registerUser(new User("usuario.livre", TEST_PASSWORD, UserRoles.USER));
-
-        User admin = (User) userRepository.findUserByUsername("admin.dev");
-        User profissional = (User) userRepository.findUserByUsername("profissional.dev");
 
         modalidadeService.createModalidade(new Modalidade(
                 "Atendimento Social", null, 40, false, "#2E86C1"));
@@ -98,7 +93,7 @@ public class DevDataInitializer implements ApplicationRunner
                 LocalDate.of(1985, 4, 12),
                 "Praça da Sé, 1 - São Paulo - SP",
                 "01001000",
-                admin,
+                new User("ana.dev", TEST_PASSWORD, UserRoles.USER),
                 coordenador,
                 LocalDate.of(2020, 2, 3)));
 
@@ -109,6 +104,7 @@ public class DevDataInitializer implements ApplicationRunner
                 LocalDate.of(1992, 8, 20),
                 "Praça Mauá, 10 - Rio de Janeiro - RJ",
                 "20040002",
+                new User("bruno.dev", TEST_PASSWORD, UserRoles.USER),
                 psicologo,
                 LocalDate.of(2023, 1, 9)));
 
@@ -119,7 +115,7 @@ public class DevDataInitializer implements ApplicationRunner
                 LocalDate.of(1988, 11, 2),
                 "Praça da Liberdade, 20 - Belo Horizonte - MG",
                 "30140010",
-                profissional,
+                new User("carla.dev", TEST_PASSWORD, UserRoles.USER),
                 assistenteSocial,
                 LocalDate.of(2021, 5, 10)));
         funcionarioService.dismissFuncionarioById(carla.getId(), LocalDate.of(2025, 6, 30));

@@ -3,6 +3,7 @@ package org.example.clinicarestauracao.Application.Services;
 import org.example.clinicarestauracao.Application.Exceptions.Funcionario.FuncionarioNotFoundException;
 import org.example.clinicarestauracao.Application.Exceptions.Funcionario.FuncionarioWithInvalidInformationException;
 import org.example.clinicarestauracao.Application.Exceptions.UserWithInvalidInformationException;
+import org.example.clinicarestauracao.Application.Exceptions.UsernameAlredyInUseException;
 import org.example.clinicarestauracao.Application.Interfaces.FuncionarioRepository;
 import org.example.clinicarestauracao.Builders.CargoTestBuilder;
 import org.example.clinicarestauracao.Builders.FuncionarioTestBuilder;
@@ -16,6 +17,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.NullSource;
 import org.junit.jupiter.params.provider.ValueSource;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -32,50 +34,58 @@ class FuncionarioServiceTest
 {
     @Mock
     private FuncionarioRepository repository;
+    @Mock
+    private UserService userService;
     @InjectMocks
     private FuncionarioService service;
 
     @Test
-    void shouldCreateFuncionarioWithoutUserSuccessfully()
+    void shouldRejectFuncionarioWithoutUser()
     {
-        Funcionario entrada = FuncionarioTestBuilder.newFuncionario().setUser(null).buildForCreate();
-        Funcionario salvo = FuncionarioTestBuilder.newFuncionario().setUser(null).build();
+        Funcionario funcionario = FuncionarioTestBuilder.newFuncionario().setUser(null).buildForCreate();
 
-        Mockito.when(repository.findFuncionarioByCpf(entrada.getCpf())).thenReturn(Optional.empty());
-        Mockito.when(repository.findFuncionarioByEmail(entrada.getEmail())).thenReturn(Optional.empty());
-        Mockito.when(repository.save(entrada)).thenReturn(salvo);
+        Mockito.when(repository.findFuncionarioByCpf(funcionario.getCpf())).thenReturn(Optional.empty());
+        Mockito.when(repository.findFuncionarioByEmail(funcionario.getEmail())).thenReturn(Optional.empty());
 
-        Funcionario resultado = service.createFuncionario(entrada);
+        FuncionarioWithInvalidInformationException exception = assertThrows(FuncionarioWithInvalidInformationException.class, () -> service.createFuncionario(funcionario));
 
-        assertSame(salvo, resultado);
-        assertNotNull(resultado.getId());
+        assertEquals("Funcionário deve possuir um usuário.", exception.getMessage());
 
-        Mockito.verify(repository).findFuncionarioByCpf(entrada.getCpf());
-        Mockito.verify(repository).findFuncionarioByEmail(entrada.getEmail());
-        Mockito.verify(repository, Mockito.never()).findFuncionarioByUser(Mockito.any());
-        Mockito.verify(repository).save(entrada);
+        Mockito.verifyNoInteractions(userService);
+        Mockito.verify(repository, Mockito.never()).save(Mockito.any());
     }
 
     @Test
-    void shouldCreateFuncionarioWithUserSuccessfully()
+    void shouldCreateFuncionarioAndUserSuccessfully()
     {
-        User user = new User(1L, "pedro", "senha123", UserRoles.USER);
+        User receivedUser = new User("pedro", "senha123", UserRoles.ADMIN);
+        User savedUser = new User(1L, "pedro", "senha-criptografada", UserRoles.USER);
+        Funcionario funcionario = FuncionarioTestBuilder.newFuncionario().setUser(receivedUser).buildForCreate();
+        Funcionario savedFuncionario = FuncionarioTestBuilder.newFuncionario().setUser(savedUser).build();
 
-        Funcionario entrada = FuncionarioTestBuilder.newFuncionario().setUser(user).buildForCreate();
-        Funcionario salvo = FuncionarioTestBuilder.newFuncionario().setUser(user).build();
+        Mockito.when(repository.findFuncionarioByCpf(funcionario.getCpf())).thenReturn(Optional.empty());
+        Mockito.when(repository.findFuncionarioByEmail(funcionario.getEmail())).thenReturn(Optional.empty());
+        Mockito.when(userService.registerUser(Mockito.any(User.class))).thenReturn(savedUser);
+        Mockito.when(repository.save(funcionario)).thenReturn(savedFuncionario);
 
-        Mockito.when(repository.findFuncionarioByCpf(entrada.getCpf())).thenReturn(Optional.empty());
-        Mockito.when(repository.findFuncionarioByEmail(entrada.getEmail())).thenReturn(Optional.empty());
-        Mockito.when(repository.findFuncionarioByUser(user)).thenReturn(Optional.empty());
-        Mockito.when(repository.save(entrada)).thenReturn(salvo);
+        Funcionario result = service.createFuncionario(funcionario);
 
-        Funcionario resultado = service.createFuncionario(entrada);
+        assertSame(savedFuncionario, result);
+        assertSame(savedUser, funcionario.getUser());
 
-        assertSame(salvo, resultado);
+        ArgumentCaptor<User> userCaptor = ArgumentCaptor.forClass(User.class);
 
-        Mockito.verify(repository).findFuncionarioByUser(entrada.getUser());
-        Mockito.verify(repository).save(entrada);
+        Mockito.verify(userService).registerUser(userCaptor.capture());
+
+        User userSentToRegistration = userCaptor.getValue();
+
+        assertEquals("pedro", userSentToRegistration.getUsername());
+        assertEquals("senha123", userSentToRegistration.getPassword());
+        assertEquals(UserRoles.USER, userSentToRegistration.getRole());
+
+        Mockito.verify(repository).save(funcionario);
     }
+
 
     @Test
     void shouldRejectFuncionarioWithDuplicatedCpf()
@@ -90,6 +100,7 @@ class FuncionarioServiceTest
         assertEquals("CPF já cadastrado.", exception.getMessage());
 
         Mockito.verify(repository, Mockito.never()).findFuncionarioByEmail(Mockito.anyString());
+        Mockito.verifyNoInteractions(userService);
         Mockito.verify(repository, Mockito.never()).save(Mockito.any());
     }
 
@@ -106,27 +117,8 @@ class FuncionarioServiceTest
 
         assertEquals("E-mail já cadastrado.", exception.getMessage());
 
-        Mockito.verify(repository, Mockito.never()).findFuncionarioByUser(Mockito.any());
         Mockito.verify(repository, Mockito.never()).save(Mockito.any());
-    }
-
-    @Test
-    void shouldRejectUserAlreadyLinkedToAnotherFuncionario()
-    {
-        User user = new User(1L, "pedro", "senha123", UserRoles.USER);
-
-        Funcionario entrada = FuncionarioTestBuilder.newFuncionario().setUser(user).buildForCreate();
-        Funcionario existente = FuncionarioTestBuilder.newFuncionario().setUser(user).build();
-
-        Mockito.when(repository.findFuncionarioByCpf(entrada.getCpf())).thenReturn(Optional.empty());
-        Mockito.when(repository.findFuncionarioByEmail(entrada.getEmail())).thenReturn(Optional.empty());
-        Mockito.when(repository.findFuncionarioByUser(user)).thenReturn(Optional.of(existente));
-
-        var exception = assertThrows(FuncionarioWithInvalidInformationException.class, () -> service.createFuncionario(entrada));
-
-        assertEquals("Usuário já vinculado a outro funcionário.", exception.getMessage());
-
-        Mockito.verify(repository, Mockito.never()).save(Mockito.any());
+        Mockito.verifyNoInteractions(userService);
     }
 
     @Test
@@ -1004,6 +996,23 @@ class FuncionarioServiceTest
         assertFalse(existing.isAtivo());
         assertEquals(dataDemissao, existing.getDataDemissao());
         assertEquals(UserRoles.NO_ACCESS, user.getRole());
+
+        Mockito.verify(repository, Mockito.never()).save(Mockito.any());
+    }
+
+    @Test
+    void shouldNotSaveFuncionarioWhenUserRegistrationFails()
+    {
+        User receivedUser = new User("pedro", "senha123", UserRoles.USER);
+        Funcionario funcionario = FuncionarioTestBuilder.newFuncionario().setUser(receivedUser).buildForCreate();
+
+        Mockito.when(repository.findFuncionarioByCpf(funcionario.getCpf())).thenReturn(Optional.empty());
+        Mockito.when(repository.findFuncionarioByEmail(funcionario.getEmail())).thenReturn(Optional.empty());
+        Mockito.when(userService.registerUser(Mockito.any(User.class))).thenThrow(new UsernameAlredyInUseException("Nome de usuário já existe."));
+
+        UsernameAlredyInUseException exception = assertThrows(UsernameAlredyInUseException.class, () -> service.createFuncionario(funcionario));
+
+        assertEquals("Nome de usuário já existe.", exception.getMessage());
 
         Mockito.verify(repository, Mockito.never()).save(Mockito.any());
     }

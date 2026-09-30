@@ -1,10 +1,7 @@
 package org.example.clinicarestauracao.Application.Controllers;
 
 import org.example.clinicarestauracao.Application.Controllers.Mappers.FuncionarioMapper;
-import org.example.clinicarestauracao.Application.Dtos.FuncionarioDtos.FuncionarioDismissalRequestDto;
-import org.example.clinicarestauracao.Application.Dtos.FuncionarioDtos.FuncionarioRequestDto;
-import org.example.clinicarestauracao.Application.Dtos.FuncionarioDtos.FuncionarioResponseDto;
-import org.example.clinicarestauracao.Application.Dtos.FuncionarioDtos.FuncionarioUserRequestDto;
+import org.example.clinicarestauracao.Application.Dtos.FuncionarioDtos.*;
 import org.example.clinicarestauracao.Application.Services.CargoService;
 import org.example.clinicarestauracao.Application.Services.FuncionarioService;
 import org.example.clinicarestauracao.Application.Services.UserService;
@@ -66,19 +63,19 @@ public class FuncionarioController
     }
 
     @PostMapping
-    public ResponseEntity<FuncionarioResponseDto> createFuncionario(@RequestBody FuncionarioRequestDto dto)
+    public ResponseEntity<FuncionarioResponseDto> createFuncionario(@RequestBody FuncionarioCreateRequestDto dto)
     {
         Cargo cargo = cargoService.findCargoById(dto.cargoId());
-        User user = dto.userId() == null ? null : userService.findUserById(dto.userId());
-        Funcionario funcionario = FuncionarioMapper.requestDtoToEntity(dto, user, cargo);
-
+        Funcionario funcionario = FuncionarioMapper.createRequestDtoToEntity(dto, cargo);
         Funcionario created = service.createFuncionario(funcionario);
 
         FuncionarioResponseDto response = FuncionarioMapper.entityToResponseDto(created);
+
         URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(created.getId()).toUri();
 
         return ResponseEntity.created(location).body(response);
     }
+
 
     @PutMapping("/{id}")
     public ResponseEntity<FuncionarioResponseDto> updateFuncionario(@PathVariable Long id, @RequestBody FuncionarioRequestDto dto)
