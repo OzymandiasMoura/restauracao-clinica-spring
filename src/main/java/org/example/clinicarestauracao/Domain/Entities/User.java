@@ -46,14 +46,12 @@ public class User implements UserDetails
     @NullMarked
     public Collection<? extends GrantedAuthority> getAuthorities()
     {
-        if(this.role == UserRoles.ADMIN)
+        return switch (this.role)
         {
-            return List.of(new SimpleGrantedAuthority("ROLE_ADMIN"), new SimpleGrantedAuthority("ROLE_USER"));
-        }
-        else
-        {
-            return List.of(new SimpleGrantedAuthority("ROLE_USER"));
-        }
+            case ADMIN -> List.of(new SimpleGrantedAuthority("ROLE_ADMIN"), new SimpleGrantedAuthority("ROLE_USER"));
+            case USER -> List.of(new SimpleGrantedAuthority("ROLE_USER"));
+            case NO_ACCESS ->  List.of();
+        };
     }
 
     public void setUsername(String username)

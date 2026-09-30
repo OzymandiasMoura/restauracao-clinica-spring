@@ -111,4 +111,12 @@ class UserTest
         );
     }
 
+    @Test
+    void shouldReturnNoAuthoritiesWhenUserHasNoAccess()
+    {
+        User user = (User) builder.setRole(UserRoles.NO_ACCESS).build();
+
+        assertThat(user.getAuthorities()).isEmpty();
+    }
+
 }
