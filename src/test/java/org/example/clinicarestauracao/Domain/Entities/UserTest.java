@@ -6,14 +6,14 @@ import org.example.clinicarestauracao.Domain.Enums.UserRoles;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.security.core.GrantedAuthority;
 
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 
 class UserTest
 {
@@ -83,6 +83,112 @@ class UserTest
         assertEquals("Nome de usuário deve ter no mínimo 3 caracteres.", exception.getMessage());
     }
 
+    @Test
+    void shouldReturnNoAuthoritiesWhenUserHasNoAccess()
+    {
+        User user = (User) builder.setRole(UserRoles.NO_ACCESS).build();
+
+        assertThat(user.getAuthorities()).isEmpty();
+    }
+
+    @Test
+    void shouldCreateActiveUserWithoutPreviousRole()
+    {
+        User user = new User(1L, "Pedro", "123", UserRoles.USER);
+
+        assertEquals(UserRoles.USER, user.getRole());
+        assertNull(user.getPreviousRole());
+    }
+
+    @ParameterizedTest
+    @EnumSource(
+            value = UserRoles.class,
+            names = {"USER", "ADMIN"}
+    )
+    void shouldDeactivateUserAndPreservePreviousRole(UserRoles originalRole)
+    {
+        User user = new User(1L, "Pedro", "123", originalRole);
+
+        user.deactivate();
+
+        assertEquals(UserRoles.NO_ACCESS, user.getRole());
+        assertEquals(originalRole, user.getPreviousRole());
+        assertThat(user.getAuthorities()).isEmpty();
+    }
+
+    @Test
+    void shouldNotOverwritePreviousRoleWhenUserIsAlreadyDeactivated()
+    {
+        User user = new User(1L, "Pedro", "123", UserRoles.ADMIN);
+
+        user.deactivate();
+        UserWithInvalidInformationException exception = assertThrows(UserWithInvalidInformationException.class, user::deactivate) ;
+
+        assertEquals(UserRoles.NO_ACCESS, user.getRole());
+        assertEquals(UserRoles.ADMIN, user.getPreviousRole());
+        assertEquals("Usuário já está desativado.", exception.getMessage());
+    }
+
+    @ParameterizedTest
+    @EnumSource(
+            value = UserRoles.class,
+            names = {"USER", "ADMIN"}
+    )
+    void shouldReactivateUserRestoringPreviousRole(UserRoles originalRole)
+    {
+        User user = new User(1L, "Pedro", "123", originalRole);
+        user.deactivate();
+
+        user.reactivate();
+
+        assertEquals(originalRole, user.getRole());
+        assertNull(user.getPreviousRole());
+    }
+
+    @Test
+    void shouldThrowExceptionWhenUserIsNotDeactivated()
+    {
+        User user = new User(1L, "Pedro", "123", UserRoles.USER);
+
+        UserWithInvalidInformationException exception = assertThrows(UserWithInvalidInformationException.class, user::reactivate);
+
+        assertEquals("Usuário não está desativado.", exception.getMessage());
+        assertEquals(UserRoles.USER, user.getRole());
+        assertNull(user.getPreviousRole());
+    }
+
+    @Test
+    void shouldThrowExceptionWhenUserHasNoValidPreviousRole()
+    {
+        User user = new User(1L, "Pedro", "123", UserRoles.NO_ACCESS);
+
+        UserWithInvalidInformationException exception = assertThrows(UserWithInvalidInformationException.class, user::reactivate);
+
+        assertEquals("Usuário não tinha permissão válida.", exception.getMessage());
+        assertEquals(UserRoles.NO_ACCESS, user.getRole());
+        assertNull(user.getPreviousRole());
+    }
+
+    @ParameterizedTest
+    @EnumSource(
+            value = UserRoles.class,
+            names = {"USER", "ADMIN"}
+    )
+    void shouldBeEnabledWhenUserHasAccess(UserRoles role)
+    {
+        User user = new User(1L, "Pedro", "123", role);
+
+        assertTrue(user.isEnabled());
+    }
+
+    @Test
+    void shouldBeDisabledWhenUserHasNoAccess()
+    {
+        User user = new User(1L, "Pedro", "123", UserRoles.NO_ACCESS);
+
+        assertFalse(user.isEnabled());
+    }
+
 
     private static Stream<Arguments> dataProvider()
     {
@@ -110,13 +216,4 @@ class UserTest
                 Arguments.of("Pedro", "12", UserRoles.ADMIN, "Senha de usuário não pode ter menos que 3 caracteres.")
         );
     }
-
-    @Test
-    void shouldReturnNoAuthoritiesWhenUserHasNoAccess()
-    {
-        User user = (User) builder.setRole(UserRoles.NO_ACCESS).build();
-
-        assertThat(user.getAuthorities()).isEmpty();
-    }
-
 }
