@@ -34,8 +34,8 @@ public class Funcionario
     private String cep;
     @Column(nullable = false)
     private boolean ativo;
-    @OneToOne
-    @JoinColumn(name = "user_id", nullable = true)
+    @OneToOne(optional = false)
+    @JoinColumn(name = "user_id", nullable = false)
     private User user;
     @ManyToOne(optional = false)
     @JoinColumn(name = "cargo_id", nullable = false)
@@ -74,38 +74,18 @@ public class Funcionario
         setCargo(cargo);
     }
 
-    public Funcionario(Long id, String nome, String cpf, String email, LocalDate dataNascimento, String endereco, String cep, boolean ativo, Cargo cargo, LocalDate dataAdmissao)
-    {
-        setId(id);
-        setNome(nome);
-        setCpf(cpf);
-        setEmail(email);
-        setDataNascimento(dataNascimento);
-        setDataAdmissao(dataAdmissao);
-        setEndereco(endereco);
-        setCep(cep);
-        setAtivo(ativo);
-        setCargo(cargo);
-
-    }
-
-    public Funcionario(String nome, String cpf, String email, LocalDate dataNascimento, String endereco, String cep, Cargo cargo,  LocalDate dataAdmissao)
-    {
-        setNome(nome);
-        setCpf(cpf);
-        setEmail(email);
-        setDataNascimento(dataNascimento);
-        setDataAdmissao(dataAdmissao);
-        setEndereco(endereco);
-        setCep(cep);
-        setAtivo(true);
-        setCargo(cargo);
-
-    }
-
     private void setId(Long id)
     {
         this.id = id;
+    }
+
+    public void setUser(User user)
+    {
+        if(user == null)
+        {
+            throw new FuncionarioWithInvalidInformationException("Usuário não pode ser nulo.");
+        }
+        this.user = user;
     }
 
     public void setNome(String nome)

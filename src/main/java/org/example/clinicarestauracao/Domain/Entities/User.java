@@ -49,6 +49,21 @@ public class User implements UserDetails
         setRole(role);
     }
 
+    public static User forCredentialsUpdate(String username, String password)
+    {
+        User user = new User();
+
+        user.setUsername(username);
+
+        if (password != null)
+        {
+            user.setPassword(password);
+        }
+
+        user.setRole(UserRoles.USER);
+
+        return user;
+    }
 
     @Override
     @NullMarked

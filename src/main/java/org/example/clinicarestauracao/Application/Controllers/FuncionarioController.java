@@ -78,14 +78,16 @@ public class FuncionarioController
 
 
     @PutMapping("/{id}")
-    public ResponseEntity<FuncionarioResponseDto> updateFuncionario(@PathVariable Long id, @RequestBody FuncionarioRequestDto dto)
+    public ResponseEntity<FuncionarioResponseDto> updateFuncionario(@PathVariable Long id, @RequestBody FuncionarioUpdateRequestDto dto)
     {
         Cargo cargo = cargoService.findCargoById(dto.cargoId());
+        Funcionario funcionario = FuncionarioMapper.updateRequestDtoToEntity(dto, cargo);
 
-        Funcionario funcionario = FuncionarioMapper.requestDtoToEntity(dto, null, cargo);
+
         Funcionario updated = service.updateFuncionario(id, funcionario);
 
         FuncionarioResponseDto response = FuncionarioMapper.entityToResponseDto(updated);
+
         return ResponseEntity.ok(response);
     }
 
@@ -112,13 +114,4 @@ public class FuncionarioController
 
         return ResponseEntity.noContent().build();
     }
-
-    @DeleteMapping("/{id}/user")
-    public ResponseEntity<Void> unlinkFuncionarioUser(@PathVariable Long id)
-    {
-        service.unlinkUserFromFuncionario(id);
-
-        return ResponseEntity.noContent().build();
-    }
-
 }

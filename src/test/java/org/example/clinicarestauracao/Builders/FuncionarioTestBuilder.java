@@ -3,6 +3,7 @@ package org.example.clinicarestauracao.Builders;
 import org.example.clinicarestauracao.Domain.Entities.Cargo;
 import org.example.clinicarestauracao.Domain.Entities.Funcionario;
 import org.example.clinicarestauracao.Domain.Entities.User;
+import org.example.clinicarestauracao.Domain.Enums.UserRoles;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.time.LocalDate;
@@ -17,7 +18,7 @@ public class FuncionarioTestBuilder
     private String endereco = "Praça da Sé, 1 - Sé, São Paulo - SP";
     private String cep = "01001000";
     private boolean ativo = true;
-    private User user = null;
+    private User user = new User(1L, "pedro", "senha123", UserRoles.USER);
     private Cargo cargo = CargoTestBuilder.newCargo().build();
     private LocalDate dataAdmissao = LocalDate.of(2026, 1, 10);
     private LocalDate dataDemissao = null;
@@ -114,6 +115,36 @@ public class FuncionarioTestBuilder
     public Funcionario buildForCreate()
     {
         Funcionario funcionario = new Funcionario(nome, cpf, email, dataNascimento, endereco, cep, user, cargo, dataAdmissao);
+
+        if (dataDemissao != null)
+        {
+            ReflectionTestUtils.setField(funcionario, "dataDemissao", dataDemissao);
+        }
+
+        return funcionario;
+    }
+
+    public Funcionario buildWithNullUser()
+    {
+        User validUser = user == null ? new User(1L, "legacy-user", "senha123", UserRoles.USER) : user;
+        Funcionario funcionario = new Funcionario(id, nome, cpf, email, dataNascimento, endereco, cep, ativo, validUser, cargo, dataAdmissao);
+
+        ReflectionTestUtils.setField(funcionario, "user", null);
+
+        if (dataDemissao != null)
+        {
+            ReflectionTestUtils.setField(funcionario, "dataDemissao", dataDemissao);
+        }
+
+        return funcionario;
+    }
+
+    public Funcionario buildForCreateWithNullUser()
+    {
+        User validUser = user == null ? new User("legacy-user", "senha123", UserRoles.USER) : user;
+        Funcionario funcionario = new Funcionario(nome, cpf, email, dataNascimento, endereco, cep, validUser, cargo, dataAdmissao);
+
+        ReflectionTestUtils.setField(funcionario, "user", null);
 
         if (dataDemissao != null)
         {

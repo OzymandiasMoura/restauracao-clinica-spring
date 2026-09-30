@@ -1,4 +1,5 @@
 package org.example.clinicarestauracao.Application.Services;
+import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.example.clinicarestauracao.Application.Exceptions.User.UserNotFoundException;
 import org.example.clinicarestauracao.Application.Exceptions.UsernameAlredyInUseException;
@@ -36,4 +37,37 @@ public class UserService
         }
         return userRepository.findById(id).orElseThrow(() -> new UserNotFoundException("Usuário não encontrado."));
     }
+
+    @Transactional
+    public User updateUserCredentials(User user, String username, String password
+    )
+    {
+        if (user == null)
+        {
+            throw new UserNotFoundException("Usuário não encontrado.");
+        }
+
+        String passwordForValidation = password == null ? user.getPassword() : password;
+
+        User validatedData = new User(username, passwordForValidation, user.getRole());
+
+        var usernameOwner = userRepository.findUserByUsername(validatedData.getUsername());
+
+        if (usernameOwner != null && !usernameOwner.equals(user))
+        {
+            throw new UsernameAlredyInUseException("Nome de usuário já existe.");
+        }
+
+        String encryptedPassword = password == null ? null : passwordEncoder.encode(password);
+
+        user.setUsername(validatedData.getUsername());
+
+        if (encryptedPassword != null)
+        {
+            user.setPassword(encryptedPassword);
+        }
+
+        return userRepository.save(user);
+    }
+
 }

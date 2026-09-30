@@ -89,23 +89,42 @@ public class FuncionarioService
         return repository.findAll();
     }
 
-    public Funcionario updateFuncionario(Long id, Funcionario funcionario)
+    @Transactional
+    public Funcionario updateFuncionario(Long id, Funcionario funcionario
+    )
     {
         Funcionario existed = this.findFuncionarioById(id);
 
+        if (existed.getUser() == null)
+        {
+            throw new FuncionarioWithInvalidInformationException("Funcionário não possui usuário vinculado.");
+        }
+
+        if (funcionario.getUser() == null)
+        {
+            throw new FuncionarioWithInvalidInformationException("Dados do usuário devem ser informados.");
+        }
+
         Optional<Funcionario> sameCpf = repository.findFuncionarioByCpf(funcionario.getCpf());
-        if(sameCpf.isPresent() && !sameCpf.get().getId().equals(existed.getId()))
+
+        if (sameCpf.isPresent() && !sameCpf.get().getId().equals(existed.getId()))
         {
             throw new FuncionarioWithInvalidInformationException("CPF já cadastrado.");
         }
 
         Optional<Funcionario> sameEmail = repository.findFuncionarioByEmail(funcionario.getEmail());
-        if(sameEmail.isPresent() && !sameEmail.get().getId().equals(existed.getId()))
+
+        if (sameEmail.isPresent() && !sameEmail.get().getId().equals(existed.getId()))
         {
             throw new FuncionarioWithInvalidInformationException("E-mail já cadastrado.");
         }
 
         existed.atualizarDatas(funcionario.getDataNascimento(), funcionario.getDataAdmissao());
+        User receivedUser = funcionario.getUser();
+
+        userService.updateUserCredentials(existed.getUser(), receivedUser.getUsername(), receivedUser.getPassword());
+
+
         existed.setNome(funcionario.getNome());
         existed.setCpf(funcionario.getCpf());
         existed.setEmail(funcionario.getEmail());
@@ -192,18 +211,6 @@ public class FuncionarioService
         }
 
         f.setUser(user);
-        repository.save(f);
-    }
-
-    public void unlinkUserFromFuncionario(Long id)
-    {
-        Funcionario f = this.findFuncionarioById(id);
-
-        if (f.getUser() == null)
-        {
-            return;
-        }
-        f.setUser(null);
         repository.save(f);
     }
 }

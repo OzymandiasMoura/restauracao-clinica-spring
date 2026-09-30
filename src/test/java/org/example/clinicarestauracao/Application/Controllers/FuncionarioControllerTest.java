@@ -2,10 +2,11 @@ package org.example.clinicarestauracao.Application.Controllers;
 
 import org.example.clinicarestauracao.Application.Dtos.FuncionarioDtos.FuncionarioDismissalRequestDto;
 import org.example.clinicarestauracao.Application.Dtos.FuncionarioDtos.FuncionarioCreateRequestDto;
-import org.example.clinicarestauracao.Application.Dtos.FuncionarioDtos.FuncionarioRequestDto;
 import org.example.clinicarestauracao.Application.Dtos.FuncionarioDtos.FuncionarioResponseDto;
 import org.example.clinicarestauracao.Application.Dtos.FuncionarioDtos.FuncionarioUserDataDto;
 import org.example.clinicarestauracao.Application.Dtos.FuncionarioDtos.FuncionarioUserRequestDto;
+import org.example.clinicarestauracao.Application.Dtos.FuncionarioDtos.FuncionarioUpdateRequestDto;
+import org.example.clinicarestauracao.Application.Dtos.FuncionarioDtos.FuncionarioUserUpdateDataDto;
 import org.example.clinicarestauracao.Application.Services.CargoService;
 import org.example.clinicarestauracao.Application.Services.FuncionarioService;
 import org.example.clinicarestauracao.Application.Services.UserService;
@@ -74,9 +75,11 @@ class FuncionarioControllerTest
         LocalDate today = LocalDate.now();
         LocalDate dataDemissao = today.minusDays(1);
         User user = new User(1L, "pedro", "senha123", UserRoles.USER);
+        User dismissedUser = new User(2L, "maria", "senha456", UserRoles.USER);
+        dismissedUser.deactivate();
 
         Funcionario ativo = FuncionarioTestBuilder.newFuncionario().setId(1L).setUser(user).setDataAdmissao(today.minusYears(2)).setAtivo(true).build();
-        Funcionario demitido = FuncionarioTestBuilder.newFuncionario().setId(2L).setNome("Maria Silva").setCpf("11144477735").setEmail("maria@email.com").setUser(null).setDataAdmissao(today.minusYears(1)).setDataDemissao(dataDemissao).setAtivo(false).build();
+        Funcionario demitido = FuncionarioTestBuilder.newFuncionario().setId(2L).setNome("Maria Silva").setCpf("11144477735").setEmail("maria@email.com").setUser(dismissedUser).setDataAdmissao(today.minusYears(1)).setDataDemissao(dataDemissao).setAtivo(false).build();
 
         Mockito.when(service.findAllFuncionarios()).thenReturn(List.of(ativo, demitido));
 
@@ -106,7 +109,11 @@ class FuncionarioControllerTest
         assertEquals(demitido.getDataAdmissao(), segundo.dataAdmissao());
         assertEquals(dataDemissao, segundo.dataDemissao());
         assertNotNull(segundo.cargo());
-        assertNull(segundo.user());
+        assertNotNull(segundo.user());
+        assertEquals(dismissedUser.getId(), segundo.user().id());
+        assertEquals(dismissedUser.getUsername(), segundo.user().username());
+        assertEquals(UserRoles.NO_ACCESS, segundo.user().role());
+
 
         Mockito.verify(service).findAllFuncionarios();
     }
@@ -261,7 +268,7 @@ class FuncionarioControllerTest
 
         User usuarioExistente = new User(1L, "pedro", "senha123", UserRoles.USER);
 
-        FuncionarioRequestDto dto = new FuncionarioRequestDto(
+        FuncionarioUpdateRequestDto dto = new FuncionarioUpdateRequestDto(
                 "Pedro Moura Atualizado",
                 "12345678909",
                 "pedro.atualizado@email.com",
@@ -269,15 +276,18 @@ class FuncionarioControllerTest
                 "Avenida Paulista, 1000",
                 "01310100",
                 cargoAtualizado.getId(),
-                99L,
-                dataAdmissaoRecebida
+                dataAdmissaoRecebida,
+                new FuncionarioUserUpdateDataDto("pedro.atualizado", null)
         );
 
         Funcionario updated = FuncionarioTestBuilder.newFuncionario().setId(1L).setNome(dto.nome()).setCpf(dto.cpf()).setEmail(dto.email()).setDataNascimento(dto.dataNascimento()).setEndereco(dto.endereco()).setCep(dto.cep()).setCargo(cargoAtualizado).setUser(usuarioExistente).setDataAdmissao(dataAdmissaoRecebida).setDataDemissao(dataDemissaoExistente).setAtivo(false).build();
 
         Mockito.when(cargoService.findCargoById(cargoAtualizado.getId())).thenReturn(cargoAtualizado);
 
-        Mockito.when(service.updateFuncionario(Mockito.eq(1L), Mockito.any(Funcionario.class))).thenReturn(updated);
+        Mockito.when(service.updateFuncionario(
+                Mockito.eq(1L),
+                Mockito.any(Funcionario.class)
+        )).thenReturn(updated);
 
         ResponseEntity<FuncionarioResponseDto> response = controller.updateFuncionario(1L, dto);
 
@@ -299,7 +309,10 @@ class FuncionarioControllerTest
 
         ArgumentCaptor<Funcionario> captor = ArgumentCaptor.forClass(Funcionario.class);
 
-        Mockito.verify(service).updateFuncionario(Mockito.eq(1L), captor.capture());
+        Mockito.verify(service).updateFuncionario(
+                Mockito.eq(1L),
+                captor.capture()
+        );
 
         Funcionario sentToService = captor.getValue();
 
@@ -310,7 +323,10 @@ class FuncionarioControllerTest
         assertEquals(dto.dataNascimento(), sentToService.getDataNascimento());
         assertEquals(dto.dataAdmissao(), sentToService.getDataAdmissao());
         assertSame(cargoAtualizado, sentToService.getCargo());
-        assertNull(sentToService.getUser());
+        assertNotNull(sentToService.getUser());
+        assertEquals(dto.user().username(), sentToService.getUser().getUsername());
+        assertNull(sentToService.getUser().getPassword());
+        assertEquals(UserRoles.USER, sentToService.getUser().getRole());
     }
 
     //Testes dismissFuncionario
@@ -366,21 +382,6 @@ class FuncionarioControllerTest
         Mockito.verify(service).linkUserToFuncionario(funcionarioId, user);
 
         Mockito.verifyNoInteractions(cargoService);
-    }
-
-    @Test
-    void shouldUnlinkUserFromFuncionarioSuccessfully()
-    {
-        Long funcionarioId = 1L;
-
-        ResponseEntity<Void> response = controller.unlinkFuncionarioUser(funcionarioId);
-
-        assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
-        assertNull(response.getBody());
-
-        Mockito.verify(service).unlinkUserFromFuncionario(funcionarioId);
-
-        Mockito.verifyNoInteractions(userService, cargoService);
     }
 
 }

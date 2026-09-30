@@ -216,4 +216,30 @@ class UserTest
                 Arguments.of("Pedro", "12", UserRoles.ADMIN, "Senha de usuário não pode ter menos que 3 caracteres.")
         );
     }
+
+    @Test
+    void shouldCreateUserForCredentialsUpdateWithNewPassword()
+    {
+        User user = User.forCredentialsUpdate(
+                "pedro.atualizado",
+                "nova-senha"
+        );
+
+        assertEquals("pedro.atualizado", user.getUsername());
+        assertEquals("nova-senha", user.getPassword());
+        assertEquals(UserRoles.USER, user.getRole());
+    }
+
+    @Test
+    void shouldCreateUserForCredentialsUpdateWithoutPassword()
+    {
+        User user = User.forCredentialsUpdate(
+                "pedro.atualizado",
+                null
+        );
+
+        assertEquals("pedro.atualizado", user.getUsername());
+        assertNull(user.getPassword());
+        assertEquals(UserRoles.USER, user.getRole());
+    }
 }
