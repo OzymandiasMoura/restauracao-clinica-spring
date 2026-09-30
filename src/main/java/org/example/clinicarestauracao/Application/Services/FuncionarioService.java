@@ -133,6 +133,7 @@ public class FuncionarioService
     }
 
 
+    @Transactional
     public void reactivateFuncionarioById(Long id)
     {
         if (id == null || id <= 0)
@@ -141,13 +142,21 @@ public class FuncionarioService
         }
 
         Funcionario funcionario = this.findFuncionarioById(id);
+        User user = funcionario.getUser();
+
+        if (user == null)
+        {
+            throw new FuncionarioWithInvalidInformationException("Funcionário não possui usuário vinculado.");
+        }
 
         if (funcionario.isAtivo())
         {
             return;
         }
 
+        user.reactivate();
         funcionario.reactivate();
+
         repository.save(funcionario);
     }
 
