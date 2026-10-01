@@ -189,16 +189,17 @@ public class FuncionarioService
         repository.save(funcionario);
     }
 
+    @Transactional
     public void linkUserToFuncionario(Long id, User user)
     {
-        if(user == null)
+        if (user == null)
         {
             throw new FuncionarioWithInvalidInformationException("Usuário inválido.");
         }
 
         Funcionario f = this.findFuncionarioById(id);
 
-        if(user.equals(f.getUser()))
+        if (user.equals(f.getUser()))
         {
             return;
         }
@@ -208,6 +209,23 @@ public class FuncionarioService
         if (sameUser.isPresent())
         {
             throw new FuncionarioWithInvalidInformationException("Usuário já vinculado a outro funcionário.");
+        }
+
+        if (f.isAtivo() && !user.isEnabled())
+        {
+            user.reactivate();
+        }
+
+        User previousUser = f.getUser();
+
+        if (previousUser.isEnabled())
+        {
+            previousUser.deactivate();
+        }
+
+        if (!f.isAtivo() && user.isEnabled())
+        {
+            user.deactivate();
         }
 
         f.setUser(user);

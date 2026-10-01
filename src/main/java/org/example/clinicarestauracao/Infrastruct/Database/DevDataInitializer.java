@@ -36,14 +36,7 @@ public class DevDataInitializer implements ApplicationRunner
     private final ModalidadeService modalidadeService;
     private final UserService userService;
 
-    public DevDataInitializer(CargoRepository cargoRepository,
-                              FuncionarioRepository funcionarioRepository,
-                              ModalidadeRepository modalidadeRepository,
-                              UserRepository userRepository,
-                              CargoService cargoService,
-                              FuncionarioService funcionarioService,
-                              ModalidadeService modalidadeService,
-                              UserService userService)
+    public DevDataInitializer(CargoRepository cargoRepository, FuncionarioRepository funcionarioRepository, ModalidadeRepository modalidadeRepository, UserRepository userRepository, CargoService cargoService, FuncionarioService funcionarioService, ModalidadeService modalidadeService, UserService userService)
     {
         this.cargoRepository = cargoRepository;
         this.funcionarioRepository = funcionarioRepository;

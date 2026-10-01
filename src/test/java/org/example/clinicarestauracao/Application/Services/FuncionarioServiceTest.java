@@ -834,10 +834,14 @@ class FuncionarioServiceTest
         Mockito.verifyNoInteractions(repository);
     }
 
-    @Test
-    void shouldReplaceExistingUserWhenLinkingDifferentUser()
+    @ParameterizedTest
+    @EnumSource(
+            value = UserRoles.class,
+            names = {"USER", "ADMIN"}
+    )
+    void shouldReplaceExistingUserAndDeactivatePreviousUser(UserRoles previousRole)
     {
-        User existingUser = new User(1L, "pedro", "senha123", UserRoles.USER);
+        User existingUser = new User(1L, "pedro", "senha123", previousRole);
         Funcionario existing = FuncionarioTestBuilder.newFuncionario().setId(1L).setUser(existingUser).build();
         User receivedUser = new User(2L, "maria", "senha456", UserRoles.USER);
 
@@ -847,6 +851,45 @@ class FuncionarioServiceTest
         service.linkUserToFuncionario(1L, receivedUser);
 
         assertSame(receivedUser, existing.getUser());
+        assertEquals(UserRoles.NO_ACCESS, existingUser.getRole());
+        assertEquals(previousRole, existingUser.getPreviousRole());
+        assertTrue(receivedUser.isEnabled());
+
+        Mockito.verify(repository).findFuncionarioById(1L);
+        Mockito.verify(repository).findFuncionarioByUser(receivedUser);
+        Mockito.verify(repository).save(existing);
+    }
+
+    @ParameterizedTest
+    @EnumSource(
+            value = UserRoles.class,
+            names = {"USER", "ADMIN"}
+    )
+    void shouldDeactivateNewUserWhenReplacingUserOfInactiveFuncionario(UserRoles newUserRole)
+    {
+        LocalDate dismissalDate = LocalDate.now().minusDays(1);
+        User previousUser = new User(1L, "pedro", "senha123", UserRoles.USER);
+        previousUser.deactivate();
+        User receivedUser = new User(2L, "maria", "senha456", newUserRole);
+        Funcionario existing = FuncionarioTestBuilder.newFuncionario()
+                .setId(1L)
+                .setUser(previousUser)
+                .setAtivo(false)
+                .setDataDemissao(dismissalDate)
+                .build();
+
+        Mockito.when(repository.findFuncionarioById(1L)).thenReturn(Optional.of(existing));
+        Mockito.when(repository.findFuncionarioByUser(receivedUser)).thenReturn(Optional.empty());
+
+        service.linkUserToFuncionario(1L, receivedUser);
+
+        assertSame(receivedUser, existing.getUser());
+        assertFalse(existing.isAtivo());
+        assertEquals(dismissalDate, existing.getDataDemissao());
+        assertEquals(UserRoles.NO_ACCESS, receivedUser.getRole());
+        assertEquals(newUserRole, receivedUser.getPreviousRole());
+        assertEquals(UserRoles.NO_ACCESS, previousUser.getRole());
+        assertEquals(UserRoles.USER, previousUser.getPreviousRole());
 
         Mockito.verify(repository).findFuncionarioById(1L);
         Mockito.verify(repository).findFuncionarioByUser(receivedUser);
@@ -864,6 +907,8 @@ class FuncionarioServiceTest
         service.linkUserToFuncionario(1L, existingUser);
 
         assertSame(existingUser, existing.getUser());
+        assertEquals(UserRoles.USER, existingUser.getRole());
+        assertNull(existingUser.getPreviousRole());
 
         Mockito.verify(repository).findFuncionarioById(1L);
         Mockito.verify(repository, Mockito.never()).findFuncionarioByUser(Mockito.any());
@@ -884,6 +929,8 @@ class FuncionarioServiceTest
         FuncionarioWithInvalidInformationException exception = assertThrows(FuncionarioWithInvalidInformationException.class, () -> service.linkUserToFuncionario(1L, receivedUser));
 
         assertSame(currentUser, existing.getUser());
+        assertEquals(UserRoles.USER, currentUser.getRole());
+        assertNull(currentUser.getPreviousRole());
         assertEquals( "Usuário já vinculado a outro funcionário.", exception.getMessage());
 
         Mockito.verify(repository).findFuncionarioById(1L);
@@ -1008,5 +1055,57 @@ class FuncionarioServiceTest
         Mockito.verify(repository, Mockito.never()).save(Mockito.any());
     }
 
+    @ParameterizedTest
+    @EnumSource(value = UserRoles.class, names = {"USER", "ADMIN"})
+    void shouldReactivateNewUserWhenReplacingUserOfActiveFuncionario(UserRoles previousRole)
+    {
+        User previousUser = new User(1L, "pedro", "senha123", UserRoles.USER);
 
+        User receivedUser = new User(2L, "maria", "senha456", previousRole);
+        receivedUser.deactivate();
+
+        Funcionario existing = FuncionarioTestBuilder.newFuncionario().setId(1L).setUser(previousUser).setAtivo(true).build();
+
+        Mockito.when(repository.findFuncionarioById(1L)).thenReturn(Optional.of(existing));
+        Mockito.when(repository.findFuncionarioByUser(receivedUser)).thenReturn(Optional.empty());
+
+        service.linkUserToFuncionario(1L, receivedUser);
+
+        assertSame(receivedUser, existing.getUser());
+        assertEquals(previousRole, receivedUser.getRole());
+        assertNull(receivedUser.getPreviousRole());
+        assertTrue(receivedUser.isEnabled());
+        assertEquals(UserRoles.NO_ACCESS, previousUser.getRole());
+        assertEquals(UserRoles.USER, previousUser.getPreviousRole());
+
+        Mockito.verify(repository).findFuncionarioById(1L);
+        Mockito.verify(repository).findFuncionarioByUser(receivedUser);
+        Mockito.verify(repository).save(existing);
+    }
+
+    @Test
+    void shouldNotChangePreviousUserOrLinkWhenNewUserCannotBeReactivated()
+    {
+        User previousUser = new User(1L, "pedro", "senha123", UserRoles.USER);
+
+        User receivedUser = new User(2L, "maria", "senha456", UserRoles.NO_ACCESS);
+
+        Funcionario existing = FuncionarioTestBuilder.newFuncionario().setId(1L).setUser(previousUser).setAtivo(true).build();
+
+        Mockito.when(repository.findFuncionarioById(1L)).thenReturn(Optional.of(existing));
+        Mockito.when(repository.findFuncionarioByUser(receivedUser)).thenReturn(Optional.empty());
+
+        UserWithInvalidInformationException exception = assertThrows(UserWithInvalidInformationException.class, () -> service.linkUserToFuncionario(1L, receivedUser));
+
+        assertEquals("Usuário não tinha permissão válida.", exception.getMessage());
+        assertSame(previousUser, existing.getUser());
+        assertEquals(UserRoles.USER, previousUser.getRole());
+        assertNull(previousUser.getPreviousRole());
+        assertEquals(UserRoles.NO_ACCESS, receivedUser.getRole());
+        assertNull(receivedUser.getPreviousRole());
+
+        Mockito.verify(repository).findFuncionarioById(1L);
+        Mockito.verify(repository).findFuncionarioByUser(receivedUser);
+        Mockito.verify(repository, Mockito.never()).save(Mockito.any());
+    }
 }
