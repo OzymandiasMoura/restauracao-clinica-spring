@@ -1,8 +1,11 @@
 package org.example.clinicarestauracao.Application.Services;
 
+import jakarta.transaction.Transactional;
 import org.example.clinicarestauracao.Application.Exceptions.Cargo.CargoNotFoundException;
 import org.example.clinicarestauracao.Application.Exceptions.Cargo.CargoWithInvalidInformationException;
+import org.example.clinicarestauracao.Application.Exceptions.Funcionario.FuncionarioWithInvalidInformationException;
 import org.example.clinicarestauracao.Application.Interfaces.CargoRepository;
+import org.example.clinicarestauracao.Application.Interfaces.FuncionarioRepository;
 import org.example.clinicarestauracao.Domain.Entities.Cargo;
 import org.springframework.stereotype.Service;
 
@@ -13,10 +16,12 @@ import java.util.Optional;
 public class CargoService
 {
     CargoRepository repository;
+    FuncionarioRepository funcionarioRepository;
 
-    public CargoService(CargoRepository cargoRepository)
+    public CargoService(CargoRepository cargoRepository, FuncionarioRepository funcionarioRepository)
     {
         this.repository = cargoRepository;
+        this.funcionarioRepository = funcionarioRepository;
     }
 
     public Cargo createCargo(Cargo cargo)
@@ -71,6 +76,7 @@ public class CargoService
         return repository.save(newCargo);
     }
 
+    @Transactional
     public void softDeleteCargoById(Long id)
     {
         Cargo newCargo = this.findCargoById(id);
@@ -79,6 +85,12 @@ public class CargoService
         {
             return;
         }
+
+        if (funcionarioRepository.existsByCargoAndAtivoTrue(newCargo))
+        {
+            throw new CargoWithInvalidInformationException("Cargo possui funcionários ativos.");
+        }
+
 
         newCargo.deactivate();
 

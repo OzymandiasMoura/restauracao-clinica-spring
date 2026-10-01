@@ -3,6 +3,7 @@ package org.example.clinicarestauracao.Application.Services;
 import org.example.clinicarestauracao.Application.Exceptions.Cargo.CargoNotFoundException;
 import org.example.clinicarestauracao.Application.Exceptions.Cargo.CargoWithInvalidInformationException;
 import org.example.clinicarestauracao.Application.Interfaces.CargoRepository;
+import org.example.clinicarestauracao.Application.Interfaces.FuncionarioRepository;
 import org.example.clinicarestauracao.Builders.CargoTestBuilder;
 import org.example.clinicarestauracao.Domain.Entities.Cargo;
 import org.junit.jupiter.api.Test;
@@ -26,6 +27,8 @@ class CargoServiceTest
 {
     @Mock
     private CargoRepository repository;
+    @Mock
+    private FuncionarioRepository funcionarioRepository;
     @InjectMocks
     private CargoService service;
 
@@ -343,7 +346,7 @@ class CargoServiceTest
         Cargo existing = CargoTestBuilder.newCargo().setId(1L).setAtivo(true).build();
 
         Mockito.when(repository.findCargoById(1L)).thenReturn(Optional.of(existing));
-
+        Mockito.when(funcionarioRepository.existsByCargoAndAtivoTrue(existing)).thenReturn(false);
         Mockito.when(repository.save(existing)).thenReturn(existing);
 
         service.softDeleteCargoById(1L);
@@ -352,6 +355,7 @@ class CargoServiceTest
 
         Mockito.verify(repository).findCargoById(1L);
         Mockito.verify(repository).save(existing);
+        Mockito.verify(funcionarioRepository).existsByCargoAndAtivoTrue(existing);
         Mockito.verify(repository, Mockito.never()).delete(Mockito.any());
         Mockito.verify(repository, Mockito.never()).deleteById(Mockito.anyLong());
     }
@@ -369,6 +373,7 @@ class CargoServiceTest
         assertFalse(existing.isAtivo());
 
         Mockito.verify(repository).findCargoById(1L);
+        Mockito.verifyNoInteractions(funcionarioRepository);
         Mockito.verify(repository, Mockito.never()).save(Mockito.any());
     }
 
@@ -396,7 +401,7 @@ class CargoServiceTest
         Mockito.verifyNoInteractions(repository);
     }
 
-    //Testes reativação de cargo
+    //Testes de reativação de cargo
 
     @Test
     void shouldReactivateCargoSuccessfully()
@@ -453,5 +458,20 @@ class CargoServiceTest
         Mockito.verifyNoInteractions(repository);
     }
 
+    @Test
+    void shouldNotDeactivateCargoWithActiveFuncionarios()
+    {
+        Cargo existing =  CargoTestBuilder.newCargo().setId(1L).setAtivo(true).build();
 
+        Mockito.when(repository.findCargoById(1L)).thenReturn(Optional.of(existing));
+        Mockito.when(funcionarioRepository.existsByCargoAndAtivoTrue(existing)).thenReturn(true);
+
+        CargoWithInvalidInformationException exception = assertThrows(CargoWithInvalidInformationException.class, () -> service.softDeleteCargoById(existing.getId()));
+
+        assertEquals("Cargo possui funcionários ativos.", exception.getMessage());
+
+        Mockito.verify(repository).findCargoById(1L);
+        Mockito.verify(funcionarioRepository).existsByCargoAndAtivoTrue(existing);
+        Mockito.verify(repository, Mockito.never()).save(existing);
+    }
 }
