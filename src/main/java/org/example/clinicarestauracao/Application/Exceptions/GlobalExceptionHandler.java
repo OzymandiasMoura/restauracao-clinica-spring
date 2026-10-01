@@ -3,6 +3,7 @@ package org.example.clinicarestauracao.Application.Exceptions;
 import org.example.clinicarestauracao.Application.Dtos.SecurityDtos.ErrorResponseDto;
 import org.example.clinicarestauracao.Application.Exceptions.Cargo.CargoNotFoundException;
 import org.example.clinicarestauracao.Application.Exceptions.Cargo.CargoWithInvalidInformationException;
+import org.example.clinicarestauracao.Application.Exceptions.Endereco.EnderecoWithInvalidInformationException;
 import org.example.clinicarestauracao.Application.Exceptions.Funcionario.FuncionarioNotFoundException;
 import org.example.clinicarestauracao.Application.Exceptions.Funcionario.FuncionarioWithInvalidInformationException;
 import org.example.clinicarestauracao.Application.Exceptions.User.UserNotFoundException;
@@ -91,4 +92,12 @@ public class GlobalExceptionHandler
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
 
+    //Endereço
+
+    @ExceptionHandler(EnderecoWithInvalidInformationException.class)
+    public ResponseEntity<ErrorResponseDto> handleEnderecoWithInvalidInformation(EnderecoWithInvalidInformationException ex)
+    {
+        var response = new ErrorResponseDto(ex.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
 }

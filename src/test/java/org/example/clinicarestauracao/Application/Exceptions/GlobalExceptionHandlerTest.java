@@ -3,6 +3,7 @@ package org.example.clinicarestauracao.Application.Exceptions;
 import org.example.clinicarestauracao.Application.Dtos.SecurityDtos.ErrorResponseDto;
 import org.example.clinicarestauracao.Application.Exceptions.Cargo.CargoNotFoundException;
 import org.example.clinicarestauracao.Application.Exceptions.Cargo.CargoWithInvalidInformationException;
+import org.example.clinicarestauracao.Application.Exceptions.Endereco.EnderecoWithInvalidInformationException;
 import org.example.clinicarestauracao.Application.Exceptions.Funcionario.FuncionarioNotFoundException;
 import org.example.clinicarestauracao.Application.Exceptions.Funcionario.FuncionarioWithInvalidInformationException;
 import org.example.clinicarestauracao.Application.Exceptions.User.UserNotFoundException;
@@ -135,5 +136,17 @@ class GlobalExceptionHandlerTest
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
         assertNotNull(response.getBody());
         assertEquals("Usuário não encontrado.", response.getBody().message());
+    }
+
+    @Test
+    void shouldReturnBadRequestWhenEnderecoWithInvalidInformation()
+    {
+        EnderecoWithInvalidInformationException exception = new EnderecoWithInvalidInformationException("Endereço com campos inválidos.");
+
+        ResponseEntity<ErrorResponseDto> response = handler.handleEnderecoWithInvalidInformation(exception);
+
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertNotNull(response.getBody());
+        assertEquals("Endereço com campos inválidos.",  response.getBody().message());
     }
 }
