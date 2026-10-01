@@ -469,9 +469,10 @@ class CargoServiceTest
         CargoWithInvalidInformationException exception = assertThrows(CargoWithInvalidInformationException.class, () -> service.softDeleteCargoById(existing.getId()));
 
         assertEquals("Cargo possui funcionários ativos.", exception.getMessage());
+        assertTrue(existing.isAtivo());
 
         Mockito.verify(repository).findCargoById(1L);
         Mockito.verify(funcionarioRepository).existsByCargoAndAtivoTrue(existing);
-        Mockito.verify(repository, Mockito.never()).save(existing);
+        Mockito.verify(repository, Mockito.never()).save(Mockito.any());
     }
 }
