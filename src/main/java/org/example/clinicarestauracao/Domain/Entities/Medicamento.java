@@ -2,13 +2,12 @@ package org.example.clinicarestauracao.Domain.Entities;
 
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.example.clinicarestauracao.Application.Exceptions.Medicamento.MedicamentoWithInvalidInformationException;
 
 @Entity
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @Table(name = "Medicamento")
 public class Medicamento {
@@ -22,6 +21,9 @@ public class Medicamento {
 
     @Column(name = "preco", nullable = false)
     private double preco;
+
+    @Column(name = "ativo", nullable = false)
+    private boolean ativo = true;
 
     public Medicamento(Long id, String nome, double preco) {
         this.id = id;
@@ -52,4 +54,7 @@ public class Medicamento {
         }
     }
 
+    public void inativar() {
+        this.ativo = false;
+    }
 }
