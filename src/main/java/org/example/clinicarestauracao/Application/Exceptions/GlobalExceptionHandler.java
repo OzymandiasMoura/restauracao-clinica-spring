@@ -3,6 +3,8 @@ package org.example.clinicarestauracao.Application.Exceptions;
 import org.example.clinicarestauracao.Application.Dtos.SecurityDtos.ErrorResponseDto;
 import org.example.clinicarestauracao.Application.Dtos.SecurityDtos.FieldErrorDto;
 import org.example.clinicarestauracao.Application.Dtos.SecurityDtos.ValidationErrorResponseDto;
+import org.example.clinicarestauracao.Application.Exceptions.EstoqueMedicamento.EstoqueMedicamentoNotFoundException;
+import org.example.clinicarestauracao.Application.Exceptions.EstoqueMedicamento.EstoqueMedicamentoWithInvalidInformationException;
 import org.example.clinicarestauracao.Application.Exceptions.Medicamento.MedicamentoNotFoundException;
 import org.example.clinicarestauracao.Application.Exceptions.Medicamento.MedicamentoWithInvalidInformationException;
 import org.springframework.http.HttpStatus;
@@ -79,4 +81,21 @@ public class GlobalExceptionHandler
         var response = new ErrorResponseDto(ex.getMessage());
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
+
+
+    @ExceptionHandler(EstoqueMedicamentoNotFoundException.class)
+    public ResponseEntity<ErrorResponseDto> handleEstoqueMedicamentoNotFound(MedicamentoNotFoundException ex)
+    {
+        var response = new ErrorResponseDto(ex.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+    }
+
+    @ExceptionHandler(EstoqueMedicamentoWithInvalidInformationException.class)
+    public ResponseEntity<ErrorResponseDto> handleEstoqueMedicamentoWithInvalidInformation(EstoqueMedicamentoWithInvalidInformationException ex)
+    {
+        var response = new ErrorResponseDto(ex.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
+
+
 }
