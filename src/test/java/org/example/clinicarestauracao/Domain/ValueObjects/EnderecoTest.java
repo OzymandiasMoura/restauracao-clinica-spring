@@ -31,6 +31,14 @@ class EnderecoTest
         assertEquals("Rua do Mato", endereco.getLogradouro());
     }
 
+    @Test
+    void shouldRemoveHyphenAndSlashFromLogradouro()
+    {
+        Endereco endereco = EnderecoTestBuilder.newEndereco().setLogradouro("Rua-das/Flores").build();
+
+        assertEquals("RuadasFlores", endereco.getLogradouro());
+    }
+
     @ParameterizedTest
     @NullSource
     @ValueSource(strings = {"", " ", "    "})
@@ -130,6 +138,14 @@ class EnderecoTest
         assertEquals("Vila Madalena", endereco.getBairro());
     }
 
+    @Test
+    void shouldRemoveHyphenAndSlashFromBairro()
+    {
+        Endereco endereco = EnderecoTestBuilder.newEndereco().setBairro("Centro-Sul/Oeste").build();
+
+        assertEquals("CentroSulOeste", endereco.getBairro());
+    }
+
     @ParameterizedTest
     @NullSource
     @ValueSource(strings = {"", " ", "   "})
@@ -193,6 +209,14 @@ class EnderecoTest
         Endereco endereco = EnderecoTestBuilder.newEndereco().setCidade(" São Paulo ").build();
 
         assertEquals("São Paulo", endereco.getCidade());
+    }
+
+    @Test
+    void shouldRemoveHyphenAndSlashFromCidade()
+    {
+        Endereco endereco = EnderecoTestBuilder.newEndereco().setCidade("São-José/do Rio").build();
+
+        assertEquals("SãoJosédo Rio", endereco.getCidade());
     }
 
     @ParameterizedTest
@@ -270,6 +294,14 @@ class EnderecoTest
         assertEquals("SP", endereco.getEstado());
     }
 
+    @Test
+    void shouldRemoveHyphenAndSlashFromEstado()
+    {
+        Endereco endereco = EnderecoTestBuilder.newEndereco().setEstado("S/P-").build();
+
+        assertEquals("SP", endereco.getEstado());
+    }
+
     @ParameterizedTest
     @NullSource
     @ValueSource(strings = {"", " ", "    "})
@@ -313,6 +345,22 @@ class EnderecoTest
         Endereco endereco = EnderecoTestBuilder.newEndereco().setComplemento(" Apartamento 215 ").build();
 
         assertEquals("Apartamento 215", endereco.getComplemento());
+    }
+
+    @Test
+    void shouldRemoveHyphenAndSlashFromComplemento()
+    {
+        Endereco endereco = EnderecoTestBuilder.newEndereco().setComplemento("Apartamento-/-42").build();
+
+        assertEquals("Apartamento42", endereco.getComplemento());
+    }
+
+    @Test
+    void shouldSetComplementoToNullWhenItContainsOnlyHyphensAndSlashes()
+    {
+        Endereco endereco = EnderecoTestBuilder.newEndereco().setComplemento("-/-").build();
+
+        assertNull(endereco.getComplemento());
     }
 
     @ParameterizedTest
@@ -392,5 +440,84 @@ class EnderecoTest
 
         assertEquals("Rua das Flores, 123 - Centro - São Paulo/SP", resultado);
     }
-}
 
+    @Test
+    void shouldRemoveReservedCharactersBeforeConvertingEnderecoToDatabaseString()
+    {
+        Endereco endereco = new Endereco(
+                "Rua-/das Flores",
+                123,
+                "Centro-/Sul",
+                "São-/Paulo",
+                "S/P-",
+                "Apartamento-/-42"
+        );
+
+        String resultado = endereco.toDatabaseString();
+
+        assertEquals("Ruadas Flores, 123 - CentroSul - SãoPaulo/SP - Apartamento42", resultado);
+    }
+
+    //Testes fromDatabaseString
+
+    @Test
+    void shouldCreateEnderecoFromDatabaseStringWithComplemento()
+    {
+        Endereco endereco = Endereco.fromDatabaseString("Rua das Flores, 123 - Centro - São Paulo/SP - Apartamento 42");
+
+        assertAll(
+                () -> assertEquals("Rua das Flores", endereco.getLogradouro()),
+                () -> assertEquals(123, endereco.getNumero()),
+                () -> assertEquals("Centro", endereco.getBairro()),
+                () -> assertEquals("São Paulo", endereco.getCidade()),
+                () -> assertEquals("SP", endereco.getEstado()),
+                () -> assertEquals("Apartamento 42", endereco.getComplemento())
+        );
+    }
+
+    @Test
+    void shouldCreateEnderecoFromDatabaseStringWithoutComplemento()
+    {
+        Endereco endereco = Endereco.fromDatabaseString("Rua das Flores, 123 - Centro - São Paulo/SP");
+
+        assertAll(
+                () -> assertEquals("Rua das Flores", endereco.getLogradouro()),
+                () -> assertEquals(123, endereco.getNumero()),
+                () -> assertEquals("Centro", endereco.getBairro()),
+                () -> assertEquals("São Paulo", endereco.getCidade()),
+                () -> assertEquals("SP", endereco.getEstado()),
+                () -> assertNull(endereco.getComplemento())
+        );
+    }
+
+    @ParameterizedTest
+    @NullSource
+    @ValueSource(strings = {"", " ", "   "})
+    void shouldRejectNullOrBlankDatabaseString(String endereco)
+    {
+        EnderecoWithInvalidInformationException exception = assertThrows(
+                EnderecoWithInvalidInformationException.class,
+                () -> Endereco.fromDatabaseString(endereco)
+        );
+
+        assertEquals("Endereço em formato inválido.", exception.getMessage());
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {
+            "Rua das Flores - Centro - São Paulo/SP",
+            "Rua das Flores, abc - Centro - São Paulo/SP",
+            "Rua das Flores, 123 - São Paulo/SP",
+            "Rua das Flores, 123 - Centro - São Paulo",
+            "Rua das Flores, 123 - Centro - São Paulo/SP - "
+    })
+    void shouldRejectDatabaseStringWithInvalidFormat(String endereco)
+    {
+        EnderecoWithInvalidInformationException exception = assertThrows(
+                EnderecoWithInvalidInformationException.class,
+                () -> Endereco.fromDatabaseString(endereco)
+        );
+
+        assertEquals("Endereço em formato inválido.", exception.getMessage());
+    }
+}

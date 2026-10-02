@@ -6,6 +6,8 @@ import org.example.clinicarestauracao.Application.Exceptions.Endereco.EnderecoWi
 @Data
 public class Endereco
 {
+    private static final String INVALID_DATABASE_FORMAT_MESSAGE = "Endereço em formato inválido.";
+
     String logradouro;
     Integer numero;
     String bairro;
@@ -39,7 +41,7 @@ public class Endereco
         {
             throw new EnderecoWithInvalidInformationException("Logradouro não pode ser nulo ou vazio.");
         }
-        String formatado = logradouro.strip();
+        String formatado = logradouro.replace("-", "").replace("/", "").strip();
 
         if (formatado.isBlank())
         {
@@ -78,7 +80,7 @@ public class Endereco
             throw new EnderecoWithInvalidInformationException("Bairro não pode ser nulo ou vazio.");
         }
 
-        String formatado = bairro.strip();
+        String formatado = bairro.replace("-", "").replace("/", "").strip();
 
         if (formatado.isBlank())
         {
@@ -103,7 +105,7 @@ public class Endereco
             throw new EnderecoWithInvalidInformationException("Cidade não pode ser nulo ou vazio.");
         }
 
-        String formatado = cidade.strip();
+        String formatado = cidade.replace("-", "").replace("/", "").strip();
 
         if (formatado.isBlank())
         {
@@ -128,7 +130,7 @@ public class Endereco
             throw new EnderecoWithInvalidInformationException("Estado não pode ser nulo ou vazio.");
         }
 
-        String formatado = estado.strip();
+        String formatado = estado.replace("-", "").replace("/", "").strip();
 
         if (formatado.isBlank())
         {
@@ -150,7 +152,13 @@ public class Endereco
             return;
         }
 
-        String formatado = complemento.strip();
+        String formatado = complemento.replace("-", "").replace("/", "").strip();
+
+        if (formatado.isBlank())
+        {
+            this.complemento = null;
+            return;
+        }
 
         if (formatado.length() < 3)
         {
@@ -175,4 +183,60 @@ public class Endereco
 
         return enderecoFormatado;
     }
+
+    public static Endereco fromDatabaseString(String endereco)
+    {
+        if (endereco == null || endereco.isBlank())
+        {
+            throw new EnderecoWithInvalidInformationException(INVALID_DATABASE_FORMAT_MESSAGE);
+        }
+
+        String enderecoFormatado = endereco.strip();
+
+        if (enderecoFormatado.endsWith(" -"))
+        {
+            throw new EnderecoWithInvalidInformationException(INVALID_DATABASE_FORMAT_MESSAGE);
+        }
+
+        String[] segmentos = enderecoFormatado.split(" - ", -1);
+
+        if (segmentos.length < 3 || segmentos.length > 4)
+        {
+            throw new EnderecoWithInvalidInformationException(INVALID_DATABASE_FORMAT_MESSAGE);
+        }
+
+        int separadorNumero = segmentos[0].lastIndexOf(", ");
+        int separadorEstado = segmentos[2].lastIndexOf("/");
+
+        if (separadorNumero <= 0 || separadorNumero == segmentos[0].length() - 2 ||
+                separadorEstado <= 0 || separadorEstado == segmentos[2].length() - 1 ||
+                segmentos[1].isBlank() || (segmentos.length == 4 && segmentos[3].isBlank()))
+        {
+            throw new EnderecoWithInvalidInformationException(INVALID_DATABASE_FORMAT_MESSAGE);
+        }
+
+        String logradouro = segmentos[0].substring(0, separadorNumero);
+        String numero = segmentos[0].substring(separadorNumero + 2);
+        String bairro = segmentos[1];
+        String cidade = segmentos[2].substring(0, separadorEstado);
+        String estado = segmentos[2].substring(separadorEstado + 1);
+
+        try
+        {
+            int numeroConvertido = Integer.parseInt(numero);
+
+            if (segmentos.length == 4)
+            {
+                return new Endereco(logradouro, numeroConvertido, bairro, cidade, estado, segmentos[3]);
+            }
+
+            return new Endereco(logradouro, numeroConvertido, bairro, cidade, estado);
+        }
+        catch (NumberFormatException exception)
+        {
+            throw new EnderecoWithInvalidInformationException(INVALID_DATABASE_FORMAT_MESSAGE);
+        }
+    }
+
+
 }
