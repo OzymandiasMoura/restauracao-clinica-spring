@@ -6,6 +6,7 @@ import org.example.clinicarestauracao.Application.Exceptions.Funcionario.Funcion
 import org.example.clinicarestauracao.Domain.Validation.CepValidator;
 import org.example.clinicarestauracao.Domain.Validation.CpfValidator;
 import org.example.clinicarestauracao.Domain.Validation.EmailValidator;
+import org.example.clinicarestauracao.Domain.Validation.TelefoneValidator;
 import org.example.clinicarestauracao.Domain.ValueObjects.Endereco;
 import org.example.clinicarestauracao.Infrastruct.Database.Converters.EnderecoConverter;
 
@@ -35,6 +36,8 @@ public class Funcionario
     private Endereco endereco;
     @Column(nullable = false)
     private String cep;
+    @Column(nullable = false, length = 11)
+    private String telefone;
     @Column(nullable = false)
     private boolean ativo;
     @OneToOne(optional = false)
@@ -48,7 +51,7 @@ public class Funcionario
     @Column(nullable = true)
     private LocalDate dataDemissao;
 
-    public Funcionario(Long id, String nome, String cpf, String email, LocalDate dataNascimento, Endereco endereco, String cep, boolean ativo, User user, Cargo cargo, LocalDate dataAdmissao)
+    public Funcionario(Long id, String nome, String cpf, String email, LocalDate dataNascimento, Endereco endereco, String cep, String telefone, boolean ativo, User user, Cargo cargo, LocalDate dataAdmissao)
     {
         setId(id);
         setNome(nome);
@@ -58,12 +61,13 @@ public class Funcionario
         setDataAdmissao(dataAdmissao);
         setEndereco(endereco);
         setCep(cep);
+        setTelefone(telefone);
         setAtivo(ativo);
         setUser(user);
         setCargo(cargo);
     }
 
-    public Funcionario(String nome, String cpf, String email, LocalDate dataNascimento, Endereco endereco, String cep, User user, Cargo cargo, LocalDate dataAdmissao)
+    public Funcionario(String nome, String cpf, String email, LocalDate dataNascimento, Endereco endereco, String cep, String telefone, User user, Cargo cargo, LocalDate dataAdmissao)
     {
         setNome(nome);
         setCpf(cpf);
@@ -72,6 +76,7 @@ public class Funcionario
         setDataAdmissao(dataAdmissao);
         setEndereco(endereco);
         setCep(cep);
+        setTelefone(telefone);
         setAtivo(true);
         setUser(user);
         setCargo(cargo);
@@ -184,6 +189,22 @@ public class Funcionario
             throw new FuncionarioWithInvalidInformationException("CEP é inválido.");
         }
         this.cep = cepNormalizado;
+    }
+
+    public void setTelefone(String telefone)
+    {
+        if (telefone == null || telefone.isBlank())
+        {
+            throw new FuncionarioWithInvalidInformationException("Telefone deve ser válido.");
+        }
+
+        String telefoneNormalizado = TelefoneValidator.normalize(telefone);
+
+        if (!TelefoneValidator.validate(telefoneNormalizado))
+        {
+            throw new FuncionarioWithInvalidInformationException("Telefone deve ser válido.");
+        }
+        this.telefone = telefoneNormalizado;
     }
 
     public void setCargo(Cargo cargo)

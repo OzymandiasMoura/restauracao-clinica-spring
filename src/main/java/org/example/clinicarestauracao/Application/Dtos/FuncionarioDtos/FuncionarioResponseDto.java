@@ -6,6 +6,6 @@ import org.example.clinicarestauracao.Application.Dtos.SecurityDtos.UserSummaryD
 
 import java.time.LocalDate;
 
-public record FuncionarioResponseDto(Long id, String nome, String cpf, String email, LocalDate dataNascimento, EnderecoDto endereco, String cep, boolean ativo, CargoResponseDto cargo, UserSummaryDto user, LocalDate dataAdmissao, LocalDate dataDemissao)
+public record FuncionarioResponseDto(Long id, String nome, String cpf, String email, LocalDate dataNascimento, EnderecoDto endereco, String cep, String telefone, boolean ativo, CargoResponseDto cargo, UserSummaryDto user, LocalDate dataAdmissao, LocalDate dataDemissao)
 {
 }

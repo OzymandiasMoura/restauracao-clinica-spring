@@ -130,6 +130,7 @@ public class FuncionarioService
         existed.setEmail(funcionario.getEmail());
         existed.setEndereco(funcionario.getEndereco());
         existed.setCep(funcionario.getCep());
+        existed.setTelefone(funcionario.getTelefone());
         existed.setCargo(funcionario.getCargo());
 
         return repository.save(existed);

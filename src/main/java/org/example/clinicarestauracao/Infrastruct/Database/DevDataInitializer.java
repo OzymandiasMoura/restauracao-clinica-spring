@@ -87,6 +87,7 @@ public class DevDataInitializer implements ApplicationRunner
                 LocalDate.of(1985, 4, 12),
                 new Endereco("Praça da Sé", 1, "Centro", "São Paulo", "SP"),
                 "01001000",
+                "11987654321",
                 new User("ana.dev", TEST_PASSWORD, UserRoles.USER),
                 coordenador,
                 LocalDate.of(2020, 2, 3)));
@@ -98,6 +99,7 @@ public class DevDataInitializer implements ApplicationRunner
                 LocalDate.of(1992, 8, 20),
                 new Endereco("Praça Mauá", 10, "Centro", "Rio de Janeiro", "RJ"),
                 "20040002",
+                "21987654321",
                 new User("bruno.dev", TEST_PASSWORD, UserRoles.USER),
                 psicologo,
                 LocalDate.of(2023, 1, 9)));
@@ -109,6 +111,7 @@ public class DevDataInitializer implements ApplicationRunner
                 LocalDate.of(1988, 11, 2),
                 new Endereco("Praça da Liberdade", 20, "Funcionários", "Belo Horizonte", "MG"),
                 "30140010",
+                "31987654321",
                 new User("carla.dev", TEST_PASSWORD, UserRoles.USER),
                 assistenteSocial,
                 LocalDate.of(2021, 5, 10)));

@@ -617,4 +617,59 @@ class FuncionarioTest
         assertEquals("Cargo não pode estar inativo.", exception.getMessage());
         assertSame(cargoAtual, funcionario.getCargo());
     }
+
+    //Testes para setTelefone
+
+    @ParameterizedTest
+    @CsvSource({
+            "'(11) 99999-9999', '11999999999'",
+            "'(11) 3333-4444', '1133334444'"
+    })
+    void shouldNormalizeTelefone(String telefone, String telefoneEsperado)
+    {
+        Funcionario funcionario = FuncionarioTestBuilder
+                .newFuncionario()
+                .setTelefone(telefone)
+                .build();
+
+        assertEquals(telefoneEsperado, funcionario.getTelefone());
+    }
+
+    @ParameterizedTest
+    @NullAndEmptySource
+    @ValueSource(strings = {" ", "   "})
+    void shouldRejectNullOrBlankTelefone(String telefone)
+    {
+        FuncionarioWithInvalidInformationException exception = assertThrows(
+                FuncionarioWithInvalidInformationException.class,
+                () -> FuncionarioTestBuilder
+                        .newFuncionario()
+                        .setTelefone(telefone)
+                        .build()
+        );
+
+        assertEquals("Telefone deve ser válido.", exception.getMessage());
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {
+            "119999999",
+            "119999999999",
+            "11899999999",
+            "1199999999",
+            "+55 (11) 99999-9999",
+            "1199999999A"
+    })
+    void shouldRejectInvalidTelefone(String telefone)
+    {
+        FuncionarioWithInvalidInformationException exception = assertThrows(
+                FuncionarioWithInvalidInformationException.class,
+                () -> FuncionarioTestBuilder
+                        .newFuncionario()
+                        .setTelefone(telefone)
+                        .build()
+        );
+
+        assertEquals("Telefone deve ser válido.", exception.getMessage());
+    }
 }

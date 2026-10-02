@@ -18,6 +18,7 @@ public class FuncionarioTestBuilder
     private LocalDate dataNascimento = LocalDate.of(1990, 1, 10);
     private Endereco endereco = EnderecoTestBuilder.newEndereco().build();
     private String cep = "01001000";
+    private String telefone = "11999999999";
     private boolean ativo = true;
     private User user = new User(1L, "pedro", "senha123", UserRoles.USER);
     private Cargo cargo = CargoTestBuilder.newCargo().build();
@@ -71,6 +72,12 @@ public class FuncionarioTestBuilder
         return this;
     }
 
+    public FuncionarioTestBuilder setTelefone(String telefone)
+    {
+        this.telefone = telefone;
+        return this;
+    }
+
     public FuncionarioTestBuilder setAtivo(boolean ativo)
     {
         this.ativo = ativo;
@@ -103,7 +110,7 @@ public class FuncionarioTestBuilder
 
     public Funcionario build()
     {
-        Funcionario funcionario = new Funcionario(id, nome, cpf, email, dataNascimento, endereco, cep, ativo, user, cargo, dataAdmissao);
+        Funcionario funcionario = new Funcionario(id, nome, cpf, email, dataNascimento, endereco, cep, telefone, ativo, user, cargo, dataAdmissao);
 
         if (dataDemissao != null)
         {
@@ -115,7 +122,7 @@ public class FuncionarioTestBuilder
 
     public Funcionario buildForCreate()
     {
-        Funcionario funcionario = new Funcionario(nome, cpf, email, dataNascimento, endereco, cep, user, cargo, dataAdmissao);
+        Funcionario funcionario = new Funcionario(nome, cpf, email, dataNascimento, endereco, cep, telefone, user, cargo, dataAdmissao);
 
         if (dataDemissao != null)
         {
@@ -128,7 +135,7 @@ public class FuncionarioTestBuilder
     public Funcionario buildWithNullUser()
     {
         User validUser = user == null ? new User(1L, "legacy-user", "senha123", UserRoles.USER) : user;
-        Funcionario funcionario = new Funcionario(id, nome, cpf, email, dataNascimento, endereco, cep, ativo, validUser, cargo, dataAdmissao);
+        Funcionario funcionario = new Funcionario(id, nome, cpf, email, dataNascimento, endereco, cep, telefone, ativo, validUser, cargo, dataAdmissao);
 
         ReflectionTestUtils.setField(funcionario, "user", null);
 
@@ -143,7 +150,7 @@ public class FuncionarioTestBuilder
     public Funcionario buildForCreateWithNullUser()
     {
         User validUser = user == null ? new User("legacy-user", "senha123", UserRoles.USER) : user;
-        Funcionario funcionario = new Funcionario(nome, cpf, email, dataNascimento, endereco, cep, validUser, cargo, dataAdmissao);
+        Funcionario funcionario = new Funcionario(nome, cpf, email, dataNascimento, endereco, cep, telefone, validUser, cargo, dataAdmissao);
 
         ReflectionTestUtils.setField(funcionario, "user", null);
 

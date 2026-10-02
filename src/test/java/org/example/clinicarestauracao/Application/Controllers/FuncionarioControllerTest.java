@@ -214,6 +214,7 @@ class FuncionarioControllerTest
                 LocalDate.of(1990, 1, 10),
                 EnderecoMapper.entityToResponseDto(endereco),
                 "01001000",
+                "11987654321",
                 cargo.getId(),
                 LocalDate.of(2026, 1, 10),
                 userData
@@ -234,6 +235,7 @@ class FuncionarioControllerTest
         assertNotNull(response.getBody());
         assertEquals(created.getId(), response.getBody().id());
         assertEquals(created.getEmail(), response.getBody().email());
+        assertEquals(created.getTelefone(), response.getBody().telefone());
         assertNotNull(response.getBody().cargo());
         assertEquals(cargo.getId(), response.getBody().cargo().id());
         assertNotNull(response.getBody().user());
@@ -252,6 +254,7 @@ class FuncionarioControllerTest
         assertEquals(dto.nome(), sentToService.getNome());
         assertEquals(dto.cpf(), sentToService.getCpf());
         assertEquals(dto.email(), sentToService.getEmail());
+        assertEquals(dto.telefone(), sentToService.getTelefone());
         assertSame(cargo, sentToService.getCargo());
         assertNotNull(sentToService.getUser());
         assertNull(sentToService.getUser().getId());
@@ -279,12 +282,13 @@ class FuncionarioControllerTest
                 LocalDate.of(1991, 5, 20),
                 EnderecoMapper.entityToResponseDto(endereco),
                 "01310100",
+                "11987654321",
                 cargoAtualizado.getId(),
                 dataAdmissaoRecebida,
                 new FuncionarioUserUpdateDataDto("pedro.atualizado", null)
         );
 
-        Funcionario updated = FuncionarioTestBuilder.newFuncionario().setId(1L).setNome(dto.nome()).setCpf(dto.cpf()).setEmail(dto.email()).setDataNascimento(dto.dataNascimento()).setEndereco(EnderecoMapper.requestDtoToEntity(dto.endereco())).setCep(dto.cep()).setCargo(cargoAtualizado).setUser(usuarioExistente).setDataAdmissao(dataAdmissaoRecebida).setDataDemissao(dataDemissaoExistente).setAtivo(false).build();
+        Funcionario updated = FuncionarioTestBuilder.newFuncionario().setId(1L).setNome(dto.nome()).setCpf(dto.cpf()).setEmail(dto.email()).setDataNascimento(dto.dataNascimento()).setEndereco(EnderecoMapper.requestDtoToEntity(dto.endereco())).setCep(dto.cep()).setTelefone(dto.telefone()).setCargo(cargoAtualizado).setUser(usuarioExistente).setDataAdmissao(dataAdmissaoRecebida).setDataDemissao(dataDemissaoExistente).setAtivo(false).build();
 
         Mockito.when(cargoService.findCargoById(cargoAtualizado.getId())).thenReturn(cargoAtualizado);
 
@@ -301,6 +305,7 @@ class FuncionarioControllerTest
         assertEquals(dto.nome(), response.getBody().nome());
         assertEquals(dto.cpf(), response.getBody().cpf());
         assertEquals(dto.email(), response.getBody().email());
+        assertEquals(dto.telefone(), response.getBody().telefone());
         assertNotNull(response.getBody().cargo());
         assertEquals(cargoAtualizado.getId(), response.getBody().cargo().id());
         assertNotNull(response.getBody().user());
@@ -324,6 +329,7 @@ class FuncionarioControllerTest
         assertEquals(dto.nome(), sentToService.getNome());
         assertEquals(dto.cpf(), sentToService.getCpf());
         assertEquals(dto.email(), sentToService.getEmail());
+        assertEquals(dto.telefone(), sentToService.getTelefone());
         assertEquals(dto.dataNascimento(), sentToService.getDataNascimento());
         assertEquals(dto.dataAdmissao(), sentToService.getDataAdmissao());
         assertSame(cargoAtualizado, sentToService.getCargo());

@@ -305,7 +305,7 @@ class FuncionarioServiceTest
         User user = new User(1L, "pedro", "senha123", UserRoles.USER);
         Cargo updatedCargo = CargoTestBuilder.newCargo().setId(2L).setNome("Fisioterapeuta").build();
         Funcionario existing = FuncionarioTestBuilder.newFuncionario().setId(1L).setAtivo(false).setUser(user).build();
-        Funcionario updatedData = FuncionarioTestBuilder.newFuncionario().setNome("Pedro Moura Atualizado").setCpf(existing.getCpf()).setEmail(existing.getEmail()).setDataNascimento(LocalDate.of(1991, 5, 20)).setEndereco(endereco).setCep("01310-100").setCargo(updatedCargo).setUser(User.forCredentialsUpdate("pedro", null)).buildForCreate();
+        Funcionario updatedData = FuncionarioTestBuilder.newFuncionario().setNome("Pedro Moura Atualizado").setCpf(existing.getCpf()).setEmail(existing.getEmail()).setDataNascimento(LocalDate.of(1991, 5, 20)).setEndereco(endereco).setCep("01310-100").setTelefone("(21) 98888-7777").setCargo(updatedCargo).setUser(User.forCredentialsUpdate("pedro", null)).buildForCreate();
 
         Mockito.when(repository.findFuncionarioById(1L)).thenReturn(Optional.of(existing));
         Mockito.when(repository.findFuncionarioByCpf(updatedData.getCpf())).thenReturn(Optional.of(existing));
@@ -320,6 +320,7 @@ class FuncionarioServiceTest
         assertEquals(updatedData.getDataNascimento(), response.getDataNascimento());
         assertEquals(updatedData.getEndereco(), response.getEndereco());
         assertEquals(updatedData.getCep(), response.getCep());
+        assertEquals("21988887777", response.getTelefone());
         assertSame(updatedCargo, response.getCargo());
         assertSame(user, response.getUser());
         assertFalse(response.isAtivo());
@@ -585,10 +586,13 @@ class FuncionarioServiceTest
                 .setDataDemissao(dataDemissaoExistente)
                 .build();
 
+        String telefoneExistente = existing.getTelefone();
+
         Funcionario updatedData = FuncionarioTestBuilder.newFuncionario()
                 .setNome("Pedro Moura Atualizado")
                 .setCpf("12345678909")
                 .setEmail("pedro.atualizado@email.com")
+                .setTelefone("(21) 98888-7777")
                 .setDataAdmissao(dataDemissaoExistente)
                 .setUser(User.forCredentialsUpdate("pedro", null))
                 .buildForCreate();
@@ -613,6 +617,7 @@ class FuncionarioServiceTest
         assertEquals("Pedro Moura", existing.getNome());
         assertEquals(dataAdmissaoExistente, existing.getDataAdmissao());
         assertEquals(dataDemissaoExistente, existing.getDataDemissao());
+        assertEquals(telefoneExistente, existing.getTelefone());
 
         Mockito.verify(repository, Mockito.never()).save(Mockito.any());
         Mockito.verifyNoInteractions(userService);
