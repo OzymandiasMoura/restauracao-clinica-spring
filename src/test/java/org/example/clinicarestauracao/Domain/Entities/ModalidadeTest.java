@@ -133,4 +133,23 @@ class ModalidadeTest
 
         assertEquals("Cor não pode ser nula ou vazia.", exception.getMessage());
     }
+
+    @Test
+    void shouldRejectNullMaximumVacancies()
+    {
+        ModalidadeWithInvalidInformationException exception = assertThrows(
+                ModalidadeWithInvalidInformationException.class,
+                () -> new Modalidade(
+                        builder.getDescricao(),
+                        builder.getCnpj(),
+                        null,
+                        builder.isPagamento(),
+                        builder.getCor()
+                )
+        );
+
+        assertEquals("Numero de vagas não pode ser nulo.", exception.getMessage());
+    }
+
+
 }
