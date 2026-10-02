@@ -26,21 +26,21 @@ public final class FuncionarioMapper
                 entity.getUser().getRole()
         );
 
-        return new FuncionarioResponseDto(entity.getId(), entity.getNome(), entity.getCpf(), entity.getEmail(), entity.getDataNascimento(), entity.getEndereco(), entity.getCep(), entity.isAtivo(), cargo, user, entity.getDataAdmissao(), entity.getDataDemissao());
+        return new FuncionarioResponseDto(entity.getId(), entity.getNome(), entity.getCpf(), entity.getEmail(), entity.getDataNascimento(), EnderecoMapper.entityToResponseDto(entity.getEndereco()), entity.getCep(), entity.isAtivo(), cargo, user, entity.getDataAdmissao(), entity.getDataDemissao());
     }
 
     public static Funcionario createRequestDtoToEntity(FuncionarioCreateRequestDto dto, Cargo cargo)
     {
         User user = dto.user() == null ? null : new User(dto.user().username(), dto.user().password(), UserRoles.USER);
 
-        return new Funcionario(dto.nome(), dto.cpf(), dto.email(), dto.dataNascimento(), dto.endereco(), dto.cep(), user, cargo, dto.dataAdmissao());
+        return new Funcionario(dto.nome(), dto.cpf(), dto.email(), dto.dataNascimento(), EnderecoMapper.requestDtoToEntity(dto.endereco()), dto.cep(), user, cargo, dto.dataAdmissao());
     }
 
     public static Funcionario updateRequestDtoToEntity(FuncionarioUpdateRequestDto dto, Cargo cargo)
     {
         User user = dto.user() == null ? null : User.forCredentialsUpdate(dto.user().username(), dto.user().password());
 
-        return new Funcionario(dto.nome(), dto.cpf(), dto.email(), dto.dataNascimento(), dto.endereco(), dto.cep(), user, cargo, dto.dataAdmissao());
+        return new Funcionario(dto.nome(), dto.cpf(), dto.email(), dto.dataNascimento(), EnderecoMapper.requestDtoToEntity(dto.endereco()), dto.cep(), user, cargo, dto.dataAdmissao());
     }
 
 }

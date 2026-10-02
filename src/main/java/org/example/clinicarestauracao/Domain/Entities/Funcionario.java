@@ -6,6 +6,8 @@ import org.example.clinicarestauracao.Application.Exceptions.Funcionario.Funcion
 import org.example.clinicarestauracao.Domain.Validation.CepValidator;
 import org.example.clinicarestauracao.Domain.Validation.CpfValidator;
 import org.example.clinicarestauracao.Domain.Validation.EmailValidator;
+import org.example.clinicarestauracao.Domain.ValueObjects.Endereco;
+import org.example.clinicarestauracao.Infrastruct.Database.Converters.EnderecoConverter;
 
 import java.time.LocalDate;
 
@@ -28,8 +30,9 @@ public class Funcionario
     private String email;
     @Column(nullable = false)
     private LocalDate dataNascimento;
-    @Column(nullable = false)
-    private String endereco;
+    @Convert(converter = EnderecoConverter.class)
+    @Column(nullable = false, length = 1024)
+    private Endereco endereco;
     @Column(nullable = false)
     private String cep;
     @Column(nullable = false)
@@ -45,7 +48,7 @@ public class Funcionario
     @Column(nullable = true)
     private LocalDate dataDemissao;
 
-    public Funcionario(Long id, String nome, String cpf, String email, LocalDate dataNascimento, String endereco, String cep, boolean ativo, User user, Cargo cargo, LocalDate dataAdmissao)
+    public Funcionario(Long id, String nome, String cpf, String email, LocalDate dataNascimento, Endereco endereco, String cep, boolean ativo, User user, Cargo cargo, LocalDate dataAdmissao)
     {
         setId(id);
         setNome(nome);
@@ -60,7 +63,7 @@ public class Funcionario
         setCargo(cargo);
     }
 
-    public Funcionario(String nome, String cpf, String email, LocalDate dataNascimento, String endereco, String cep, User user, Cargo cargo, LocalDate dataAdmissao)
+    public Funcionario(String nome, String cpf, String email, LocalDate dataNascimento, Endereco endereco, String cep, User user, Cargo cargo, LocalDate dataAdmissao)
     {
         setNome(nome);
         setCpf(cpf);
@@ -158,13 +161,13 @@ public class Funcionario
         this.dataNascimento = dataNascimento;
     }
 
-    public void setEndereco(String endereco)
+    public void setEndereco(Endereco endereco)
     {
-        if (endereco == null || endereco.isBlank())
+        if (endereco == null)
         {
             throw new FuncionarioWithInvalidInformationException("Endereço não pode ser nulo ou vazio.");
         }
-        this.endereco = endereco.strip();
+        this.endereco = endereco;
     }
 
     public void setCep(String cep)

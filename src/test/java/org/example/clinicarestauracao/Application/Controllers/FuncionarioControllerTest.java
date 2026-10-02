@@ -1,5 +1,6 @@
 package org.example.clinicarestauracao.Application.Controllers;
 
+import org.example.clinicarestauracao.Application.Controllers.Mappers.EnderecoMapper;
 import org.example.clinicarestauracao.Application.Dtos.FuncionarioDtos.FuncionarioDismissalRequestDto;
 import org.example.clinicarestauracao.Application.Dtos.FuncionarioDtos.FuncionarioCreateRequestDto;
 import org.example.clinicarestauracao.Application.Dtos.FuncionarioDtos.FuncionarioResponseDto;
@@ -11,11 +12,13 @@ import org.example.clinicarestauracao.Application.Services.CargoService;
 import org.example.clinicarestauracao.Application.Services.FuncionarioService;
 import org.example.clinicarestauracao.Application.Services.UserService;
 import org.example.clinicarestauracao.Builders.CargoTestBuilder;
+import org.example.clinicarestauracao.Builders.EnderecoTestBuilder;
 import org.example.clinicarestauracao.Builders.FuncionarioTestBuilder;
 import org.example.clinicarestauracao.Domain.Entities.Cargo;
 import org.example.clinicarestauracao.Domain.Entities.Funcionario;
 import org.example.clinicarestauracao.Domain.Entities.User;
 import org.example.clinicarestauracao.Domain.Enums.UserRoles;
+import org.example.clinicarestauracao.Domain.ValueObjects.Endereco;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -200,6 +203,7 @@ class FuncionarioControllerTest
     @Test
     void shouldCreateFuncionarioAndUserSuccessfully()
     {
+        Endereco endereco = EnderecoTestBuilder.newEndereco().build();
         Cargo cargo = CargoTestBuilder.newCargo().setId(1L).build();
         FuncionarioUserDataDto userData = new FuncionarioUserDataDto("pedro", "senha123");
 
@@ -208,7 +212,7 @@ class FuncionarioControllerTest
                 "52998224725",
                 "pedro@email.com",
                 LocalDate.of(1990, 1, 10),
-                "Praça da Sé, 1 - São Paulo",
+                EnderecoMapper.entityToResponseDto(endereco),
                 "01001000",
                 cargo.getId(),
                 LocalDate.of(2026, 1, 10),
@@ -263,7 +267,7 @@ class FuncionarioControllerTest
         LocalDate hoje = LocalDate.now();
         LocalDate dataDemissaoExistente = hoje.minusDays(1);
         LocalDate dataAdmissaoRecebida = hoje.minusYears(1);
-
+        Endereco endereco = EnderecoTestBuilder.newEndereco().build();
         Cargo cargoAtualizado = CargoTestBuilder.newCargo().setId(2L).setNome("Fisioterapeuta").build();
 
         User usuarioExistente = new User(1L, "pedro", "senha123", UserRoles.USER);
@@ -273,14 +277,14 @@ class FuncionarioControllerTest
                 "12345678909",
                 "pedro.atualizado@email.com",
                 LocalDate.of(1991, 5, 20),
-                "Avenida Paulista, 1000",
+                EnderecoMapper.entityToResponseDto(endereco),
                 "01310100",
                 cargoAtualizado.getId(),
                 dataAdmissaoRecebida,
                 new FuncionarioUserUpdateDataDto("pedro.atualizado", null)
         );
 
-        Funcionario updated = FuncionarioTestBuilder.newFuncionario().setId(1L).setNome(dto.nome()).setCpf(dto.cpf()).setEmail(dto.email()).setDataNascimento(dto.dataNascimento()).setEndereco(dto.endereco()).setCep(dto.cep()).setCargo(cargoAtualizado).setUser(usuarioExistente).setDataAdmissao(dataAdmissaoRecebida).setDataDemissao(dataDemissaoExistente).setAtivo(false).build();
+        Funcionario updated = FuncionarioTestBuilder.newFuncionario().setId(1L).setNome(dto.nome()).setCpf(dto.cpf()).setEmail(dto.email()).setDataNascimento(dto.dataNascimento()).setEndereco(EnderecoMapper.requestDtoToEntity(dto.endereco())).setCep(dto.cep()).setCargo(cargoAtualizado).setUser(usuarioExistente).setDataAdmissao(dataAdmissaoRecebida).setDataDemissao(dataDemissaoExistente).setAtivo(false).build();
 
         Mockito.when(cargoService.findCargoById(cargoAtualizado.getId())).thenReturn(cargoAtualizado);
 

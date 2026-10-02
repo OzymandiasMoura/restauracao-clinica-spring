@@ -13,6 +13,7 @@ import org.example.clinicarestauracao.Domain.Entities.Funcionario;
 import org.example.clinicarestauracao.Domain.Entities.Modalidade;
 import org.example.clinicarestauracao.Domain.Entities.User;
 import org.example.clinicarestauracao.Domain.Enums.UserRoles;
+import org.example.clinicarestauracao.Domain.ValueObjects.Endereco;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Profile;
@@ -84,7 +85,7 @@ public class DevDataInitializer implements ApplicationRunner
                 "52998224725",
                 "ana.silva@teste.local",
                 LocalDate.of(1985, 4, 12),
-                "Praça da Sé, 1 - São Paulo - SP",
+                new Endereco("Praça da Sé", 1, "Centro", "São Paulo", "SP"),
                 "01001000",
                 new User("ana.dev", TEST_PASSWORD, UserRoles.USER),
                 coordenador,
@@ -95,7 +96,7 @@ public class DevDataInitializer implements ApplicationRunner
                 "11144477735",
                 "bruno.costa@teste.local",
                 LocalDate.of(1992, 8, 20),
-                "Praça Mauá, 10 - Rio de Janeiro - RJ",
+                new Endereco("Praça Mauá", 10, "Centro", "Rio de Janeiro", "RJ"),
                 "20040002",
                 new User("bruno.dev", TEST_PASSWORD, UserRoles.USER),
                 psicologo,
@@ -106,7 +107,7 @@ public class DevDataInitializer implements ApplicationRunner
                 "12345678909",
                 "carla.souza@teste.local",
                 LocalDate.of(1988, 11, 2),
-                "Praça da Liberdade, 20 - Belo Horizonte - MG",
+                new Endereco("Praça da Liberdade", 20, "Funcionários", "Belo Horizonte", "MG"),
                 "30140010",
                 new User("carla.dev", TEST_PASSWORD, UserRoles.USER),
                 assistenteSocial,

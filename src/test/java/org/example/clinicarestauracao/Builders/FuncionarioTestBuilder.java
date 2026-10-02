@@ -4,6 +4,7 @@ import org.example.clinicarestauracao.Domain.Entities.Cargo;
 import org.example.clinicarestauracao.Domain.Entities.Funcionario;
 import org.example.clinicarestauracao.Domain.Entities.User;
 import org.example.clinicarestauracao.Domain.Enums.UserRoles;
+import org.example.clinicarestauracao.Domain.ValueObjects.Endereco;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.time.LocalDate;
@@ -15,7 +16,7 @@ public class FuncionarioTestBuilder
     private String cpf = "52998224725";
     private String email = "pedro@email.com";
     private LocalDate dataNascimento = LocalDate.of(1990, 1, 10);
-    private String endereco = "Praça da Sé, 1 - Sé, São Paulo - SP";
+    private Endereco endereco = EnderecoTestBuilder.newEndereco().build();
     private String cep = "01001000";
     private boolean ativo = true;
     private User user = new User(1L, "pedro", "senha123", UserRoles.USER);
@@ -58,7 +59,7 @@ public class FuncionarioTestBuilder
         return this;
     }
 
-    public FuncionarioTestBuilder setEndereco(String endereco)
+    public FuncionarioTestBuilder setEndereco(Endereco endereco)
     {
         this.endereco = endereco;
         return this;

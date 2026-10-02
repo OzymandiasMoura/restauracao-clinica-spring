@@ -6,11 +6,13 @@ import org.example.clinicarestauracao.Application.Exceptions.UserWithInvalidInfo
 import org.example.clinicarestauracao.Application.Exceptions.UsernameAlredyInUseException;
 import org.example.clinicarestauracao.Application.Interfaces.FuncionarioRepository;
 import org.example.clinicarestauracao.Builders.CargoTestBuilder;
+import org.example.clinicarestauracao.Builders.EnderecoTestBuilder;
 import org.example.clinicarestauracao.Builders.FuncionarioTestBuilder;
 import org.example.clinicarestauracao.Domain.Entities.Cargo;
 import org.example.clinicarestauracao.Domain.Entities.Funcionario;
 import org.example.clinicarestauracao.Domain.Entities.User;
 import org.example.clinicarestauracao.Domain.Enums.UserRoles;
+import org.example.clinicarestauracao.Domain.ValueObjects.Endereco;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -278,9 +280,10 @@ class FuncionarioServiceTest
     @Test
     void shouldRejectUpdateWhenFuncionarioHasNoUser()
     {
+        Endereco endereco = EnderecoTestBuilder.newEndereco().build();
         Cargo updatedCargo = CargoTestBuilder.newCargo().setId(2L).setNome("Fisioterapeuta").build();
         Funcionario existing = FuncionarioTestBuilder.newFuncionario().setId(1L).setAtivo(false).buildWithNullUser();
-        Funcionario updatedData = FuncionarioTestBuilder.newFuncionario().setNome("Pedro Moura Atualizado").setCpf("12345678909").setEmail("pedro.atualizado@email.com").setDataNascimento(LocalDate.of(1991, 5, 20)).setEndereco("Avenida Paulista, 1000 - São Paulo").setCep("01310-100").setCargo(updatedCargo).buildForCreateWithNullUser();
+        Funcionario updatedData = FuncionarioTestBuilder.newFuncionario().setNome("Pedro Moura Atualizado").setCpf("12345678909").setEmail("pedro.atualizado@email.com").setDataNascimento(LocalDate.of(1991, 5, 20)).setEndereco(endereco).setCep("01310-100").setCargo(updatedCargo).buildForCreateWithNullUser();
 
         Mockito.when(repository.findFuncionarioById(1L)).thenReturn(Optional.of(existing));
         FuncionarioWithInvalidInformationException exception = assertThrows(
@@ -298,10 +301,11 @@ class FuncionarioServiceTest
     @Test
     void shouldUpdateFuncionarioWhenUniqueDataBelongsToSameFuncionario()
     {
+        Endereco endereco = EnderecoTestBuilder.newEndereco().build();
         User user = new User(1L, "pedro", "senha123", UserRoles.USER);
         Cargo updatedCargo = CargoTestBuilder.newCargo().setId(2L).setNome("Fisioterapeuta").build();
         Funcionario existing = FuncionarioTestBuilder.newFuncionario().setId(1L).setAtivo(false).setUser(user).build();
-        Funcionario updatedData = FuncionarioTestBuilder.newFuncionario().setNome("Pedro Moura Atualizado").setCpf(existing.getCpf()).setEmail(existing.getEmail()).setDataNascimento(LocalDate.of(1991, 5, 20)).setEndereco("Avenida Paulista, 1000 - São Paulo").setCep("01310-100").setCargo(updatedCargo).setUser(User.forCredentialsUpdate("pedro", null)).buildForCreate();
+        Funcionario updatedData = FuncionarioTestBuilder.newFuncionario().setNome("Pedro Moura Atualizado").setCpf(existing.getCpf()).setEmail(existing.getEmail()).setDataNascimento(LocalDate.of(1991, 5, 20)).setEndereco(endereco).setCep("01310-100").setCargo(updatedCargo).setUser(User.forCredentialsUpdate("pedro", null)).buildForCreate();
 
         Mockito.when(repository.findFuncionarioById(1L)).thenReturn(Optional.of(existing));
         Mockito.when(repository.findFuncionarioByCpf(updatedData.getCpf())).thenReturn(Optional.of(existing));
@@ -394,10 +398,11 @@ class FuncionarioServiceTest
     @Test
     void shouldThrowFuncionarioNotFoundExceptionWhenUpdatingNonexistentFuncionario()
     {
+        Endereco endereco = EnderecoTestBuilder.newEndereco().build();
         User user = new User(1L, "pedro", "senha123", UserRoles.USER);
         Cargo updatedCargo = CargoTestBuilder.newCargo().setId(2L).setNome("Fisioterapeuta").build();
         Funcionario existing = FuncionarioTestBuilder.newFuncionario().setId(1L).setAtivo(false).setUser(user).build();
-        Funcionario updatedData = FuncionarioTestBuilder.newFuncionario().setNome("Pedro Moura Atualizado").setCpf(existing.getCpf()).setEmail(existing.getEmail()).setDataNascimento(LocalDate.of(1991, 5, 20)).setEndereco("Avenida Paulista, 1000 - São Paulo").setCep("01310-100").setCargo(updatedCargo).setUser(user).buildForCreate();
+        Funcionario updatedData = FuncionarioTestBuilder.newFuncionario().setNome("Pedro Moura Atualizado").setCpf(existing.getCpf()).setEmail(existing.getEmail()).setDataNascimento(LocalDate.of(1991, 5, 20)).setEndereco(endereco).setCep("01310-100").setCargo(updatedCargo).setUser(user).buildForCreate();
 
         Mockito.when(repository.findFuncionarioById(1L)).thenReturn(Optional.empty());
 

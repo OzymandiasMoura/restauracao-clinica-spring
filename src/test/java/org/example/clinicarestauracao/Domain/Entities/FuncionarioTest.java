@@ -2,8 +2,10 @@ package org.example.clinicarestauracao.Domain.Entities;
 
 import org.example.clinicarestauracao.Application.Exceptions.Funcionario.FuncionarioWithInvalidInformationException;
 import org.example.clinicarestauracao.Builders.CargoTestBuilder;
+import org.example.clinicarestauracao.Builders.EnderecoTestBuilder;
 import org.example.clinicarestauracao.Builders.FuncionarioTestBuilder;
 import org.example.clinicarestauracao.Domain.Enums.UserRoles;
+import org.example.clinicarestauracao.Domain.ValueObjects.Endereco;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -218,29 +220,21 @@ class FuncionarioTest
     //Testes de endereço
 
     @Test
-    void shouldCreateFuncionarioWithValidAddress()
+    void shouldSetEnderecoSuccessfully()
     {
-        Funcionario funcionario = FuncionarioTestBuilder.newFuncionario().setEndereco("Praça da Sé, 1 - São Paulo - SP").build();
+        Endereco endereco = EnderecoTestBuilder.newEndereco().build();
 
-        assertEquals("Praça da Sé, 1 - São Paulo - SP", funcionario.getEndereco());
-    }
+        Funcionario funcionario = FuncionarioTestBuilder.newFuncionario().setEndereco(endereco).build();
 
-    @ParameterizedTest
-    @NullAndEmptySource
-    @ValueSource(strings = {" ", "   "})
-    void shouldRejectNullOrBlankAddress(String endereco)
-    {
-        FuncionarioWithInvalidInformationException exception = assertThrows(FuncionarioWithInvalidInformationException.class, () -> FuncionarioTestBuilder.newFuncionario().setEndereco(endereco).build());
-
-        assertEquals("Endereço não pode ser nulo ou vazio.", exception.getMessage());
+        assertEquals(endereco, funcionario.getEndereco());
     }
 
     @Test
-    void shouldNormalizeLeadingAndTrailingSpacesFromAddress()
+    void shouldRejectNullAddress()
     {
-        Funcionario funcionario = FuncionarioTestBuilder.newFuncionario().setEndereco("   Praça da Sé, 1 - São Paulo - SP   ").build();
+        FuncionarioWithInvalidInformationException exception = assertThrows(FuncionarioWithInvalidInformationException.class, () -> FuncionarioTestBuilder.newFuncionario().setEndereco(null).build());
 
-        assertEquals("Praça da Sé, 1 - São Paulo - SP", funcionario.getEndereco());
+        assertEquals("Endereço não pode ser nulo ou vazio.", exception.getMessage());
     }
 
     //Testes para CEP
