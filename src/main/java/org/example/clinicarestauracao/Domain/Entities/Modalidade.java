@@ -21,7 +21,7 @@ public class Modalidade
     @Column(unique = true, length = 14)
     private String cnpj;
     @Column(nullable = false)
-    private int maxVagas;
+    private Integer maxVagas;
     @Column(nullable = false)
     private boolean ativo;
     @Column(nullable = false)
@@ -29,7 +29,7 @@ public class Modalidade
     @Column(nullable = false, length = 7, unique = true)
     private String cor;
 
-    public Modalidade(String descricao, String cnpj, int maxVagas, boolean pagamento, String cor)
+    public Modalidade(String descricao, String cnpj, Integer maxVagas, boolean pagamento, String cor)
     {
         setDescricao(descricao);
         setCnpj(cnpj);
@@ -38,7 +38,7 @@ public class Modalidade
         setAtivo(true);
         setCor(cor);
     }
-    public Modalidade(long id, String descricao, String cnpj, int maxVagas, boolean pagamento, boolean ativo, String cor)
+    public Modalidade(long id, String descricao, String cnpj, Integer maxVagas, boolean pagamento, boolean ativo, String cor)
     {
         setId(id);
         setDescricao(descricao);
@@ -99,8 +99,12 @@ public class Modalidade
         }
     }
 
-    public void setMaxVagas(int  maxVagas)
+    public void setMaxVagas(Integer maxVagas)
     {
+        if (maxVagas == null)
+        {
+            throw new ModalidadeWithInvalidInformationException("Numero de vagas não pode ser nulo.");
+        }
         if (maxVagas < 0)
         {
             throw new ModalidadeWithInvalidInformationException("Numero de vagas deve ser 0 ou mais.");
