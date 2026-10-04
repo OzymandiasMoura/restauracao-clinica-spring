@@ -25,6 +25,9 @@ public class EstoqueMedicamentoService {
         return estoqueMedicamentoRepository.findByMedicamentoId(idMedicamento)
                 .orElseThrow(() -> new EstoqueMedicamentoNotFoundException("Nenhum estoque encontrado para este medicamento."));
     }
+    public List<EstoqueMedicamento> findAll() {
+        return estoqueMedicamentoRepository.findAll();
+    }
 
     @Transactional
     public EstoqueMedicamento inicializarEstoque(Long idMedicamento, int quantidadeEstoque, int quantidadeMinimo){
