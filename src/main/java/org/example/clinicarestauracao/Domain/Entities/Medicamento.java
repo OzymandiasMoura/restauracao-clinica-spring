@@ -48,7 +48,7 @@ public class Medicamento {
 
     public void setPreco(double preco){
         if (preco < 0){
-            throw new MedicamentoWithInvalidInformationException("O preço não pode ser negativo.");
+            throw new MedicamentoWithInvalidInformationException("O preço não pode ser menor que 0.");
         } else {
             this.preco = preco;
         }
