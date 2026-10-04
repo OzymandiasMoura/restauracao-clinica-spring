@@ -16,9 +16,14 @@ public class MedicamentoService {
 
     private final MedicamentoRepository medicamentoRepository;
 
-    public List<Medicamento> findAll(){
-        return medicamentoRepository.findAll();
+    public List<Medicamento> findAtivos(){
+        return medicamentoRepository.findByAtivoTrue();
     }
+
+    public List<Medicamento> findInativos(){
+        return medicamentoRepository.findByAtivoFalse();
+    }
+
 
     public Medicamento findMedicamentoById(Long id){
         return medicamentoRepository.findById(id)
@@ -27,7 +32,7 @@ public class MedicamentoService {
 
     public Medicamento findMedicamentoByNome(String nome){
         return medicamentoRepository.findByNomeIgnoreCase(nome)
-                .orElseThrow(() -> new MedicamentoNotFoundException("Medicamento não encontradi com o nome: " + nome));
+                .orElseThrow(() -> new MedicamentoNotFoundException("Medicamento não encontrado com o nome: " + nome));
     }
 
     @Transactional
@@ -53,7 +58,7 @@ public class MedicamentoService {
     @Transactional
     public void delete(Long id){
         Medicamento exists = findMedicamentoById(id);
-        medicamentoRepository.delete(exists);
+        exists.inativar();
     }
 
     private void validarNomeDuplicado(String nome){

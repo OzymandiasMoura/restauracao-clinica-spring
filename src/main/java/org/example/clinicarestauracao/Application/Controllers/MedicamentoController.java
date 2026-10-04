@@ -49,9 +49,20 @@ public class MedicamentoController {
 
     }
 
-    @GetMapping
-    public ResponseEntity<List<MedicamentoResponseDto>> listAll(){
-        List<Medicamento> medicamento = medicamentoService.findAll();
+    @GetMapping("/ativos")
+    public ResponseEntity<List<MedicamentoResponseDto>> listAllAtivos(){
+        List<Medicamento> medicamento = medicamentoService.findAtivos();
+
+        List<MedicamentoResponseDto> dtos = medicamento.stream()
+                .map(MedicamentoMapper::entityToResponseDto)
+                .toList();
+
+        return ResponseEntity.ok(dtos);
+    }
+
+    @GetMapping("/ativos")
+    public ResponseEntity<List<MedicamentoResponseDto>> listAllInativos(){
+        List<Medicamento> medicamento = medicamentoService.findInativos();
 
         List<MedicamentoResponseDto> dtos = medicamento.stream()
                 .map(MedicamentoMapper::entityToResponseDto)
