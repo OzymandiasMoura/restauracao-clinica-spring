@@ -34,6 +34,8 @@ public class SecurityConfiguration
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers("/auth/login", "/auth/register", "/h2-console/**", "/modalidades/**", "/modalidades").permitAll()
+                        .requestMatchers("/auth/login", "/auth/register", "/h2-console/**", "/medicamentos/**", "/medicamentos").permitAll()
+                        .requestMatchers("/auth/login", "/auth/register", "/h2-console/**", "/estoque-medicamento/**", "/estoque-medicamento").permitAll()
                         .anyRequest().authenticated()
                 )
                 .headers(headers -> headers.frameOptions(frameOptions -> frameOptions.sameOrigin()))
