@@ -49,6 +49,14 @@ public class User implements UserDetails
         setRole(role);
     }
 
+    private User(String username)
+    {
+        setUsername(username);
+        setRole(UserRoles.USER);
+        this.previousRole = null;
+    }
+
+
     public static User forCredentialsUpdate(String username, String password)
     {
         User user = new User();
@@ -156,5 +164,10 @@ public class User implements UserDetails
     public boolean isEnabled()
     {
         return this.role != UserRoles.NO_ACCESS;
+    }
+
+    public static User forUsernameUpdate(String username)
+    {
+        return new User(username);
     }
 }

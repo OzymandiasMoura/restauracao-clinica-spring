@@ -38,7 +38,7 @@ public final class FuncionarioMapper
 
     public static Funcionario updateRequestDtoToEntity(FuncionarioUpdateRequestDto dto, Cargo cargo)
     {
-        User user = dto.user() == null ? null : User.forCredentialsUpdate(dto.user().username(), dto.user().password());
+        User user = dto.user() == null ? null : User.forUsernameUpdate(dto.user().username());
 
         return new Funcionario(dto.nome(), dto.cpf(), dto.email(), dto.dataNascimento(), EnderecoMapper.requestDtoToEntity(dto.endereco()), dto.cep(), dto.telefone(), user, cargo, dto.dataAdmissao());
     }

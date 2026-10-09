@@ -1,6 +1,7 @@
 package org.example.clinicarestauracao.Application.Services;
 
 import org.example.clinicarestauracao.Application.Exceptions.User.UserNotFoundException;
+import org.example.clinicarestauracao.Application.Exceptions.UserWithInvalidInformationException;
 import org.example.clinicarestauracao.Application.Exceptions.UsernameAlredyInUseException;
 import org.example.clinicarestauracao.Application.Interfaces.UserRepository;
 import org.example.clinicarestauracao.Builders.UserTestBuilder;
@@ -243,5 +244,118 @@ class UserServiceTest
         Mockito.verifyNoInteractions(repository, passwordEncoder);
     }
 
+    @Test
+    void shouldUpdateUsernameAndPreservePasswordAndAccessState()
+    {
+        User user = new User(1L, "Pedro", "senha-antiga-criptografada", UserRoles.ADMIN);
+
+        user.deactivate();
+
+        Mockito.when(repository.findById(1L)).thenReturn(Optional.of(user));
+        Mockito.when(repository.findUserByUsername("PedroAtualizado")).thenReturn(null);
+        Mockito.when(repository.save(user)).thenReturn(user);
+
+        User result = service.updateUsername(1L, "  PedroAtualizado  ");
+
+        assertSame(user, result);
+        assertEquals("PedroAtualizado", user.getUsername());
+        assertEquals("senha-antiga-criptografada", user.getPassword());
+        assertEquals(UserRoles.NO_ACCESS, user.getRole());
+        assertEquals(UserRoles.ADMIN, user.getPreviousRole());
+        assertFalse(user.isEnabled());
+
+        verify(repository).findById(1L);
+        verify(repository).findUserByUsername("PedroAtualizado");
+        verify(repository).save(user);
+        Mockito.verifyNoInteractions(passwordEncoder);
+    }
+
+    @Test
+    void shouldRejectUsernameOwnedByAnotherUser()
+    {
+        User user = new User(1L, "Pedro", "senha-antiga-criptografada", UserRoles.USER);
+        User usernameOwner = new User(2L, "Maria", "outra-senha-criptografada", UserRoles.USER);
+
+        Mockito.when(repository.findById(1L)).thenReturn(Optional.of(user));
+        Mockito.when(repository.findUserByUsername("Maria")).thenReturn(usernameOwner);
+
+        UsernameAlredyInUseException exception = assertThrows(UsernameAlredyInUseException.class, () -> service.updateUsername(1L, "Maria"));
+
+        assertEquals("Nome de usuário já existe.", exception.getMessage());
+        assertEquals("Pedro", user.getUsername());
+        assertEquals("senha-antiga-criptografada", user.getPassword());
+
+        verify(repository).findById(1L);
+        verify(repository).findUserByUsername("Maria");
+        Mockito.verify(repository, Mockito.never()).save(Mockito.any());
+        Mockito.verifyNoInteractions(passwordEncoder);
+    }
+
+    @Test
+    void shouldAllowUsernameOwnedBySameUserWhenUpdatingUsername()
+    {
+        User user = new User(1L, "Pedro", "senha-criptografada", UserRoles.USER);
+
+        Mockito.when(repository.findById(1L)).thenReturn(Optional.of(user));
+        Mockito.when(repository.findUserByUsername("Pedro")).thenReturn(user);
+        Mockito.when(repository.save(user)).thenReturn(user);
+
+        User result = assertDoesNotThrow(() -> service.updateUsername(1L, "Pedro"));
+
+        assertSame(user, result);
+        assertEquals("Pedro", user.getUsername());
+        assertEquals("senha-criptografada", user.getPassword());
+
+        Mockito.verify(repository).findById(1L);
+        Mockito.verify(repository).findUserByUsername("Pedro");
+        Mockito.verify(repository).save(user);
+        Mockito.verifyNoInteractions(passwordEncoder);
+    }
+
+    @Test
+    void shouldRejectUsernameUpdateWhenUserDoesNotExist()
+    {
+        Mockito.when(repository.findById(99L)).thenReturn(Optional.empty());
+
+        UserNotFoundException exception = assertThrows(UserNotFoundException.class, () -> service.updateUsername(99L, "PedroAtualizado"));
+
+        assertEquals("Usuário não encontrado.", exception.getMessage());
+
+        Mockito.verify(repository).findById(99L);
+        Mockito.verify(repository, Mockito.never()).findUserByUsername(Mockito.anyString());
+        Mockito.verify(repository, Mockito.never()).save(Mockito.any());
+        Mockito.verifyNoInteractions(passwordEncoder);
+    }
+
+    @ParameterizedTest
+    @NullSource
+    @ValueSource(longs = {0, -1, -10})
+    void shouldRejectInvalidUserIdWhenUpdatingUsername(Long userId)
+    {
+        UserNotFoundException exception = assertThrows(UserNotFoundException.class, () -> service.updateUsername(userId, "PedroAtualizado"));
+
+        assertEquals("Usuário não encontrado.", exception.getMessage());
+
+        Mockito.verifyNoInteractions(repository, passwordEncoder);
+    }
+
+    @ParameterizedTest
+    @NullSource
+    @ValueSource(strings = {"", " ", "Pe"})
+    void shouldRejectInvalidUsernameWhenUpdatingUsername(String username)
+    {
+        User user = new User(1L, "Pedro", "senha-criptografada", UserRoles.USER);
+
+        Mockito.when(repository.findById(1L)).thenReturn(Optional.of(user));
+
+        assertThrows(UserWithInvalidInformationException.class, () -> service.updateUsername(1L, username));
+        assertEquals("Pedro", user.getUsername());
+        assertEquals("senha-criptografada", user.getPassword());
+
+        Mockito.verify(repository).findById(1L);
+        Mockito.verify(repository, Mockito.never()).findUserByUsername(Mockito.anyString());
+        Mockito.verify(repository, Mockito.never()).save(Mockito.any());
+        Mockito.verifyNoInteractions(passwordEncoder);
+    }
 
 }

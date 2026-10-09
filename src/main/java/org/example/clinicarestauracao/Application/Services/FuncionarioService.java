@@ -90,8 +90,7 @@ public class FuncionarioService
     }
 
     @Transactional
-    public Funcionario updateFuncionario(Long id, Funcionario funcionario
-    )
+    public Funcionario updateFuncionario(Long id, Funcionario funcionario)
     {
         Funcionario existed = this.findFuncionarioById(id);
 
@@ -122,7 +121,7 @@ public class FuncionarioService
         existed.atualizarDatas(funcionario.getDataNascimento(), funcionario.getDataAdmissao());
         User receivedUser = funcionario.getUser();
 
-        userService.updateUserCredentials(existed.getUser(), receivedUser.getUsername(), receivedUser.getPassword());
+        userService.updateUsername(existed.getUser().getId(),receivedUser.getUsername());
 
 
         existed.setNome(funcionario.getNome());

@@ -8,6 +8,8 @@ import org.example.clinicarestauracao.Domain.Entities.User;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Objects;
+
 @AllArgsConstructor
 @Service
 public class UserService
@@ -39,8 +41,7 @@ public class UserService
     }
 
     @Transactional
-    public User updateUserCredentials(User user, String username, String password
-    )
+    public User updateUserCredentials(User user, String username, String password)
     {
         if (user == null)
         {
@@ -68,6 +69,24 @@ public class UserService
         }
 
         return userRepository.save(user);
+    }
+
+    @Transactional
+    public User updateUsername(Long userId, String username)
+    {
+        User userToUpdate = findUserById(userId);
+
+        User userToFind = User.forUsernameUpdate(username);
+
+        User userFound = (User) userRepository.findUserByUsername(userToFind.getUsername());
+
+        if (userFound != null && !Objects.equals(userFound.getId(), userToUpdate.getId()))
+        {
+            throw new UsernameAlredyInUseException("Nome de usuário já existe.");
+        }
+
+        userToUpdate.setUsername(userToFind.getUsername());
+        return userRepository.save(userToUpdate);
     }
 
 }

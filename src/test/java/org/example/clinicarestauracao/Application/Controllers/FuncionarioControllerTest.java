@@ -285,7 +285,7 @@ class FuncionarioControllerTest
                 "11987654321",
                 cargoAtualizado.getId(),
                 dataAdmissaoRecebida,
-                new FuncionarioUserUpdateDataDto("pedro.atualizado", null)
+                new FuncionarioUserUpdateDataDto("pedro.atualizado")
         );
 
         Funcionario updated = FuncionarioTestBuilder.newFuncionario().setId(1L).setNome(dto.nome()).setCpf(dto.cpf()).setEmail(dto.email()).setDataNascimento(dto.dataNascimento()).setEndereco(EnderecoMapper.requestDtoToEntity(dto.endereco())).setCep(dto.cep()).setTelefone(dto.telefone()).setCargo(cargoAtualizado).setUser(usuarioExistente).setDataAdmissao(dataAdmissaoRecebida).setDataDemissao(dataDemissaoExistente).setAtivo(false).build();

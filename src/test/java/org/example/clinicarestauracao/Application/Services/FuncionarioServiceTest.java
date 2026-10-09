@@ -305,7 +305,7 @@ class FuncionarioServiceTest
         User user = new User(1L, "pedro", "senha123", UserRoles.USER);
         Cargo updatedCargo = CargoTestBuilder.newCargo().setId(2L).setNome("Fisioterapeuta").build();
         Funcionario existing = FuncionarioTestBuilder.newFuncionario().setId(1L).setAtivo(false).setUser(user).build();
-        Funcionario updatedData = FuncionarioTestBuilder.newFuncionario().setNome("Pedro Moura Atualizado").setCpf(existing.getCpf()).setEmail(existing.getEmail()).setDataNascimento(LocalDate.of(1991, 5, 20)).setEndereco(endereco).setCep("01310-100").setTelefone("(21) 98888-7777").setCargo(updatedCargo).setUser(User.forCredentialsUpdate("pedro", null)).buildForCreate();
+        Funcionario updatedData = FuncionarioTestBuilder.newFuncionario().setNome("Pedro Moura Atualizado").setCpf(existing.getCpf()).setEmail(existing.getEmail()).setDataNascimento(LocalDate.of(1991, 5, 20)).setEndereco(endereco).setCep("01310-100").setTelefone("(21) 98888-7777").setCargo(updatedCargo).setUser(User.forUsernameUpdate("pedro")).buildForCreate();
 
         Mockito.when(repository.findFuncionarioById(1L)).thenReturn(Optional.of(existing));
         Mockito.when(repository.findFuncionarioByCpf(updatedData.getCpf())).thenReturn(Optional.of(existing));
@@ -328,16 +328,17 @@ class FuncionarioServiceTest
         Mockito.verify(repository).findFuncionarioById(1L);
         Mockito.verify(repository).findFuncionarioByCpf(updatedData.getCpf());
         Mockito.verify(repository).findFuncionarioByEmail(updatedData.getEmail());
-        Mockito.verify(userService).updateUserCredentials(user, "pedro", null);
+        Mockito.verify(userService).updateUsername(user.getId(), "pedro");
         Mockito.verify(repository).save(existing);
     }
 
     @Test
-    void shouldForwardNewPasswordWhenUpdatingFuncionario()
+    void shouldPreserveExistingPasswordWhenUpdatingFuncionario()
     {
-        User user = new User(1L, "pedro", "senha-antiga", UserRoles.USER);
-        Funcionario existing = FuncionarioTestBuilder.newFuncionario().setId(1L).setUser(user).build();
-        Funcionario updatedData = FuncionarioTestBuilder.newFuncionario().setUser(User.forCredentialsUpdate("pedro.atualizado", "nova-senha")).buildForCreate();
+        User existingUser = new User(1L, "pedro", "senha-antiga", UserRoles.USER);
+        User receivedUser = new User("pedro.atualizado", "nova-senha", UserRoles.USER);
+        Funcionario existing = FuncionarioTestBuilder.newFuncionario().setId(1L).setUser(existingUser).build();
+        Funcionario updatedData = FuncionarioTestBuilder.newFuncionario().setUser(receivedUser).buildForCreate();
 
         Mockito.when(repository.findFuncionarioById(1L)).thenReturn(Optional.of(existing));
         Mockito.when(repository.findFuncionarioByCpf(updatedData.getCpf())).thenReturn(Optional.of(existing));
@@ -347,7 +348,10 @@ class FuncionarioServiceTest
         Funcionario response = service.updateFuncionario(1L, updatedData);
 
         assertSame(existing, response);
-        Mockito.verify(userService).updateUserCredentials(user, "pedro.atualizado", "nova-senha");
+        assertSame(existingUser, response.getUser());
+        assertEquals("senha-antiga", existingUser.getPassword());
+        Mockito.verify(userService).updateUsername(existingUser.getId(), "pedro.atualizado");
+        Mockito.verifyNoMoreInteractions(userService);
         Mockito.verify(repository).save(existing);
     }
 
@@ -374,25 +378,25 @@ class FuncionarioServiceTest
     }
 
     @Test
-    void shouldNotSaveFuncionarioWhenUpdatingUserCredentialsFails()
+    void shouldNotSaveFuncionarioWhenUpdatingUsernameFails()
     {
         User user = new User(1L, "pedro", "senha123", UserRoles.USER);
         Funcionario existing = FuncionarioTestBuilder.newFuncionario().setId(1L).setUser(user).build();
-        Funcionario updatedData = FuncionarioTestBuilder.newFuncionario().setUser(User.forCredentialsUpdate("username.existente", null)).buildForCreate();
+        Funcionario updatedData = FuncionarioTestBuilder.newFuncionario().setUser(User.forUsernameUpdate("username.existente")).buildForCreate();
 
         Mockito.when(repository.findFuncionarioById(1L)).thenReturn(Optional.of(existing));
         Mockito.when(repository.findFuncionarioByCpf(updatedData.getCpf())).thenReturn(Optional.of(existing));
         Mockito.when(repository.findFuncionarioByEmail(updatedData.getEmail())).thenReturn(Optional.of(existing));
-        Mockito.doThrow(new UsernameAlredyInUseException("Username já cadastrado."))
-                .when(userService).updateUserCredentials(user, "username.existente", null);
+        Mockito.doThrow(new UsernameAlredyInUseException("Nome de usuário já existe."))
+                .when(userService).updateUsername(user.getId(), "username.existente");
 
         UsernameAlredyInUseException exception = assertThrows(
                 UsernameAlredyInUseException.class,
                 () -> service.updateFuncionario(1L, updatedData)
         );
 
-        assertEquals("Username já cadastrado.", exception.getMessage());
-        Mockito.verify(userService).updateUserCredentials(user, "username.existente", null);
+        assertEquals("Nome de usuário já existe.", exception.getMessage());
+        Mockito.verify(userService).updateUsername(user.getId(), "username.existente");
         Mockito.verify(repository, Mockito.never()).save(Mockito.any());
     }
 
@@ -423,7 +427,7 @@ class FuncionarioServiceTest
         User user = new User(1L, "pedro", "senha123", UserRoles.USER);
         Funcionario existing = FuncionarioTestBuilder.newFuncionario().setId(1L).setUser(user).build();
         Funcionario another =  FuncionarioTestBuilder.newFuncionario().setId(2L).setCpf("11144477735").build();
-        Funcionario updated =  FuncionarioTestBuilder.newFuncionario().setCpf("11144477735").setUser(User.forCredentialsUpdate("pedro", null)).buildForCreate();
+        Funcionario updated =  FuncionarioTestBuilder.newFuncionario().setCpf("11144477735").setUser(User.forUsernameUpdate("pedro")).buildForCreate();
 
         Mockito.when(repository.findFuncionarioById(1L)).thenReturn(Optional.of(existing));
         Mockito.when(repository.findFuncionarioByCpf(updated.getCpf())).thenReturn(Optional.of(another));
@@ -444,7 +448,7 @@ class FuncionarioServiceTest
         User user = new User(1L, "pedro", "senha123", UserRoles.USER);
         Funcionario existing = FuncionarioTestBuilder.newFuncionario().setId(1L).setUser(user).build();
         Funcionario another =  FuncionarioTestBuilder.newFuncionario().setId(2L).setEmail("outro@email.com").build();
-        Funcionario updated =  FuncionarioTestBuilder.newFuncionario().setEmail("outro@email.com").setUser(User.forCredentialsUpdate("pedro", null)).buildForCreate();
+        Funcionario updated =  FuncionarioTestBuilder.newFuncionario().setEmail("outro@email.com").setUser(User.forUsernameUpdate("pedro")).buildForCreate();
 
         Mockito.when(repository.findFuncionarioById(1L)).thenReturn(Optional.of(existing));
         Mockito.when(repository.findFuncionarioByCpf(updated.getCpf())).thenReturn(Optional.empty());
@@ -465,7 +469,7 @@ class FuncionarioServiceTest
     {
         User existingUser = new User(1L, "pedro", "senha123", UserRoles.USER);
         Funcionario existing = FuncionarioTestBuilder.newFuncionario().setId(1L).setAtivo(false).setUser(existingUser).build();
-        Funcionario updatedData = FuncionarioTestBuilder.newFuncionario().setNome("Pedro Moura Atualizado").setCpf("12345678909").setEmail("pedro.atualizado@email.com").setUser(User.forCredentialsUpdate("pedro.atualizado", null)).buildForCreate();
+        Funcionario updatedData = FuncionarioTestBuilder.newFuncionario().setNome("Pedro Moura Atualizado").setCpf("12345678909").setEmail("pedro.atualizado@email.com").setUser(User.forUsernameUpdate("pedro.atualizado")).buildForCreate();
 
         Mockito.when(repository.findFuncionarioById(1L)).thenReturn(Optional.of(existing));
         Mockito.when(repository.findFuncionarioByCpf(updatedData.getCpf())).thenReturn(Optional.empty());
@@ -484,7 +488,7 @@ class FuncionarioServiceTest
         Mockito.verify(repository).findFuncionarioById(1L);
         Mockito.verify(repository).findFuncionarioByCpf(updatedData.getCpf());
         Mockito.verify(repository).findFuncionarioByEmail(updatedData.getEmail());
-        Mockito.verify(userService).updateUserCredentials(existingUser, "pedro.atualizado", null);
+        Mockito.verify(userService).updateUsername(existingUser.getId(), "pedro.atualizado");
         Mockito.verify(repository).save(existing);
     }
 
@@ -507,12 +511,13 @@ class FuncionarioServiceTest
         assertSame(existing, response);
         assertSame(existingUser, response.getUser());
         assertNotSame(receivedUser, response.getUser());
+        assertEquals("senha123", existingUser.getPassword());
 
         Mockito.verify(repository).findFuncionarioById(1L);
         Mockito.verify(repository).findFuncionarioByCpf(updatedData.getCpf());
         Mockito.verify(repository).findFuncionarioByEmail(updatedData.getEmail());
         Mockito.verify(repository, Mockito.never()).findFuncionarioByUser(Mockito.any());
-        Mockito.verify(userService).updateUserCredentials(existingUser, "maria", "senha456");
+        Mockito.verify(userService).updateUsername(existingUser.getId(), "maria");
         Mockito.verify(repository).save(existing);
     }
 
@@ -545,7 +550,7 @@ class FuncionarioServiceTest
         User user = new User(1L, "pedro", "senha123", UserRoles.USER);
         user.deactivate();
         Funcionario existing = FuncionarioTestBuilder.newFuncionario().setId(1L).setAtivo(false).setUser(user).setDataAdmissao(dataAdmissaoExistente).setDataDemissao(dataDemissaoExistente).build();
-        Funcionario updatedData = FuncionarioTestBuilder.newFuncionario().setNome("Pedro Moura Atualizado").setCpf("12345678909").setEmail("pedro.atualizado@email.com").setDataAdmissao(hoje.minusYears(1)).setDataDemissao(hoje.minusDays(1)).setUser(User.forCredentialsUpdate("pedro.atualizado", null)).buildForCreate();
+        Funcionario updatedData = FuncionarioTestBuilder.newFuncionario().setNome("Pedro Moura Atualizado").setCpf("12345678909").setEmail("pedro.atualizado@email.com").setDataAdmissao(hoje.minusYears(1)).setDataDemissao(hoje.minusDays(1)).setUser(User.forUsernameUpdate("pedro.atualizado")).buildForCreate();
 
         Mockito.when(repository.findFuncionarioById(1L)).thenReturn(Optional.of(existing));
         Mockito.when(repository.findFuncionarioByCpf(updatedData.getCpf())).thenReturn(Optional.empty());
@@ -564,7 +569,7 @@ class FuncionarioServiceTest
         Mockito.verify(repository).findFuncionarioById(1L);
         Mockito.verify(repository).findFuncionarioByCpf(updatedData.getCpf());
         Mockito.verify(repository).findFuncionarioByEmail(updatedData.getEmail());
-        Mockito.verify(userService).updateUserCredentials(user, "pedro.atualizado", null);
+        Mockito.verify(userService).updateUsername(user.getId(), "pedro.atualizado");
         Mockito.verify(repository).save(existing);
     }
 
@@ -594,7 +599,7 @@ class FuncionarioServiceTest
                 .setEmail("pedro.atualizado@email.com")
                 .setTelefone("(21) 98888-7777")
                 .setDataAdmissao(dataDemissaoExistente)
-                .setUser(User.forCredentialsUpdate("pedro", null))
+                .setUser(User.forUsernameUpdate("pedro"))
                 .buildForCreate();
 
         Mockito.when(repository.findFuncionarioById(1L))

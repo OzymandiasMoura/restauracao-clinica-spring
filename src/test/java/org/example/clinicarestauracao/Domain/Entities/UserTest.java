@@ -231,15 +231,13 @@ class UserTest
     }
 
     @Test
-    void shouldCreateUserForCredentialsUpdateWithoutPassword()
+    void shouldCreateUserForUsernameUpdate()
     {
-        User user = User.forCredentialsUpdate(
-                "pedro.atualizado",
-                null
-        );
+        User user = User.forUsernameUpdate("pedro.atualizado");
 
         assertEquals("pedro.atualizado", user.getUsername());
         assertNull(user.getPassword());
         assertEquals(UserRoles.USER, user.getRole());
+        assertNull(user.getPreviousRole());
     }
 }
