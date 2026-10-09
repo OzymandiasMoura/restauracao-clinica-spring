@@ -218,19 +218,6 @@ class UserTest
     }
 
     @Test
-    void shouldCreateUserForCredentialsUpdateWithNewPassword()
-    {
-        User user = User.forCredentialsUpdate(
-                "pedro.atualizado",
-                "nova-senha"
-        );
-
-        assertEquals("pedro.atualizado", user.getUsername());
-        assertEquals("nova-senha", user.getPassword());
-        assertEquals(UserRoles.USER, user.getRole());
-    }
-
-    @Test
     void shouldCreateUserForUsernameUpdate()
     {
         User user = User.forUsernameUpdate("pedro.atualizado");

@@ -55,24 +55,6 @@ public class User implements UserDetails
         setRole(UserRoles.USER);
         this.previousRole = null;
     }
-
-
-    public static User forCredentialsUpdate(String username, String password)
-    {
-        User user = new User();
-
-        user.setUsername(username);
-
-        if (password != null)
-        {
-            user.setPassword(password);
-        }
-
-        user.setRole(UserRoles.USER);
-
-        return user;
-    }
-
     @Override
     @NullMarked
     public Collection<? extends GrantedAuthority> getAuthorities()
