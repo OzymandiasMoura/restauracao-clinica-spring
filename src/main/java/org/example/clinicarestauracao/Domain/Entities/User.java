@@ -170,4 +170,22 @@ public class User implements UserDetails
     {
         return new User(username);
     }
+
+    public void forRoleUpdate(UserRoles role)
+    {
+        if (role == null || role == UserRoles.NO_ACCESS)
+        {
+            throw new UserWithInvalidInformationException("Papel de usuário invalido.");
+        }
+        if (this.role == UserRoles.NO_ACCESS)
+        {
+            throw new UserWithInvalidInformationException("Usuário está desativado.");
+        }
+        if(role != UserRoles.USER && role != UserRoles.ADMIN)
+        {
+            throw new UserWithInvalidInformationException("Papel de usuário invalido.");
+        }
+
+        this.role = role;
+    }
 }

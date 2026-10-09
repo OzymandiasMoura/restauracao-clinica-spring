@@ -5,6 +5,7 @@ import org.example.clinicarestauracao.Application.Exceptions.User.UserNotFoundEx
 import org.example.clinicarestauracao.Application.Exceptions.UsernameAlredyInUseException;
 import org.example.clinicarestauracao.Application.Interfaces.UserRepository;
 import org.example.clinicarestauracao.Domain.Entities.User;
+import org.example.clinicarestauracao.Domain.Enums.UserRoles;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -89,4 +90,32 @@ public class UserService
         return userRepository.save(userToUpdate);
     }
 
+    @Transactional
+    public User updatePassword(Long userId, String newPassword)
+    {
+        User userToUpdate = findUserById(userId);
+
+        User userTransactional = new User(userToUpdate.getUsername(), newPassword, userToUpdate.getRole());
+
+        String encryptedPassword = passwordEncoder.encode(userTransactional.getPassword());
+
+        userToUpdate.setPassword(encryptedPassword);
+        return userRepository.save(userToUpdate);
+    }
+
+    @Transactional
+    public User updateRole(Long userId, UserRoles role)
+    {
+        User userToUpdate = findUserById(userId);
+        UserRoles currentRole = userToUpdate.getRole();
+
+        userToUpdate.forRoleUpdate(role);
+
+        if (currentRole == role)
+        {
+            return userToUpdate;
+        }
+
+        return userRepository.save(userToUpdate);
+    }
 }

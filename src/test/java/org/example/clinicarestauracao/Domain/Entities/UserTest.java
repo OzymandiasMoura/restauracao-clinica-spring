@@ -240,4 +240,71 @@ class UserTest
         assertEquals(UserRoles.USER, user.getRole());
         assertNull(user.getPreviousRole());
     }
+
+    //Testes para updateRole
+
+    @ParameterizedTest
+    @MethodSource("validRoleUpdates")
+    void shouldUpdateRoleBetweenActiveRoles(UserRoles currentRole, UserRoles newRole)
+    {
+        User user = new User(1L, "Pedro", "senha123", currentRole);
+
+        user.forRoleUpdate(newRole);
+
+        assertEquals(newRole, user.getRole());
+        assertNull(user.getPreviousRole());
+        assertTrue(user.isEnabled());
+    }
+
+    @ParameterizedTest
+    @EnumSource(value = UserRoles.class, names = {"USER", "ADMIN"})
+    void shouldKeepSameRoleIdempotently(UserRoles role)
+    {
+        User user = new User(1L, "Pedro", "senha123", role);
+
+        assertDoesNotThrow(() -> user.forRoleUpdate(role));
+
+        assertEquals(role, user.getRole());
+        assertNull(user.getPreviousRole());
+        assertTrue(user.isEnabled());
+    }
+
+    @ParameterizedTest
+    @MethodSource("invalidTargetRoles")
+    void shouldRejectInvalidTargetRole(UserRoles invalidRole)
+    {
+        User user = new User(1L, "Pedro", "senha123", UserRoles.USER);
+
+        UserWithInvalidInformationException exception = assertThrows(UserWithInvalidInformationException.class, () -> user.forRoleUpdate(invalidRole));
+
+        assertEquals("Papel de usuário invalido.", exception.getMessage());
+        assertEquals(UserRoles.USER, user.getRole());
+        assertNull(user.getPreviousRole());
+        assertTrue(user.isEnabled());
+    }
+
+    @ParameterizedTest
+    @EnumSource(value = UserRoles.class, names = {"USER", "ADMIN"})
+    void shouldRejectRoleUpdateWhenUserIsDeactivated(UserRoles newRole)
+    {
+        User user = new User(1L, "Pedro", "senha123", UserRoles.ADMIN);
+        user.deactivate();
+
+        UserWithInvalidInformationException exception = assertThrows(UserWithInvalidInformationException.class, () -> user.forRoleUpdate(newRole));
+
+        assertEquals("Usuário está desativado.", exception.getMessage());
+        assertEquals(UserRoles.NO_ACCESS, user.getRole());
+        assertEquals(UserRoles.ADMIN, user.getPreviousRole());
+        assertFalse(user.isEnabled());
+    }
+
+    private static Stream<Arguments> validRoleUpdates()
+    {
+        return Stream.of(Arguments.of(UserRoles.USER, UserRoles.ADMIN), Arguments.of(UserRoles.ADMIN, UserRoles.USER));
+    }
+
+    private static Stream<Arguments> invalidTargetRoles()
+    {
+        return Stream.of(Arguments.of((UserRoles) null), Arguments.of(UserRoles.NO_ACCESS));
+    }
 }

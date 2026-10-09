@@ -106,34 +106,16 @@ class UserServiceTest
     @Test
     void shouldRejectDuplicatedUsernameWhenRegisteringUser()
     {
-        User receivedUser = new User(
-                "Pedro",
-                "1234",
-                UserRoles.USER
+        User receivedUser = new User("Pedro", "1234", UserRoles.USER);
+        User existingUser = new User(1L, "Pedro", "senha-criptografada", UserRoles.USER);
+
+        Mockito.when(repository.findUserByUsername("Pedro")).thenReturn(existingUser);
+
+        UsernameAlredyInUseException exception = assertThrows(UsernameAlredyInUseException.class, () -> service.registerUser(receivedUser)
         );
 
-        User existingUser = new User(
-                1L,
-                "Pedro",
-                "senha-criptografada",
-                UserRoles.USER
-        );
-
-        Mockito.when(repository.findUserByUsername("Pedro"))
-                .thenReturn(existingUser);
-
-        UsernameAlredyInUseException exception =
-                assertThrows(
-                        UsernameAlredyInUseException.class,
-                        () -> service.registerUser(receivedUser)
-                );
-
-        assertEquals(
-                "Nome de usuário já existe.",
-                exception.getMessage()
-        );
-
-        verify(repository).findUserByUsername("Pedro");
+        assertEquals("Nome de usuário já existe.", exception.getMessage());
+        Mockito.verify(repository).findUserByUsername("Pedro");
         Mockito.verifyNoInteractions(passwordEncoder);
         Mockito.verify(repository, Mockito.never())
                 .save(Mockito.any());
@@ -356,6 +338,266 @@ class UserServiceTest
         Mockito.verify(repository, Mockito.never()).findUserByUsername(Mockito.anyString());
         Mockito.verify(repository, Mockito.never()).save(Mockito.any());
         Mockito.verifyNoInteractions(passwordEncoder);
+    }
+
+    //Testes para updatePassword
+
+    @Test
+    void shouldUpdatePasswordSuccessfully()
+    {
+        User user = new User(1L, "Pedro", "senha-antiga-criptografada", UserRoles.USER);
+
+        Mockito.when(repository.findById(1L)).thenReturn(Optional.of(user));
+        Mockito.when(passwordEncoder.encode("nova-senha")).thenReturn("nova-senha-criptografada");
+        Mockito.when(repository.save(user)).thenReturn(user);
+
+        User result = service.updatePassword(1L, "nova-senha");
+
+        assertSame(user, result);
+        assertEquals("Pedro", user.getUsername());
+        assertEquals("nova-senha-criptografada", user.getPassword());
+        assertEquals(UserRoles.USER, user.getRole());
+        assertNull(user.getPreviousRole());
+        assertTrue(user.isEnabled());
+
+        Mockito.verify(repository).findById(1L);
+        Mockito.verify(passwordEncoder).encode("nova-senha");
+        Mockito.verify(repository).save(user);
+    }
+
+    @Test
+    void shouldUpdatePasswordWithoutReactivatingUser()
+    {
+        User user = new User(1L, "Pedro", "senha-antiga-criptografada", UserRoles.ADMIN);
+        user.deactivate();
+
+        Mockito.when(repository.findById(1L)).thenReturn(Optional.of(user));
+        Mockito.when(passwordEncoder.encode("nova-senha"))
+                .thenReturn("nova-senha-criptografada");
+        Mockito.when(repository.save(user))
+                .thenReturn(user);
+
+        User result = service.updatePassword(1L, "nova-senha");
+
+        assertSame(user, result);
+        assertEquals("Pedro", user.getUsername());
+        assertEquals("nova-senha-criptografada", user.getPassword());
+        assertEquals(UserRoles.NO_ACCESS, user.getRole());
+        assertEquals(UserRoles.ADMIN, user.getPreviousRole());
+        assertFalse(user.isEnabled());
+
+        verify(repository).findById(1L);
+        verify(passwordEncoder).encode("nova-senha");
+        verify(repository).save(user);
+    }
+
+    @ParameterizedTest
+    @NullSource
+    @ValueSource(strings = {"", " ", "12"})
+    void shouldRejectInvalidPasswordWhenUpdatingPassword(String newPassword)
+    {
+        User user = new User(1L, "Pedro", "senha-antiga-criptografada", UserRoles.USER);
+
+        Mockito.when(repository.findById(1L)).thenReturn(Optional.of(user));
+
+        assertThrows(UserWithInvalidInformationException.class, () -> service.updatePassword(1L, newPassword));
+        assertEquals("senha-antiga-criptografada", user.getPassword());
+        assertEquals("Pedro", user.getUsername());
+        assertEquals(UserRoles.USER, user.getRole());
+
+        verify(repository).findById(1L);
+        Mockito.verifyNoInteractions(passwordEncoder);
+        Mockito.verify(repository, Mockito.never()).save(Mockito.any());
+    }
+
+    @Test
+    void shouldRejectPasswordUpdateWhenUserDoesNotExist()
+    {
+        Mockito.when(repository.findById(99L)).thenReturn(Optional.empty());
+
+        UserNotFoundException exception = assertThrows(UserNotFoundException.class, () -> service.updatePassword(99L, "nova-senha"));
+
+        assertEquals("Usuário não encontrado.", exception.getMessage());
+
+        verify(repository).findById(99L);
+        Mockito.verifyNoInteractions(passwordEncoder);
+        Mockito.verify(repository, Mockito.never()).save(Mockito.any());
+    }
+
+    @ParameterizedTest
+    @NullSource
+    @ValueSource(longs = {0, -1, -10})
+    void shouldRejectInvalidUserIdWhenUpdatingPassword(Long userId)
+    {
+        UserNotFoundException exception = assertThrows(UserNotFoundException.class, () -> service.updatePassword(userId, "nova-senha"));
+
+        assertEquals("Usuário não encontrado.", exception.getMessage());
+
+        Mockito.verifyNoInteractions(repository, passwordEncoder);
+    }
+
+    @Test
+    void shouldPreservePasswordWhenPasswordEncodingFails()
+    {
+        User user = new User(1L, "Pedro", "senha-antiga-criptografada", UserRoles.USER);
+
+        Mockito.when(repository.findById(1L)).thenReturn(Optional.of(user));
+        Mockito.when(passwordEncoder.encode("nova-senha")).thenThrow(new IllegalStateException("Falha ao criptografar."));
+
+        IllegalStateException exception = assertThrows(IllegalStateException.class, () -> service.updatePassword(1L, "nova-senha"));
+
+        assertEquals("Falha ao criptografar.", exception.getMessage());
+        assertEquals("senha-antiga-criptografada", user.getPassword());
+        assertEquals("Pedro", user.getUsername());
+        assertEquals(UserRoles.USER, user.getRole());
+
+        Mockito.verify(repository).findById(1L);
+        Mockito.verify(passwordEncoder).encode("nova-senha");
+        Mockito.verify(repository, Mockito.never()).save(Mockito.any());
+    }
+
+    //Testes updateRole
+
+
+    @Test
+    void shouldUpdateRoleSuccessfully()
+    {
+        User user = new User(1L, "Pedro", "senha-criptografada", UserRoles.USER);
+
+        Mockito.when(repository.findById(1L)).thenReturn(Optional.of(user));
+        Mockito.when(repository.save(user)).thenReturn(user);
+
+        User result = service.updateRole(1L, UserRoles.ADMIN);
+
+        assertSame(user, result);
+        assertEquals(UserRoles.ADMIN, user.getRole());
+        assertNull(user.getPreviousRole());
+        assertEquals("Pedro", user.getUsername());
+        assertEquals("senha-criptografada", user.getPassword());
+        assertTrue(user.isEnabled());
+
+        Mockito.verify(repository).findById(1L);
+        Mockito.verify(repository).save(user);
+        Mockito.verifyNoInteractions(passwordEncoder);
+    }
+
+    @Test
+    void shouldNotSaveWhenRoleIsAlreadyAssigned()
+    {
+        User user = new User(1L, "Pedro", "senha-criptografada", UserRoles.ADMIN);
+
+        Mockito.when(repository.findById(1L)).thenReturn(Optional.of(user));
+
+        User result = service.updateRole(1L, UserRoles.ADMIN);
+
+        assertSame(user, result);
+        assertEquals(UserRoles.ADMIN, user.getRole());
+        assertNull(user.getPreviousRole());
+
+        Mockito.verify(repository).findById(1L);
+        Mockito.verify(repository, Mockito.never()).save(Mockito.any());
+        Mockito.verifyNoInteractions(passwordEncoder);
+    }
+
+    @Test
+    void shouldRejectNoAccessAsNewRole()
+    {
+        User user = new User(1L, "Pedro", "senha-criptografada", UserRoles.USER);
+
+        Mockito.when(repository.findById(1L)).thenReturn(Optional.of(user));
+
+        UserWithInvalidInformationException exception = assertThrows(UserWithInvalidInformationException.class, () -> service.updateRole(1L, UserRoles.NO_ACCESS));
+
+        assertEquals("Papel de usuário invalido.", exception.getMessage());
+        assertEquals(UserRoles.USER, user.getRole());
+        assertNull(user.getPreviousRole());
+
+        Mockito.verify(repository).findById(1L);
+        Mockito.verify(repository, Mockito.never()).save(Mockito.any());
+        Mockito.verifyNoInteractions(passwordEncoder);
+    }
+
+    @Test
+    void shouldRejectRoleUpdateWhenUserIsDisabled()
+    {
+        User user = new User(1L, "Pedro", "senha-criptografada", UserRoles.ADMIN);
+        user.deactivate();
+
+        Mockito.when(repository.findById(1L)).thenReturn(Optional.of(user));
+
+        UserWithInvalidInformationException exception = assertThrows(UserWithInvalidInformationException.class, () -> service.updateRole(1L, UserRoles.USER));
+
+        assertEquals("Usuário está desativado.", exception.getMessage());
+        assertEquals(UserRoles.NO_ACCESS, user.getRole());
+        assertEquals(UserRoles.ADMIN, user.getPreviousRole());
+        assertFalse(user.isEnabled());
+
+        Mockito.verify(repository).findById(1L);
+        Mockito.verify(repository, Mockito.never()).save(Mockito.any());
+        Mockito.verifyNoInteractions(passwordEncoder);
+    }
+
+    @Test
+    void shouldRejectSameNoAccessRoleBeforeIdempotentReturn()
+    {
+        User user = new User(1L, "Pedro", "senha-criptografada", UserRoles.ADMIN);
+        user.deactivate();
+
+        Mockito.when(repository.findById(1L)).thenReturn(Optional.of(user));
+
+        UserWithInvalidInformationException exception = assertThrows(UserWithInvalidInformationException.class, () -> service.updateRole(1L, UserRoles.NO_ACCESS));
+
+        assertEquals("Papel de usuário invalido.", exception.getMessage());
+        assertEquals(UserRoles.NO_ACCESS, user.getRole());
+        assertEquals(UserRoles.ADMIN, user.getPreviousRole());
+
+        Mockito.verify(repository).findById(1L);
+        Mockito.verify(repository, Mockito.never()).save(Mockito.any());
+        Mockito.verifyNoInteractions(passwordEncoder);
+    }
+
+    @Test
+    void shouldRejectNullRole()
+    {
+        User user = new User(1L, "Pedro", "senha-criptografada", UserRoles.USER);
+
+        Mockito.when(repository.findById(1L)).thenReturn(Optional.of(user));
+
+        UserWithInvalidInformationException exception = assertThrows(UserWithInvalidInformationException.class, () -> service.updateRole(1L, null));
+
+        assertEquals("Papel de usuário invalido.", exception.getMessage());
+        assertEquals(UserRoles.USER, user.getRole());
+        assertNull(user.getPreviousRole());
+
+        Mockito.verify(repository).findById(1L);
+        Mockito.verify(repository, Mockito.never()).save(Mockito.any());
+        Mockito.verifyNoInteractions(passwordEncoder);
+    }
+
+    @Test
+    void shouldRejectRoleUpdateWhenUserDoesNotExist()
+    {
+        Mockito.when(repository.findById(99L)).thenReturn(Optional.empty());
+
+        UserNotFoundException exception = assertThrows(UserNotFoundException.class, () -> service.updateRole(99L, UserRoles.ADMIN));
+
+        assertEquals("Usuário não encontrado.", exception.getMessage());
+
+        Mockito.verify(repository).findById(99L);
+        Mockito.verify(repository, Mockito.never()).save(Mockito.any());
+        Mockito.verifyNoInteractions(passwordEncoder);
+    }
+
+    @ParameterizedTest
+    @NullSource
+    @ValueSource(longs = {0, -1, -10})
+    void shouldRejectInvalidUserIdWhenUpdatingRole(Long userId)
+    {
+        UserNotFoundException exception = assertThrows(UserNotFoundException.class, () -> service.updateRole(userId, UserRoles.ADMIN));
+
+        assertEquals("Usuário não encontrado.", exception.getMessage());
+
+        Mockito.verifyNoInteractions(repository, passwordEncoder);
     }
 
 }
