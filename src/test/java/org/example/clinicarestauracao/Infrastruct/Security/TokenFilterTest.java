@@ -4,6 +4,7 @@ import jakarta.servlet.FilterChain;
 import org.example.clinicarestauracao.Application.Interfaces.UserRepository;
 import org.example.clinicarestauracao.Builders.UserTestBuilder;
 import org.example.clinicarestauracao.Domain.Entities.User;
+import org.example.clinicarestauracao.Domain.Enums.UserRoles;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -154,4 +155,23 @@ class TokenFilterTest
         verify(repository).findUserByUsername("Pedro");
         verify(chain).doFilter(request, response);
     }
+
+    @Test
+    void shouldNotAuthenticateDisabledUserWithValidToken() throws Exception
+    {
+        User user = new User(1L, "Pedro", "senha123", UserRoles.NO_ACCESS);
+
+        request.addHeader("Authorization", "Bearer valid-token");
+
+        when(service.validateToken("valid-token")).thenReturn("Pedro");
+        when(repository.findUserByUsername("Pedro")).thenReturn(user);
+        filter.doFilterInternal(request, response, chain);
+
+        assertNull(SecurityContextHolder.getContext().getAuthentication());
+
+        verify(service).validateToken("valid-token");
+        verify(repository).findUserByUsername("Pedro");
+        verify(chain).doFilter(request, response);
+    }
+
 }

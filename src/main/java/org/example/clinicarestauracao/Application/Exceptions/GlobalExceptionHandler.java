@@ -1,12 +1,6 @@
 package org.example.clinicarestauracao.Application.Exceptions;
 
 import org.example.clinicarestauracao.Application.Dtos.SecurityDtos.ErrorResponseDto;
-import org.example.clinicarestauracao.Application.Dtos.SecurityDtos.FieldErrorDto;
-import org.example.clinicarestauracao.Application.Dtos.SecurityDtos.ValidationErrorResponseDto;
-import org.example.clinicarestauracao.Application.Exceptions.EstoqueMedicamento.EstoqueMedicamentoNotFoundException;
-import org.example.clinicarestauracao.Application.Exceptions.EstoqueMedicamento.EstoqueMedicamentoWithInvalidInformationException;
-import org.example.clinicarestauracao.Application.Exceptions.Medicamento.MedicamentoNotFoundException;
-import org.example.clinicarestauracao.Application.Exceptions.Medicamento.MedicamentoWithInvalidInformationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -98,4 +92,51 @@ public class GlobalExceptionHandler
     }
 
 
+
+    @ExceptionHandler(CargoWithInvalidInformationException.class)
+    public ResponseEntity<ErrorResponseDto>  handleCargoWithInvalidInformation(CargoWithInvalidInformationException ex)
+    {
+        var response = new ErrorResponseDto(ex.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
+
+    @ExceptionHandler(CargoNotFoundException.class)
+    public ResponseEntity<ErrorResponseDto> handleCargoNotFound(CargoNotFoundException ex)
+    {
+        var response = new ErrorResponseDto(ex.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+    }
+
+    @ExceptionHandler(FuncionarioWithInvalidInformationException.class)
+    public ResponseEntity<ErrorResponseDto> handleFuncionarioWithInvalidInformation(FuncionarioWithInvalidInformationException ex)
+    {
+        var response = new ErrorResponseDto(ex.getMessage());
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
+
+    @ExceptionHandler(FuncionarioNotFoundException.class)
+    public ResponseEntity<ErrorResponseDto> handleFuncionarioNotFound(FuncionarioNotFoundException ex)
+    {
+        var response = new ErrorResponseDto(ex.getMessage());
+
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+    }
+
+    @ExceptionHandler(UserNotFoundException.class)
+    public ResponseEntity<ErrorResponseDto> handleUserNotFound(UserNotFoundException ex)
+    {
+        var response = new ErrorResponseDto(ex.getMessage());
+
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+    }
+
+    //Endereço
+
+    @ExceptionHandler(EnderecoWithInvalidInformationException.class)
+    public ResponseEntity<ErrorResponseDto> handleEnderecoWithInvalidInformation(EnderecoWithInvalidInformationException ex)
+    {
+        var response = new ErrorResponseDto(ex.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
 }

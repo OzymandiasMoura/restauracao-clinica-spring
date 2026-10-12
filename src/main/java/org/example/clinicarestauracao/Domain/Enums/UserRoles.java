@@ -6,7 +6,8 @@ import lombok.Getter;
 public enum UserRoles
 {
     ADMIN("admin"),
-    USER("user");
+    USER("user"),
+    NO_ACCESS("no_access");
 
     private final String value;
 

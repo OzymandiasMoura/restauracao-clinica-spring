@@ -1,0 +1,164 @@
+package org.example.clinicarestauracao.Builders;
+
+import org.example.clinicarestauracao.Domain.Entities.Cargo;
+import org.example.clinicarestauracao.Domain.Entities.Funcionario;
+import org.example.clinicarestauracao.Domain.Entities.User;
+import org.example.clinicarestauracao.Domain.Enums.UserRoles;
+import org.example.clinicarestauracao.Domain.ValueObjects.Endereco;
+import org.springframework.test.util.ReflectionTestUtils;
+
+import java.time.LocalDate;
+
+public class FuncionarioTestBuilder
+{
+    private Long id = 1L;
+    private String nome = "Pedro Moura";
+    private String cpf = "52998224725";
+    private String email = "pedro@email.com";
+    private LocalDate dataNascimento = LocalDate.of(1990, 1, 10);
+    private Endereco endereco = EnderecoTestBuilder.newEndereco().build();
+    private String cep = "01001000";
+    private String telefone = "11999999999";
+    private boolean ativo = true;
+    private User user = new User(1L, "pedro", "senha123", UserRoles.USER);
+    private Cargo cargo = CargoTestBuilder.newCargo().build();
+    private LocalDate dataAdmissao = LocalDate.of(2026, 1, 10);
+    private LocalDate dataDemissao = null;
+
+    public static FuncionarioTestBuilder newFuncionario()
+    {
+        return new FuncionarioTestBuilder();
+    }
+
+    public FuncionarioTestBuilder setId(Long id)
+    {
+        this.id = id;
+        return this;
+    }
+
+    public FuncionarioTestBuilder setNome(String nome)
+    {
+        this.nome = nome;
+        return this;
+    }
+
+    public FuncionarioTestBuilder setCpf(String cpf)
+    {
+        this.cpf = cpf;
+        return this;
+    }
+
+    public FuncionarioTestBuilder setEmail(String email)
+    {
+        this.email = email;
+        return this;
+    }
+
+    public FuncionarioTestBuilder setDataNascimento(LocalDate dataNascimento)
+    {
+        this.dataNascimento = dataNascimento;
+        return this;
+    }
+
+    public FuncionarioTestBuilder setEndereco(Endereco endereco)
+    {
+        this.endereco = endereco;
+        return this;
+    }
+
+    public FuncionarioTestBuilder setCep(String cep)
+    {
+        this.cep = cep;
+        return this;
+    }
+
+    public FuncionarioTestBuilder setTelefone(String telefone)
+    {
+        this.telefone = telefone;
+        return this;
+    }
+
+    public FuncionarioTestBuilder setAtivo(boolean ativo)
+    {
+        this.ativo = ativo;
+        return this;
+    }
+
+    public FuncionarioTestBuilder setUser(User user)
+    {
+        this.user = user;
+        return this;
+    }
+
+    public FuncionarioTestBuilder setCargo(Cargo cargo)
+    {
+        this.cargo = cargo;
+        return this;
+    }
+
+    public FuncionarioTestBuilder setDataAdmissao(LocalDate dataAdmissao)
+    {
+        this.dataAdmissao = dataAdmissao;
+        return this;
+    }
+
+    public FuncionarioTestBuilder setDataDemissao(LocalDate dataDemissao)
+    {
+        this.dataDemissao = dataDemissao;
+        return this;
+    }
+
+    public Funcionario build()
+    {
+        Funcionario funcionario = new Funcionario(id, nome, cpf, email, dataNascimento, endereco, cep, telefone, ativo, user, cargo, dataAdmissao);
+
+        if (dataDemissao != null)
+        {
+            ReflectionTestUtils.setField(funcionario, "dataDemissao", dataDemissao);
+        }
+
+        return funcionario;
+    }
+
+    public Funcionario buildForCreate()
+    {
+        Funcionario funcionario = new Funcionario(nome, cpf, email, dataNascimento, endereco, cep, telefone, user, cargo, dataAdmissao);
+
+        if (dataDemissao != null)
+        {
+            ReflectionTestUtils.setField(funcionario, "dataDemissao", dataDemissao);
+        }
+
+        return funcionario;
+    }
+
+    public Funcionario buildWithNullUser()
+    {
+        User validUser = user == null ? new User(1L, "legacy-user", "senha123", UserRoles.USER) : user;
+        Funcionario funcionario = new Funcionario(id, nome, cpf, email, dataNascimento, endereco, cep, telefone, ativo, validUser, cargo, dataAdmissao);
+
+        ReflectionTestUtils.setField(funcionario, "user", null);
+
+        if (dataDemissao != null)
+        {
+            ReflectionTestUtils.setField(funcionario, "dataDemissao", dataDemissao);
+        }
+
+        return funcionario;
+    }
+
+    public Funcionario buildForCreateWithNullUser()
+    {
+        User validUser = user == null ? new User("legacy-user", "senha123", UserRoles.USER) : user;
+        Funcionario funcionario = new Funcionario(nome, cpf, email, dataNascimento, endereco, cep, telefone, validUser, cargo, dataAdmissao);
+
+        ReflectionTestUtils.setField(funcionario, "user", null);
+
+        if (dataDemissao != null)
+        {
+            ReflectionTestUtils.setField(funcionario, "dataDemissao", dataDemissao);
+        }
+
+        return funcionario;
+    }
+}

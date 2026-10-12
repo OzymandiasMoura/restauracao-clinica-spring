@@ -2,6 +2,7 @@ package org.example.clinicarestauracao.Application.Controllers;
 
 import org.example.clinicarestauracao.Application.Dtos.ModalidadeDtos.ModalidadeRequestDto;
 import org.example.clinicarestauracao.Application.Dtos.ModalidadeDtos.ModalidadeResponseDto;
+import org.example.clinicarestauracao.Application.Exceptions.ModalidadeWithInvalidInformationException;
 import org.example.clinicarestauracao.Application.Services.ModalidadeService;
 import org.example.clinicarestauracao.Builders.ModalidadeTestBuilder;
 import org.example.clinicarestauracao.Domain.Entities.Modalidade;
@@ -270,5 +271,22 @@ class ModalidadeControllerTest
 
         Mockito.verify(service).findModalidadeByDescricao(descricao);
         Mockito.verifyNoMoreInteractions(service);
+    }
+
+    @Test
+    void shouldNotCreateModalidadeWhenMaximumVacanciesIsNull()
+    {
+        ModalidadeRequestDto request = new ModalidadeRequestDto(
+                builder.getDescricao(),
+                builder.getCnpj(),
+                null,
+                builder.isPagamento(),
+                builder.getCor()
+        );
+
+        ModalidadeWithInvalidInformationException exception = assertThrows(ModalidadeWithInvalidInformationException.class, () -> controller.createModalidade(request));
+
+        assertEquals("Numero de vagas não pode ser nulo.", exception.getMessage());
+        Mockito.verifyNoInteractions(service);
     }
 }

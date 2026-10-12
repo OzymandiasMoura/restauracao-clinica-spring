@@ -6,14 +6,14 @@ import org.example.clinicarestauracao.Domain.Enums.UserRoles;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.security.core.GrantedAuthority;
 
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 
 class UserTest
 {
@@ -83,6 +83,112 @@ class UserTest
         assertEquals("Nome de usuário deve ter no mínimo 3 caracteres.", exception.getMessage());
     }
 
+    @Test
+    void shouldReturnNoAuthoritiesWhenUserHasNoAccess()
+    {
+        User user = (User) builder.setRole(UserRoles.NO_ACCESS).build();
+
+        assertThat(user.getAuthorities()).isEmpty();
+    }
+
+    @Test
+    void shouldCreateActiveUserWithoutPreviousRole()
+    {
+        User user = new User(1L, "Pedro", "123", UserRoles.USER);
+
+        assertEquals(UserRoles.USER, user.getRole());
+        assertNull(user.getPreviousRole());
+    }
+
+    @ParameterizedTest
+    @EnumSource(
+            value = UserRoles.class,
+            names = {"USER", "ADMIN"}
+    )
+    void shouldDeactivateUserAndPreservePreviousRole(UserRoles originalRole)
+    {
+        User user = new User(1L, "Pedro", "123", originalRole);
+
+        user.deactivate();
+
+        assertEquals(UserRoles.NO_ACCESS, user.getRole());
+        assertEquals(originalRole, user.getPreviousRole());
+        assertThat(user.getAuthorities()).isEmpty();
+    }
+
+    @Test
+    void shouldNotOverwritePreviousRoleWhenUserIsAlreadyDeactivated()
+    {
+        User user = new User(1L, "Pedro", "123", UserRoles.ADMIN);
+
+        user.deactivate();
+        UserWithInvalidInformationException exception = assertThrows(UserWithInvalidInformationException.class, user::deactivate) ;
+
+        assertEquals(UserRoles.NO_ACCESS, user.getRole());
+        assertEquals(UserRoles.ADMIN, user.getPreviousRole());
+        assertEquals("Usuário já está desativado.", exception.getMessage());
+    }
+
+    @ParameterizedTest
+    @EnumSource(
+            value = UserRoles.class,
+            names = {"USER", "ADMIN"}
+    )
+    void shouldReactivateUserRestoringPreviousRole(UserRoles originalRole)
+    {
+        User user = new User(1L, "Pedro", "123", originalRole);
+        user.deactivate();
+
+        user.reactivate();
+
+        assertEquals(originalRole, user.getRole());
+        assertNull(user.getPreviousRole());
+    }
+
+    @Test
+    void shouldThrowExceptionWhenUserIsNotDeactivated()
+    {
+        User user = new User(1L, "Pedro", "123", UserRoles.USER);
+
+        UserWithInvalidInformationException exception = assertThrows(UserWithInvalidInformationException.class, user::reactivate);
+
+        assertEquals("Usuário não está desativado.", exception.getMessage());
+        assertEquals(UserRoles.USER, user.getRole());
+        assertNull(user.getPreviousRole());
+    }
+
+    @Test
+    void shouldThrowExceptionWhenUserHasNoValidPreviousRole()
+    {
+        User user = new User(1L, "Pedro", "123", UserRoles.NO_ACCESS);
+
+        UserWithInvalidInformationException exception = assertThrows(UserWithInvalidInformationException.class, user::reactivate);
+
+        assertEquals("Usuário não tinha permissão válida.", exception.getMessage());
+        assertEquals(UserRoles.NO_ACCESS, user.getRole());
+        assertNull(user.getPreviousRole());
+    }
+
+    @ParameterizedTest
+    @EnumSource(
+            value = UserRoles.class,
+            names = {"USER", "ADMIN"}
+    )
+    void shouldBeEnabledWhenUserHasAccess(UserRoles role)
+    {
+        User user = new User(1L, "Pedro", "123", role);
+
+        assertTrue(user.isEnabled());
+    }
+
+    @Test
+    void shouldBeDisabledWhenUserHasNoAccess()
+    {
+        User user = new User(1L, "Pedro", "123", UserRoles.NO_ACCESS);
+
+        assertFalse(user.isEnabled());
+    }
+
 
     private static Stream<Arguments> dataProvider()
     {
@@ -111,4 +217,81 @@ class UserTest
         );
     }
 
+    @Test
+    void shouldCreateUserForUsernameUpdate()
+    {
+        User user = User.forUsernameUpdate("pedro.atualizado");
+
+        assertEquals("pedro.atualizado", user.getUsername());
+        assertNull(user.getPassword());
+        assertEquals(UserRoles.USER, user.getRole());
+        assertNull(user.getPreviousRole());
+    }
+
+    //Testes para updateRole
+
+    @ParameterizedTest
+    @MethodSource("validRoleUpdates")
+    void shouldUpdateRoleBetweenActiveRoles(UserRoles currentRole, UserRoles newRole)
+    {
+        User user = new User(1L, "Pedro", "senha123", currentRole);
+
+        user.forRoleUpdate(newRole);
+
+        assertEquals(newRole, user.getRole());
+        assertNull(user.getPreviousRole());
+        assertTrue(user.isEnabled());
+    }
+
+    @ParameterizedTest
+    @EnumSource(value = UserRoles.class, names = {"USER", "ADMIN"})
+    void shouldKeepSameRoleIdempotently(UserRoles role)
+    {
+        User user = new User(1L, "Pedro", "senha123", role);
+
+        assertDoesNotThrow(() -> user.forRoleUpdate(role));
+
+        assertEquals(role, user.getRole());
+        assertNull(user.getPreviousRole());
+        assertTrue(user.isEnabled());
+    }
+
+    @ParameterizedTest
+    @MethodSource("invalidTargetRoles")
+    void shouldRejectInvalidTargetRole(UserRoles invalidRole)
+    {
+        User user = new User(1L, "Pedro", "senha123", UserRoles.USER);
+
+        UserWithInvalidInformationException exception = assertThrows(UserWithInvalidInformationException.class, () -> user.forRoleUpdate(invalidRole));
+
+        assertEquals("Papel de usuário invalido.", exception.getMessage());
+        assertEquals(UserRoles.USER, user.getRole());
+        assertNull(user.getPreviousRole());
+        assertTrue(user.isEnabled());
+    }
+
+    @ParameterizedTest
+    @EnumSource(value = UserRoles.class, names = {"USER", "ADMIN"})
+    void shouldRejectRoleUpdateWhenUserIsDeactivated(UserRoles newRole)
+    {
+        User user = new User(1L, "Pedro", "senha123", UserRoles.ADMIN);
+        user.deactivate();
+
+        UserWithInvalidInformationException exception = assertThrows(UserWithInvalidInformationException.class, () -> user.forRoleUpdate(newRole));
+
+        assertEquals("Usuário está desativado.", exception.getMessage());
+        assertEquals(UserRoles.NO_ACCESS, user.getRole());
+        assertEquals(UserRoles.ADMIN, user.getPreviousRole());
+        assertFalse(user.isEnabled());
+    }
+
+    private static Stream<Arguments> validRoleUpdates()
+    {
+        return Stream.of(Arguments.of(UserRoles.USER, UserRoles.ADMIN), Arguments.of(UserRoles.ADMIN, UserRoles.USER));
+    }
+
+    private static Stream<Arguments> invalidTargetRoles()
+    {
+        return Stream.of(Arguments.of((UserRoles) null), Arguments.of(UserRoles.NO_ACCESS));
+    }
 }
