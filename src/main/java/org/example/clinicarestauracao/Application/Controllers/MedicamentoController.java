@@ -60,7 +60,7 @@ public class MedicamentoController {
         return ResponseEntity.ok(dtos);
     }
 
-    @GetMapping("/ativos")
+    @GetMapping("/inativos")
     public ResponseEntity<List<MedicamentoResponseDto>> listAllInativos(){
         List<Medicamento> medicamento = medicamentoService.findInativos();
 

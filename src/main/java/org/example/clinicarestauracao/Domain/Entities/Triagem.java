@@ -140,4 +140,21 @@ public class Triagem {
 
         this.status = novoStatus;
     }
+    public void concluir() {
+        if (this.status != Status.AGENDADA) {
+            throw new TriagemWithInvalidInformationException(
+                    "Apenas triagens agendadas podem ser concluídas."
+            );
+        }
+
+        this.status = Status.CONCLUIDA;
+    }
+
+    public void marcarComoVencida() {
+        if (this.status == Status.AGENDADA &&
+                this.dataAgendada.isBefore(LocalDateTime.now())) {
+
+            this.status = Status.ATRASADA;
+        }
+    }
 }
