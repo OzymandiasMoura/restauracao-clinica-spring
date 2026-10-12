@@ -1,7 +1,10 @@
 package org.example.clinicarestauracao.Domain.Entities;
 
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.example.clinicarestauracao.Application.Exceptions.Triagem.TriagemWithInvalidInformationException;
 import org.example.clinicarestauracao.Domain.Enums.Status;
 
@@ -18,91 +21,123 @@ public class Triagem {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "id_modalidade")
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "id_modalidade", nullable = false)
     private Modalidade modalidade;
 
     @Column(nullable = false)
     private String nomePossivelAcolhido;
 
-    @Column(nullable = false, length = 15)
+    @Column(nullable = false, length = 11)
     private String telefone;
 
     @Column(nullable = false)
     private LocalDateTime dataAgendada;
 
+    @Column(length = 1000)
     private String observacaoEntrevista;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Status status;
 
-    public Triagem(Modalidade modalidade, String nomePossivelAcolhido, String telefone, LocalDateTime dataAgendada, String observacaoEntrevista) {
+    public Triagem(
+            Modalidade modalidade,
+            String nomePossivelAcolhido,
+            String telefone,
+            LocalDateTime dataAgendada,
+            String observacaoEntrevista
+    ) {
         setModalidade(modalidade);
         setNomePossivelAcolhido(nomePossivelAcolhido);
         setTelefone(telefone);
-        setData(dataAgendada);
-        this.observacaoEntrevista = observacaoEntrevista;
-        this.status = Status.PENDENTE;
+        setDataAgendada(dataAgendada);
+
+        this.observacaoEntrevista =
+                observacaoEntrevista == null
+                        ? null
+                        : observacaoEntrevista.trim();
+
+        this.status = Status.AGENDADA;
     }
 
     public void setModalidade(Modalidade modalidade) {
         if (modalidade == null) {
-            throw new TriagemWithInvalidInformationException("A triagem precisa estar vinculada a uma modalidade.");
+            throw new TriagemWithInvalidInformationException(
+                    "A triagem precisa estar vinculada a uma modalidade."
+            );
         }
 
         if (!modalidade.isAtivo()) {
-            throw new TriagemWithInvalidInformationException("Não é possível agendar triagem para uma modalidade inativa.");
+            throw new TriagemWithInvalidInformationException(
+                    "Não é possível agendar triagem para uma modalidade inativa."
+            );
         }
 
         this.modalidade = modalidade;
     }
 
     public void setNomePossivelAcolhido(String nomePossivelAcolhido) {
-        if (nomePossivelAcolhido == null || nomePossivelAcolhido.trim().isBlank()) {
-            throw new TriagemWithInvalidInformationException("O nome não pode ser nulo ou vazio.");
+        if (nomePossivelAcolhido == null || nomePossivelAcolhido.isBlank()) {
+            throw new TriagemWithInvalidInformationException(
+                    "O nome não pode ser nulo ou vazio."
+            );
         }
-        String nomeFormatado = nomePossivelAcolhido.trim();
-        if (nomeFormatado.length() < 3){
-            throw new TriagemWithInvalidInformationException("O nome do possivel acolhido deve ter mais que 3 caracteres.");
 
+        String nomeFormatado = nomePossivelAcolhido.trim();
+
+        if (nomeFormatado.length() < 3) {
+            throw new TriagemWithInvalidInformationException(
+                    "O nome do possível acolhido deve ter pelo menos 3 caracteres."
+            );
         }
 
         this.nomePossivelAcolhido = nomeFormatado;
     }
 
-    public void setData(LocalDateTime novaData) {
-        if (novaData == null) {
-            throw new TriagemWithInvalidInformationException("A data agendada não pode ser nula.");
+    public void setDataAgendada(LocalDateTime dataAgendada) {
+        if (dataAgendada == null) {
+            throw new TriagemWithInvalidInformationException(
+                    "A data agendada não pode ser nula."
+            );
         }
 
-        if (novaData.toLocalDate().isBefore(java.time.LocalDate.now())) {
-            throw new TriagemWithInvalidInformationException("A data agendada não pode ser no passado.");
+        if (!dataAgendada.isAfter(LocalDateTime.now())) {
+            throw new TriagemWithInvalidInformationException(
+                    "A data agendada deve estar no futuro."
+            );
         }
-        this.dataAgendada = novaData;
+
+        this.dataAgendada = dataAgendada;
     }
 
     public void setTelefone(String telefone) {
-        if (telefone == null || telefone.trim().isBlank()) {
-            throw new TriagemWithInvalidInformationException("O telefone é obrigatório.");
+        if (telefone == null || telefone.isBlank()) {
+            throw new TriagemWithInvalidInformationException(
+                    "O telefone é obrigatório."
+            );
         }
 
-        String telefoneFormatado = telefone.trim();
-        if (telefoneFormatado.length() < 10) {
-            throw new TriagemWithInvalidInformationException("Telefone inválido.");
+        String telefoneFormatado = telefone.replaceAll("\\D", "");
+
+        if (telefoneFormatado.length() < 10
+                || telefoneFormatado.length() > 11) {
+
+            throw new TriagemWithInvalidInformationException(
+                    "Telefone inválido."
+            );
         }
 
         this.telefone = telefoneFormatado;
     }
+
     public void setStatus(Status novoStatus) {
         if (novoStatus == null) {
-            throw new TriagemWithInvalidInformationException("O status não pode ser nulo.");
+            throw new TriagemWithInvalidInformationException(
+                    "O status não pode ser nulo."
+            );
         }
+
         this.status = novoStatus;
     }
 }
-
-
-
-
-
