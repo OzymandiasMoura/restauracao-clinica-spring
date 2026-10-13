@@ -1,6 +1,8 @@
 package org.example.clinicarestauracao.Application.Exceptions;
 
 import org.example.clinicarestauracao.Application.Dtos.SecurityDtos.ErrorResponseDto;
+import org.example.clinicarestauracao.Application.Exceptions.Acolhido.AcolhidoNotFoundException;
+import org.example.clinicarestauracao.Application.Exceptions.Acolhido.AcolhidoWithInvalidInformationException;
 import org.example.clinicarestauracao.Application.Exceptions.Cargo.CargoNotFoundException;
 import org.example.clinicarestauracao.Application.Exceptions.Cargo.CargoWithInvalidInformationException;
 import org.example.clinicarestauracao.Application.Exceptions.Endereco.EnderecoWithInvalidInformationException;
@@ -99,5 +101,20 @@ public class GlobalExceptionHandler
     {
         var response = new ErrorResponseDto(ex.getMessage());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
+
+    //Acolhido
+    @ExceptionHandler(AcolhidoWithInvalidInformationException.class)
+    public ResponseEntity<ErrorResponseDto> handleAcolhidoWithInvalidInformation(AcolhidoWithInvalidInformationException ex)
+    {
+        var response = new ErrorResponseDto(ex.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
+
+    @ExceptionHandler(AcolhidoNotFoundException.class)
+    public ResponseEntity<ErrorResponseDto> handleAcolhidoNotFound(AcolhidoNotFoundException ex)
+    {
+        var response = new ErrorResponseDto(ex.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
 }
