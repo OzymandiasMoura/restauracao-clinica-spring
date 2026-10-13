@@ -2,15 +2,15 @@ package org.example.clinicarestauracao.Infrastruct.Database;
 
 import org.example.clinicarestauracao.Application.Interfaces.CargoRepository;
 import org.example.clinicarestauracao.Application.Interfaces.FuncionarioRepository;
-import org.example.clinicarestauracao.Application.Interfaces.ModalidadeRepository;
+import org.example.clinicarestauracao.Application.Interfaces.ConvenioRepository;
 import org.example.clinicarestauracao.Application.Interfaces.UserRepository;
 import org.example.clinicarestauracao.Application.Services.CargoService;
 import org.example.clinicarestauracao.Application.Services.FuncionarioService;
-import org.example.clinicarestauracao.Application.Services.ModalidadeService;
+import org.example.clinicarestauracao.Application.Services.ConvenioService;
 import org.example.clinicarestauracao.Application.Services.UserService;
 import org.example.clinicarestauracao.Domain.Entities.Cargo;
 import org.example.clinicarestauracao.Domain.Entities.Funcionario;
-import org.example.clinicarestauracao.Domain.Entities.Modalidade;
+import org.example.clinicarestauracao.Domain.Entities.Convenio;
 import org.example.clinicarestauracao.Domain.Entities.User;
 import org.example.clinicarestauracao.Domain.Enums.UserRoles;
 import org.example.clinicarestauracao.Domain.ValueObjects.Endereco;
@@ -30,22 +30,22 @@ public class DevDataInitializer implements ApplicationRunner
 
     private final CargoRepository cargoRepository;
     private final FuncionarioRepository funcionarioRepository;
-    private final ModalidadeRepository modalidadeRepository;
+    private final ConvenioRepository convenioRepository;
     private final UserRepository userRepository;
     private final CargoService cargoService;
     private final FuncionarioService funcionarioService;
-    private final ModalidadeService modalidadeService;
+    private final ConvenioService convenioService;
     private final UserService userService;
 
-    public DevDataInitializer(CargoRepository cargoRepository, FuncionarioRepository funcionarioRepository, ModalidadeRepository modalidadeRepository, UserRepository userRepository, CargoService cargoService, FuncionarioService funcionarioService, ModalidadeService modalidadeService, UserService userService)
+    public DevDataInitializer(CargoRepository cargoRepository, FuncionarioRepository funcionarioRepository, ConvenioRepository convenioRepository, UserRepository userRepository, CargoService cargoService, FuncionarioService funcionarioService, ConvenioService convenioService, UserService userService)
     {
         this.cargoRepository = cargoRepository;
         this.funcionarioRepository = funcionarioRepository;
-        this.modalidadeRepository = modalidadeRepository;
+        this.convenioRepository = convenioRepository;
         this.userRepository = userRepository;
         this.cargoService = cargoService;
         this.funcionarioService = funcionarioService;
-        this.modalidadeService = modalidadeService;
+        this.convenioService = convenioService;
         this.userService = userService;
     }
 
@@ -55,7 +55,7 @@ public class DevDataInitializer implements ApplicationRunner
     {
         if (cargoRepository.count() > 0
                 || funcionarioRepository.count() > 0
-                || modalidadeRepository.count() > 0
+                || convenioRepository.count() > 0
                 || userRepository.count() > 0)
         {
             return;
@@ -70,15 +70,15 @@ public class DevDataInitializer implements ApplicationRunner
 
         userService.registerUser(new User("admin.dev", TEST_PASSWORD, UserRoles.ADMIN));
 
-        modalidadeService.createModalidade(new Modalidade(
+        convenioService.createConvenio(new Convenio(
                 "Atendimento Social", null, 40, false, "#2E86C1"));
-        modalidadeService.createModalidade(new Modalidade(
+        convenioService.createConvenio(new Convenio(
                 "Clínica Parceira", "11222333000181", 20, true, "#28B463"));
-        Modalidade convenio = modalidadeService.createModalidade(new Modalidade(
+        Convenio convenio = convenioService.createConvenio(new Convenio(
                 "Convênio Comunitário", "11444777000161", 15, true, "#AF7AC5"));
-        modalidadeService.createModalidade(new Modalidade(
+        convenioService.createConvenio(new Convenio(
                 "Lista de Espera", null, 0, false, "#F39C12"));
-        modalidadeService.deleteModalidadeById(convenio.getId());
+        convenioService.deleteConvenioById(convenio.getId());
 
         funcionarioService.createFuncionario(new Funcionario(
                 "Ana Silva",
