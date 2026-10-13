@@ -42,7 +42,7 @@ public class Acolhido
     @Column(nullable = false)
     private Boolean ativo;
 
-    public Acolhido(Long id, String nome, String email, String cpf, String cep, Endereco endereco, String telefone, LocalDate dataNascimento, Boolean ativo)
+    public Acolhido(Long id, String nome, String email, String cpf, String cep, Endereco endereco, String telefone, LocalDate dataNascimento)
     {
         this.id = id;
         setNome(nome);
@@ -52,10 +52,10 @@ public class Acolhido
         setEndereco(endereco);
         setTelefone(telefone);
         setDataNascimento(dataNascimento);
-        setAtivo(ativo);
+        setAtivo(true);
     }
 
-    public Acolhido(String nome, String email, String cpf, String cep, Endereco endereco, String telefone, LocalDate dataNascimento, Boolean ativo)
+    public Acolhido(String nome, String email, String cpf, String cep, Endereco endereco, String telefone, LocalDate dataNascimento)
     {
         setNome(nome);
         setEmail(email);
@@ -64,7 +64,7 @@ public class Acolhido
         setEndereco(endereco);
         setTelefone(telefone);
         setDataNascimento(dataNascimento);
-        setAtivo(ativo);
+        setAtivo(true);
     }
 
     public void setNome(String nome)
@@ -181,5 +181,20 @@ public class Acolhido
         }
 
         this.dataNascimento = dataNascimento;
+    }
+
+    private void setAtivo(boolean ativo)
+    {
+        this.ativo = ativo;
+    }
+
+    public void deactivate()
+    {
+        setAtivo(false);
+    }
+
+    public void reactivate()
+    {
+        setAtivo(true);
     }
 }

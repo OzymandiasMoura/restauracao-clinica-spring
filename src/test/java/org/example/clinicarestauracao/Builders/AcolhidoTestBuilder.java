@@ -15,7 +15,6 @@ public class AcolhidoTestBuilder
     private Endereco endereco = EnderecoTestBuilder.newEndereco().build();
     private String telefone = "11999999999";
     private LocalDate dataNascimento = LocalDate.of(1999, 9, 9);
-    private Boolean ativo = true;
 
     public static AcolhidoTestBuilder newAcolhido()
     {
@@ -70,20 +69,14 @@ public class AcolhidoTestBuilder
         return this;
     }
 
-    public AcolhidoTestBuilder setAtivo(Boolean ativo)
-    {
-        this.ativo = ativo;
-        return this;
-    }
-
     public Acolhido build()
     {
-        return new Acolhido( id, nome, email, cpf, cep, endereco, telefone, dataNascimento, ativo);
+        return new Acolhido( id, nome, email, cpf, cep, endereco, telefone, dataNascimento);
     }
 
     public Acolhido buildForCreate()
     {
-        return new Acolhido(nome, email, cpf, cep, endereco, telefone, dataNascimento, ativo);
+        return new Acolhido(nome, email, cpf, cep, endereco, telefone, dataNascimento);
     }
 
 }

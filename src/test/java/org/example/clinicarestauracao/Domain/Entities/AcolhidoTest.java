@@ -266,4 +266,43 @@ class AcolhidoTest
 
         assertEquals(birthDate, acolhido.getDataNascimento());
     }
+
+    // Testes para estado ativo
+
+    @Test
+    void shouldCreateActiveAcolhidoWithId()
+    {
+        Acolhido acolhido = AcolhidoTestBuilder.newAcolhido().build();
+
+        assertTrue(acolhido.getAtivo());
+    }
+
+    @Test
+    void shouldCreateActiveAcolhidoWithoutId()
+    {
+        Acolhido acolhido = AcolhidoTestBuilder.newAcolhido().buildForCreate();
+
+        assertTrue(acolhido.getAtivo());
+    }
+
+    @Test
+    void shouldDeactivateAcolhido()
+    {
+        Acolhido acolhido = AcolhidoTestBuilder.newAcolhido().build();
+
+        acolhido.deactivate();
+
+        assertFalse(acolhido.getAtivo());
+    }
+
+    @Test
+    void shouldReactivateAcolhido()
+    {
+        Acolhido acolhido = AcolhidoTestBuilder.newAcolhido().build();
+
+        acolhido.deactivate();
+        acolhido.reactivate();
+
+        assertTrue(acolhido.getAtivo());
+    }
 }
