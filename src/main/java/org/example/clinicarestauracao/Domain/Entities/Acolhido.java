@@ -190,11 +190,21 @@ public class Acolhido
 
     public void deactivate()
     {
+        if (this.ativo == false)
+        {
+            throw new AcolhidoWithInvalidInformationException("Acolhido já desativado.");
+        }
+
         setAtivo(false);
     }
 
     public void reactivate()
     {
+        if(this.ativo == true)
+        {
+            throw new AcolhidoWithInvalidInformationException("Acolhido já ativado.");
+        }
+
         setAtivo(true);
     }
 }

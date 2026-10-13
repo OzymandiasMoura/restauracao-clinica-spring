@@ -305,4 +305,28 @@ class AcolhidoTest
 
         assertTrue(acolhido.getAtivo());
     }
+
+    @Test
+    void shouldRejectDeactivatingAlreadyInactiveAcolhido()
+    {
+        Acolhido acolhido = AcolhidoTestBuilder.newAcolhido().build();
+
+        acolhido.deactivate();
+
+        AcolhidoWithInvalidInformationException exception = assertThrows(AcolhidoWithInvalidInformationException.class, acolhido::deactivate);
+
+        assertEquals("Acolhido já desativado.", exception.getMessage());
+        assertFalse(acolhido.getAtivo());
+    }
+
+    @Test
+    void shouldRejectReactivatingAlreadyActiveAcolhido()
+    {
+        Acolhido acolhido = AcolhidoTestBuilder.newAcolhido().build();
+
+        AcolhidoWithInvalidInformationException exception = assertThrows(AcolhidoWithInvalidInformationException.class, acolhido::reactivate);
+
+        assertEquals("Acolhido já ativado.", exception.getMessage());
+        assertTrue(acolhido.getAtivo());
+    }
 }
