@@ -32,6 +32,42 @@ class AcolhidoServiceTest
     @InjectMocks
     private AcolhidoService service;
 
+    // Testes findAll
+
+    @Test
+    void shouldFindAllAcolhidosSuccessfully()
+    {
+        Acolhido primeiroAcolhido = AcolhidoTestBuilder.newAcolhido().setId(1L).build();
+        Acolhido segundoAcolhido = AcolhidoTestBuilder.newAcolhido().setId(2L).setNome("João da Silva").build();
+        List<Acolhido> acolhidos = List.of(primeiroAcolhido, segundoAcolhido);
+
+        Mockito.when(repository.findAll()).thenReturn(acolhidos);
+
+        List<Acolhido> response = service.findAllAcolhidos();
+
+        assertSame(acolhidos, response);
+        assertEquals(2, response.size());
+        assertSame(primeiroAcolhido, response.getFirst());
+        assertSame(segundoAcolhido, response.get(1));
+
+        Mockito.verify(repository).findAll();
+    }
+
+    @Test
+    void shouldReturnEmptyListWhenThereAreNoAcolhidos()
+    {
+        List<Acolhido> acolhidos = List.of();
+
+        Mockito.when(repository.findAll()).thenReturn(acolhidos);
+
+        List<Acolhido> response = service.findAllAcolhidos();
+
+        assertSame(acolhidos, response);
+        assertTrue(response.isEmpty());
+
+        Mockito.verify(repository).findAll();
+    }
+
     //Testes findById
 
     @Test

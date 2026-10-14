@@ -22,6 +22,10 @@ public class AcolhidoService
         this.repository = repository;
     }
 
+    public List<Acolhido> findAllAcolhidos()
+    {
+        return repository.findAll();
+    }
 
     public Acolhido findAcolhidoById(Long id)
     {
