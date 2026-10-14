@@ -5,6 +5,7 @@ import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.example.clinicarestauracao.Application.Dtos.ModalidadeDtos.ModalidadeRequestDto;
 import org.example.clinicarestauracao.Application.Exceptions.Triagem.TriagemWithInvalidInformationException;
 import org.example.clinicarestauracao.Domain.Enums.Status;
 

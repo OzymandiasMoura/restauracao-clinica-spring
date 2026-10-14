@@ -1,5 +1,6 @@
 package org.example.clinicarestauracao.Application.Controllers.Mappers;
 
+import org.example.clinicarestauracao.Application.Dtos.ModalidadeDtos.ModalidadeRequestDto;
 import org.example.clinicarestauracao.Application.Dtos.Triagem.TriagemRequestDto;
 import org.example.clinicarestauracao.Application.Dtos.Triagem.TriagemResponseDto;
 import org.example.clinicarestauracao.Domain.Entities.Modalidade;
@@ -26,8 +27,7 @@ public final class TriagemMapper {
     public static TriagemResponseDto entityToResponseDto(Triagem entity) {
         return new TriagemResponseDto(
                 entity.getId(),
-                entity.getModalidade().getId(),
-                entity.getModalidade().getDescricao(),
+                ModalidadeMapper.entityToResponseDto(entity.getModalidade()),
                 entity.getNomePossivelAcolhido(),
                 entity.getTelefone(),
                 entity.getDataAgendada(),

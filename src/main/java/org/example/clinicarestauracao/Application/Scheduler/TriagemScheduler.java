@@ -13,7 +13,7 @@ public class TriagemScheduler {
 
     @Scheduled(fixedRate = 60000)
     public void verificarTriagensVencidas() {
-            triagemService.atualizarTriagensVencidas();
+        triagemService.atualizarTriagensVencidas();
     }
 }
 
