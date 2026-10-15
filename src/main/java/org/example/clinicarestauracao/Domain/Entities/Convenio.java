@@ -4,14 +4,15 @@ import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import org.example.clinicarestauracao.Application.Exceptions.ModalidadeWithInvalidInformationException;
+import org.example.clinicarestauracao.Application.Exceptions.ConvenioWithInvalidInformationException;
 import org.example.clinicarestauracao.Domain.Validation.CnpjValidator;
 
 @Entity
 @Data
 @NoArgsConstructor
 @EqualsAndHashCode(of = "id")
-public class Modalidade
+@Table(name = "Convenios")
+public class Convenio
 {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -29,7 +30,7 @@ public class Modalidade
     @Column(nullable = false, length = 7, unique = true)
     private String cor;
 
-    public Modalidade(String descricao, String cnpj, Integer maxVagas, boolean pagamento, String cor)
+    public Convenio(String descricao, String cnpj, Integer maxVagas, boolean pagamento, String cor)
     {
         setDescricao(descricao);
         setCnpj(cnpj);
@@ -38,7 +39,7 @@ public class Modalidade
         setAtivo(true);
         setCor(cor);
     }
-    public Modalidade(long id, String descricao, String cnpj, Integer maxVagas, boolean pagamento, boolean ativo, String cor)
+    public Convenio(long id, String descricao, String cnpj, Integer maxVagas, boolean pagamento, boolean ativo, String cor)
     {
         setId(id);
         setDescricao(descricao);
@@ -48,7 +49,7 @@ public class Modalidade
         setAtivo(ativo);
         setCor(cor);
     }
-    public Modalidade(long id, String descricao,  int maxVagas, boolean pagamento, boolean ativo, String cor)
+    public Convenio(long id, String descricao,  int maxVagas, boolean pagamento, boolean ativo, String cor)
     {
         setId(id);
         setDescricao(descricao);
@@ -57,7 +58,7 @@ public class Modalidade
         setAtivo(ativo);
         setCor(cor);
     }
-    public Modalidade(String descricao,  int maxVagas, boolean pagamento, boolean ativo, String cor)
+    public Convenio(String descricao,  int maxVagas, boolean pagamento, boolean ativo, String cor)
     {
         setDescricao(descricao);
         setMaxVagas(maxVagas);
@@ -70,20 +71,20 @@ public class Modalidade
     {
         if (descricao == null)
         {
-            throw new ModalidadeWithInvalidInformationException("Descrição não pode ser nulo ou vazia");
+            throw new ConvenioWithInvalidInformationException("Descrição não pode ser nulo ou vazia");
         }
         String descricaoNormalizada = descricao.strip();
         if(descricaoNormalizada.isBlank())
         {
-            throw new ModalidadeWithInvalidInformationException("Descrição não pode ser nulo ou vazia");
+            throw new ConvenioWithInvalidInformationException("Descrição não pode ser nulo ou vazia");
         }
         else if(descricaoNormalizada.length()<3)
         {
-            throw new ModalidadeWithInvalidInformationException("Descrição não pode ter menos de 3 caracteres");
+            throw new ConvenioWithInvalidInformationException("Descrição não pode ter menos de 3 caracteres");
         }
         else if(descricaoNormalizada.length()>200)
         {
-            throw new ModalidadeWithInvalidInformationException("Descrição não pode ter mais que 200 caracteres");
+            throw new ConvenioWithInvalidInformationException("Descrição não pode ter mais que 200 caracteres");
         }
         else
         {
@@ -100,7 +101,7 @@ public class Modalidade
         }
         if(!CnpjValidator.validate(cnpj))
         {
-            throw new ModalidadeWithInvalidInformationException("CNPJ é invalido.");
+            throw new ConvenioWithInvalidInformationException("CNPJ é invalido.");
         }
         else
         {
@@ -112,11 +113,11 @@ public class Modalidade
     {
         if (maxVagas == null)
         {
-            throw new ModalidadeWithInvalidInformationException("Numero de vagas não pode ser nulo.");
+            throw new ConvenioWithInvalidInformationException("Numero de vagas não pode ser nulo.");
         }
         if (maxVagas < 0)
         {
-            throw new ModalidadeWithInvalidInformationException("Numero de vagas deve ser 0 ou mais.");
+            throw new ConvenioWithInvalidInformationException("Numero de vagas deve ser 0 ou mais.");
         }
         else
         {
@@ -128,11 +129,11 @@ public class Modalidade
     {
         if (cor == null || cor.isBlank())
         {
-            throw new ModalidadeWithInvalidInformationException("Cor não pode ser nula ou vazia.");
+            throw new ConvenioWithInvalidInformationException("Cor não pode ser nula ou vazia.");
         }
         if(!cor.matches("^#[0-9A-Fa-f]{6}$"))
         {
-            throw new ModalidadeWithInvalidInformationException("Cor deve estar no formato hexadecimal #RRGGBB.");
+            throw new ConvenioWithInvalidInformationException("Cor deve estar no formato hexadecimal #RRGGBB.");
         }
 
         this.cor = cor.toUpperCase();

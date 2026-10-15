@@ -58,15 +58,15 @@ class GlobalExceptionHandlerTest
     }
 
     @Test
-    void shouldReturnNotFoundWhenModalidadeDoesNotExist()
+    void shouldReturnNotFoundWhenConvenioDoesNotExist()
     {
-        ModalidadeNotFoundException exception = new ModalidadeNotFoundException("Modalidade não encontrada.");
+        ConvenioNotFoundException exception = new ConvenioNotFoundException("Convênio não encontrado.");
 
-        ResponseEntity<ErrorResponseDto> response = handler.handleModalidadeNotFound(exception);
+        ResponseEntity<ErrorResponseDto> response = handler.handleConvenioNotFound(exception);
 
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
         assertNotNull(response.getBody());
-        assertEquals("Modalidade não encontrada.", response.getBody().message());
+        assertEquals("Convênio não encontrado.", response.getBody().message());
     }
     @Test
     void shouldReturnBadRequestWhenFuncionarioInformationIsInvalid()
@@ -81,15 +81,15 @@ class GlobalExceptionHandlerTest
     }
 
     @Test
-    void shouldReturnBadRequestWhenModalidadeInformationIsInvalid()
+    void shouldReturnBadRequestWhenConvenioInformationIsInvalid()
     {
-        var exception = new ModalidadeWithInvalidInformationException("Nome da modalidade não pode ser vazio.");
+        var exception = new ConvenioWithInvalidInformationException("Nome do convênio não pode ser vazio.");
 
-        var response = handler.handleUserWithNullInformation(exception);
+        var response = handler.handleConvenioWithInvalidInformation(exception);
 
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
         assertNotNull(response.getBody());
-        assertEquals("Nome da modalidade não pode ser vazio.", response.getBody().message());
+        assertEquals("Nome do convênio não pode ser vazio.", response.getBody().message());
     }
 
     @Test

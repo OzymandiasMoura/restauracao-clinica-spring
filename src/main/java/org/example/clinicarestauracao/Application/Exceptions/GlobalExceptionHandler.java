@@ -41,16 +41,16 @@ public class GlobalExceptionHandler
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
 
-    @ExceptionHandler(ModalidadeWithInvalidInformationException.class)
-    public ResponseEntity<ErrorResponseDto> handleUserWithNullInformation(ModalidadeWithInvalidInformationException ex)
+    @ExceptionHandler(ConvenioWithInvalidInformationException.class)
+    public ResponseEntity<ErrorResponseDto> handleConvenioWithInvalidInformation(ConvenioWithInvalidInformationException ex)
     {
         var response = new ErrorResponseDto(ex.getMessage());
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
 
-    @ExceptionHandler(ModalidadeNotFoundException.class)
-    public ResponseEntity<ErrorResponseDto> handleModalidadeNotFound(ModalidadeNotFoundException ex)
+    @ExceptionHandler(ConvenioNotFoundException.class)
+    public ResponseEntity<ErrorResponseDto> handleConvenioNotFound(ConvenioNotFoundException ex)
     {
         var response = new ErrorResponseDto(ex.getMessage());
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
