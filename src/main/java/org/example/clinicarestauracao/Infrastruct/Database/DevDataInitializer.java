@@ -1,16 +1,19 @@
 package org.example.clinicarestauracao.Infrastruct.Database;
 
+import org.example.clinicarestauracao.Application.Interfaces.AcolhidoRepository;
 import org.example.clinicarestauracao.Application.Interfaces.CargoRepository;
 import org.example.clinicarestauracao.Application.Interfaces.FuncionarioRepository;
-import org.example.clinicarestauracao.Application.Interfaces.ConvenioRepository;
+import org.example.clinicarestauracao.Application.Interfaces.ModalidadeRepository;
 import org.example.clinicarestauracao.Application.Interfaces.UserRepository;
+import org.example.clinicarestauracao.Application.Services.AcolhidoService;
 import org.example.clinicarestauracao.Application.Services.CargoService;
 import org.example.clinicarestauracao.Application.Services.FuncionarioService;
-import org.example.clinicarestauracao.Application.Services.ConvenioService;
+import org.example.clinicarestauracao.Application.Services.ModalidadeService;
 import org.example.clinicarestauracao.Application.Services.UserService;
+import org.example.clinicarestauracao.Domain.Entities.Acolhido;
 import org.example.clinicarestauracao.Domain.Entities.Cargo;
 import org.example.clinicarestauracao.Domain.Entities.Funcionario;
-import org.example.clinicarestauracao.Domain.Entities.Convenio;
+import org.example.clinicarestauracao.Domain.Entities.Modalidade;
 import org.example.clinicarestauracao.Domain.Entities.User;
 import org.example.clinicarestauracao.Domain.Enums.UserRoles;
 import org.example.clinicarestauracao.Domain.ValueObjects.Endereco;
@@ -28,24 +31,28 @@ public class DevDataInitializer implements ApplicationRunner
 {
     private static final String TEST_PASSWORD = "teste123";
 
+    private final AcolhidoRepository acolhidoRepository;
     private final CargoRepository cargoRepository;
     private final FuncionarioRepository funcionarioRepository;
-    private final ConvenioRepository convenioRepository;
+    private final ModalidadeRepository modalidadeRepository;
     private final UserRepository userRepository;
+    private final AcolhidoService acolhidoService;
     private final CargoService cargoService;
     private final FuncionarioService funcionarioService;
-    private final ConvenioService convenioService;
+    private final ModalidadeService modalidadeService;
     private final UserService userService;
 
-    public DevDataInitializer(CargoRepository cargoRepository, FuncionarioRepository funcionarioRepository, ConvenioRepository convenioRepository, UserRepository userRepository, CargoService cargoService, FuncionarioService funcionarioService, ConvenioService convenioService, UserService userService)
+    public DevDataInitializer(AcolhidoRepository acolhidoRepository, CargoRepository cargoRepository, FuncionarioRepository funcionarioRepository, ModalidadeRepository modalidadeRepository, UserRepository userRepository, AcolhidoService acolhidoService, CargoService cargoService, FuncionarioService funcionarioService, ModalidadeService modalidadeService, UserService userService)
     {
+        this.acolhidoRepository = acolhidoRepository;
         this.cargoRepository = cargoRepository;
         this.funcionarioRepository = funcionarioRepository;
-        this.convenioRepository = convenioRepository;
+        this.modalidadeRepository = modalidadeRepository;
         this.userRepository = userRepository;
+        this.acolhidoService = acolhidoService;
         this.cargoService = cargoService;
         this.funcionarioService = funcionarioService;
-        this.convenioService = convenioService;
+        this.modalidadeService = modalidadeService;
         this.userService = userService;
     }
 
@@ -53,9 +60,10 @@ public class DevDataInitializer implements ApplicationRunner
     @Transactional
     public void run(ApplicationArguments args)
     {
-        if (cargoRepository.count() > 0
+        if (acolhidoRepository.count() > 0
+                || cargoRepository.count() > 0
                 || funcionarioRepository.count() > 0
-                || convenioRepository.count() > 0
+                || modalidadeRepository.count() > 0
                 || userRepository.count() > 0)
         {
             return;
@@ -70,15 +78,15 @@ public class DevDataInitializer implements ApplicationRunner
 
         userService.registerUser(new User("admin.dev", TEST_PASSWORD, UserRoles.ADMIN));
 
-        convenioService.createConvenio(new Convenio(
+        modalidadeService.createModalidade(new Modalidade(
                 "Atendimento Social", null, 40, false, "#2E86C1"));
-        convenioService.createConvenio(new Convenio(
+        modalidadeService.createModalidade(new Modalidade(
                 "Clínica Parceira", "11222333000181", 20, true, "#28B463"));
-        Convenio convenio = convenioService.createConvenio(new Convenio(
+        Modalidade convenio = modalidadeService.createModalidade(new Modalidade(
                 "Convênio Comunitário", "11444777000161", 15, true, "#AF7AC5"));
-        convenioService.createConvenio(new Convenio(
+        modalidadeService.createModalidade(new Modalidade(
                 "Lista de Espera", null, 0, false, "#F39C12"));
-        convenioService.deleteConvenioById(convenio.getId());
+        modalidadeService.deleteModalidadeById(convenio.getId());
 
         funcionarioService.createFuncionario(new Funcionario(
                 "Ana Silva",
@@ -116,5 +124,33 @@ public class DevDataInitializer implements ApplicationRunner
                 assistenteSocial,
                 LocalDate.of(2021, 5, 10)));
         funcionarioService.dismissFuncionarioById(carla.getId(), LocalDate.of(2025, 6, 30));
+
+        acolhidoService.createAcolhido(new Acolhido(
+                "Gabriel Santos",
+                "gabriel.santos@teste.local",
+                "39053344705",
+                "01310100",
+                new Endereco("Avenida Paulista", 1000, "Bela Vista", "São Paulo", "SP", "Apartamento 42"),
+                "11955551234",
+                LocalDate.of(1990, 3, 15)));
+
+        acolhidoService.createAcolhido(new Acolhido(
+                "Juliana Oliveira",
+                "juliana.oliveira@teste.local",
+                "16899535009",
+                "30140071",
+                new Endereco("Avenida Afonso Pena", 1500, "Centro", "Belo Horizonte", "MG"),
+                "31955552345",
+                LocalDate.of(1987, 7, 22)));
+
+        Acolhido marcos = acolhidoService.createAcolhido(new Acolhido(
+                "Marcos Pereira",
+                "marcos.pereira@teste.local",
+                "98765432100",
+                "20040002",
+                new Endereco("Rua da Assembleia", 50, "Centro", "Rio de Janeiro", "RJ"),
+                "21955553456",
+                LocalDate.of(1979, 12, 3)));
+        acolhidoService.deactivateAcolhido(marcos.getId());
     }
 }

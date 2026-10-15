@@ -149,4 +149,28 @@ class GlobalExceptionHandlerTest
         assertNotNull(response.getBody());
         assertEquals("Endereço com campos inválidos.",  response.getBody().message());
     }
+
+    @Test
+    void shouldReturnBadRequestWhenAcolhidoInformationIsInvalid()
+    {
+        AcolhidoWithInvalidInformationException exception = new AcolhidoWithInvalidInformationException("CPF já cadastrado.");
+
+        ResponseEntity<ErrorResponseDto> response = handler.handleAcolhidoWithInvalidInformation(exception);
+
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertNotNull(response.getBody());
+        assertEquals("CPF já cadastrado.", response.getBody().message());
+    }
+
+    @Test
+    void shouldReturnNotFoundWhenAcolhidoDoesNotExist()
+    {
+        AcolhidoNotFoundException exception = new AcolhidoNotFoundException("Acolhido não encontrado.");
+
+        ResponseEntity<ErrorResponseDto> response = handler.handleAcolhidoNotFound(exception);
+
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        assertNotNull(response.getBody());
+        assertEquals("Acolhido não encontrado.", response.getBody().message());
+    }
 }
