@@ -1,9 +1,11 @@
 package org.example.clinicarestauracao.Application.Services;
 
 import jakarta.transaction.Transactional;
+import lombok.AllArgsConstructor;
 import org.example.clinicarestauracao.Application.Exceptions.Acolhido.AcolhidoNotFoundException;
 import org.example.clinicarestauracao.Application.Exceptions.Acolhido.AcolhidoWithInvalidInformationException;
 import org.example.clinicarestauracao.Application.Interfaces.AcolhidoRepository;
+import org.example.clinicarestauracao.Application.Interfaces.InternacaoRepository;
 import org.example.clinicarestauracao.Domain.Entities.Acolhido;
 import org.example.clinicarestauracao.Domain.Validation.CpfValidator;
 import org.example.clinicarestauracao.Domain.Validation.EmailValidator;
@@ -13,14 +15,12 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
+@AllArgsConstructor
 public class AcolhidoService
 {
     private final AcolhidoRepository repository;
+    private final InternacaoRepository internacaoRepository;
 
-    public AcolhidoService(AcolhidoRepository repository)
-    {
-        this.repository = repository;
-    }
 
     public List<Acolhido> findAllAcolhidos()
     {
@@ -151,6 +151,11 @@ public class AcolhidoService
     public void deleteAcolhidoById(Long id)
     {
         Acolhido acolhidoToDelete = findAcolhidoById(id);
+
+        if (internacaoRepository.existsByAcolhido(acolhidoToDelete))
+        {
+            throw new AcolhidoWithInvalidInformationException("Acolhido não pode ser excluído enquanto possuir internações.");
+        }
 
         repository.delete(acolhidoToDelete);
     }
