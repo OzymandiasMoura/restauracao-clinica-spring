@@ -8,6 +8,8 @@ import org.example.clinicarestauracao.Application.Exceptions.Cargo.CargoWithInva
 import org.example.clinicarestauracao.Application.Exceptions.Endereco.EnderecoWithInvalidInformationException;
 import org.example.clinicarestauracao.Application.Exceptions.Funcionario.FuncionarioNotFoundException;
 import org.example.clinicarestauracao.Application.Exceptions.Funcionario.FuncionarioWithInvalidInformationException;
+import org.example.clinicarestauracao.Application.Exceptions.Internacao.InternacaoNotFoundException;
+import org.example.clinicarestauracao.Application.Exceptions.Internacao.InternacaoWithInvalidInformationException;
 import org.example.clinicarestauracao.Application.Exceptions.User.UserNotFoundException;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
@@ -174,5 +176,33 @@ class GlobalExceptionHandlerTest
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
         assertNotNull(response.getBody());
         assertEquals("Acolhido não encontrado.", response.getBody().message());
+    }
+
+    @Test
+    void shouldReturnBadRequestWhenInternacaoInformationIsInvalid()
+    {
+        InternacaoWithInvalidInformationException exception = new InternacaoWithInvalidInformationException("Internação encerrada não pode ser atualizada.");
+
+        ResponseEntity<ErrorResponseDto> response = handler.handleInternacaoWithInvalidInformation(exception);
+
+        assertAll(
+                () -> assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode()),
+                () -> assertNotNull(response.getBody()),
+                () -> assertEquals("Internação encerrada não pode ser atualizada.", response.getBody().message())
+        );
+    }
+
+    @Test
+    void shouldReturnNotFoundWhenInternacaoDoesNotExist()
+    {
+        InternacaoNotFoundException exception = new InternacaoNotFoundException("Internação não encontrada.");
+
+        ResponseEntity<ErrorResponseDto> response = handler.handleInternacaoNotFound(exception);
+
+        assertAll(
+                () -> assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode()),
+                () -> assertNotNull(response.getBody()),
+                () -> assertEquals("Internação não encontrada.", response.getBody().message())
+        );
     }
 }

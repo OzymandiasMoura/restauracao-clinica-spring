@@ -8,6 +8,8 @@ import org.example.clinicarestauracao.Application.Exceptions.Cargo.CargoWithInva
 import org.example.clinicarestauracao.Application.Exceptions.Endereco.EnderecoWithInvalidInformationException;
 import org.example.clinicarestauracao.Application.Exceptions.Funcionario.FuncionarioNotFoundException;
 import org.example.clinicarestauracao.Application.Exceptions.Funcionario.FuncionarioWithInvalidInformationException;
+import org.example.clinicarestauracao.Application.Exceptions.Internacao.InternacaoNotFoundException;
+import org.example.clinicarestauracao.Application.Exceptions.Internacao.InternacaoWithInvalidInformationException;
 import org.example.clinicarestauracao.Application.Exceptions.User.UserNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -113,6 +115,20 @@ public class GlobalExceptionHandler
 
     @ExceptionHandler(AcolhidoNotFoundException.class)
     public ResponseEntity<ErrorResponseDto> handleAcolhidoNotFound(AcolhidoNotFoundException ex)
+    {
+        var response = new ErrorResponseDto(ex.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+    }
+
+    @ExceptionHandler(InternacaoWithInvalidInformationException.class)
+    public ResponseEntity<ErrorResponseDto> handleInternacaoWithInvalidInformation(InternacaoWithInvalidInformationException ex)
+    {
+        var response = new ErrorResponseDto(ex.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
+
+    @ExceptionHandler(InternacaoNotFoundException.class)
+    public ResponseEntity<ErrorResponseDto> handleInternacaoNotFound(InternacaoNotFoundException ex)
     {
         var response = new ErrorResponseDto(ex.getMessage());
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
