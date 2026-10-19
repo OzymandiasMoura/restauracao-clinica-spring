@@ -20,7 +20,6 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 
 import java.net.URI;
 import java.util.List;
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -219,16 +218,16 @@ class ConvenioControllerTest
     }
 
     @Test
-    void shouldDeleteConvenioAndReturnNoContent()
+    void shouldDeactivateConvenioAndReturnNoContent()
     {
         Long id = 1L;
 
-        ResponseEntity<Void> response = controller.softDeleteConvenioById(id);
+        ResponseEntity<Void> response = controller.deactivateConvenioById(id);
 
         assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
         assertNull(response.getBody());
 
-        Mockito.verify(service).deleteConvenioById(id);
+        Mockito.verify(service).deactivateConvenioById(id);
         Mockito.verifyNoMoreInteractions(service);
     }
 
@@ -289,4 +288,21 @@ class ConvenioControllerTest
         assertEquals("Numero de vagas não pode ser nulo.", exception.getMessage());
         Mockito.verifyNoInteractions(service);
     }
+
+    @Test
+    void shouldDeleteConvenioAndReturnNoContent()
+    {
+        Long id = 1L;
+
+        ResponseEntity<Void> response = controller.deleteConvenioById(id);
+
+        assertAll(
+                () -> assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode()),
+                () -> assertNull(response.getBody())
+        );
+
+        Mockito.verify(service).deleteConvenioById(id);
+        Mockito.verifyNoMoreInteractions(service);
+    }
+
 }

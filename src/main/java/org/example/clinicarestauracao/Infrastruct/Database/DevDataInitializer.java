@@ -74,7 +74,7 @@ public class DevDataInitializer implements ApplicationRunner
                 "Convênio Comunitário", "11444777000161", 15, true, "#AF7AC5"));
         convenioService.createConvenio(new Convenio(
                 "Lista de Espera", null, 0, false, "#F39C12"));
-        convenioService.deleteConvenioById(convenio.getId());
+        convenioService.deactivateConvenioById(convenio.getId());
 
         funcionarioService.createFuncionario(new Funcionario(
                 "Ana Silva",

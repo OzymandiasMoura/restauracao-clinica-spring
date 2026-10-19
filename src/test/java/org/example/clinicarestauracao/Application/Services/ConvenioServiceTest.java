@@ -3,6 +3,7 @@ package org.example.clinicarestauracao.Application.Services;
 import org.example.clinicarestauracao.Application.Exceptions.ConvenioNotFoundException;
 import org.example.clinicarestauracao.Application.Exceptions.ConvenioWithInvalidInformationException;
 import org.example.clinicarestauracao.Application.Interfaces.ConvenioRepository;
+import org.example.clinicarestauracao.Application.Interfaces.InternacaoRepository;
 import org.example.clinicarestauracao.Builders.ConvenioTestBuilder;
 import org.example.clinicarestauracao.Domain.Entities.Convenio;
 import org.junit.jupiter.api.Test;
@@ -22,6 +23,8 @@ class ConvenioServiceTest
     private final ConvenioTestBuilder builder = new ConvenioTestBuilder();
     @Mock
     private ConvenioRepository repository;
+    @Mock
+    private InternacaoRepository internacaoRepository;
     @InjectMocks
     private ConvenioService service;
 
@@ -588,35 +591,61 @@ class ConvenioServiceTest
     }
 
     @Test
-    void shouldDeactivateConvenioSuccessfully()
+    void shouldDeactivateConvenioSuccessfullyWhenThereAreNoInternacoes()
     {
         Convenio existente = new ConvenioTestBuilder().setAtivo(true).build();
 
         Mockito.when(repository.findById(existente.getId())).thenReturn(Optional.of(existente));
+        Mockito.when(internacaoRepository.existsByConvenio(existente)).thenReturn(false);
         Mockito.when(repository.save(Mockito.same(existente))).thenReturn(existente);
 
-        service.deleteConvenioById(existente.getId());
+        service.deactivateConvenioById(existente.getId());
 
         assertFalse(existente.isAtivo());
 
         Mockito.verify(repository).findById(existente.getId());
+        Mockito.verify(internacaoRepository).existsByConvenio(Mockito.same(existente));
         Mockito.verify(repository).save(Mockito.same(existente));
         Mockito.verify(repository, Mockito.never()).delete(Mockito.any());
         Mockito.verify(repository, Mockito.never()).deleteById(Mockito.anyLong());
     }
 
     @Test
-    void shouldNotSaveWhenConvenioIsAlreadyInactive()
+    void shouldNotConsultInternacoesWhenConvenioIsAlreadyInactive()
     {
         Convenio existente = new ConvenioTestBuilder().setAtivo(false).build();
 
         Mockito.when(repository.findById(existente.getId())).thenReturn(Optional.of(existente));
 
-        service.deleteConvenioById(existente.getId());
+        service.deactivateConvenioById(existente.getId());
 
         assertFalse(existente.isAtivo());
 
         Mockito.verify(repository).findById(existente.getId());
+        Mockito.verify(repository, Mockito.never()).save(Mockito.any(Convenio.class));
+        Mockito.verifyNoInteractions(internacaoRepository);
+    }
+
+    @Test
+    void shouldNotDeactivateConvenioWhenThereAreInternacoes()
+    {
+        Convenio existente = new ConvenioTestBuilder().setAtivo(true).build();
+
+        Mockito.when(repository.findById(existente.getId())).thenReturn(Optional.of(existente));
+        Mockito.when(internacaoRepository.existsByConvenio(existente)).thenReturn(true);
+
+        ConvenioWithInvalidInformationException exception = assertThrows(
+                ConvenioWithInvalidInformationException.class,
+                () -> service.deactivateConvenioById(existente.getId())
+        );
+
+        assertAll(
+                () -> assertEquals("Convênio não pode ser desativado enquanto possuir internações.", exception.getMessage()),
+                () -> assertTrue(existente.isAtivo())
+        );
+
+        Mockito.verify(repository).findById(existente.getId());
+        Mockito.verify(internacaoRepository).existsByConvenio(Mockito.same(existente));
         Mockito.verify(repository, Mockito.never()).save(Mockito.any(Convenio.class));
     }
 
@@ -633,6 +662,8 @@ class ConvenioServiceTest
 
         Mockito.verify(repository).findById(idConvenio);
         Mockito.verify(repository, Mockito.never()).save(Mockito.any(Convenio.class));
+        Mockito.verify(repository, Mockito.never()).delete(Mockito.any(Convenio.class));
+        Mockito.verifyNoInteractions(internacaoRepository);
     }
 
     @Test
@@ -770,5 +801,72 @@ class ConvenioServiceTest
         assertEquals("Convênio não encontrado.", exception.getMessage());
 
         Mockito.verify(repository).findConvenioByCor(cor);
+    }
+
+    // Testes delete físico
+
+    @Test
+    void shouldDeleteActiveConvenioWhenThereAreNoInternacoes()
+    {
+        Convenio existente = new ConvenioTestBuilder()
+                .setAtivo(true)
+                .build();
+
+        Mockito.when(repository.findById(existente.getId()))
+                .thenReturn(Optional.of(existente));
+
+        Mockito.when(internacaoRepository.existsByConvenio(existente))
+                .thenReturn(false);
+
+        service.deleteConvenioById(existente.getId());
+
+        assertTrue(existente.isAtivo());
+
+        Mockito.verify(repository).findById(existente.getId());
+        Mockito.verify(internacaoRepository)
+                .existsByConvenio(Mockito.same(existente));
+        Mockito.verify(repository).delete(Mockito.same(existente));
+        Mockito.verify(repository, Mockito.never())
+                .save(Mockito.any(Convenio.class));
+    }
+
+    @Test
+    void shouldDeleteInactiveConvenioWhenThereAreNoInternacoes()
+    {
+        Convenio existente = new ConvenioTestBuilder().setAtivo(false).build();
+
+        Mockito.when(repository.findById(existente.getId())).thenReturn(Optional.of(existente));
+        Mockito.when(internacaoRepository.existsByConvenio(existente)).thenReturn(false);
+
+        service.deleteConvenioById(existente.getId());
+
+        assertFalse(existente.isAtivo());
+
+        Mockito.verify(repository).findById(existente.getId());
+        Mockito.verify(internacaoRepository).existsByConvenio(Mockito.same(existente));
+        Mockito.verify(repository).delete(Mockito.same(existente));
+        Mockito.verify(repository, Mockito.never()).save(Mockito.any(Convenio.class));
+    }
+
+    @Test
+    void shouldNotDeleteConvenioWhenThereAreInternacoes()
+    {
+        Convenio existente = new ConvenioTestBuilder().setAtivo(true).build();
+
+        Mockito.when(repository.findById(existente.getId())).thenReturn(Optional.of(existente));
+
+        Mockito.when(internacaoRepository.existsByConvenio(existente)).thenReturn(true);
+
+        ConvenioWithInvalidInformationException exception = assertThrows(ConvenioWithInvalidInformationException.class, () -> service.deleteConvenioById(existente.getId()));
+
+        assertAll(
+                () -> assertEquals("Convênio não pode ser deletado enquanto possuir internações.", exception.getMessage()),
+                () -> assertTrue(existente.isAtivo())
+        );
+
+        Mockito.verify(repository).findById(existente.getId());
+        Mockito.verify(internacaoRepository).existsByConvenio(Mockito.same(existente));
+        Mockito.verify(repository, Mockito.never()).delete(Mockito.any(Convenio.class));
+        Mockito.verify(repository, Mockito.never()).save(Mockito.any(Convenio.class));
     }
 }
