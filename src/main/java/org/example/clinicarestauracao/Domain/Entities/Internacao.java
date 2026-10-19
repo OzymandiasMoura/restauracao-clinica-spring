@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.example.clinicarestauracao.Application.Exceptions.Internacao.InternacaoWithInvalidInformationException;
+import org.example.clinicarestauracao.Domain.Enums.AltaTypes;
 import org.example.clinicarestauracao.Domain.Enums.TreatmentStage;
 
 import java.math.BigDecimal;
@@ -24,8 +25,8 @@ public class Internacao
     @JoinColumn(name = "acolhido_id", nullable = false)
     private Acolhido acolhido;
     @ManyToOne(optional = false)
-    @JoinColumn(name = "modalidade_id", nullable = false)
-    private Modalidade modalidade;
+    @JoinColumn(name = "convenio_id", nullable = false)
+    private Convenio convenio;
     @Column(nullable = false)
     private LocalDate dataEntrada;
     @Column(nullable = false)
@@ -39,26 +40,30 @@ public class Internacao
     private BigDecimal valorMensalidade;
     @Column(nullable = false)
     private Boolean ativo;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = true)
+    private AltaTypes alta;
 
-    public Internacao(Long id, Acolhido acolhido, Modalidade modalidade, LocalDate dataEntrada, LocalDate dataSaidaPrevista, LocalDate dataSaida, TreatmentStage etapaTratamento, BigDecimal valorMensalidade, Boolean ativo)
+    public Internacao(Long id, Acolhido acolhido, Convenio convenio, LocalDate dataEntrada, LocalDate dataSaidaPrevista, LocalDate dataSaida, TreatmentStage etapaTratamento, BigDecimal valorMensalidade, Boolean ativo, AltaTypes alta)
     {
         setId(id);
         setAcolhido(acolhido);
-        setModalidade(modalidade);
+        setConvenio(convenio);
         setDataEntrada(dataEntrada);
         setDataSaidaPrevista(dataSaidaPrevista);
         setDataSaida(dataSaida);
         setEtapaTratamento(etapaTratamento);
         setValorMensalidade(valorMensalidade);
         setAtivo(ativo);
+        setAlta(alta);
     }
 
-    public Internacao(Acolhido acolhido, Modalidade modalidade, LocalDate dataEntrada, TreatmentStage etapaTratamento, BigDecimal valorMensalidade)
+    public Internacao(Acolhido acolhido, Convenio convenio, LocalDate dataEntrada, TreatmentStage etapaTratamento, BigDecimal valorMensalidade)
     {
         setAcolhido(acolhido);
         validarAcolhidoParaNovaInternacao(acolhido);
-        setModalidade(modalidade);
-        validarModalidadeParaNovaInternacao(modalidade);
+        setConvenio(convenio);
+        validarConvenioParaNovaInternacao(convenio);
         setDataEntrada(dataEntrada);
         setDataSaidaPrevista(dataEntrada.plusMonths(9));
         setEtapaTratamento(etapaTratamento);
@@ -66,18 +71,18 @@ public class Internacao
         setAtivo(true);
     }
 
-    public Internacao(Acolhido acolhido, Modalidade modalidade, LocalDate dataEntrada, TreatmentStage etapaTratamento)
+    public Internacao(Acolhido acolhido, Convenio convenio, LocalDate dataEntrada, TreatmentStage etapaTratamento)
     {
         setAcolhido(acolhido);
         validarAcolhidoParaNovaInternacao(acolhido);
-        setModalidade(modalidade);
-        validarModalidadeParaNovaInternacao(modalidade);
+        setConvenio(convenio);
+        validarConvenioParaNovaInternacao(convenio);
         setDataEntrada(dataEntrada);
         setDataSaidaPrevista(dataEntrada.plusMonths(9));
         setEtapaTratamento(etapaTratamento);
-        if (modalidade.isPagamento())
+        if (convenio.isPagamento())
         {
-            throw new InternacaoWithInvalidInformationException("Modalidade exige valor de mensalidade.");
+            throw new InternacaoWithInvalidInformationException("Convênio exige valor de mensalidade.");
         }
         setValorMensalidade(new BigDecimal("0.00"));
         setAtivo(true);
@@ -109,21 +114,21 @@ public class Internacao
         }
     }
 
-    private void setModalidade(Modalidade modalidade)
+    private void setConvenio(Convenio convenio)
     {
-        if (modalidade == null)
+        if (convenio == null)
         {
-            throw new InternacaoWithInvalidInformationException("Modalidade é obrigatória.");
+            throw new InternacaoWithInvalidInformationException("Convênio é obrigatório.");
         }
 
-        this.modalidade = modalidade;
+        this.convenio = convenio;
     }
 
-    private void validarModalidadeParaNovaInternacao(Modalidade modalidade)
+    private void validarConvenioParaNovaInternacao(Convenio convenio)
     {
-        if (!modalidade.isAtivo())
+        if (!convenio.isAtivo())
         {
-            throw new InternacaoWithInvalidInformationException("Modalidade não pode estar desativada.");
+            throw new InternacaoWithInvalidInformationException("Convênio não pode estar desativado.");
         }
     }
 
@@ -159,11 +164,15 @@ public class Internacao
         this.dataSaidaPrevista = dataSaidaPrevista;
     }
 
-    public void setDataSaida(LocalDate dataSaida)
+    private void setDataSaida(LocalDate dataSaida)
     {
         if (dataSaida != null && dataSaida.isBefore(dataEntrada))
         {
             throw new InternacaoWithInvalidInformationException("Data de saída não pode ser anterior a data de entrada.");
+        }
+        if (dataSaida != null && dataSaida.isAfter(LocalDate.now()))
+        {
+            throw new InternacaoWithInvalidInformationException("Não é possível adicionar uma data de saída futura.");
         }
 
         this.dataSaida = dataSaida;
@@ -188,17 +197,53 @@ public class Internacao
 
         BigDecimal valorArredondado = valorMensalidade.setScale(2, RoundingMode.HALF_UP);
 
-        if (!modalidade.isPagamento() && valorArredondado.compareTo(BigDecimal.ZERO) != 0)
+        if (!convenio.isPagamento() && valorArredondado.compareTo(BigDecimal.ZERO) != 0)
         {
-            throw new InternacaoWithInvalidInformationException("Modalidade não aceita valor da mensalidade da internação diferente de 0");
+            throw new InternacaoWithInvalidInformationException("Convênio não aceita valor da mensalidade da internação diferente de 0");
         }
 
-        if (modalidade.isPagamento() && valorArredondado.compareTo(BigDecimal.ZERO) <= 0)
+        if (convenio.isPagamento() && valorArredondado.compareTo(BigDecimal.ZERO) <= 0)
         {
             throw new InternacaoWithInvalidInformationException("Valor da mensalidade deve ser maior que zero.");
         }
 
         this.valorMensalidade = valorArredondado;
     }
+
+    private void setAlta(AltaTypes altaTypes)
+    {
+        this.alta =  altaTypes;
+    }
+
+    private void setAtivo(Boolean ativo)
+    {
+        if (ativo == null)
+        {
+            throw new InternacaoWithInvalidInformationException("Ativo não pode ser nulo.");
+        }
+        this.ativo = ativo;
+    }
+
+    public void endInternacao(AltaTypes alta, LocalDate dataSaida)
+    {
+        if(this.dataSaida != null && this.alta != null && this.ativo == false)
+        {
+            throw new InternacaoWithInvalidInformationException("Internação já foi encerrada.");
+        }
+        if (dataSaida == null)
+        {
+            throw new InternacaoWithInvalidInformationException("Data de saída é obrigatória para gerar a alta.");
+        }
+        if (alta == null)
+        {
+            throw new InternacaoWithInvalidInformationException("Tipo é obrigatório para gerar a alta.");
+        }
+
+
+        setDataSaida(dataSaida);
+        setAlta(alta);
+        setAtivo(false);
+    }
+
 
 }

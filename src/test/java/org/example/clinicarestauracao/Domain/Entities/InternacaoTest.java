@@ -2,8 +2,9 @@ package org.example.clinicarestauracao.Domain.Entities;
 
 import org.example.clinicarestauracao.Application.Exceptions.Internacao.InternacaoWithInvalidInformationException;
 import org.example.clinicarestauracao.Builders.AcolhidoTestBuilder;
+import org.example.clinicarestauracao.Builders.ConvenioTestBuilder;
 import org.example.clinicarestauracao.Builders.InternacaoTestBuilder;
-import org.example.clinicarestauracao.Builders.ModalidadeTestBuilder;
+import org.example.clinicarestauracao.Domain.Enums.AltaTypes;
 import org.example.clinicarestauracao.Domain.Enums.TreatmentStage;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -23,22 +24,24 @@ class InternacaoTest
     void shouldCreateInternacaoWithProvidedInformation()
     {
         Acolhido acolhido = AcolhidoTestBuilder.newAcolhido().build();
-        Modalidade modalidade = new ModalidadeTestBuilder().build();
+        Convenio convenio = new ConvenioTestBuilder().build();
         LocalDate dataEntrada = LocalDate.of(2026, 1, 10);
         LocalDate dataSaidaPrevista = dataEntrada.plusMonths(9);
         BigDecimal valorMensalidade = new BigDecimal("1200.00");
 
-        Internacao internacao = InternacaoTestBuilder.newInternacao().setAcolhido(acolhido).setModalidade(modalidade).setDataEntrada(dataEntrada).setDataSaidaPrevista(dataSaidaPrevista).setEtapaTratamento(TreatmentStage.INICIO).setValorMensalidade(valorMensalidade).buildForCreate();
+        Internacao internacao = InternacaoTestBuilder.newInternacao().setAcolhido(acolhido).setConvenio(convenio).setDataEntrada(dataEntrada).setDataSaidaPrevista(dataSaidaPrevista).setEtapaTratamento(TreatmentStage.INICIO).setValorMensalidade(valorMensalidade).buildForCreate();
 
         assertAll(
                 () -> assertNull(internacao.getId()),
                 () -> assertSame(acolhido, internacao.getAcolhido()),
-                () -> assertSame(modalidade, internacao.getModalidade()),
+                () -> assertSame(convenio, internacao.getConvenio()),
                 () -> assertEquals(dataEntrada, internacao.getDataEntrada()),
                 () -> assertEquals(dataSaidaPrevista, internacao.getDataSaidaPrevista()),
                 () -> assertEquals(TreatmentStage.INICIO, internacao.getEtapaTratamento()),
                 () -> assertEquals(valorMensalidade, internacao.getValorMensalidade()),
-                () -> assertTrue(internacao.getAtivo())
+                () -> assertTrue(internacao.getAtivo()),
+                () -> assertNull(internacao.getDataSaida()),
+                () -> assertNull(internacao.getAlta())
         );
     }
 
@@ -55,13 +58,29 @@ class InternacaoTest
     @Test
     void shouldRestoreExistingInternacaoWithProvidedInformation()
     {
-        Internacao internacao = InternacaoTestBuilder.newInternacao().setId(10L).setAtivo(false).build();
+        Acolhido acolhido = AcolhidoTestBuilder.newAcolhido().build();
+        Convenio convenio = new ConvenioTestBuilder().build();
+        LocalDate dataEntrada = LocalDate.of(2026, 1, 10);
+        LocalDate dataSaidaPrevista = LocalDate.of(2026, 10, 10);
+        LocalDate dataSaida = LocalDate.of(2026, 8, 10);
+        BigDecimal valorMensalidade = new BigDecimal("1200.00");
+
+        Internacao internacao = InternacaoTestBuilder.newInternacao().setId(10L).setAcolhido(acolhido).setConvenio(convenio).setDataEntrada(dataEntrada).setDataSaidaPrevista(dataSaidaPrevista).setDataSaida(dataSaida).setEtapaTratamento(TreatmentStage.FIM).setValorMensalidade(valorMensalidade).setAtivo(false).setAlta(AltaTypes.CONCLUSAO).build();
 
         assertAll(
                 () -> assertEquals(10L, internacao.getId()),
-                () -> assertFalse(internacao.getAtivo())
+                () -> assertSame(acolhido, internacao.getAcolhido()),
+                () -> assertSame(convenio, internacao.getConvenio()),
+                () -> assertEquals(dataEntrada, internacao.getDataEntrada()),
+                () -> assertEquals(dataSaidaPrevista, internacao.getDataSaidaPrevista()),
+                () -> assertEquals(dataSaida, internacao.getDataSaida()),
+                () -> assertEquals(TreatmentStage.FIM, internacao.getEtapaTratamento()),
+                () -> assertEquals(valorMensalidade, internacao.getValorMensalidade()),
+                () -> assertFalse(internacao.getAtivo()),
+                () -> assertEquals(AltaTypes.CONCLUSAO, internacao.getAlta())
         );
     }
+
 
     @ParameterizedTest
     @NullSource
@@ -71,6 +90,17 @@ class InternacaoTest
         InternacaoWithInvalidInformationException exception = assertThrows(InternacaoWithInvalidInformationException.class, () -> InternacaoTestBuilder.newInternacao().setId(id).build());
 
         assertEquals("Id da internação é inválido.", exception.getMessage());
+    }
+
+    @Test
+    void shouldRejectNullActiveWhenRestoringInternacao()
+    {
+        InternacaoWithInvalidInformationException exception = assertThrows(
+                InternacaoWithInvalidInformationException.class,
+                () -> InternacaoTestBuilder.newInternacao().setAtivo(null).build()
+        );
+
+        assertEquals("Ativo não pode ser nulo.", exception.getMessage());
     }
 
     // Testes para acolhido
@@ -105,35 +135,35 @@ class InternacaoTest
         assertFalse(internacao.getAcolhido().getAtivo());
     }
 
-    // Testes para modalidade
+    // Testes para convênio
 
     @Test
-    void shouldRejectNullModalidade()
+    void shouldRejectNullConvenio()
     {
-        InternacaoWithInvalidInformationException exception = assertThrows(InternacaoWithInvalidInformationException.class, () -> InternacaoTestBuilder.newInternacao().setModalidade(null).buildForCreate());
+        InternacaoWithInvalidInformationException exception = assertThrows(InternacaoWithInvalidInformationException.class, () -> InternacaoTestBuilder.newInternacao().setConvenio(null).buildForCreate());
 
-        assertEquals("Modalidade é obrigatória.", exception.getMessage());
+        assertEquals("Convênio é obrigatório.", exception.getMessage());
     }
 
     @Test
-    void shouldRejectInactiveModalidadeWhenCreatingInternacao()
+    void shouldRejectInactiveConvenioWhenCreatingInternacao()
     {
-        Modalidade modalidade = new ModalidadeTestBuilder().setAtivo(false).build();
+        Convenio convenio = new ConvenioTestBuilder().setAtivo(false).build();
 
-        InternacaoWithInvalidInformationException exception = assertThrows(InternacaoWithInvalidInformationException.class, () -> InternacaoTestBuilder.newInternacao().setModalidade(modalidade).buildForCreate());
+        InternacaoWithInvalidInformationException exception = assertThrows(InternacaoWithInvalidInformationException.class, () -> InternacaoTestBuilder.newInternacao().setConvenio(convenio).buildForCreate());
 
-        assertEquals("Modalidade não pode estar desativada.", exception.getMessage());
+        assertEquals("Convênio não pode estar desativado.", exception.getMessage());
     }
 
     @Test
-    void shouldAllowInactiveModalidadeWhenRestoringExistingInternacao()
+    void shouldAllowInactiveConvenioWhenRestoringExistingInternacao()
     {
-        Modalidade modalidade = new ModalidadeTestBuilder().setAtivo(false).build();
+        Convenio convenio = new ConvenioTestBuilder().setAtivo(false).build();
 
-        Internacao internacao = InternacaoTestBuilder.newInternacao().setModalidade(modalidade).build();
+        Internacao internacao = InternacaoTestBuilder.newInternacao().setConvenio(convenio).build();
 
-        assertSame(modalidade, internacao.getModalidade());
-        assertFalse(internacao.getModalidade().isAtivo());
+        assertSame(convenio, internacao.getConvenio());
+        assertFalse(internacao.getConvenio().isAtivo());
     }
 
     // Testes para data de entrada
@@ -272,10 +302,250 @@ class InternacaoTest
         );
     }
 
+
+// Testes para data de saída
+
+    @Test
+    void shouldAllowNullExitDateAndAltaWhenRestoringActiveInternacao()
+    {
+        Internacao internacao = InternacaoTestBuilder.newInternacao().setDataSaida(null).setAlta(null).setAtivo(true).build();
+
+        assertAll(
+                () -> assertNull(internacao.getDataSaida()),
+                () -> assertNull(internacao.getAlta()),
+                () -> assertTrue(internacao.getAtivo())
+        );
+    }
+
+    @Test
+    void shouldAcceptCurrentDateAsExitDate()
+    {
+        LocalDate dataEntrada = LocalDate.now().minusDays(1);
+        LocalDate dataSaida = LocalDate.now();
+
+        Internacao internacao = InternacaoTestBuilder.newInternacao().setDataEntrada(dataEntrada).buildForCreate();
+
+        internacao.endInternacao(AltaTypes.CONCLUSAO, dataSaida);
+
+        assertAll(
+                () -> assertEquals(dataSaida, internacao.getDataSaida()),
+                () -> assertEquals(AltaTypes.CONCLUSAO, internacao.getAlta()),
+                () -> assertFalse(internacao.getAtivo())
+        );
+    }
+
+    @Test
+    void shouldRejectFutureExitDateAndPreserveCurrentState()
+    {
+        LocalDate dataEntrada = LocalDate.now().minusDays(1);
+        LocalDate dataSaidaFutura = LocalDate.now().plusDays(1);
+
+        Internacao internacao = InternacaoTestBuilder.newInternacao().setDataEntrada(dataEntrada).buildForCreate();
+
+        InternacaoWithInvalidInformationException exception = assertThrows(InternacaoWithInvalidInformationException.class, () -> internacao.endInternacao(AltaTypes.CONCLUSAO, dataSaidaFutura));
+
+        assertAll(
+                () -> assertEquals("Não é possível adicionar uma data de saída futura.", exception.getMessage()),
+                () -> assertNull(internacao.getDataSaida()),
+                () -> assertNull(internacao.getAlta()),
+                () -> assertTrue(internacao.getAtivo())
+        );
+    }
+
+    @Test
+    void shouldRejectExitDateBeforeEntryDateAndPreserveCurrentState()
+    {
+        LocalDate dataEntrada = LocalDate.of(2026, 1, 10);
+        LocalDate dataSaidaInvalida = dataEntrada.minusDays(1);
+
+        Internacao internacao = InternacaoTestBuilder.newInternacao().setDataEntrada(dataEntrada).buildForCreate();
+
+        InternacaoWithInvalidInformationException exception = assertThrows(InternacaoWithInvalidInformationException.class, () -> internacao.endInternacao(AltaTypes.CONCLUSAO, dataSaidaInvalida));
+
+        assertAll(
+                () -> assertEquals("Data de saída não pode ser anterior a data de entrada.", exception.getMessage()),
+                () -> assertNull(internacao.getDataSaida()),
+                () -> assertNull(internacao.getAlta()),
+                () -> assertTrue(internacao.getAtivo())
+        );
+    }
+
+    @Test
+    void shouldRejectNullExitDateWhenEndingInternacaoAndPreserveCurrentState()
+    {
+        Internacao internacao = InternacaoTestBuilder.newInternacao()
+                .buildForCreate();
+
+        InternacaoWithInvalidInformationException exception = assertThrows(InternacaoWithInvalidInformationException.class, () -> internacao.endInternacao(AltaTypes.CONCLUSAO, null));
+
+        assertAll(
+                () -> assertEquals("Data de saída é obrigatória para gerar a alta.", exception.getMessage()),
+                () -> assertNull(internacao.getDataSaida()),
+                () -> assertNull(internacao.getAlta()),
+                () -> assertTrue(internacao.getAtivo())
+        );
+    }
+
+    @Test
+    void shouldRejectNullAltaWhenEndingInternacaoAndPreserveCurrentState()
+    {
+        LocalDate dataEntrada = LocalDate.now().minusDays(1);
+        LocalDate dataSaida = LocalDate.now();
+
+        Internacao internacao = InternacaoTestBuilder.newInternacao().setDataEntrada(dataEntrada).buildForCreate();
+
+        InternacaoWithInvalidInformationException exception = assertThrows(InternacaoWithInvalidInformationException.class, () -> internacao.endInternacao(null, dataSaida)
+        );
+
+        assertAll(
+                () -> assertEquals("Tipo é obrigatório para gerar a alta.", exception.getMessage()),
+                () -> assertNull(internacao.getDataSaida()),
+                () -> assertNull(internacao.getAlta()),
+                () -> assertTrue(internacao.getAtivo())
+        );
+    }
+
+    @Test
+    void shouldAcceptExitDateEqualToEntryDate()
+    {
+        LocalDate dataEntrada = LocalDate.now().minusDays(1);
+
+        Internacao internacao = InternacaoTestBuilder.newInternacao().setDataEntrada(dataEntrada).buildForCreate();
+
+        internacao.endInternacao(AltaTypes.DESISTENCIA, dataEntrada);
+
+        assertAll(
+                () -> assertEquals(dataEntrada, internacao.getDataSaida()),
+                () -> assertEquals(AltaTypes.DESISTENCIA, internacao.getAlta()),
+                () -> assertFalse(internacao.getAtivo())
+        );
+    }
+
+    @Test
+    void shouldCompleteInactiveInternacaoWhenExitDateAndAltaAreMissing()
+    {
+        LocalDate dataEntrada = LocalDate.now().minusDays(10);
+        LocalDate dataSaida = LocalDate.now().minusDays(1);
+
+        Internacao internacao = InternacaoTestBuilder.newInternacao()
+                .setDataEntrada(dataEntrada)
+                .setDataSaidaPrevista(dataEntrada.plusMonths(9))
+                .setDataSaida(null)
+                .setAlta(null)
+                .setAtivo(false)
+                .build();
+
+        internacao.endInternacao(AltaTypes.CONCLUSAO, dataSaida);
+
+        assertAll(
+                () -> assertEquals(dataSaida, internacao.getDataSaida()),
+                () -> assertEquals(AltaTypes.CONCLUSAO, internacao.getAlta()),
+                () -> assertFalse(internacao.getAtivo())
+        );
+    }
+
+    @Test
+    void shouldCompleteInactiveInternacaoWhenOnlyExitDateIsMissing()
+    {
+        LocalDate dataEntrada = LocalDate.now().minusDays(10);
+        LocalDate dataSaida = LocalDate.now().minusDays(1);
+
+        Internacao internacao = InternacaoTestBuilder.newInternacao()
+                .setDataEntrada(dataEntrada)
+                .setDataSaidaPrevista(dataEntrada.plusMonths(9))
+                .setDataSaida(null)
+                .setAlta(AltaTypes.DESISTENCIA)
+                .setAtivo(false)
+                .build();
+
+        internacao.endInternacao(AltaTypes.DESISTENCIA, dataSaida);
+
+        assertAll(
+                () -> assertEquals(dataSaida, internacao.getDataSaida()),
+                () -> assertEquals(AltaTypes.DESISTENCIA, internacao.getAlta()),
+                () -> assertFalse(internacao.getAtivo())
+        );
+    }
+
+    @Test
+    void shouldCompleteInactiveInternacaoWhenOnlyAltaIsMissing()
+    {
+        LocalDate dataEntrada = LocalDate.now().minusDays(10);
+        LocalDate dataSaida = LocalDate.now().minusDays(1);
+
+        Internacao internacao = InternacaoTestBuilder.newInternacao()
+                .setDataEntrada(dataEntrada)
+                .setDataSaidaPrevista(dataEntrada.plusMonths(9))
+                .setDataSaida(dataSaida)
+                .setAlta(null)
+                .setAtivo(false)
+                .build();
+
+        internacao.endInternacao(AltaTypes.CONCLUSAO, dataSaida);
+
+        assertAll(
+                () -> assertEquals(dataSaida, internacao.getDataSaida()),
+                () -> assertEquals(AltaTypes.CONCLUSAO, internacao.getAlta()),
+                () -> assertFalse(internacao.getAtivo())
+        );
+    }
+
+    @Test
+    void shouldRejectEndingCompleteInternacaoAgainAndPreserveOriginalState()
+    {
+        LocalDate dataEntrada = LocalDate.now().minusDays(10);
+        LocalDate primeiraDataSaida = LocalDate.now().minusDays(5);
+        LocalDate segundaDataSaida = LocalDate.now().minusDays(1);
+
+        Internacao internacao = InternacaoTestBuilder.newInternacao()
+                .setDataEntrada(dataEntrada)
+                .buildForCreate();
+
+        internacao.endInternacao(AltaTypes.CONCLUSAO, primeiraDataSaida);
+
+        InternacaoWithInvalidInformationException exception = assertThrows(
+                InternacaoWithInvalidInformationException.class,
+                () -> internacao.endInternacao(AltaTypes.DESLIGAMENTO, segundaDataSaida)
+        );
+
+        assertAll(
+                () -> assertEquals("Internação já foi encerrada.", exception.getMessage()),
+                () -> assertEquals(primeiraDataSaida, internacao.getDataSaida()),
+                () -> assertEquals(AltaTypes.CONCLUSAO, internacao.getAlta()),
+                () -> assertFalse(internacao.getAtivo())
+        );
+    }
+
+    @Test
+    void shouldReportAlreadyEndedBeforeValidatingNewEndInformation()
+    {
+        LocalDate dataEntrada = LocalDate.now().minusDays(10);
+        LocalDate dataSaida = LocalDate.now().minusDays(1);
+
+        Internacao internacao = InternacaoTestBuilder.newInternacao()
+                .setDataEntrada(dataEntrada)
+                .buildForCreate();
+
+        internacao.endInternacao(AltaTypes.CONCLUSAO, dataSaida);
+
+        InternacaoWithInvalidInformationException exception = assertThrows(
+                InternacaoWithInvalidInformationException.class,
+                () -> internacao.endInternacao(null, null)
+        );
+
+        assertAll(
+                () -> assertEquals("Internação já foi encerrada.", exception.getMessage()),
+                () -> assertEquals(dataSaida, internacao.getDataSaida()),
+                () -> assertEquals(AltaTypes.CONCLUSAO, internacao.getAlta()),
+                () -> assertFalse(internacao.getAtivo())
+        );
+    }
+
+
     // Testes para valor da mensalidade
 
     @Test
-    void shouldAcceptPositiveMonthlyPaymentForPaidModalidade()
+    void shouldAcceptPositiveMonthlyPaymentForPaidConvenio()
     {
         BigDecimal valorMensalidade = new BigDecimal("1200.00");
 
@@ -315,7 +585,7 @@ class InternacaoTest
 
     @ParameterizedTest
     @ValueSource(strings = {"0.00", "-10.00", "0.004"})
-    void shouldRejectNonPositiveRoundedMonthlyPaymentForPaidModalidade(String valorInformado)
+    void shouldRejectNonPositiveRoundedMonthlyPaymentForPaidConvenio(String valorInformado)
     {
         InternacaoWithInvalidInformationException exception = assertThrows(InternacaoWithInvalidInformationException.class, () -> InternacaoTestBuilder.newInternacao().setValorMensalidade(new BigDecimal(valorInformado)).buildForCreate());
 
@@ -323,11 +593,11 @@ class InternacaoTest
     }
 
     @Test
-    void shouldAcceptZeroMonthlyPaymentForFreeModalidadeUsingValueConstructor()
+    void shouldAcceptZeroMonthlyPaymentForFreeConvenioUsingValueConstructor()
     {
-        Modalidade modalidade = new ModalidadeTestBuilder().setPagamento(false).build();
+        Convenio convenio = new ConvenioTestBuilder().setPagamento(false).build();
 
-        Internacao internacao = InternacaoTestBuilder.newInternacao().setModalidade(modalidade).setValorMensalidade(BigDecimal.ZERO).buildForCreate();
+        Internacao internacao = InternacaoTestBuilder.newInternacao().setConvenio(convenio).setValorMensalidade(BigDecimal.ZERO).buildForCreate();
 
         assertEquals(new BigDecimal("0.00"), internacao.getValorMensalidade());
     }
@@ -335,41 +605,41 @@ class InternacaoTest
     @Test
     void shouldCreateFreeInternacaoWithoutMonthlyPayment()
     {
-        Modalidade modalidade = new ModalidadeTestBuilder().setPagamento(false).build();
+        Convenio convenio = new ConvenioTestBuilder().setPagamento(false).build();
 
-        Internacao internacao = InternacaoTestBuilder.newInternacao().setModalidade(modalidade).buildForCreateWithoutPayment();
+        Internacao internacao = InternacaoTestBuilder.newInternacao().setConvenio(convenio).buildForCreateWithoutPayment();
 
         assertEquals(new BigDecimal("0.00"), internacao.getValorMensalidade());
     }
 
     @ParameterizedTest
     @ValueSource(strings = {"0.004", "-0.004"})
-    void shouldAcceptValueThatRoundsToZeroForFreeModalidade(String valorInformado)
+    void shouldAcceptValueThatRoundsToZeroForFreeConvenio(String valorInformado)
     {
-        Modalidade modalidade = new ModalidadeTestBuilder().setPagamento(false).build();
+        Convenio convenio = new ConvenioTestBuilder().setPagamento(false).build();
 
-        Internacao internacao = InternacaoTestBuilder.newInternacao().setModalidade(modalidade).setValorMensalidade(new BigDecimal(valorInformado)).buildForCreate();
+        Internacao internacao = InternacaoTestBuilder.newInternacao().setConvenio(convenio).setValorMensalidade(new BigDecimal(valorInformado)).buildForCreate();
 
         assertEquals(new BigDecimal("0.00"), internacao.getValorMensalidade());
     }
 
     @ParameterizedTest
     @ValueSource(strings = {"0.005", "-0.005", "10.00"})
-    void shouldRejectValueThatRoundsToNonZeroForFreeModalidade(String valorInformado)
+    void shouldRejectValueThatRoundsToNonZeroForFreeConvenio(String valorInformado)
     {
-        Modalidade modalidade = new ModalidadeTestBuilder().setPagamento(false).build();
+        Convenio convenio = new ConvenioTestBuilder().setPagamento(false).build();
 
-        InternacaoWithInvalidInformationException exception = assertThrows(InternacaoWithInvalidInformationException.class, () -> InternacaoTestBuilder.newInternacao().setModalidade(modalidade).setValorMensalidade(new BigDecimal(valorInformado)).buildForCreate());
+        InternacaoWithInvalidInformationException exception = assertThrows(InternacaoWithInvalidInformationException.class, () -> InternacaoTestBuilder.newInternacao().setConvenio(convenio).setValorMensalidade(new BigDecimal(valorInformado)).buildForCreate());
 
-        assertEquals("Modalidade não aceita valor da mensalidade da internação diferente de 0", exception.getMessage());
+        assertEquals("Convênio não aceita valor da mensalidade da internação diferente de 0", exception.getMessage());
     }
 
     @Test
-    void shouldRejectPaidModalidadeWhenMonthlyPaymentIsOmitted()
+    void shouldRejectPaidConvenioWhenMonthlyPaymentIsOmitted()
     {
         InternacaoWithInvalidInformationException exception = assertThrows(InternacaoWithInvalidInformationException.class, () -> InternacaoTestBuilder.newInternacao().buildForCreateWithoutPayment());
 
-        assertEquals("Modalidade exige valor de mensalidade.", exception.getMessage());
+        assertEquals("Convênio exige valor de mensalidade.", exception.getMessage());
     }
 
     @Test

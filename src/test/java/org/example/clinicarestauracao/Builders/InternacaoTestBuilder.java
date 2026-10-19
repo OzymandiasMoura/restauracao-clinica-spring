@@ -1,8 +1,9 @@
 package org.example.clinicarestauracao.Builders;
 
 import org.example.clinicarestauracao.Domain.Entities.Acolhido;
+import org.example.clinicarestauracao.Domain.Entities.Convenio;
 import org.example.clinicarestauracao.Domain.Entities.Internacao;
-import org.example.clinicarestauracao.Domain.Entities.Modalidade;
+import org.example.clinicarestauracao.Domain.Enums.AltaTypes;
 import org.example.clinicarestauracao.Domain.Enums.TreatmentStage;
 
 import java.math.BigDecimal;
@@ -12,13 +13,14 @@ public class InternacaoTestBuilder
 {
     private Long id = 1L;
     private Acolhido acolhido = AcolhidoTestBuilder.newAcolhido().build();
-    private Modalidade modalidade = new ModalidadeTestBuilder().build();
+    private Convenio convenio = new ConvenioTestBuilder().build();
     private LocalDate dataEntrada = LocalDate.of(2026, 1, 10);
     private LocalDate dataSaidaPrevista = dataEntrada.plusMonths(9);
     private LocalDate dataSaida;
     private TreatmentStage etapaTratamento = TreatmentStage.INICIO;
     private BigDecimal valorMensalidade = new BigDecimal("1200.00");
     private Boolean ativo = true;
+    private AltaTypes alta = null;
 
     public static InternacaoTestBuilder newInternacao()
     {
@@ -37,9 +39,9 @@ public class InternacaoTestBuilder
         return this;
     }
 
-    public InternacaoTestBuilder setModalidade(Modalidade modalidade)
+    public InternacaoTestBuilder setConvenio(Convenio convenio)
     {
-        this.modalidade = modalidade;
+        this.convenio = convenio;
         return this;
     }
 
@@ -79,18 +81,24 @@ public class InternacaoTestBuilder
         return this;
     }
 
+    public InternacaoTestBuilder setAlta(AltaTypes alta)
+    {
+        this.alta = alta;
+        return this;
+    }
+
     public Internacao build()
     {
-        return new Internacao(id, acolhido, modalidade, dataEntrada, dataSaidaPrevista, dataSaida, etapaTratamento, valorMensalidade, ativo);
+        return new Internacao(id, acolhido, convenio, dataEntrada, dataSaidaPrevista, dataSaida, etapaTratamento, valorMensalidade, ativo, alta);
     }
 
     public Internacao buildForCreate()
     {
-        return new Internacao(acolhido, modalidade, dataEntrada, etapaTratamento, valorMensalidade);
+        return new Internacao(acolhido, convenio, dataEntrada, etapaTratamento, valorMensalidade);
     }
 
     public Internacao buildForCreateWithoutPayment()
     {
-        return new Internacao(acolhido, modalidade, dataEntrada, etapaTratamento);
+        return new Internacao(acolhido, convenio, dataEntrada, etapaTratamento);
     }
 }
