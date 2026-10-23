@@ -1,10 +1,7 @@
 package org.example.clinicarestauracao.Domain.Entities;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.example.clinicarestauracao.Application.Exceptions.UserWithInvalidInformationException;
 import org.example.clinicarestauracao.Domain.Enums.UserRoles;
 import org.jspecify.annotations.NullMarked;
@@ -18,7 +15,6 @@ import java.util.List;
 @Entity
 @Data
 @NoArgsConstructor
-@AllArgsConstructor
 @EqualsAndHashCode(of = "id")
 @Table(name = "Usuarios")
 public class User implements UserDetails
@@ -33,6 +29,18 @@ public class User implements UserDetails
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private UserRoles role;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "previous_role")
+    @Setter(AccessLevel.NONE)
+    private UserRoles previousRole;
+
+    public User(Long id, String username, String password, UserRoles role)
+    {
+        this.id = id;
+        setUsername(username);
+        setPassword(password);
+        setRole(role);
+    }
 
     public User(String username, String password, UserRoles role)
     {
@@ -41,19 +49,22 @@ public class User implements UserDetails
         setRole(role);
     }
 
-
+    private User(String username)
+    {
+        setUsername(username);
+        setRole(UserRoles.USER);
+        this.previousRole = null;
+    }
     @Override
     @NullMarked
     public Collection<? extends GrantedAuthority> getAuthorities()
     {
-        if(this.role == UserRoles.ADMIN)
+        return switch (this.role)
         {
-            return List.of(new SimpleGrantedAuthority("ROLE_ADMIN"), new SimpleGrantedAuthority("ROLE_USER"));
-        }
-        else
-        {
-            return List.of(new SimpleGrantedAuthority("ROLE_USER"));
-        }
+            case ADMIN -> List.of(new SimpleGrantedAuthority("ROLE_ADMIN"), new SimpleGrantedAuthority("ROLE_USER"));
+            case USER -> List.of(new SimpleGrantedAuthority("ROLE_USER"));
+            case NO_ACCESS ->  List.of();
+        };
     }
 
     public void setUsername(String username)
@@ -93,7 +104,7 @@ public class User implements UserDetails
         }
     }
 
-    public void setRole(UserRoles role)
+    private void setRole(UserRoles role)
     {
         if (role == null)
         {
@@ -103,5 +114,60 @@ public class User implements UserDetails
         {
             this.role = role;
         }
+    }
+
+    public void deactivate()
+    {
+        if (this.role == UserRoles.NO_ACCESS)
+        {
+            throw new UserWithInvalidInformationException("Usuário já está desativado.");
+        }
+        this.previousRole = this.role;
+        this.role = UserRoles.NO_ACCESS;
+    }
+
+    public void reactivate()
+    {
+        if (this.role != UserRoles.NO_ACCESS)
+        {
+            throw new UserWithInvalidInformationException("Usuário não está desativado.");
+        }
+
+        if (this.previousRole == null || this.previousRole == UserRoles.NO_ACCESS)
+        {
+            throw new UserWithInvalidInformationException("Usuário não tinha permissão válida.");
+        }
+
+        this.role = this.previousRole;
+        this.previousRole = null;
+    }
+
+    @Override
+    public boolean isEnabled()
+    {
+        return this.role != UserRoles.NO_ACCESS;
+    }
+
+    public static User forUsernameUpdate(String username)
+    {
+        return new User(username);
+    }
+
+    public void forRoleUpdate(UserRoles role)
+    {
+        if (role == null || role == UserRoles.NO_ACCESS)
+        {
+            throw new UserWithInvalidInformationException("Papel de usuário invalido.");
+        }
+        if (this.role == UserRoles.NO_ACCESS)
+        {
+            throw new UserWithInvalidInformationException("Usuário está desativado.");
+        }
+        if(role != UserRoles.USER && role != UserRoles.ADMIN)
+        {
+            throw new UserWithInvalidInformationException("Papel de usuário invalido.");
+        }
+
+        this.role = role;
     }
 }

@@ -38,9 +38,10 @@ public class TokenFilter extends OncePerRequestFilter
             {
                 UserDetails userDetails =userRepository.findUserByUsername(subject);
 
-                if(userDetails!=null)
+                if (userDetails != null && userDetails.isEnabled())
                 {
                     var authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+
                     SecurityContextHolder.getContext().setAuthentication(authentication);
                 }
             }

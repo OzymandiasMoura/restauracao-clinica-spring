@@ -40,12 +40,7 @@ public class AuthenticationController
     @PostMapping("/register")
     public ResponseEntity<Void> register(@RequestBody RegisterDto user)
     {
-        boolean response = this.service.registerUser(new User(user.username(), user.password(), user.role()));
-
-        if(!response)
-        {
-            throw new UsernameAlredyInUseException("Nome de usuário ja existe.");
-        }
+        this.service.registerUser(new User(user.username(), user.password(), user.role()));
 
         return ResponseEntity.ok().build();
     }
