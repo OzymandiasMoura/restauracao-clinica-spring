@@ -7,7 +7,6 @@ import org.example.clinicarestauracao.Application.Exceptions.Medicamento.Medicam
 
 @Entity
 @Getter
-@Setter
 @NoArgsConstructor
 @Table(name = "Medicamento")
 public class Medicamento {
@@ -22,13 +21,22 @@ public class Medicamento {
     @Column(name = "preco", nullable = false)
     private double preco;
 
+    @Column(name = "quantidade_estoque", nullable = false)
+    private int quantidadeEstoque;
+
+    @Column(nullable = false)
+    private int quantidadeMinimaAlerta;
+
+
     @Column(name = "ativo", nullable = false)
     private boolean ativo = true;
 
-    public Medicamento(Long id, String nome, double preco) {
+    public Medicamento(Long id, String nome, double preco, int quantidadeEstoque, int quantidadeMinimaAlerta) {
         this.id = id;
         setNome(nome);
         setPreco(preco);
+        setQuantidadeEstoque(quantidadeEstoque);
+        setQuantidadeMinimaAlerta(quantidadeMinimaAlerta);
     }
 
     public Medicamento(String nome, double preco) {
@@ -53,8 +61,69 @@ public class Medicamento {
             this.preco = preco;
         }
     }
+    public void setQuantidadeEstoque(int quantidadeEstoque){
 
+        if (quantidadeEstoque < 0){
+            throw new MedicamentoWithInvalidInformationException("O estoque não pode ser menor que 0.");
+        } else {
+            this.quantidadeEstoque = quantidadeEstoque;
+        }
+
+    }
+    public void setQuantidadeMinimaAlerta(int quantidadeMinimaAlerta) {
+        if (quantidadeMinimaAlerta < 0) {
+            throw new MedicamentoWithInvalidInformationException("A quantidade mínima para alerta não pode ser negativa.");
+        } else {
+            this.quantidadeMinimaAlerta = quantidadeMinimaAlerta;
+        }
+    }
     public void inativar() {
         this.ativo = false;
+    }
+    public void adicionarEstoque(int quantidade) {
+
+        if (quantidade <= 0) {
+            throw new MedicamentoWithInvalidInformationException(
+                    "A quantidade deve ser maior que zero."
+            );
+        }
+
+        if (!this.ativo) {
+            throw new MedicamentoWithInvalidInformationException(
+                    "Não é possível alterar o estoque de um medicamento inativo."
+            );
+        }
+
+        if (quantidade > Integer.MAX_VALUE - this.quantidadeEstoque) {
+            throw new MedicamentoWithInvalidInformationException(
+                    "A quantidade ultrapassa o limite permitido."
+            );
+        }
+
+        this.quantidadeEstoque += quantidade;
+    }
+
+    public void baixarEstoque(int quantidade) {
+
+        if (quantidade <= 0) {
+            throw new MedicamentoWithInvalidInformationException(
+                    "A quantidade deve ser maior que zero."
+            );
+        }
+
+        if (!this.ativo) {
+            throw new MedicamentoWithInvalidInformationException(
+                    "Não é possível alterar o estoque de um medicamento inativo."
+            );
+        }
+
+        if (quantidade > this.quantidadeEstoque) {
+            throw new MedicamentoWithInvalidInformationException(
+                    "Estoque insuficiente. Disponível: "
+                            + this.quantidadeEstoque
+            );
+        }
+
+        this.quantidadeEstoque -= quantidade;
     }
 }

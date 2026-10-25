@@ -6,9 +6,9 @@ import lombok.RequiredArgsConstructor;
 import org.example.clinicarestauracao.Application.Controllers.Mappers.MedicamentoMapper;
 import org.example.clinicarestauracao.Application.Dtos.Medicamento.MedicamentoRequestDto;
 import org.example.clinicarestauracao.Application.Dtos.Medicamento.MedicamentoResponseDto;
+import org.example.clinicarestauracao.Application.Dtos.Medicamento.MovimentacaoEstoqueRequestDto;
 import org.example.clinicarestauracao.Application.Services.MedicamentoService;
 import org.example.clinicarestauracao.Domain.Entities.Medicamento;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -60,7 +60,7 @@ public class MedicamentoController {
         return ResponseEntity.ok(dtos);
     }
 
-    @GetMapping("/ativos")
+    @GetMapping("/inativos")
     public ResponseEntity<List<MedicamentoResponseDto>> listAllInativos(){
         List<Medicamento> medicamento = medicamentoService.findInativos();
 
@@ -92,6 +92,32 @@ public class MedicamentoController {
     public ResponseEntity<Void> delete(@PathVariable Long id){
         medicamentoService.delete(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @PutMapping("/{idMedicamento}/adicionar")
+    public ResponseEntity<MedicamentoResponseDto> adicionar(@PathVariable Long idMedicamento, @Valid @RequestBody MovimentacaoEstoqueRequestDto request){
+        Medicamento estoqueAtualizado = medicamentoService.adicionarEstoque(idMedicamento, request.quantidade());
+        MedicamentoResponseDto response = MedicamentoMapper.entityToResponseDto(estoqueAtualizado);
+
+        return ResponseEntity.ok(response);
+    }
+
+    @PutMapping("/{idMedicamento}/baixar")
+    public ResponseEntity<MedicamentoResponseDto> baixar(@PathVariable Long idMedicamento, @Valid @RequestBody MovimentacaoEstoqueRequestDto request){
+        Medicamento estoqueAtualizado = medicamentoService.baixarEstoque(idMedicamento, request.quantidade());
+        MedicamentoResponseDto response = MedicamentoMapper.entityToResponseDto(estoqueAtualizado);
+
+        return ResponseEntity.ok(response);
+    }
+    @GetMapping("/alertas")
+    public ResponseEntity<List<MedicamentoResponseDto>> listarAlertas(){
+        List<Medicamento> estoquesEmAlerta = medicamentoService.listarEstoquesEmAlerta();
+
+        List<MedicamentoResponseDto> dtos = estoquesEmAlerta.stream()
+                .map(MedicamentoMapper::entityToResponseDto)
+                .toList();
+
+        return ResponseEntity.ok(dtos);
     }
 
 }

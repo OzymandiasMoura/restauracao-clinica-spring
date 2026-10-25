@@ -1,5 +1,4 @@
 package org.example.clinicarestauracao.Application.Controllers.Mappers;
-
 import org.example.clinicarestauracao.Application.Dtos.Medicamento.MedicamentoRequestDto;
 import org.example.clinicarestauracao.Application.Dtos.Medicamento.MedicamentoResponseDto;
 import org.example.clinicarestauracao.Domain.Entities.Medicamento;
@@ -14,7 +13,18 @@ public final class MedicamentoMapper {
 
     public static MedicamentoResponseDto entityToResponseDto(Medicamento entity)
     {
-        return new MedicamentoResponseDto(entity.getId(), entity.getNome(), entity.getPreco());
+        String status = (entity.getQuantidadeEstoque() <= entity.getQuantidadeMinimaAlerta())
+                ? "ALERTA: ESTOQUE BAIXO"
+                : "ESTOQUE OK";
+
+        return new MedicamentoResponseDto(
+                entity.getId(),
+                entity.getNome(),
+                entity.getPreco(),
+                entity.getQuantidadeEstoque(),
+                entity.getQuantidadeMinimaAlerta(),
+                status
+        );
     }
 
 }

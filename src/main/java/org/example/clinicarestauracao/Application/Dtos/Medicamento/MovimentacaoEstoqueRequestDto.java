@@ -1,4 +1,4 @@
-package org.example.clinicarestauracao.Application.Dtos.EstoqueMedicamento;
+package org.example.clinicarestauracao.Application.Dtos.Medicamento;
 
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;

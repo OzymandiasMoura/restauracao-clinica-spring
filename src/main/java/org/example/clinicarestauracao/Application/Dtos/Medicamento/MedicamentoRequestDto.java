@@ -1,9 +1,6 @@
 package org.example.clinicarestauracao.Application.Dtos.Medicamento;
 
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Positive;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 
 public record MedicamentoRequestDto(
 
@@ -13,6 +10,14 @@ public record MedicamentoRequestDto(
 
         @NotNull(message = "O preço é obrigatório")
         @Positive(message = "O preço não pode ser negativo.")
-        Double preco
+        Double preco,
+
+        @NotNull(message = "A quantidade é obrigatória")
+        @Min(value = 1, message = "A quantidade mínima para adicionar ao estoque é 1")
+        Integer quantidadeEstoque,
+
+        @NotNull(message = "A quantidade mínima para alerta é obrigatória")
+        @Min(value = 0, message = "A quantidade mínima não pode ser negativa")
+        Integer quantidadeMinimaAlerta
 ) {
 }
