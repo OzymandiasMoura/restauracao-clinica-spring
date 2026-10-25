@@ -3,6 +3,8 @@ package org.example.clinicarestauracao.Application.Exceptions;
 import org.example.clinicarestauracao.Application.Dtos.SecurityDtos.ErrorResponseDto;
 import org.example.clinicarestauracao.Application.Dtos.SecurityDtos.FieldErrorDto;
 import org.example.clinicarestauracao.Application.Dtos.SecurityDtos.ValidationErrorResponseDto;
+import org.example.clinicarestauracao.Application.Exceptions.Acolhido.AcolhidoNotFoundException;
+import org.example.clinicarestauracao.Application.Exceptions.Acolhido.AcolhidoWithInvalidInformationException;
 import org.example.clinicarestauracao.Application.Exceptions.Cargo.CargoNotFoundException;
 import org.example.clinicarestauracao.Application.Exceptions.Cargo.CargoWithInvalidInformationException;
 import org.example.clinicarestauracao.Application.Exceptions.Endereco.EnderecoWithInvalidInformationException;
@@ -75,37 +77,20 @@ public class GlobalExceptionHandler
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
 
-    @ExceptionHandler(ModalidadeWithInvalidInformationException.class)
-    public ResponseEntity<ErrorResponseDto> handleUserWithNullInformation(ModalidadeWithInvalidInformationException ex)
+    @ExceptionHandler(ConvenioWithInvalidInformationException.class)
+    public ResponseEntity<ErrorResponseDto> handleConvenioWithInvalidInformation(ConvenioWithInvalidInformationException ex)
     {
         var response = new ErrorResponseDto(ex.getMessage());
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
 
-    @ExceptionHandler(ModalidadeNotFoundException.class)
-    public ResponseEntity<ErrorResponseDto> handleModalidadeNotFound(ModalidadeNotFoundException ex)
+    @ExceptionHandler(ConvenioNotFoundException.class)
+    public ResponseEntity<ErrorResponseDto> handleConvenioNotFound(ConvenioNotFoundException ex)
     {
         var response = new ErrorResponseDto(ex.getMessage());
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
-
-
-    @ExceptionHandler(EstoqueMedicamentoNotFoundException.class)
-    public ResponseEntity<ErrorResponseDto> handleEstoqueMedicamentoNotFound(MedicamentoNotFoundException ex)
-    {
-        var response = new ErrorResponseDto(ex.getMessage());
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
-    }
-
-    @ExceptionHandler(EstoqueMedicamentoWithInvalidInformationException.class)
-    public ResponseEntity<ErrorResponseDto> handleEstoqueMedicamentoWithInvalidInformation(EstoqueMedicamentoWithInvalidInformationException ex)
-    {
-        var response = new ErrorResponseDto(ex.getMessage());
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
-    }
-
-
 
     @ExceptionHandler(CargoWithInvalidInformationException.class)
     public ResponseEntity<ErrorResponseDto>  handleCargoWithInvalidInformation(CargoWithInvalidInformationException ex)
@@ -169,4 +154,19 @@ public class GlobalExceptionHandler
     }
 
 
+
+    //Acolhido
+    @ExceptionHandler(AcolhidoWithInvalidInformationException.class)
+    public ResponseEntity<ErrorResponseDto> handleAcolhidoWithInvalidInformation(AcolhidoWithInvalidInformationException ex)
+    {
+        var response = new ErrorResponseDto(ex.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
+
+    @ExceptionHandler(AcolhidoNotFoundException.class)
+    public ResponseEntity<ErrorResponseDto> handleAcolhidoNotFound(AcolhidoNotFoundException ex)
+    {
+        var response = new ErrorResponseDto(ex.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+    }
 }

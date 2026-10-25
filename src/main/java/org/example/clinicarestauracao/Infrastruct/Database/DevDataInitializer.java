@@ -1,5 +1,8 @@
 package org.example.clinicarestauracao.Infrastruct.Database;
 
+import org.example.clinicarestauracao.Application.Interfaces.*;
+import org.example.clinicarestauracao.Application.Services.*;
+import org.example.clinicarestauracao.Domain.Entities.*;
 import org.example.clinicarestauracao.Application.Dtos.Triagem.TriagemRequestDto;
 import org.example.clinicarestauracao.Application.Interfaces.CargoRepository;
 import org.example.clinicarestauracao.Application.Interfaces.FuncionarioRepository;
@@ -32,18 +35,25 @@ public class DevDataInitializer implements ApplicationRunner {
 
     private static final String TEST_PASSWORD = "teste123";
 
+    private final AcolhidoRepository acolhidoRepository;
     private final CargoRepository cargoRepository;
     private final FuncionarioRepository funcionarioRepository;
+    private final ConvenioRepository convenioRepository;
     private final ModalidadeRepository modalidadeRepository;
     private final TriagemRepository triagemRepository;
     private final UserRepository userRepository;
+    private final AcolhidoService acolhidoService;
 
     private final CargoService cargoService;
     private final FuncionarioService funcionarioService;
+    private final ConvenioService convenioService;
     private final ModalidadeService modalidadeService;
     private final TriagemService triagemService;
     private final UserService userService;
 
+    public DevDataInitializer(AcolhidoRepository acolhidoRepository, CargoRepository cargoRepository, FuncionarioRepository funcionarioRepository, ConvenioRepository convenioRepository, UserRepository userRepository, AcolhidoService acolhidoService, CargoService cargoService, FuncionarioService funcionarioService, ConvenioService convenioService, UserService userService)
+    {
+        this.acolhidoRepository = acolhidoRepository;
     public DevDataInitializer(
             CargoRepository cargoRepository,
             FuncionarioRepository funcionarioRepository,
@@ -60,12 +70,15 @@ public class DevDataInitializer implements ApplicationRunner {
         this.funcionarioRepository = funcionarioRepository;
         this.modalidadeRepository = modalidadeRepository;
         this.triagemRepository = triagemRepository;
+        this.convenioRepository = convenioRepository;
         this.userRepository = userRepository;
 
+        this.acolhidoService = acolhidoService;
         this.cargoService = cargoService;
         this.funcionarioService = funcionarioService;
         this.modalidadeService = modalidadeService;
         this.triagemService = triagemService;
+        this.convenioService = convenioService;
         this.userService = userService;
     }
 
@@ -74,10 +87,17 @@ public class DevDataInitializer implements ApplicationRunner {
     public void run(ApplicationArguments args) {
 
         if (cargoRepository.count() > 0
+    public void run(ApplicationArguments args)
+    {
+        if (acolhidoRepository.count() > 0
+                || cargoRepository.count() > 0
                 || funcionarioRepository.count() > 0
                 || modalidadeRepository.count() > 0
                 || triagemRepository.count() > 0
                 || userRepository.count() > 0) {
+                || convenioRepository.count() > 0
+                || userRepository.count() > 0)
+        {
             return;
         }
 
@@ -145,6 +165,15 @@ public class DevDataInitializer implements ApplicationRunner {
                         )
                 );
 
+        convenioService.createConvenio(new Convenio(
+                "Atendimento Social", null, 40, false, "#2E86C1"));
+        convenioService.createConvenio(new Convenio(
+                "Clínica Parceira", "11222333000181", 20, true, "#28B463"));
+        Convenio convenio = convenioService.createConvenio(new Convenio(
+                "Convênio Comunitário", "11444777000161", 15, true, "#AF7AC5"));
+        convenioService.createConvenio(new Convenio(
+                "Lista de Espera", null, 0, false, "#F39C12"));
+        convenioService.deleteConvenioById(convenio.getId());
         Modalidade convenio =
                 modalidadeService.createModalidade(
                         new Modalidade(
@@ -222,6 +251,46 @@ public class DevDataInitializer implements ApplicationRunner {
                 )
         );
 
+        Funcionario carla = funcionarioService.createFuncionario(new Funcionario(
+                "Carla Souza",
+                "12345678909",
+                "carla.souza@teste.local",
+                LocalDate.of(1988, 11, 2),
+                new Endereco("Praça da Liberdade", 20, "Funcionários", "Belo Horizonte", "MG"),
+                "30140010",
+                "31987654321",
+                new User("carla.dev", TEST_PASSWORD, UserRoles.USER),
+                assistenteSocial,
+                LocalDate.of(2021, 5, 10)));
+        funcionarioService.dismissFuncionarioById(carla.getId(), LocalDate.of(2025, 6, 30));
+
+        acolhidoService.createAcolhido(new Acolhido(
+                "Gabriel Santos",
+                "gabriel.santos@teste.local",
+                "39053344705",
+                "01310100",
+                new Endereco("Avenida Paulista", 1000, "Bela Vista", "São Paulo", "SP", "Apartamento 42"),
+                "11955551234",
+                LocalDate.of(1990, 3, 15)));
+
+        acolhidoService.createAcolhido(new Acolhido(
+                "Juliana Oliveira",
+                "juliana.oliveira@teste.local",
+                "16899535009",
+                "30140071",
+                new Endereco("Avenida Afonso Pena", 1500, "Centro", "Belo Horizonte", "MG"),
+                "31955552345",
+                LocalDate.of(1987, 7, 22)));
+
+        Acolhido marcos = acolhidoService.createAcolhido(new Acolhido(
+                "Marcos Pereira",
+                "marcos.pereira@teste.local",
+                "98765432100",
+                "20040002",
+                new Endereco("Rua da Assembleia", 50, "Centro", "Rio de Janeiro", "RJ"),
+                "21955553456",
+                LocalDate.of(1979, 12, 3)));
+        acolhidoService.deactivateAcolhido(marcos.getId());
         Funcionario carla =
                 funcionarioService.createFuncionario(
                         new Funcionario(
