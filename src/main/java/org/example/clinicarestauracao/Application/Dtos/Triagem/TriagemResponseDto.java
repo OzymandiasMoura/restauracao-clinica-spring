@@ -11,6 +11,7 @@ public record TriagemResponseDto(
         String nomePossivelAcolhido,
         String telefone,
         LocalDateTime dataAgendada,
+        LocalDateTime dataConclusao,
         String observacaoEntrevista,
         Status status
 ) {

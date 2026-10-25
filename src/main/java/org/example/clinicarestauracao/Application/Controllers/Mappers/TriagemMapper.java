@@ -29,6 +29,7 @@ public final class TriagemMapper {
                 entity.getNomePossivelAcolhido(),
                 entity.getTelefone(),
                 entity.getDataAgendada(),
+                entity.getDataConclusao(),
                 entity.getObservacaoEntrevista(),
                 entity.getStatus()
         );

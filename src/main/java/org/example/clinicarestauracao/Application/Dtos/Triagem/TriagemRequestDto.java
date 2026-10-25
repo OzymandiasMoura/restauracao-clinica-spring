@@ -15,8 +15,12 @@ public record TriagemRequestDto(
         @Positive(message = "O ID do convênio deve ser válido.")
         Long convenioId,
 
-        @NotBlank(message = "O nome do possível acolhido não pode ser vazio.")
-        @Size(min = 3, message = "O nome deve ter pelo menos 3 caracteres.")
+        @NotBlank(message = "O nome do possível acolhido é obrigatório.")
+        @Size(
+                min = 3,
+                max = 255,
+                message = "O nome deve conter entre 3 e 255 caracteres."
+        )
         String nomePossivelAcolhido,
 
         @NotBlank(message = "O telefone é obrigatório.")
@@ -30,6 +34,10 @@ public record TriagemRequestDto(
         @Future(message = "A data agendada deve estar no futuro.")
         LocalDateTime dataAgendada,
 
+        @Size(
+                max = 1000,
+                message = "A observação da entrevista não pode ultrapassar 1000 caracteres."
+        )
         String observacaoEntrevista
 
 ) {

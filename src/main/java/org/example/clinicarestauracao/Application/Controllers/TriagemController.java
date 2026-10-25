@@ -2,6 +2,7 @@ package org.example.clinicarestauracao.Application.Controllers;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.example.clinicarestauracao.Application.Dtos.Triagem.TriagemReagendamentoDto;
 import org.example.clinicarestauracao.Application.Dtos.Triagem.TriagemRequestDto;
 import org.example.clinicarestauracao.Application.Dtos.Triagem.TriagemResponseDto;
 import org.example.clinicarestauracao.Application.Services.TriagemService;
@@ -78,6 +79,24 @@ public class TriagemController {
             @PathVariable Long id
     ) {
         return ResponseEntity.ok(triagemService.concluir(id));
+    }
+    @PatchMapping("/{id}/desconcluir")
+    public ResponseEntity<TriagemResponseDto> desconcluir(
+            @PathVariable Long id
+    ) {
+        return ResponseEntity.ok(
+                triagemService.desconcluir(id)
+        );
+    }
+    
+    @PatchMapping("/{id}/reagendar")
+    public ResponseEntity<TriagemResponseDto> reagendar(
+            @PathVariable Long id,
+            @RequestBody @Valid TriagemReagendamentoDto dto
+    ) {
+        return ResponseEntity.ok(
+                triagemService.reagendar(id, dto.novaData())
+        );
     }
 }
 

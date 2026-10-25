@@ -8,12 +8,8 @@ import org.example.clinicarestauracao.Application.Exceptions.Acolhido.AcolhidoWi
 import org.example.clinicarestauracao.Application.Exceptions.Cargo.CargoNotFoundException;
 import org.example.clinicarestauracao.Application.Exceptions.Cargo.CargoWithInvalidInformationException;
 import org.example.clinicarestauracao.Application.Exceptions.Endereco.EnderecoWithInvalidInformationException;
-import org.example.clinicarestauracao.Application.Exceptions.EstoqueMedicamento.EstoqueMedicamentoNotFoundException;
-import org.example.clinicarestauracao.Application.Exceptions.EstoqueMedicamento.EstoqueMedicamentoWithInvalidInformationException;
 import org.example.clinicarestauracao.Application.Exceptions.Funcionario.FuncionarioNotFoundException;
 import org.example.clinicarestauracao.Application.Exceptions.Funcionario.FuncionarioWithInvalidInformationException;
-import org.example.clinicarestauracao.Application.Exceptions.Medicamento.MedicamentoNotFoundException;
-import org.example.clinicarestauracao.Application.Exceptions.Medicamento.MedicamentoWithInvalidInformationException;
 import org.example.clinicarestauracao.Application.Exceptions.Triagem.TriagemNotFoundException;
 import org.example.clinicarestauracao.Application.Exceptions.Triagem.TriagemWithInvalidInformationException;
 import org.example.clinicarestauracao.Application.Exceptions.User.UserNotFoundException;
@@ -51,19 +47,6 @@ public class GlobalExceptionHandler
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
 
-    @ExceptionHandler(MedicamentoNotFoundException.class)
-    public ResponseEntity<ErrorResponseDto> handleMedicamentoNotFound(MedicamentoNotFoundException ex)
-    {
-        var response = new ErrorResponseDto(ex.getMessage());
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
-    }
-
-    @ExceptionHandler(MedicamentoWithInvalidInformationException.class)
-    public ResponseEntity<ErrorResponseDto> handleMedicamentoWithInvalidInformation(MedicamentoWithInvalidInformationException ex)
-    {
-        var response = new ErrorResponseDto(ex.getMessage());
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
-    }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ValidationErrorResponseDto> handleValidationExceptions(MethodArgumentNotValidException ex)
