@@ -11,9 +11,9 @@ import java.time.LocalDateTime;
 
 public record TriagemRequestDto(
 
-        @NotNull(message = "O ID da modalidade é obrigatório.")
-        @Positive(message = "O ID da modalidade deve ser válido.")
-        Long modalidadeId,
+        @NotNull(message = "O ID do convênio é obrigatório.")
+        @Positive(message = "O ID do convênio deve ser válido.")
+        Long convenioId,
 
         @NotBlank(message = "O nome do possível acolhido não pode ser vazio.")
         @Size(min = 3, message = "O nome deve ter pelo menos 3 caracteres.")

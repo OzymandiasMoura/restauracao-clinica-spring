@@ -5,11 +5,11 @@ import lombok.RequiredArgsConstructor;
 import org.example.clinicarestauracao.Application.Controllers.Mappers.TriagemMapper;
 import org.example.clinicarestauracao.Application.Dtos.Triagem.TriagemRequestDto;
 import org.example.clinicarestauracao.Application.Dtos.Triagem.TriagemResponseDto;
-import org.example.clinicarestauracao.Application.Exceptions.ModalidadeNotFoundException;
+import org.example.clinicarestauracao.Application.Exceptions.ConvenioNotFoundException;
 import org.example.clinicarestauracao.Application.Exceptions.Triagem.TriagemNotFoundException;
-import org.example.clinicarestauracao.Application.Interfaces.ModalidadeRepository;
+import org.example.clinicarestauracao.Application.Interfaces.ConvenioRepository;
 import org.example.clinicarestauracao.Application.Interfaces.TriagemRepository;
-import org.example.clinicarestauracao.Domain.Entities.Modalidade;
+import org.example.clinicarestauracao.Domain.Entities.Convenio;
 import org.example.clinicarestauracao.Domain.Entities.Triagem;
 
 import org.example.clinicarestauracao.Domain.Enums.Status;
@@ -23,14 +23,14 @@ import java.util.List;
 public class TriagemService {
 
     private final TriagemRepository triagemRepository;
-    private final ModalidadeRepository modalidadeRepository;
+    private final ConvenioRepository convenioRepository;
 
     @Transactional
     public TriagemResponseDto create(TriagemRequestDto dto) {
 
-        Modalidade modalidade = modalidadeRepository.findById(dto.modalidadeId())
+        Convenio convenio = convenioRepository.findById(dto.convenioId())
                 .orElseThrow(() -> new TriagemNotFoundException("Modalidade não encontrada."));
-        Triagem triagem = TriagemMapper.requestDtoToEntity(dto, modalidade);
+        Triagem triagem = TriagemMapper.requestDtoToEntity(dto, convenio);
         Triagem triagemSalva = triagemRepository.save(triagem);
         return TriagemMapper.entityToResponseDto(triagemSalva);
     }
@@ -65,20 +65,18 @@ public class TriagemService {
 
     @Transactional
     public TriagemResponseDto update(Long id, TriagemRequestDto dto) {
-
-
         Triagem triagem = triagemRepository.findById(id)
                 .orElseThrow(() -> new TriagemNotFoundException("Triagem não encontrada."));
 
-        Modalidade modalidade = modalidadeRepository.findById(dto.modalidadeId())
-                .orElseThrow(() -> new ModalidadeNotFoundException("Modalidade não encontrada."));
+        Convenio convenio = convenioRepository.findById(dto.convenioId())
+                .orElseThrow(() -> new ConvenioNotFoundException("Convênio não encontrado."));
 
         if (triagem.getStatus() != Status.AGENDADA) {
             throw new TriagemNotFoundException(
                     "Apenas triagens agendadas podem ser alteradas."
             );
         }
-        triagem.setModalidade(modalidade);
+        triagem.setConvenio(convenio);
         triagem.setNomePossivelAcolhido(dto.nomePossivelAcolhido());
         triagem.setTelefone(dto.telefone());
         triagem.setDataAgendada(dto.dataAgendada());

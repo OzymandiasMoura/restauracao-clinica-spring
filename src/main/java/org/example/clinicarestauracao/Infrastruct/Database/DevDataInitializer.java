@@ -1,25 +1,14 @@
+
 package org.example.clinicarestauracao.Infrastruct.Database;
 
+import org.example.clinicarestauracao.Application.Dtos.Triagem.TriagemRequestDto;
+import org.example.clinicarestauracao.Application.Dtos.Triagem.TriagemResponseDto;
 import org.example.clinicarestauracao.Application.Interfaces.*;
 import org.example.clinicarestauracao.Application.Services.*;
 import org.example.clinicarestauracao.Domain.Entities.*;
-import org.example.clinicarestauracao.Application.Dtos.Triagem.TriagemRequestDto;
-import org.example.clinicarestauracao.Application.Interfaces.CargoRepository;
-import org.example.clinicarestauracao.Application.Interfaces.FuncionarioRepository;
-import org.example.clinicarestauracao.Application.Interfaces.ModalidadeRepository;
-import org.example.clinicarestauracao.Application.Interfaces.TriagemRepository;
-import org.example.clinicarestauracao.Application.Interfaces.UserRepository;
-import org.example.clinicarestauracao.Application.Services.CargoService;
-import org.example.clinicarestauracao.Application.Services.FuncionarioService;
-import org.example.clinicarestauracao.Application.Services.ModalidadeService;
-import org.example.clinicarestauracao.Application.Services.TriagemService;
-import org.example.clinicarestauracao.Application.Services.UserService;
-import org.example.clinicarestauracao.Domain.Entities.Cargo;
-import org.example.clinicarestauracao.Domain.Entities.Funcionario;
-import org.example.clinicarestauracao.Domain.Entities.Modalidade;
-import org.example.clinicarestauracao.Domain.Entities.User;
 import org.example.clinicarestauracao.Domain.Enums.UserRoles;
 import org.example.clinicarestauracao.Domain.ValueObjects.Endereco;
+
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Profile;
@@ -39,46 +28,42 @@ public class DevDataInitializer implements ApplicationRunner {
     private final CargoRepository cargoRepository;
     private final FuncionarioRepository funcionarioRepository;
     private final ConvenioRepository convenioRepository;
-    private final ModalidadeRepository modalidadeRepository;
     private final TriagemRepository triagemRepository;
     private final UserRepository userRepository;
-    private final AcolhidoService acolhidoService;
 
+    private final AcolhidoService acolhidoService;
     private final CargoService cargoService;
     private final FuncionarioService funcionarioService;
     private final ConvenioService convenioService;
-    private final ModalidadeService modalidadeService;
     private final TriagemService triagemService;
     private final UserService userService;
 
-    public DevDataInitializer(AcolhidoRepository acolhidoRepository, CargoRepository cargoRepository, FuncionarioRepository funcionarioRepository, ConvenioRepository convenioRepository, UserRepository userRepository, AcolhidoService acolhidoService, CargoService cargoService, FuncionarioService funcionarioService, ConvenioService convenioService, UserService userService)
-    {
-        this.acolhidoRepository = acolhidoRepository;
     public DevDataInitializer(
+            AcolhidoRepository acolhidoRepository,
             CargoRepository cargoRepository,
             FuncionarioRepository funcionarioRepository,
-            ModalidadeRepository modalidadeRepository,
+            ConvenioRepository convenioRepository,
             TriagemRepository triagemRepository,
             UserRepository userRepository,
+            AcolhidoService acolhidoService,
             CargoService cargoService,
             FuncionarioService funcionarioService,
-            ModalidadeService modalidadeService,
+            ConvenioService convenioService,
             TriagemService triagemService,
             UserService userService
     ) {
+        this.acolhidoRepository = acolhidoRepository;
         this.cargoRepository = cargoRepository;
         this.funcionarioRepository = funcionarioRepository;
-        this.modalidadeRepository = modalidadeRepository;
-        this.triagemRepository = triagemRepository;
         this.convenioRepository = convenioRepository;
+        this.triagemRepository = triagemRepository;
         this.userRepository = userRepository;
 
         this.acolhidoService = acolhidoService;
         this.cargoService = cargoService;
         this.funcionarioService = funcionarioService;
-        this.modalidadeService = modalidadeService;
-        this.triagemService = triagemService;
         this.convenioService = convenioService;
+        this.triagemService = triagemService;
         this.userService = userService;
     }
 
@@ -86,18 +71,13 @@ public class DevDataInitializer implements ApplicationRunner {
     @Transactional
     public void run(ApplicationArguments args) {
 
-        if (cargoRepository.count() > 0
-    public void run(ApplicationArguments args)
-    {
+        // Evita duplicar dados no ambiente de desenvolvimento
         if (acolhidoRepository.count() > 0
                 || cargoRepository.count() > 0
                 || funcionarioRepository.count() > 0
-                || modalidadeRepository.count() > 0
+                || convenioRepository.count() > 0
                 || triagemRepository.count() > 0
                 || userRepository.count() > 0) {
-                || convenioRepository.count() > 0
-                || userRepository.count() > 0)
-        {
             return;
         }
 
@@ -140,53 +120,41 @@ public class DevDataInitializer implements ApplicationRunner {
         );
 
         // =========================
-        // MODALIDADES
+        // CONVÊNIOS
         // =========================
 
-        Modalidade atendimentoSocial =
-                modalidadeService.createModalidade(
-                        new Modalidade(
-                                "Atendimento Social",
-                                null,
-                                40,
-                                false,
-                                "#2E86C1"
-                        )
-                );
+        Convenio atendimentoSocial = convenioService.createConvenio(
+                new Convenio(
+                        "Atendimento Social",
+                        null,
+                        40,
+                        false,
+                        "#2E86C1"
+                )
+        );
 
-        Modalidade clinicaParceira =
-                modalidadeService.createModalidade(
-                        new Modalidade(
-                                "Clínica Parceira",
-                                "11222333000181",
-                                20,
-                                true,
-                                "#28B463"
-                        )
-                );
+        Convenio clinicaParceira = convenioService.createConvenio(
+                new Convenio(
+                        "Clínica Parceira",
+                        "11222333000181",
+                        20,
+                        true,
+                        "#28B463"
+                )
+        );
 
-        convenioService.createConvenio(new Convenio(
-                "Atendimento Social", null, 40, false, "#2E86C1"));
-        convenioService.createConvenio(new Convenio(
-                "Clínica Parceira", "11222333000181", 20, true, "#28B463"));
-        Convenio convenio = convenioService.createConvenio(new Convenio(
-                "Convênio Comunitário", "11444777000161", 15, true, "#AF7AC5"));
-        convenioService.createConvenio(new Convenio(
-                "Lista de Espera", null, 0, false, "#F39C12"));
-        convenioService.deleteConvenioById(convenio.getId());
-        Modalidade convenio =
-                modalidadeService.createModalidade(
-                        new Modalidade(
-                                "Convênio Comunitário",
-                                "11444777000161",
-                                15,
-                                true,
-                                "#AF7AC5"
-                        )
-                );
+        Convenio convenioComunitario = convenioService.createConvenio(
+                new Convenio(
+                        "Convênio Comunitário",
+                        "11444777000161",
+                        15,
+                        true,
+                        "#AF7AC5"
+                )
+        );
 
-        modalidadeService.createModalidade(
-                new Modalidade(
+        convenioService.createConvenio(
+                new Convenio(
                         "Lista de Espera",
                         null,
                         0,
@@ -195,7 +163,10 @@ public class DevDataInitializer implements ApplicationRunner {
                 )
         );
 
-        modalidadeService.deleteModalidadeById(convenio.getId());
+        // Testa exclusão lógica de convênio
+        convenioService.deleteConvenioById(
+                convenioComunitario.getId()
+        );
 
         // =========================
         // FUNCIONÁRIOS
@@ -251,71 +222,30 @@ public class DevDataInitializer implements ApplicationRunner {
                 )
         );
 
-        Funcionario carla = funcionarioService.createFuncionario(new Funcionario(
-                "Carla Souza",
-                "12345678909",
-                "carla.souza@teste.local",
-                LocalDate.of(1988, 11, 2),
-                new Endereco("Praça da Liberdade", 20, "Funcionários", "Belo Horizonte", "MG"),
-                "30140010",
-                "31987654321",
-                new User("carla.dev", TEST_PASSWORD, UserRoles.USER),
-                assistenteSocial,
-                LocalDate.of(2021, 5, 10)));
-        funcionarioService.dismissFuncionarioById(carla.getId(), LocalDate.of(2025, 6, 30));
-
-        acolhidoService.createAcolhido(new Acolhido(
-                "Gabriel Santos",
-                "gabriel.santos@teste.local",
-                "39053344705",
-                "01310100",
-                new Endereco("Avenida Paulista", 1000, "Bela Vista", "São Paulo", "SP", "Apartamento 42"),
-                "11955551234",
-                LocalDate.of(1990, 3, 15)));
-
-        acolhidoService.createAcolhido(new Acolhido(
-                "Juliana Oliveira",
-                "juliana.oliveira@teste.local",
-                "16899535009",
-                "30140071",
-                new Endereco("Avenida Afonso Pena", 1500, "Centro", "Belo Horizonte", "MG"),
-                "31955552345",
-                LocalDate.of(1987, 7, 22)));
-
-        Acolhido marcos = acolhidoService.createAcolhido(new Acolhido(
-                "Marcos Pereira",
-                "marcos.pereira@teste.local",
-                "98765432100",
-                "20040002",
-                new Endereco("Rua da Assembleia", 50, "Centro", "Rio de Janeiro", "RJ"),
-                "21955553456",
-                LocalDate.of(1979, 12, 3)));
-        acolhidoService.deactivateAcolhido(marcos.getId());
-        Funcionario carla =
-                funcionarioService.createFuncionario(
-                        new Funcionario(
-                                "Carla Souza",
-                                "12345678909",
-                                "carla.souza@teste.local",
-                                LocalDate.of(1988, 11, 2),
-                                new Endereco(
-                                        "Praça da Liberdade",
-                                        20,
-                                        "Funcionários",
-                                        "Belo Horizonte",
-                                        "MG"
-                                ),
-                                "30140010",
-                                "31987654321",
-                                new User(
-                                        "carla.dev",
-                                        TEST_PASSWORD,
-                                        UserRoles.USER
-                                ),
-                                assistenteSocial,
-                                LocalDate.of(2021, 5, 10)
-                        )
-                );
+        Funcionario carla = funcionarioService.createFuncionario(
+                new Funcionario(
+                        "Carla Souza",
+                        "12345678909",
+                        "carla.souza@teste.local",
+                        LocalDate.of(1988, 11, 2),
+                        new Endereco(
+                                "Praça da Liberdade",
+                                20,
+                                "Funcionários",
+                                "Belo Horizonte",
+                                "MG"
+                        ),
+                        "30140010",
+                        "31987654321",
+                        new User(
+                                "carla.dev",
+                                TEST_PASSWORD,
+                                UserRoles.USER
+                        ),
+                        assistenteSocial,
+                        LocalDate.of(2021, 5, 10)
+                )
+        );
 
         funcionarioService.dismissFuncionarioById(
                 carla.getId(),
@@ -323,56 +253,129 @@ public class DevDataInitializer implements ApplicationRunner {
         );
 
         // =========================
+        // ACOLHIDOS
+        // =========================
+
+        acolhidoService.createAcolhido(
+                new Acolhido(
+                        "Gabriel Santos",
+                        "gabriel.santos@teste.local",
+                        "39053344705",
+                        "01310100",
+                        new Endereco(
+                                "Avenida Paulista",
+                                1000,
+                                "Bela Vista",
+                                "São Paulo",
+                                "SP",
+                                "Apartamento 42"
+                        ),
+                        "11955551234",
+                        LocalDate.of(1990, 3, 15)
+                )
+        );
+
+        acolhidoService.createAcolhido(
+                new Acolhido(
+                        "Juliana Oliveira",
+                        "juliana.oliveira@teste.local",
+                        "16899535009",
+                        "30140071",
+                        new Endereco(
+                                "Avenida Afonso Pena",
+                                1500,
+                                "Centro",
+                                "Belo Horizonte",
+                                "MG"
+                        ),
+                        "31955552345",
+                        LocalDate.of(1987, 7, 22)
+                )
+        );
+
+        Acolhido marcos = acolhidoService.createAcolhido(
+                new Acolhido(
+                        "Marcos Pereira",
+                        "marcos.pereira@teste.local",
+                        "98765432100",
+                        "20040002",
+                        new Endereco(
+                                "Rua da Assembleia",
+                                50,
+                                "Centro",
+                                "Rio de Janeiro",
+                                "RJ"
+                        ),
+                        "21955553456",
+                        LocalDate.of(1979, 12, 3)
+                )
+        );
+
+        acolhidoService.deactivateAcolhido(
+                marcos.getId()
+        );
+
+        // =========================
         // TRIAGENS
         // =========================
 
+        LocalDateTime agora = LocalDateTime.now();
+
+        // Triagem 1 - AGENDADA
         triagemService.create(
                 new TriagemRequestDto(
                         atendimentoSocial.getId(),
-                        "Jhon",
-                        "18999999999",
-                        LocalDateTime.now().plusDays(2),
-                        ""
+                        "João Pedro da Silva",
+                        "11987654321",
+                        agora.plusDays(1),
+                        "Primeiro contato realizado por telefone."
                 )
         );
 
-        triagemService.create(
+        // Triagem 2 - Será CONCLUIDA
+        TriagemResponseDto triagemConcluida = triagemService.create(
                 new TriagemRequestDto(
-                        atendimentoSocial.getId(),
-                        "Carlos",
-                        "18999989999",
-                        LocalDateTime.now().plusDays(3),
-                        "Primeiro atendimento."
+                        clinicaParceira.getId(),
+                        "Maria Eduarda Santos",
+                        "11976543210",
+                        agora.plusDays(2),
+                        "Possível acolhida demonstrou interesse."
                 )
         );
 
+        triagemService.concluir(triagemConcluida.id());
+
+        // Triagem 3 - AGENDADA
         triagemService.create(
                 new TriagemRequestDto(
                         atendimentoSocial.getId(),
-                        "Lana",
-                        "18999989998",
-                        LocalDateTime.now().plusDays(4),
+                        "Carlos Henrique Souza",
+                        "11999887766",
+                        agora.plusHours(4),
                         "Entrevista inicial agendada."
                 )
         );
 
+        // Triagem 4 - AGENDADA
         triagemService.create(
                 new TriagemRequestDto(
                         clinicaParceira.getId(),
-                        "Mariana Souza",
-                        "11988887777",
-                        LocalDateTime.now().plusHours(5),
-                        "Encaminhada para clínica parceira."
+                        "Fernanda Oliveira",
+                        "11988776655",
+                        agora.plusDays(3),
+                        "Entrevista de acompanhamento."
                 )
         );
 
+        // Triagem 5 - Teste do Scheduler
+        // Após um minuto deve mudar para ATRASADA
         triagemService.create(
                 new TriagemRequestDto(
                         atendimentoSocial.getId(),
                         "Teste Scheduler",
                         "11999998888",
-                        LocalDateTime.now().plusMinutes(2),
-                        "Triagem criada para testar alteração automática de status."
+                        agora.plusMinutes(1),
+                        "Teste de atualização automática do status."
                 )
         );
     }

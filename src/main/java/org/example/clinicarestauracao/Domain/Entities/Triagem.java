@@ -5,7 +5,6 @@ import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.example.clinicarestauracao.Application.Dtos.ModalidadeDtos.ModalidadeRequestDto;
 import org.example.clinicarestauracao.Application.Exceptions.Triagem.TriagemWithInvalidInformationException;
 import org.example.clinicarestauracao.Domain.Enums.Status;
 
@@ -23,8 +22,8 @@ public class Triagem {
     private Long id;
 
     @ManyToOne(optional = false)
-    @JoinColumn(name = "id_modalidade", nullable = false)
-    private Modalidade modalidade;
+    @JoinColumn(name = "id_convenio", nullable = false)
+    private Convenio convenio;
 
     @Column(nullable = false)
     private String nomePossivelAcolhido;
@@ -43,13 +42,13 @@ public class Triagem {
     private Status status;
 
     public Triagem(
-            Modalidade modalidade,
+            Convenio convenio,
             String nomePossivelAcolhido,
             String telefone,
             LocalDateTime dataAgendada,
             String observacaoEntrevista
     ) {
-        setModalidade(modalidade);
+        setConvenio(convenio);
         setNomePossivelAcolhido(nomePossivelAcolhido);
         setTelefone(telefone);
         setDataAgendada(dataAgendada);
@@ -62,20 +61,20 @@ public class Triagem {
         this.status = Status.AGENDADA;
     }
 
-    public void setModalidade(Modalidade modalidade) {
-        if (modalidade == null) {
+    public void setConvenio(Convenio convenio) {
+        if (convenio == null) {
             throw new TriagemWithInvalidInformationException(
-                    "A triagem precisa estar vinculada a uma modalidade."
+                    "A triagem precisa estar vinculada a um convenio."
             );
         }
 
-        if (!modalidade.isAtivo()) {
+        if (!convenio.isAtivo()) {
             throw new TriagemWithInvalidInformationException(
-                    "Não é possível agendar triagem para uma modalidade inativa."
+                    "Não é possível agendar triagem para um convenio inativo."
             );
         }
 
-        this.modalidade = modalidade;
+        this.convenio = convenio;
     }
 
     public void setNomePossivelAcolhido(String nomePossivelAcolhido) {
