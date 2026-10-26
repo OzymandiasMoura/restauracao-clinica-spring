@@ -1,4 +1,4 @@
-package org.example.clinicarestauracao.Application.Dtos.Medicamento;
+package org.example.clinicarestauracao.Application.Dtos.MedicamentoDtos;
 
 import jakarta.validation.constraints.*;
 
@@ -18,6 +18,6 @@ public record MedicamentoRequestDto(
 
         @NotNull(message = "A quantidade mínima para alerta é obrigatória")
         @Min(value = 0, message = "A quantidade mínima não pode ser negativa")
-        Integer quantidadeMinimaAlerta
+        Integer quantidadeMinima
 ) {
 }

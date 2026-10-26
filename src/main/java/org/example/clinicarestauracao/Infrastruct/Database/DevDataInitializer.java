@@ -262,12 +262,12 @@ public class DevDataInitializer implements ApplicationRunner {
                 new Medicamento("Loratadina 10mg", 9.50)
         );
 
-        dipirona.setQuantidadeMinimaAlerta(10);
-        paracetamol.setQuantidadeMinimaAlerta(10);
-        ibuprofeno.setQuantidadeMinimaAlerta(5);
-        amoxicilina.setQuantidadeMinimaAlerta(10);
-        omeprazol.setQuantidadeMinimaAlerta(5);
-        loratadina.setQuantidadeMinimaAlerta(5);
+        dipirona.setQuantidadeMinima(10);
+        paracetamol.setQuantidadeMinima(10);
+        ibuprofeno.setQuantidadeMinima(5);
+        amoxicilina.setQuantidadeMinima(10);
+        omeprazol.setQuantidadeMinima(5);
+        loratadina.setQuantidadeMinima(5);
 
         medicamentoService.adicionarEstoque(dipirona.getId(), 50);
         medicamentoService.adicionarEstoque(paracetamol.getId(), 3);

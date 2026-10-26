@@ -25,18 +25,16 @@ public class Medicamento {
     private int quantidadeEstoque;
 
     @Column(nullable = false)
-    private int quantidadeMinimaAlerta;
+    private int quantidadeMinima;
 
 
-    @Column(name = "ativo", nullable = false)
-    private boolean ativo = true;
 
-    public Medicamento(Long id, String nome, double preco, int quantidadeEstoque, int quantidadeMinimaAlerta) {
+    public Medicamento(Long id, String nome, double preco, int quantidadeEstoque, int quantidadeMinima) {
         this.id = id;
         setNome(nome);
         setPreco(preco);
         setQuantidadeEstoque(quantidadeEstoque);
-        setQuantidadeMinimaAlerta(quantidadeMinimaAlerta);
+        setQuantidadeMinima(quantidadeMinima);
     }
 
     public Medicamento(String nome, double preco) {
@@ -70,28 +68,21 @@ public class Medicamento {
         }
 
     }
-    public void setQuantidadeMinimaAlerta(int quantidadeMinimaAlerta) {
-        if (quantidadeMinimaAlerta < 0) {
+    public void setQuantidadeMinima(int quantidadeMinima) {
+        if (quantidadeMinima < 0) {
             throw new MedicamentoWithInvalidInformationException("A quantidade mínima para alerta não pode ser negativa.");
         } else {
-            this.quantidadeMinimaAlerta = quantidadeMinimaAlerta;
+            this.quantidadeMinima = quantidadeMinima;
         }
     }
-    public void inativar() {
-        this.ativo = false;
-    }
+
     public void adicionarEstoque(int quantidade) {
 
         if (quantidade <= 0) {
             throw new MedicamentoWithInvalidInformationException(
                     "A quantidade deve ser maior que zero."
             );
-        }
 
-        if (!this.ativo) {
-            throw new MedicamentoWithInvalidInformationException(
-                    "Não é possível alterar o estoque de um medicamento inativo."
-            );
         }
 
         if (quantidade > Integer.MAX_VALUE - this.quantidadeEstoque) {
@@ -111,11 +102,6 @@ public class Medicamento {
             );
         }
 
-        if (!this.ativo) {
-            throw new MedicamentoWithInvalidInformationException(
-                    "Não é possível alterar o estoque de um medicamento inativo."
-            );
-        }
 
         if (quantidade > this.quantidadeEstoque) {
             throw new MedicamentoWithInvalidInformationException(

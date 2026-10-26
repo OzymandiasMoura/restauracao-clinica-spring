@@ -4,9 +4,9 @@ package org.example.clinicarestauracao.Application.Controllers;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.example.clinicarestauracao.Application.Controllers.Mappers.MedicamentoMapper;
-import org.example.clinicarestauracao.Application.Dtos.Medicamento.MedicamentoRequestDto;
-import org.example.clinicarestauracao.Application.Dtos.Medicamento.MedicamentoResponseDto;
-import org.example.clinicarestauracao.Application.Dtos.Medicamento.MovimentacaoEstoqueRequestDto;
+import org.example.clinicarestauracao.Application.Dtos.MedicamentoDtos.MedicamentoRequestDto;
+import org.example.clinicarestauracao.Application.Dtos.MedicamentoDtos.MedicamentoResponseDto;
+import org.example.clinicarestauracao.Application.Dtos.MedicamentoDtos.MovimentacaoEstoqueRequestDto;
 import org.example.clinicarestauracao.Application.Services.MedicamentoService;
 import org.example.clinicarestauracao.Domain.Entities.Medicamento;
 import org.springframework.http.ResponseEntity;
@@ -49,9 +49,9 @@ public class MedicamentoController {
 
     }
 
-    @GetMapping("/ativos")
-    public ResponseEntity<List<MedicamentoResponseDto>> listAllAtivos(){
-        List<Medicamento> medicamento = medicamentoService.findAtivos();
+    @GetMapping
+    public ResponseEntity<List<MedicamentoResponseDto>> listAll(){
+        List<Medicamento> medicamento = medicamentoService.findAll();
 
         List<MedicamentoResponseDto> dtos = medicamento.stream()
                 .map(MedicamentoMapper::entityToResponseDto)
@@ -60,16 +60,7 @@ public class MedicamentoController {
         return ResponseEntity.ok(dtos);
     }
 
-    @GetMapping("/inativos")
-    public ResponseEntity<List<MedicamentoResponseDto>> listAllInativos(){
-        List<Medicamento> medicamento = medicamentoService.findInativos();
 
-        List<MedicamentoResponseDto> dtos = medicamento.stream()
-                .map(MedicamentoMapper::entityToResponseDto)
-                .toList();
-
-        return ResponseEntity.ok(dtos);
-    }
 
     @GetMapping("/{id}")
     public ResponseEntity<MedicamentoResponseDto> findByID(@PathVariable Long id){

@@ -13,11 +13,8 @@ public interface MedicamentoRepository extends JpaRepository<Medicamento, Long> 
 
     Optional<Medicamento> findByNomeIgnoreCase(String nome);
 
-    List<Medicamento> findByAtivoTrue();
 
-    List<Medicamento> findByAtivoFalse();
-
-    @Query("SELECT e FROM Medicamento e WHERE e.quantidadeEstoque <= e.quantidadeMinimaAlerta")
+    @Query("SELECT e FROM Medicamento e WHERE e.quantidadeEstoque <= e.quantidadeMinima")
     List<Medicamento> findEstoquesEmAlerta();
 
 }

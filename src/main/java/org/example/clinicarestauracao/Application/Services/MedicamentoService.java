@@ -17,13 +17,10 @@ public class MedicamentoService {
 
     private final MedicamentoRepository medicamentoRepository;
 
-    public List<Medicamento> findAtivos() {
-        return medicamentoRepository.findByAtivoTrue();
+    public List<Medicamento> findAll() {
+        return medicamentoRepository.findAll();
     }
 
-    public List<Medicamento> findInativos() {
-        return medicamentoRepository.findByAtivoFalse();
-    }
 
     public Medicamento findMedicamentoById(Long id) {
         return medicamentoRepository.findById(id)
@@ -71,7 +68,7 @@ public class MedicamentoService {
 
         Medicamento medicamento = findMedicamentoById(id);
 
-        medicamento.inativar();
+        medicamentoRepository.delete(medicamento);
     }
 
 
