@@ -11,7 +11,7 @@ public class TriagemScheduler {
 
     private final TriagemService triagemService;
 
-    @Scheduled(fixedRate = 60000)
+    @Scheduled(cron = "0 0 0 * * *", zone = "America/Sao_Paulo")
     public void verificarTriagensVencidas() {
         triagemService.atualizarTriagensVencidas();
     }
