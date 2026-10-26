@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import org.example.clinicarestauracao.Application.Exceptions.Triagem.TriagemWithInvalidInformationException;
 import org.example.clinicarestauracao.Domain.Enums.Status;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
@@ -179,13 +180,13 @@ public class Triagem {
                     "Apenas triagens concluídas podem ser desconcluídas."
             );
         }
+
         this.dataConclusao = null;
 
-        if (this.dataAgendada.isBefore(LocalDateTime.now())) {
-            this.status = Status.ATRASADA;
-        } else {
-            this.status = Status.AGENDADA;
-        }
+        this.status = this.dataAgendada.toLocalDate()
+                .isBefore(LocalDate.now())
+                ? Status.ATRASADA
+                : Status.AGENDADA;
     }
 
     public void reagendar(LocalDateTime novaData) {
