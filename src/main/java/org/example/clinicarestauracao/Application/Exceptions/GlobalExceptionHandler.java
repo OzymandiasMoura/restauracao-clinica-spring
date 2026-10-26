@@ -1,6 +1,8 @@
 package org.example.clinicarestauracao.Application.Exceptions;
 
 import org.example.clinicarestauracao.Application.Dtos.SecurityDtos.ErrorResponseDto;
+import org.example.clinicarestauracao.Application.Dtos.SecurityDtos.FieldErrorDto;
+import org.example.clinicarestauracao.Application.Dtos.SecurityDtos.ValidationErrorResponseDto;
 import org.example.clinicarestauracao.Application.Exceptions.Acolhido.AcolhidoNotFoundException;
 import org.example.clinicarestauracao.Application.Exceptions.Acolhido.AcolhidoWithInvalidInformationException;
 import org.example.clinicarestauracao.Application.Exceptions.Cargo.CargoNotFoundException;
@@ -8,12 +10,17 @@ import org.example.clinicarestauracao.Application.Exceptions.Cargo.CargoWithInva
 import org.example.clinicarestauracao.Application.Exceptions.Endereco.EnderecoWithInvalidInformationException;
 import org.example.clinicarestauracao.Application.Exceptions.Funcionario.FuncionarioNotFoundException;
 import org.example.clinicarestauracao.Application.Exceptions.Funcionario.FuncionarioWithInvalidInformationException;
+import org.example.clinicarestauracao.Application.Exceptions.Triagem.TriagemNotFoundException;
+import org.example.clinicarestauracao.Application.Exceptions.Triagem.TriagemWithInvalidInformationException;
 import org.example.clinicarestauracao.Application.Exceptions.User.UserNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+
+import java.util.List;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler
@@ -37,6 +44,18 @@ public class GlobalExceptionHandler
     public ResponseEntity<ErrorResponseDto> handleUserWithNullInformation(UserWithInvalidInformationException ex)
     {
         var response = new ErrorResponseDto(ex.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
+
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ValidationErrorResponseDto> handleValidationExceptions(MethodArgumentNotValidException ex)
+    {
+        List<FieldErrorDto> errosDeCampo = ex.getBindingResult().getFieldErrors().stream()
+                .map(erro -> new FieldErrorDto(erro.getField(), erro.getDefaultMessage()))
+                .toList();
+
+        var response = new ValidationErrorResponseDto("Falha na validação dos dados.", errosDeCampo);
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
@@ -102,6 +121,22 @@ public class GlobalExceptionHandler
         var response = new ErrorResponseDto(ex.getMessage());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
+
+    @ExceptionHandler(TriagemNotFoundException.class)
+    public ResponseEntity<ErrorResponseDto> handleTriagemNotFound(TriagemNotFoundException ex)
+    {
+        var response = new ErrorResponseDto(ex.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+    }
+
+    @ExceptionHandler(TriagemWithInvalidInformationException.class)
+    public ResponseEntity<ErrorResponseDto> handleTriagemWithInvalidInformation(TriagemWithInvalidInformationException ex)
+    {
+        var response = new ErrorResponseDto(ex.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
+
+
 
     //Acolhido
     @ExceptionHandler(AcolhidoWithInvalidInformationException.class)
