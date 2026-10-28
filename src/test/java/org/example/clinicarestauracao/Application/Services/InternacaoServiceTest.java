@@ -348,17 +348,17 @@ class InternacaoServiceTest
         LocalDate dataEntradaPersistida = LocalDate.of(2026, 1, 10);
         LocalDate novaDataSaidaPrevista = LocalDate.of(2026, 12, 10);
         BigDecimal novoValorMensalidade = new BigDecimal("1500.50");
-        Internacao internacaoPersistida = InternacaoTestBuilder.newInternacao().setId(1L).setAcolhido(acolhidoPersistido).setConvenio(convenioPersistido).setDataEntrada(dataEntradaPersistida).setEtapaTratamento(TreatmentStage.INICIO).setValorMensalidade(new BigDecimal("1200.00")).build();
+        Internacao internacaoPersistida = InternacaoTestBuilder.newInternacao().setId(1L).setAcolhido(acolhidoPersistido).setConvenio(convenioPersistido).setDataEntrada(dataEntradaPersistida).setEtapaTratamento(TreatmentStage.EM_TRATAMENTO).setValorMensalidade(new BigDecimal("1200.00")).build();
 
         Mockito.when(repository.findById(1L)).thenReturn(Optional.of(internacaoPersistida));
         Mockito.when(repository.save(Mockito.same(internacaoPersistida))).thenReturn(internacaoPersistida);
 
-        Internacao response = service.updateInternacao(1L, novaDataSaidaPrevista, TreatmentStage.MEIO, novoValorMensalidade);
+        Internacao response = service.updateInternacao(1L, novaDataSaidaPrevista, TreatmentStage.PROXIMO_ALTA, novoValorMensalidade);
 
         assertAll(
                 () -> assertSame(internacaoPersistida, response),
                 () -> assertEquals(novaDataSaidaPrevista, response.getDataSaidaPrevista()),
-                () -> assertEquals(TreatmentStage.MEIO, response.getEtapaTratamento()),
+                () -> assertEquals(TreatmentStage.PROXIMO_ALTA, response.getEtapaTratamento()),
                 () -> assertEquals(novoValorMensalidade, response.getValorMensalidade()),
                 () -> assertSame(acolhidoPersistido, response.getAcolhido()),
                 () -> assertSame(convenioPersistido, response.getConvenio()),
@@ -382,7 +382,7 @@ class InternacaoServiceTest
 
         Mockito.when(repository.findById(1L)).thenReturn(Optional.of(internacaoPersistida));
 
-        InternacaoWithInvalidInformationException exception = assertThrows(InternacaoWithInvalidInformationException.class, () -> service.updateInternacao(1L, novaDataSaidaPrevista, TreatmentStage.MEIO, novoValorMensalidade));
+        InternacaoWithInvalidInformationException exception = assertThrows(InternacaoWithInvalidInformationException.class, () -> service.updateInternacao(1L, novaDataSaidaPrevista, TreatmentStage.PROXIMO_ALTA, novoValorMensalidade));
 
         assertEquals("Internação encerrada não pode ser atualizada.", exception.getMessage());
 
@@ -398,7 +398,7 @@ class InternacaoServiceTest
 
         Mockito.when(repository.findById(1L)).thenReturn(Optional.of(internacaoPersistida));
 
-        InternacaoWithInvalidInformationException exception = assertThrows(InternacaoWithInvalidInformationException.class, () -> service.updateInternacao(1L, null, TreatmentStage.MEIO, new BigDecimal("1500.00")));
+        InternacaoWithInvalidInformationException exception = assertThrows(InternacaoWithInvalidInformationException.class, () -> service.updateInternacao(1L, null, TreatmentStage.PROXIMO_ALTA, new BigDecimal("1500.00")));
 
         assertEquals("Os dados da internação são obrigatórios.", exception.getMessage());
 
@@ -430,7 +430,7 @@ class InternacaoServiceTest
 
         Mockito.when(repository.findById(1L)).thenReturn(Optional.of(internacaoPersistida));
 
-        InternacaoWithInvalidInformationException exception = assertThrows(InternacaoWithInvalidInformationException.class, () -> service.updateInternacao(1L, LocalDate.of(2026, 12, 10), TreatmentStage.MEIO, null));
+        InternacaoWithInvalidInformationException exception = assertThrows(InternacaoWithInvalidInformationException.class, () -> service.updateInternacao(1L, LocalDate.of(2026, 12, 10), TreatmentStage.PROXIMO_ALTA, null));
 
         assertEquals("Os dados da internação são obrigatórios.", exception.getMessage());
 
@@ -444,7 +444,7 @@ class InternacaoServiceTest
     {
         Mockito.when(repository.findById(1L)).thenReturn(Optional.empty());
 
-        InternacaoNotFoundException exception = assertThrows(InternacaoNotFoundException.class, () -> service.updateInternacao(1L, LocalDate.of(2026, 12, 10), TreatmentStage.MEIO, new BigDecimal("1500.00")));
+        InternacaoNotFoundException exception = assertThrows(InternacaoNotFoundException.class, () -> service.updateInternacao(1L, LocalDate.of(2026, 12, 10), TreatmentStage.PROXIMO_ALTA, new BigDecimal("1500.00")));
 
         assertEquals("Internação não encontrada.", exception.getMessage());
 

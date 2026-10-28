@@ -29,7 +29,7 @@ class InternacaoTest
         LocalDate dataSaidaPrevista = dataEntrada.plusMonths(9);
         BigDecimal valorMensalidade = new BigDecimal("1200.00");
 
-        Internacao internacao = InternacaoTestBuilder.newInternacao().setAcolhido(acolhido).setConvenio(convenio).setDataEntrada(dataEntrada).setDataSaidaPrevista(dataSaidaPrevista).setEtapaTratamento(TreatmentStage.INICIO).setValorMensalidade(valorMensalidade).buildForCreate();
+        Internacao internacao = InternacaoTestBuilder.newInternacao().setAcolhido(acolhido).setConvenio(convenio).setDataEntrada(dataEntrada).setDataSaidaPrevista(dataSaidaPrevista).setEtapaTratamento(TreatmentStage.EM_TRATAMENTO).setValorMensalidade(valorMensalidade).buildForCreate();
 
         assertAll(
                 () -> assertNull(internacao.getId()),
@@ -37,7 +37,7 @@ class InternacaoTest
                 () -> assertSame(convenio, internacao.getConvenio()),
                 () -> assertEquals(dataEntrada, internacao.getDataEntrada()),
                 () -> assertEquals(dataSaidaPrevista, internacao.getDataSaidaPrevista()),
-                () -> assertEquals(TreatmentStage.INICIO, internacao.getEtapaTratamento()),
+                () -> assertEquals(TreatmentStage.EM_TRATAMENTO, internacao.getEtapaTratamento()),
                 () -> assertEquals(valorMensalidade, internacao.getValorMensalidade()),
                 () -> assertTrue(internacao.getAtivo()),
                 () -> assertNull(internacao.getDataSaida()),
@@ -65,7 +65,7 @@ class InternacaoTest
         LocalDate dataSaida = LocalDate.of(2026, 8, 10);
         BigDecimal valorMensalidade = new BigDecimal("1200.00");
 
-        Internacao internacao = InternacaoTestBuilder.newInternacao().setId(10L).setAcolhido(acolhido).setConvenio(convenio).setDataEntrada(dataEntrada).setDataSaidaPrevista(dataSaidaPrevista).setDataSaida(dataSaida).setEtapaTratamento(TreatmentStage.FIM).setValorMensalidade(valorMensalidade).setAtivo(false).setAlta(AltaTypes.CONCLUSAO).build();
+        Internacao internacao = InternacaoTestBuilder.newInternacao().setId(10L).setAcolhido(acolhido).setConvenio(convenio).setDataEntrada(dataEntrada).setDataSaidaPrevista(dataSaidaPrevista).setDataSaida(dataSaida).setEtapaTratamento(TreatmentStage.ALTA_CONCEDIDA).setValorMensalidade(valorMensalidade).setAtivo(false).setAlta(AltaTypes.CONCLUSAO).build();
 
         assertAll(
                 () -> assertEquals(10L, internacao.getId()),
@@ -74,7 +74,7 @@ class InternacaoTest
                 () -> assertEquals(dataEntrada, internacao.getDataEntrada()),
                 () -> assertEquals(dataSaidaPrevista, internacao.getDataSaidaPrevista()),
                 () -> assertEquals(dataSaida, internacao.getDataSaida()),
-                () -> assertEquals(TreatmentStage.FIM, internacao.getEtapaTratamento()),
+                () -> assertEquals(TreatmentStage.ALTA_CONCEDIDA, internacao.getEtapaTratamento()),
                 () -> assertEquals(valorMensalidade, internacao.getValorMensalidade()),
                 () -> assertFalse(internacao.getAtivo()),
                 () -> assertEquals(AltaTypes.CONCLUSAO, internacao.getAlta())

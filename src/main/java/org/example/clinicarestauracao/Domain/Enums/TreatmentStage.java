@@ -2,9 +2,11 @@ package org.example.clinicarestauracao.Domain.Enums;
 
 public enum TreatmentStage
 {
-    INICIO("inicio"),
-    MEIO("meio"),
-    FIM("fim");
+    EM_TRATAMENTO("emTratamento"),
+    PROXIMO_ALTA("proximoAlta"),
+    ALTA_VENCIDA("altaVencida"),
+    ALTA_CONCEDIDA("altaConcedida")
+    ;
 
     private final String value;
 

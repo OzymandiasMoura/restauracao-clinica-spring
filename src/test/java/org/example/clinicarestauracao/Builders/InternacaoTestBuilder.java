@@ -17,7 +17,7 @@ public class InternacaoTestBuilder
     private LocalDate dataEntrada = LocalDate.of(2026, 1, 10);
     private LocalDate dataSaidaPrevista = dataEntrada.plusMonths(9);
     private LocalDate dataSaida;
-    private TreatmentStage etapaTratamento = TreatmentStage.INICIO;
+    private TreatmentStage etapaTratamento = TreatmentStage.EM_TRATAMENTO;
     private BigDecimal valorMensalidade = new BigDecimal("1200.00");
     private Boolean ativo = true;
     private AltaTypes alta = null;
