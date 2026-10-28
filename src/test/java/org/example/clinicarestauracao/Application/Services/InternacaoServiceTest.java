@@ -463,10 +463,12 @@ class InternacaoServiceTest
         Internacao internacao = InternacaoTestBuilder.newInternacao().setId(1L).setDataEntrada(dataEntrada).setDataSaidaPrevista(dataEntrada.plusMonths(9)).setAtivo(true).setDataSaida(null).setAlta(null).build();
 
         Mockito.when(repository.findById(1L)).thenReturn(Optional.of(internacao));
+        Mockito.when(repository.save(Mockito.same(internacao))).thenReturn(internacao);
 
-        service.endInternacaoById(1L, AltaTypes.CONCLUSAO, dataSaida);
+        Internacao response = service.endInternacaoById(1L, AltaTypes.CONCLUSAO, dataSaida);
 
         assertAll(
+                () -> assertSame(internacao, response),
                 () -> assertEquals(dataSaida, internacao.getDataSaida()),
                 () -> assertEquals(AltaTypes.CONCLUSAO, internacao.getAlta()),
                 () -> assertFalse(internacao.getAtivo())
@@ -485,10 +487,12 @@ class InternacaoServiceTest
         Internacao internacao = InternacaoTestBuilder.newInternacao().setId(1L).setDataEntrada(dataEntrada).setDataSaidaPrevista(dataEntrada.plusMonths(9)).setDataSaida(null).setAlta(null).setAtivo(false).build();
 
         Mockito.when(repository.findById(1L)).thenReturn(Optional.of(internacao));
+        Mockito.when(repository.save(Mockito.same(internacao))).thenReturn(internacao);
 
-        service.endInternacaoById(1L, AltaTypes.DESISTENCIA, dataSaida);
+        Internacao response = service.endInternacaoById(1L, AltaTypes.DESISTENCIA, dataSaida);
 
         assertAll(
+                () -> assertSame(internacao, response),
                 () -> assertEquals(dataSaida, internacao.getDataSaida()),
                 () -> assertEquals(AltaTypes.DESISTENCIA, internacao.getAlta()),
                 () -> assertFalse(internacao.getAtivo())

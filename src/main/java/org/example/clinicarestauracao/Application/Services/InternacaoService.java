@@ -110,13 +110,13 @@ public class InternacaoService
     }
 
     @Transactional
-    public void endInternacaoById(Long id, AltaTypes alta, LocalDate dataSaida)
+    public Internacao endInternacaoById(Long id, AltaTypes alta, LocalDate dataSaida)
     {
         Internacao internacaoToEnd = findInternacaoById(id);
 
         internacaoToEnd.endInternacao(alta, dataSaida);
 
-        repository.save(internacaoToEnd);
+        return repository.save(internacaoToEnd);
     }
 
     @Transactional
