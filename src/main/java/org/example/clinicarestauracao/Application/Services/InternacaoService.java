@@ -9,8 +9,10 @@ import org.example.clinicarestauracao.Domain.Entities.Acolhido;
 import org.example.clinicarestauracao.Domain.Entities.Convenio;
 import org.example.clinicarestauracao.Domain.Entities.Internacao;
 import org.example.clinicarestauracao.Domain.Enums.AltaTypes;
+import org.example.clinicarestauracao.Domain.Enums.TreatmentStage;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -87,7 +89,7 @@ public class InternacaoService
     }
 
     @Transactional
-    public Internacao updateInternacao(Long id, Internacao internacao)
+    public Internacao updateInternacao(Long id, LocalDate dataSaidaPrevista, TreatmentStage stage, BigDecimal valorMensalidade)
     {
         Internacao internacaoToUpdate = findInternacaoById(id);
 
@@ -95,14 +97,14 @@ public class InternacaoService
         {
             throw new InternacaoWithInvalidInformationException("Internação encerrada não pode ser atualizada.");
         }
-        if (internacao == null)
+        if (dataSaidaPrevista == null || stage == null ||  valorMensalidade == null)
         {
             throw new InternacaoWithInvalidInformationException("Os dados da internação são obrigatórios.");
         }
 
-        internacaoToUpdate.setDataSaidaPrevista(internacao.getDataSaidaPrevista());
-        internacaoToUpdate.setValorMensalidade(internacao.getValorMensalidade());
-        internacaoToUpdate.setEtapaTratamento(internacao.getEtapaTratamento());
+        internacaoToUpdate.setDataSaidaPrevista(dataSaidaPrevista);
+        internacaoToUpdate.setValorMensalidade(valorMensalidade);
+        internacaoToUpdate.setEtapaTratamento(stage);
 
         return repository.save(internacaoToUpdate);
     }
