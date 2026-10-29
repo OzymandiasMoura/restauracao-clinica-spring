@@ -44,7 +44,7 @@ public class FuncionarioService
             throw new FuncionarioWithInvalidInformationException("Funcionário deve possuir um usuário.");
         }
 
-        User savedUser = userService.registerUser(new User(receivedUser.getUsername(), receivedUser.getPassword(), UserRoles.USER));
+        User savedUser = userService.registerUser(new User(receivedUser.getUsername(), receivedUser.getPassword(), receivedUser.getRole()));
 
         funcionario.setUser(savedUser);
 
