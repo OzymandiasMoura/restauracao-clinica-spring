@@ -239,11 +239,38 @@ public class Internacao
             throw new InternacaoWithInvalidInformationException("Tipo é obrigatório para gerar a alta.");
         }
 
-
+        setEtapaTratamento(TreatmentStage.ALTA_CONCEDIDA);
         setDataSaida(dataSaida);
         setAlta(alta);
         setAtivo(false);
     }
 
+    public void updateTreatmentStage(LocalDate dataReferencia)
+    {
+        if (dataReferencia == null)
+        {
+            throw new InternacaoWithInvalidInformationException("Data de referência é obrigatória.");
+        }
 
+        if (!Boolean.TRUE.equals(ativo))
+        {
+            return;
+        }
+
+        if (dataReferencia.isAfter(dataSaidaPrevista))
+        {
+            etapaTratamento = TreatmentStage.ALTA_VENCIDA;
+            return;
+        }
+
+        LocalDate inicioProximaAlta = dataSaidaPrevista.minusDays(30);
+
+        if (!dataReferencia.isBefore(inicioProximaAlta))
+        {
+            etapaTratamento = TreatmentStage.PROXIMO_ALTA;
+            return;
+        }
+
+        etapaTratamento = TreatmentStage.EM_TRATAMENTO;
+    }
 }

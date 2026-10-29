@@ -655,4 +655,64 @@ class InternacaoTest
                 () -> assertEquals(valorAtual, internacao.getValorMensalidade()));
     }
 
+    // Testes updateTreatmentStage
+
+    @Test
+    void shouldRejectNullReferenceDateAndPreserveTreatmentStage()
+    {
+        Internacao internacao = InternacaoTestBuilder.newInternacao().setEtapaTratamento(TreatmentStage.EM_TRATAMENTO).build();
+        InternacaoWithInvalidInformationException exception = assertThrows(InternacaoWithInvalidInformationException.class, () -> internacao.updateTreatmentStage(null));
+
+        assertAll(
+                () -> assertEquals("Data de referência é obrigatória.", exception.getMessage()),
+                () -> assertEquals(TreatmentStage.EM_TRATAMENTO, internacao.getEtapaTratamento())
+        );
+    }
+
+    @Test
+    void shouldNotUpdateTreatmentStageWhenInternacaoIsInactive()
+    {
+        LocalDate dataSaidaPrevista = LocalDate.of(2026, 12, 31);
+        Internacao internacao = InternacaoTestBuilder.newInternacao().setDataSaidaPrevista(dataSaidaPrevista).setEtapaTratamento(TreatmentStage.ALTA_CONCEDIDA).setAtivo(false).build();
+        internacao.updateTreatmentStage(dataSaidaPrevista.plusDays(1));
+
+        assertEquals(TreatmentStage.ALTA_CONCEDIDA, internacao.getEtapaTratamento());
+    }
+
+    @Test
+    void shouldSetTreatmentStageAsExpiredWhenExpectedExitDateHasPassed()
+    {
+        LocalDate dataSaidaPrevista = LocalDate.of(2026, 12, 31);
+        Internacao internacao = InternacaoTestBuilder.newInternacao().setDataSaidaPrevista(dataSaidaPrevista).setEtapaTratamento(TreatmentStage.EM_TRATAMENTO).setAtivo(true).build();
+
+        internacao.updateTreatmentStage(dataSaidaPrevista.plusDays(1));
+
+        assertEquals(TreatmentStage.ALTA_VENCIDA, internacao.getEtapaTratamento());
+    }
+
+    @ParameterizedTest
+    @ValueSource(longs = {30, 29, 1, 0})
+    void shouldSetTreatmentStageAsUpcomingDischargeWhenThereAreAtMostThirtyDaysRemaining(long diasAntesDaSaida)
+    {
+        LocalDate dataSaidaPrevista = LocalDate.of(2026, 12, 31);
+        Internacao internacao = InternacaoTestBuilder.newInternacao().setDataSaidaPrevista(dataSaidaPrevista).setEtapaTratamento(TreatmentStage.EM_TRATAMENTO).setAtivo(true).build();
+        LocalDate dataReferencia = dataSaidaPrevista.minusDays(diasAntesDaSaida);
+
+        internacao.updateTreatmentStage(dataReferencia);
+
+        assertEquals(TreatmentStage.PROXIMO_ALTA, internacao.getEtapaTratamento());
+    }
+
+    @Test
+    void shouldKeepTreatmentStageAsInTreatmentWhenMoreThanThirtyDaysRemain()
+    {
+        LocalDate dataSaidaPrevista = LocalDate.of(2026, 12, 31);
+
+        Internacao internacao = InternacaoTestBuilder.newInternacao().setDataSaidaPrevista(dataSaidaPrevista).setEtapaTratamento(TreatmentStage.PROXIMO_ALTA).setAtivo(true).build();
+
+        internacao.updateTreatmentStage(dataSaidaPrevista.minusDays(31));
+
+        assertEquals(TreatmentStage.EM_TRATAMENTO, internacao.getEtapaTratamento());
+    }
+
 }
