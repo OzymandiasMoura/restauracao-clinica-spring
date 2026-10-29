@@ -258,13 +258,13 @@ class AcolhidoTest
     }
 
     @Test
-    void shouldAcceptCurrentDateAsBirthDate()
+    void shouldRejectBirthDateWhenAcolhidoIsUnderEighteen()
     {
         LocalDate birthDate = LocalDate.now();
 
-        Acolhido acolhido = AcolhidoTestBuilder.newAcolhido().setDataNascimento(birthDate).build();
+        AcolhidoWithInvalidInformationException exception = assertThrows(AcolhidoWithInvalidInformationException.class, () -> AcolhidoTestBuilder.newAcolhido().setDataNascimento(birthDate).build());
 
-        assertEquals(birthDate, acolhido.getDataNascimento());
+        assertEquals("Acolhido não pode ter menos que 18 anos.", exception.getMessage());
     }
 
     // Testes para estado ativo
