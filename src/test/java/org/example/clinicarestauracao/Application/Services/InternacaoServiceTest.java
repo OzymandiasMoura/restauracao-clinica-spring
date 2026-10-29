@@ -659,4 +659,54 @@ class InternacaoServiceTest
         Mockito.verifyNoInteractions(repository, acolhidoService, convenioService);
     }
 
+    // Testes updateTreatmentStage
+
+    @Test
+    void shouldUpdateTreatmentStageOfAllActiveInternacoes()
+    {
+        LocalDate dataReferencia = LocalDate.of(2026, 10, 1);
+        Internacao primeiraInternacao = Mockito.mock(Internacao.class);
+        Internacao segundaInternacao = Mockito.mock(Internacao.class);
+        List<Internacao> internacoesAtivas = List.of(primeiraInternacao, segundaInternacao);
+
+        Mockito.when(repository.findByAtivoTrue()).thenReturn(internacoesAtivas);
+
+        service.updateTreatmentStage(dataReferencia);
+
+        Mockito.verify(repository).findByAtivoTrue();
+        Mockito.verify(primeiraInternacao).updateTreatmentStage(dataReferencia);
+        Mockito.verify(segundaInternacao).updateTreatmentStage(dataReferencia);
+        Mockito.verify(repository).saveAll(Mockito.same(internacoesAtivas));
+        Mockito.verifyNoMoreInteractions(repository, primeiraInternacao, segundaInternacao);
+
+        Mockito.verifyNoInteractions(acolhidoService, convenioService);
+    }
+
+    @Test
+    void shouldSaveEmptyListWhenThereAreNoActiveInternacoes()
+    {
+        LocalDate dataReferencia = LocalDate.of(2026, 10, 1);
+        List<Internacao> internacoesAtivas = List.of();
+
+        Mockito.when(repository.findByAtivoTrue()).thenReturn(internacoesAtivas);
+
+        service.updateTreatmentStage(dataReferencia);
+
+        Mockito.verify(repository).findByAtivoTrue();
+        Mockito.verify(repository).saveAll(Mockito.same(internacoesAtivas));
+        Mockito.verifyNoMoreInteractions(repository);
+        Mockito.verifyNoInteractions(acolhidoService, convenioService);
+    }
+
+    @Test
+    void shouldRejectNullReferenceDateWithoutInteractingWithDependencies()
+    {
+        InternacaoWithInvalidInformationException exception = assertThrows(InternacaoWithInvalidInformationException.class, () -> service.updateTreatmentStage(null));
+
+        assertEquals("Data de referência é obrigatória para atualização so estagio de tratamento.", exception.getMessage());
+
+        Mockito.verifyNoInteractions(repository, acolhidoService, convenioService);
+    }
+
+
 }

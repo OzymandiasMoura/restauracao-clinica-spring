@@ -126,4 +126,21 @@ public class InternacaoService
 
         repository.delete(internacaoToDelete);
     }
+
+    @Transactional
+    public void updateTreatmentStage(LocalDate dataReferencia)
+    {
+        if (dataReferencia == null)
+        {
+            throw new InternacaoWithInvalidInformationException("Data de referência é obrigatória para atualização so estagio de tratamento.");
+        }
+        List<Internacao> ativas = repository.findByAtivoTrue();
+
+        for(Internacao internacao : ativas)
+        {
+            internacao.updateTreatmentStage(dataReferencia);
+        }
+
+        repository.saveAll(ativas);
+    }
 }
