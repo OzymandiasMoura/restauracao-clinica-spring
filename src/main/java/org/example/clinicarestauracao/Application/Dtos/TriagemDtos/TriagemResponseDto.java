@@ -1,4 +1,4 @@
-package org.example.clinicarestauracao.Application.Dtos.Triagem;
+package org.example.clinicarestauracao.Application.Dtos.TriagemDtos;
 
 import org.example.clinicarestauracao.Application.Dtos.ConvenioDtos.ConvenioResponseDto;
 import org.example.clinicarestauracao.Domain.Enums.Status;

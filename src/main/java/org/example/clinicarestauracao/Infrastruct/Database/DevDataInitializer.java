@@ -1,8 +1,8 @@
 
 package org.example.clinicarestauracao.Infrastruct.Database;
 
-import org.example.clinicarestauracao.Application.Dtos.Triagem.TriagemRequestDto;
-import org.example.clinicarestauracao.Application.Dtos.Triagem.TriagemResponseDto;
+import org.example.clinicarestauracao.Application.Dtos.TriagemDtos.TriagemRequestDto;
+import org.example.clinicarestauracao.Application.Dtos.TriagemDtos.TriagemResponseDto;
 import org.example.clinicarestauracao.Application.Interfaces.*;
 import org.example.clinicarestauracao.Application.Services.*;
 import org.example.clinicarestauracao.Domain.Entities.*;
