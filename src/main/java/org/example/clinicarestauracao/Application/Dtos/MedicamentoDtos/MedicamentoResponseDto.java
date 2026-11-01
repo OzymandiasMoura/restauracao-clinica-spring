@@ -3,7 +3,7 @@ package org.example.clinicarestauracao.Application.Dtos.MedicamentoDtos;
 public record MedicamentoResponseDto(
         Long id,
         String nome,
-        double preco,
+        java.math.BigDecimal preco,
         int quantidadeEstoque,
         int quantidadeMinima,
         String status) {

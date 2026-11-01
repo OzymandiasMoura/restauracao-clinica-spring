@@ -13,6 +13,7 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Component
@@ -238,49 +239,35 @@ public class DevDataInitializer implements ApplicationRunner {
 
 
 
-        Medicamento dipirona = medicamentoService.create(
-                new Medicamento("Dipirona 500mg", 12.50)
+        medicamentoService.create(
+                new Medicamento(
+                        "Dipirona 500mg",
+                        new BigDecimal("12.50"),
+                        50,
+                        10
+                )
         );
 
-        Medicamento paracetamol = medicamentoService.create(
-                new Medicamento("Paracetamol 750mg", 8.90)
+        medicamentoService.create(
+                new Medicamento(
+                        "Paracetamol 750mg",
+                        new BigDecimal("8.90"),
+                        30,
+                        5
+                )
         );
 
-        Medicamento ibuprofeno = medicamentoService.create(
-                new Medicamento("Ibuprofeno 600mg", 15.90)
+        medicamentoService.create(
+                new Medicamento(
+                        "Ibuprofeno 600mg",
+                        new BigDecimal("15.75"),
+                        20,
+                        10
+                )
         );
-
-        Medicamento amoxicilina = medicamentoService.create(
-                new Medicamento("Amoxicilina 500mg", 22.50)
-        );
-
-        Medicamento omeprazol = medicamentoService.create(
-                new Medicamento("Omeprazol 20mg", 10.90)
-        );
-
-        Medicamento loratadina = medicamentoService.create(
-                new Medicamento("Loratadina 10mg", 9.50)
-        );
-
-        dipirona.setQuantidadeMinima(10);
-        paracetamol.setQuantidadeMinima(10);
-        ibuprofeno.setQuantidadeMinima(5);
-        amoxicilina.setQuantidadeMinima(10);
-        omeprazol.setQuantidadeMinima(5);
-        loratadina.setQuantidadeMinima(5);
-
-        medicamentoService.adicionarEstoque(dipirona.getId(), 50);
-        medicamentoService.adicionarEstoque(paracetamol.getId(), 3);
-        medicamentoService.adicionarEstoque(ibuprofeno.getId(), 25);
-        medicamentoService.adicionarEstoque(amoxicilina.getId(), 8);
-        medicamentoService.adicionarEstoque(omeprazol.getId(), 40);
-
-
-        medicamentoService.baixarEstoque(dipirona.getId(), 10);
-        medicamentoService.baixarEstoque(ibuprofeno.getId(), 5);
 
         Medicamento medicamentoInativo = medicamentoService.create(
-                new Medicamento("Cetirizina 10mg", 11.90)
+                new Medicamento("Cetirizina 10mg", new BigDecimal("11.90"), 0, 0)
         );
 
         medicamentoService.adicionarEstoque(

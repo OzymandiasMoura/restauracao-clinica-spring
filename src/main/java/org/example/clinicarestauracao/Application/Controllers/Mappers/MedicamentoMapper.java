@@ -8,7 +8,7 @@ public final class MedicamentoMapper {
     private MedicamentoMapper(){}
     public static Medicamento requestDtoToEntity(MedicamentoRequestDto dto)
     {
-        return new Medicamento(dto.nome(), dto.preco());
+        return new Medicamento(dto.nome(), dto.preco(), dto.quantidadeEstoque(), dto.quantidadeMinima());
     }
 
     public static MedicamentoResponseDto entityToResponseDto(Medicamento entity)

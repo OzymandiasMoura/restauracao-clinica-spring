@@ -42,6 +42,7 @@ public class MedicamentoService {
 
     @Transactional
     public Medicamento create(Medicamento medicamento) {
+        medicamento.setNome(medicamento.getNome());
         validarNomeDuplicado(medicamento.getNome());
         return medicamentoRepository.save(medicamento);
     }
@@ -59,6 +60,8 @@ public class MedicamentoService {
 
         medicamento.setNome(dadosAtualizados.getNome());
         medicamento.setPreco(dadosAtualizados.getPreco());
+        medicamento.setQuantidadeEstoque(dadosAtualizados.getQuantidadeEstoque());
+        medicamento.setQuantidadeMinima(dadosAtualizados.getQuantidadeMinima());
 
         return medicamentoRepository.save(medicamento);
     }
@@ -105,9 +108,15 @@ public class MedicamentoService {
     }
 
     private void validarNomeDuplicado(String nome) {
+        if (nome == null || nome.isBlank()) {
+            throw new MedicamentoWithInvalidInformationException(
+                    "O nome do medicamento é obrigatório."
+            );
+        }
 
-        if (medicamentoRepository.existsByNomeIgnoreCase(nome)) {
+        String nomeFormatado = nome.trim();
 
+        if (medicamentoRepository.existsByNomeIgnoreCase(nomeFormatado)) {
             throw new MedicamentoWithInvalidInformationException(
                     "Já existe um medicamento cadastrado com esse nome."
             );
