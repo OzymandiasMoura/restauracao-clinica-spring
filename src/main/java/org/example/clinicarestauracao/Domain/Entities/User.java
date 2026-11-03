@@ -157,6 +157,13 @@ public class User implements UserDetails
         return new User(username);
     }
 
+    public static User forPasswordUpdate(String password)
+    {
+        User user = new User();
+        user.setPassword(password);
+        return user;
+    }
+
     public void forRoleUpdate(UserRoles role)
     {
         if (role == null || role == UserRoles.NO_ACCESS)
