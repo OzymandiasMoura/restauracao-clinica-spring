@@ -8,6 +8,9 @@ import org.example.clinicarestauracao.Builders.ConvenioTestBuilder;
 import org.example.clinicarestauracao.Domain.Entities.Convenio;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.NullSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -168,6 +171,18 @@ class ConvenioServiceTest
 
         Mockito.verify(repository).findById(entrada.getId());
     }
+
+    @ParameterizedTest
+    @NullSource
+    @ValueSource(longs = {0, -1, -10})
+    void shouldRejectInvalidIdWithoutAccessingRepository(Long id)
+    {
+        ConvenioNotFoundException exception = assertThrows(ConvenioNotFoundException.class, () -> service.findConvenioById(id));
+
+        assertEquals("Convênio não encontrado.", exception.getMessage());
+        Mockito.verifyNoInteractions(repository);
+    }
+
 
     @Test
     void shouldFindAllConveniosSuccessfully()

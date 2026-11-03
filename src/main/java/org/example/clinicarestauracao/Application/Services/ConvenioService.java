@@ -39,6 +39,11 @@ public class ConvenioService
 
     public Convenio findConvenioById(Long id)
     {
+        if(id == null || id <= 0)
+        {
+            throw new ConvenioNotFoundException("Convênio não encontrado.");
+        }
+
         return repository.findById(id).orElseThrow(() -> new ConvenioNotFoundException("Convênio não encontrado."));
     }
 
