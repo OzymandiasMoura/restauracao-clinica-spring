@@ -414,68 +414,75 @@ class AcolhidoServiceTest
     // Testes deactivateAcolhido
 
     @Test
-    void shouldDeactivateAcolhidoSuccessfully()
+    void shouldDeactivateAcolhidoSuccessfullyWhenThereIsNoActiveInternacao()
     {
-        Acolhido acolhido = AcolhidoTestBuilder.newAcolhido()
-                .build();
+        Acolhido acolhido = AcolhidoTestBuilder.newAcolhido().build();
 
-        Mockito.when(repository.findById(1L))
-                .thenReturn(Optional.of(acolhido));
+        Mockito.when(repository.findById(1L)).thenReturn(Optional.of(acolhido));
+        Mockito.when(internacaoRepository.existsByAcolhidoAndAtivoTrue(Mockito.same(acolhido))).thenReturn(false);
 
         service.deactivateAcolhido(1L);
 
         assertFalse(acolhido.getAtivo());
 
         Mockito.verify(repository).findById(1L);
-        Mockito.verify(repository).save(acolhido);
+        Mockito.verify(internacaoRepository).existsByAcolhidoAndAtivoTrue(Mockito.same(acolhido));
+        Mockito.verify(repository).save(Mockito.same(acolhido));
     }
 
     @Test
-    void shouldNotSaveWhenDeactivatingAlreadyInactiveAcolhido()
+    void shouldRejectDeactivationWhenAcolhidoHasActiveInternacao()
     {
-        Acolhido acolhido = AcolhidoTestBuilder.newAcolhido()
-                .build();
+        Acolhido acolhido = AcolhidoTestBuilder.newAcolhido().build();
 
-        acolhido.deactivate();
+        Mockito.when(repository.findById(1L)).thenReturn(Optional.of(acolhido));
+        Mockito.when(internacaoRepository.existsByAcolhidoAndAtivoTrue(Mockito.same(acolhido))).thenReturn(true);
 
-        Mockito.when(repository.findById(1L))
-                .thenReturn(Optional.of(acolhido));
+        AcolhidoWithInvalidInformationException exception = assertThrows(AcolhidoWithInvalidInformationException.class, () -> service.deactivateAcolhido(1L));
 
-        AcolhidoWithInvalidInformationException exception =
-                assertThrows(
-                        AcolhidoWithInvalidInformationException.class,
-                        () -> service.deactivateAcolhido(1L)
-                );
-
-        assertEquals(
-                "Acolhido já desativado.",
-                exception.getMessage()
+        assertAll(
+                () -> assertEquals("Acolhido não pode ser desativado enquanto possuir internação ativa.", exception.getMessage()),
+                () -> assertTrue(acolhido.getAtivo())
         );
-        assertFalse(acolhido.getAtivo());
 
         Mockito.verify(repository).findById(1L);
-
-        Mockito.verify(repository, Mockito.never())
-                .save(Mockito.any(Acolhido.class));
+        Mockito.verify(internacaoRepository).existsByAcolhidoAndAtivoTrue(Mockito.same(acolhido));
+        Mockito.verify(repository, Mockito.never()).save(Mockito.any(Acolhido.class));
     }
+
+    @Test
+    void shouldNotCheckInternacoesOrSaveWhenAcolhidoIsAlreadyInactive()
+    {
+        Acolhido acolhido = AcolhidoTestBuilder.newAcolhido().build();
+        acolhido.deactivate();
+
+        Mockito.when(repository.findById(1L)).thenReturn(Optional.of(acolhido));
+
+        AcolhidoWithInvalidInformationException exception = assertThrows(AcolhidoWithInvalidInformationException.class, () -> service.deactivateAcolhido(1L));
+
+        assertAll(
+                () -> assertEquals("Acolhido já desativado.", exception.getMessage()),
+                () -> assertFalse(acolhido.getAtivo())
+        );
+
+        Mockito.verify(repository).findById(1L);
+        Mockito.verifyNoInteractions(internacaoRepository);
+        Mockito.verify(repository, Mockito.never()).save(Mockito.any(Acolhido.class));
+    }
+
 
     @Test
     void shouldNotSaveWhenDeactivatingUnknownAcolhido()
     {
-        Mockito.when(repository.findById(99L))
-                .thenReturn(Optional.empty());
+        Mockito.when(repository.findById(99L)).thenReturn(Optional.empty());
 
-        AcolhidoNotFoundException exception = assertThrows(
-                AcolhidoNotFoundException.class,
-                () -> service.deactivateAcolhido(99L)
-        );
+        AcolhidoNotFoundException exception = assertThrows(AcolhidoNotFoundException.class, () -> service.deactivateAcolhido(99L));
 
         assertEquals("Acolhido não encontrado.", exception.getMessage());
 
         Mockito.verify(repository).findById(99L);
 
-        Mockito.verify(repository, Mockito.never())
-                .save(Mockito.any(Acolhido.class));
+        Mockito.verify(repository, Mockito.never()).save(Mockito.any(Acolhido.class));
     }
 
     // Testes reactivateAcolhido

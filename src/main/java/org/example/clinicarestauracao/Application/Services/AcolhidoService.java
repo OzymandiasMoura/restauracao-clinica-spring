@@ -132,6 +132,11 @@ public class AcolhidoService
     {
         Acolhido acolhidoToDeactivate = findAcolhidoById(id);
 
+        if (Boolean.TRUE.equals(acolhidoToDeactivate.getAtivo()) && internacaoRepository.existsByAcolhidoAndAtivoTrue(acolhidoToDeactivate))
+        {
+            throw new AcolhidoWithInvalidInformationException("Acolhido não pode ser desativado enquanto possuir internação ativa.");
+        }
+
         acolhidoToDeactivate.deactivate();
 
         repository.save(acolhidoToDeactivate);
