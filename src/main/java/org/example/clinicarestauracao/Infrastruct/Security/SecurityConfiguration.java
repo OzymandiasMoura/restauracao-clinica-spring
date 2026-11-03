@@ -36,6 +36,8 @@ public class SecurityConfiguration
                         .requestMatchers("/auth/login", "/auth/register", "/h2-console/**", "/modalidades/**", "/modalidades").permitAll()
                         .requestMatchers("/auth/login", "/auth/register", "/h2-console/**", "/medicamentos/**", "/medicamentos").permitAll()
                         .requestMatchers("/auth/login", "/auth/register", "/h2-console/**", "/estoque-medicamento/**", "/estoque-medicamento").permitAll()
+                        .requestMatchers("/auth/login", "/auth/register", "/h2-console/**", "/triagens/**", "/triagens").permitAll()
+                        .requestMatchers("/auth/login", "/auth/register", "/h2-console/**", "/modalidades/**", "/modalidades", "/cargos/**", "/funcionarios/**","/users/**").permitAll()
                         .requestMatchers("/auth/login", "/auth/register", "/h2-console/**", "/convenios/**", "/convenios", "/cargos/**", "/funcionarios/**","/users/**", "/acolhidos/**").permitAll()
                         .anyRequest().authenticated()
                 )

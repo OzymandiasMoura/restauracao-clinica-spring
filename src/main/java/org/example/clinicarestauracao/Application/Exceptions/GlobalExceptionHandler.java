@@ -1,5 +1,4 @@
 package org.example.clinicarestauracao.Application.Exceptions;
-
 import org.example.clinicarestauracao.Application.Dtos.SecurityDtos.ErrorResponseDto;
 import org.example.clinicarestauracao.Application.Dtos.SecurityDtos.FieldErrorDto;
 import org.example.clinicarestauracao.Application.Dtos.SecurityDtos.ValidationErrorResponseDto;
@@ -12,6 +11,8 @@ import org.example.clinicarestauracao.Application.Exceptions.Funcionario.Funcion
 import org.example.clinicarestauracao.Application.Exceptions.Funcionario.FuncionarioWithInvalidInformationException;
 import org.example.clinicarestauracao.Application.Exceptions.Medicamento.MedicamentoNotFoundException;
 import org.example.clinicarestauracao.Application.Exceptions.Medicamento.MedicamentoWithInvalidInformationException;
+import org.example.clinicarestauracao.Application.Exceptions.Triagem.TriagemNotFoundException;
+import org.example.clinicarestauracao.Application.Exceptions.Triagem.TriagemWithInvalidInformationException;
 import org.example.clinicarestauracao.Application.Exceptions.User.UserNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -134,6 +135,22 @@ public class GlobalExceptionHandler
         var response = new ErrorResponseDto(ex.getMessage());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
+
+    @ExceptionHandler(TriagemNotFoundException.class)
+    public ResponseEntity<ErrorResponseDto> handleTriagemNotFound(TriagemNotFoundException ex)
+    {
+        var response = new ErrorResponseDto(ex.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+    }
+
+    @ExceptionHandler(TriagemWithInvalidInformationException.class)
+    public ResponseEntity<ErrorResponseDto> handleTriagemWithInvalidInformation(TriagemWithInvalidInformationException ex)
+    {
+        var response = new ErrorResponseDto(ex.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
+
+
 
     //Acolhido
     @ExceptionHandler(AcolhidoWithInvalidInformationException.class)
