@@ -1,6 +1,5 @@
 
 package org.example.clinicarestauracao.Infrastruct.Database;
-
 import org.example.clinicarestauracao.Application.Dtos.Triagem.TriagemRequestDto;
 import org.example.clinicarestauracao.Application.Dtos.Triagem.TriagemResponseDto;
 import org.example.clinicarestauracao.Application.Interfaces.*;
@@ -15,6 +14,7 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
@@ -23,13 +23,13 @@ import java.time.LocalDateTime;
 public class DevDataInitializer implements ApplicationRunner {
 
     private static final String TEST_PASSWORD = "teste123";
-
     private final AcolhidoRepository acolhidoRepository;
     private final CargoRepository cargoRepository;
     private final FuncionarioRepository funcionarioRepository;
     private final ConvenioRepository convenioRepository;
     private final TriagemRepository triagemRepository;
     private final UserRepository userRepository;
+    private final MedicamentoRepository medicamentoRepository;
 
     private final AcolhidoService acolhidoService;
     private final CargoService cargoService;
@@ -37,18 +37,23 @@ public class DevDataInitializer implements ApplicationRunner {
     private final ConvenioService convenioService;
     private final TriagemService triagemService;
     private final UserService userService;
+    private final MedicamentoService medicamentoService;
 
     public DevDataInitializer(
             AcolhidoRepository acolhidoRepository,
             CargoRepository cargoRepository,
             FuncionarioRepository funcionarioRepository,
             ConvenioRepository convenioRepository,
+            UserRepository userRepository,
+            MedicamentoRepository medicamentoRepository,
             TriagemRepository triagemRepository,
             UserRepository userRepository,
             AcolhidoService acolhidoService,
             CargoService cargoService,
             FuncionarioService funcionarioService,
             ConvenioService convenioService,
+            UserService userService,
+            MedicamentoService medicamentoService
             TriagemService triagemService,
             UserService userService
     ) {
@@ -58,13 +63,14 @@ public class DevDataInitializer implements ApplicationRunner {
         this.convenioRepository = convenioRepository;
         this.triagemRepository = triagemRepository;
         this.userRepository = userRepository;
-
+        this.medicamentoRepository = medicamentoRepository;
         this.acolhidoService = acolhidoService;
         this.cargoService = cargoService;
         this.funcionarioService = funcionarioService;
         this.convenioService = convenioService;
         this.triagemService = triagemService;
         this.userService = userService;
+        this.medicamentoService = medicamentoService;
     }
 
     @Override
@@ -76,6 +82,8 @@ public class DevDataInitializer implements ApplicationRunner {
                 || cargoRepository.count() > 0
                 || funcionarioRepository.count() > 0
                 || convenioRepository.count() > 0
+                || userRepository.count() > 0
+                || medicamentoRepository.count() > 0) {
                 || triagemRepository.count() > 0
                 || userRepository.count() > 0) {
             return;
@@ -97,6 +105,8 @@ public class DevDataInitializer implements ApplicationRunner {
                 new Cargo("Assistente Social")
         );
 
+        cargoService.createCargo(new Cargo("Recepcionista"));
+
         cargoService.createCargo(
                 new Cargo("Recepcionista")
         );
@@ -112,6 +122,7 @@ public class DevDataInitializer implements ApplicationRunner {
         // =========================
 
         userService.registerUser(
+                new User("admin.dev", TEST_PASSWORD, UserRoles.ADMIN)
                 new User(
                         "admin.dev",
                         TEST_PASSWORD,
@@ -122,6 +133,24 @@ public class DevDataInitializer implements ApplicationRunner {
         // =========================
         // CONVÊNIOS
         // =========================
+
+        convenioService.createConvenio(new Convenio(
+                "Atendimento Social", null, 40, false, "#2E86C1"
+        ));
+
+        convenioService.createConvenio(new Convenio(
+                "Clínica Parceira", "11222333000181", 20, true, "#28B463"
+        ));
+
+        Convenio convenio = convenioService.createConvenio(new Convenio(
+                "Convênio Comunitário", "11444777000161", 15, true, "#AF7AC5"
+        ));
+
+        convenioService.createConvenio(new Convenio(
+                "Lista de Espera", null, 0, false, "#F39C12"
+        ));
+
+        convenioService.deleteConvenioById(convenio.getId());
 
         Convenio atendimentoSocial = convenioService.createConvenio(
                 new Convenio(
@@ -172,6 +201,37 @@ public class DevDataInitializer implements ApplicationRunner {
         // FUNCIONÁRIOS
         // =========================
 
+        funcionarioService.createFuncionario(new Funcionario(
+                "Ana Silva",
+                "52998224725",
+                "ana.silva@teste.local",
+                LocalDate.of(1985, 4, 12),
+                new Endereco(
+                        "Praça da Sé", 1, "Centro",
+                        "São Paulo", "SP"
+                ),
+                "01001000",
+                "11987654321",
+                new User("ana.dev", TEST_PASSWORD, UserRoles.USER),
+                coordenador,
+                LocalDate.of(2020, 2, 3)
+        ));
+
+        funcionarioService.createFuncionario(new Funcionario(
+                "Bruno Costa",
+                "11144477735",
+                "bruno.costa@teste.local",
+                LocalDate.of(1992, 8, 20),
+                new Endereco(
+                        "Praça Mauá", 10, "Centro",
+                        "Rio de Janeiro", "RJ"
+                ),
+                "20040002",
+                "21987654321",
+                new User("bruno.dev", TEST_PASSWORD, UserRoles.USER),
+                psicologo,
+                LocalDate.of(2023, 1, 9)
+        ));
         funcionarioService.createFuncionario(
                 new Funcionario(
                         "Ana Silva",
@@ -229,6 +289,13 @@ public class DevDataInitializer implements ApplicationRunner {
                         "carla.souza@teste.local",
                         LocalDate.of(1988, 11, 2),
                         new Endereco(
+                                "Praça da Liberdade", 20,
+                                "Funcionários", "Belo Horizonte", "MG"
+                        ),
+                        "30140010",
+                        "31987654321",
+                        new User("carla.dev", TEST_PASSWORD, UserRoles.USER),
+
                                 "Praça da Liberdade",
                                 20,
                                 "Funcionários",
@@ -255,6 +322,87 @@ public class DevDataInitializer implements ApplicationRunner {
         // =========================
         // ACOLHIDOS
         // =========================
+
+        acolhidoService.createAcolhido(new Acolhido(
+                "Gabriel Santos",
+                "gabriel.santos@teste.local",
+                "39053344705",
+                "01310100",
+                new Endereco(
+                        "Avenida Paulista", 1000,
+                        "Bela Vista", "São Paulo", "SP",
+                        "Apartamento 42"
+                ),
+                "11955551234",
+                LocalDate.of(1990, 3, 15)
+        ));
+
+        acolhidoService.createAcolhido(new Acolhido(
+                "Juliana Oliveira",
+                "juliana.oliveira@teste.local",
+                "16899535009",
+                "30140071",
+                new Endereco(
+                        "Avenida Afonso Pena", 1500,
+                        "Centro", "Belo Horizonte", "MG"
+                ),
+                "31955552345",
+                LocalDate.of(1987, 7, 22)
+        ));
+
+        Acolhido marcos = acolhidoService.createAcolhido(new Acolhido(
+                "Marcos Pereira",
+                "marcos.pereira@teste.local",
+                "98765432100",
+                "20040002",
+                new Endereco(
+                        "Rua da Assembleia", 50,
+                        "Centro", "Rio de Janeiro", "RJ"
+                ),
+                "21955553456",
+                LocalDate.of(1979, 12, 3)
+        ));
+
+        acolhidoService.deactivateAcolhido(marcos.getId());
+
+
+
+        medicamentoService.create(
+                new Medicamento(
+                        "Dipirona 500mg",
+                        new BigDecimal("12.50"),
+                        50,
+                        10
+                )
+        );
+
+        medicamentoService.create(
+                new Medicamento(
+                        "Paracetamol 750mg",
+                        new BigDecimal("8.90"),
+                        30,
+                        5
+                )
+        );
+
+        medicamentoService.create(
+                new Medicamento(
+                        "Ibuprofeno 600mg",
+                        new BigDecimal("15.75"),
+                        20,
+                        10
+                )
+        );
+
+        Medicamento medicamentoInativo = medicamentoService.create(
+                new Medicamento("Cetirizina 10mg", new BigDecimal("11.90"), 0, 0)
+        );
+
+        medicamentoService.adicionarEstoque(
+                medicamentoInativo.getId(), 15
+        );
+
+        medicamentoService.delete(medicamentoInativo.getId());
 
         acolhidoService.createAcolhido(
                 new Acolhido(

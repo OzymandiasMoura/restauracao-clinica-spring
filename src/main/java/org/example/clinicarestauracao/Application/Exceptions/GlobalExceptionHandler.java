@@ -1,5 +1,4 @@
 package org.example.clinicarestauracao.Application.Exceptions;
-
 import org.example.clinicarestauracao.Application.Dtos.SecurityDtos.ErrorResponseDto;
 import org.example.clinicarestauracao.Application.Dtos.SecurityDtos.FieldErrorDto;
 import org.example.clinicarestauracao.Application.Dtos.SecurityDtos.ValidationErrorResponseDto;
@@ -10,6 +9,8 @@ import org.example.clinicarestauracao.Application.Exceptions.Cargo.CargoWithInva
 import org.example.clinicarestauracao.Application.Exceptions.Endereco.EnderecoWithInvalidInformationException;
 import org.example.clinicarestauracao.Application.Exceptions.Funcionario.FuncionarioNotFoundException;
 import org.example.clinicarestauracao.Application.Exceptions.Funcionario.FuncionarioWithInvalidInformationException;
+import org.example.clinicarestauracao.Application.Exceptions.Medicamento.MedicamentoNotFoundException;
+import org.example.clinicarestauracao.Application.Exceptions.Medicamento.MedicamentoWithInvalidInformationException;
 import org.example.clinicarestauracao.Application.Exceptions.Triagem.TriagemNotFoundException;
 import org.example.clinicarestauracao.Application.Exceptions.Triagem.TriagemWithInvalidInformationException;
 import org.example.clinicarestauracao.Application.Exceptions.User.UserNotFoundException;
@@ -47,6 +48,19 @@ public class GlobalExceptionHandler
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
 
+    @ExceptionHandler(MedicamentoNotFoundException.class)
+    public ResponseEntity<ErrorResponseDto> handleMedicamentoNotFound(MedicamentoNotFoundException ex)
+    {
+        var response = new ErrorResponseDto(ex.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+    }
+
+    @ExceptionHandler(MedicamentoWithInvalidInformationException.class)
+    public ResponseEntity<ErrorResponseDto> handleMedicamentoWithInvalidInformation(MedicamentoWithInvalidInformationException ex)
+    {
+        var response = new ErrorResponseDto(ex.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ValidationErrorResponseDto> handleValidationExceptions(MethodArgumentNotValidException ex)
@@ -143,6 +157,7 @@ public class GlobalExceptionHandler
     public ResponseEntity<ErrorResponseDto> handleAcolhidoWithInvalidInformation(AcolhidoWithInvalidInformationException ex)
     {
         var response = new ErrorResponseDto(ex.getMessage());
+
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
 
@@ -152,4 +167,7 @@ public class GlobalExceptionHandler
         var response = new ErrorResponseDto(ex.getMessage());
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
+
+
+
 }
