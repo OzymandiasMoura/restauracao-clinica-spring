@@ -5,6 +5,6 @@ import org.example.clinicarestauracao.Domain.Enums.TreatmentStage;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
-public record InternacaoCreateRequestDto(Long acolhidoId, Long convenioId, LocalDate dataEntrada, TreatmentStage etapaTratamento, BigDecimal valorMensalidade)
+public record InternacaoCreateRequestDto(Long acolhidoId, Long convenioId, LocalDate dataEntrada, BigDecimal valorMensalidade)
 {
 }

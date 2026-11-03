@@ -16,10 +16,10 @@ public final class InternacaoMapper
     {
         if (dto.valorMensalidade() == null)
         {
-            return new Internacao(acolhido, convenio, dto.dataEntrada(), dto.etapaTratamento());
+            return new Internacao(acolhido, convenio, dto.dataEntrada());
         }
 
-        return new Internacao(acolhido, convenio, dto.dataEntrada(), dto.etapaTratamento(), dto.valorMensalidade());
+        return new Internacao(acolhido, convenio, dto.dataEntrada(), dto.valorMensalidade());
     }
 
     public static InternacaoResponseDto entityToResponseDto(Internacao entity)

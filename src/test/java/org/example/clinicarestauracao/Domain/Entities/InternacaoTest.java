@@ -29,7 +29,7 @@ class InternacaoTest
         LocalDate dataSaidaPrevista = dataEntrada.plusMonths(9);
         BigDecimal valorMensalidade = new BigDecimal("1200.00");
 
-        Internacao internacao = InternacaoTestBuilder.newInternacao().setAcolhido(acolhido).setConvenio(convenio).setDataEntrada(dataEntrada).setDataSaidaPrevista(dataSaidaPrevista).setEtapaTratamento(TreatmentStage.EM_TRATAMENTO).setValorMensalidade(valorMensalidade).buildForCreate();
+        Internacao internacao = InternacaoTestBuilder.newInternacao().setAcolhido(acolhido).setConvenio(convenio).setDataEntrada(dataEntrada).setDataSaidaPrevista(dataSaidaPrevista).setValorMensalidade(valorMensalidade).buildForCreate();
 
         assertAll(
                 () -> assertNull(internacao.getId()),

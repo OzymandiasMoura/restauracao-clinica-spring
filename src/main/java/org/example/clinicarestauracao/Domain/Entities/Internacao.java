@@ -58,7 +58,7 @@ public class Internacao
         setAlta(alta);
     }
 
-    public Internacao(Acolhido acolhido, Convenio convenio, LocalDate dataEntrada, TreatmentStage etapaTratamento, BigDecimal valorMensalidade)
+    public Internacao(Acolhido acolhido, Convenio convenio, LocalDate dataEntrada, BigDecimal valorMensalidade)
     {
         setAcolhido(acolhido);
         validarAcolhidoParaNovaInternacao(acolhido);
@@ -66,12 +66,12 @@ public class Internacao
         validarConvenioParaNovaInternacao(convenio);
         setDataEntrada(dataEntrada);
         setDataSaidaPrevista(dataEntrada.plusMonths(9));
-        setEtapaTratamento(etapaTratamento);
+        setEtapaTratamento(TreatmentStage.EM_TRATAMENTO);
         setValorMensalidade(valorMensalidade);
         setAtivo(true);
     }
 
-    public Internacao(Acolhido acolhido, Convenio convenio, LocalDate dataEntrada, TreatmentStage etapaTratamento)
+    public Internacao(Acolhido acolhido, Convenio convenio, LocalDate dataEntrada)
     {
         setAcolhido(acolhido);
         validarAcolhidoParaNovaInternacao(acolhido);
@@ -79,7 +79,7 @@ public class Internacao
         validarConvenioParaNovaInternacao(convenio);
         setDataEntrada(dataEntrada);
         setDataSaidaPrevista(dataEntrada.plusMonths(9));
-        setEtapaTratamento(etapaTratamento);
+        setEtapaTratamento(TreatmentStage.EM_TRATAMENTO);
         if (convenio.isPagamento())
         {
             throw new InternacaoWithInvalidInformationException("Convênio exige valor de mensalidade.");

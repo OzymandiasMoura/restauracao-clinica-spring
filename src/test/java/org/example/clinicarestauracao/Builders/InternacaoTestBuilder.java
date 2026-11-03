@@ -94,11 +94,11 @@ public class InternacaoTestBuilder
 
     public Internacao buildForCreate()
     {
-        return new Internacao(acolhido, convenio, dataEntrada, etapaTratamento, valorMensalidade);
+        return new Internacao(acolhido, convenio, dataEntrada, valorMensalidade);
     }
 
     public Internacao buildForCreateWithoutPayment()
     {
-        return new Internacao(acolhido, convenio, dataEntrada, etapaTratamento);
+        return new Internacao(acolhido, convenio, dataEntrada);
     }
 }

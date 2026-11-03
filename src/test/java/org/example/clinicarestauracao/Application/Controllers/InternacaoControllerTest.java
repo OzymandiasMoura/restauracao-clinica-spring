@@ -300,7 +300,7 @@ class InternacaoControllerTest
         BigDecimal valorMensalidade = new BigDecimal("1500.50");
         Acolhido acolhido = AcolhidoTestBuilder.newAcolhido().setId(acolhidoId).build();
         Convenio convenio = new ConvenioTestBuilder().setId(convenioId).setPagamento(true).build();
-        InternacaoCreateRequestDto request = new InternacaoCreateRequestDto(acolhidoId, convenioId, dataEntrada, TreatmentStage.EM_TRATAMENTO, valorMensalidade);
+        InternacaoCreateRequestDto request = new InternacaoCreateRequestDto(acolhidoId, convenioId, dataEntrada, valorMensalidade);
         Internacao created = InternacaoTestBuilder.newInternacao().setId(10L).setAcolhido(acolhido).setConvenio(convenio).setDataEntrada(dataEntrada).setDataSaidaPrevista(dataEntrada.plusMonths(9)).setEtapaTratamento(TreatmentStage.EM_TRATAMENTO).setValorMensalidade(valorMensalidade).build();
 
         Mockito.when(acolhidoService.findAcolhidoById(acolhidoId)).thenReturn(acolhido);
@@ -360,7 +360,7 @@ class InternacaoControllerTest
         LocalDate dataEntrada = LocalDate.of(2026, 1, 10);
         Acolhido acolhido = AcolhidoTestBuilder.newAcolhido().setId(acolhidoId).build();
         Convenio convenio = new ConvenioTestBuilder().setId(convenioId).setPagamento(false).build();
-        InternacaoCreateRequestDto request = new InternacaoCreateRequestDto(acolhidoId, convenioId, dataEntrada, TreatmentStage.EM_TRATAMENTO, null);
+        InternacaoCreateRequestDto request = new InternacaoCreateRequestDto(acolhidoId, convenioId, dataEntrada, null);
 
         Internacao created = InternacaoTestBuilder.newInternacao().setId(11L).setAcolhido(acolhido).setConvenio(convenio).setDataEntrada(dataEntrada).setDataSaidaPrevista(dataEntrada.plusMonths(9)).setEtapaTratamento(TreatmentStage.EM_TRATAMENTO).setValorMensalidade(new BigDecimal("0.00")).build();
 
