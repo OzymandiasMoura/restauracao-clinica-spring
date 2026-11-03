@@ -46,6 +46,10 @@ public class User implements UserDetails
     {
         setUsername(username);
         setPassword(password);
+        if(role == UserRoles.NO_ACCESS)
+        {
+            throw new UserWithInvalidInformationException("Usuário não pode ser criado com papel desativado.");
+        }
         setRole(role);
     }
 

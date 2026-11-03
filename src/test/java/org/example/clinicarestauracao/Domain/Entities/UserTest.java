@@ -84,6 +84,15 @@ class UserTest
     }
 
     @Test
+    void shouldRejectCreationWithNoAccessRole()
+    {
+        UserWithInvalidInformationException exception = assertThrows(UserWithInvalidInformationException.class, () -> new User("Pedro", "senha123", UserRoles.NO_ACCESS));
+
+        assertEquals("Usuário não pode ser criado com papel desativado.", exception.getMessage());
+    }
+
+
+    @Test
     void shouldReturnNoAuthoritiesWhenUserHasNoAccess()
     {
         User user = (User) builder.setRole(UserRoles.NO_ACCESS).build();
