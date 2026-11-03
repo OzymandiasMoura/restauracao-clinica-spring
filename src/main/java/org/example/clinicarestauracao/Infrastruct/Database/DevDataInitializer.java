@@ -154,8 +154,6 @@ public class DevDataInitializer implements ApplicationRunner {
                 )
         );
 
-        convenioService.deleteConvenioById(atendimentoSocial.getId());
-
         convenioService.createConvenio(
                 new Convenio(
                         "Lista de Espera",
