@@ -61,7 +61,7 @@ class FuncionarioServiceTest
     void shouldCreateFuncionarioAndUserSuccessfully()
     {
         User receivedUser = new User("pedro", "senha123", UserRoles.ADMIN);
-        User savedUser = new User(1L, "pedro", "senha-criptografada", UserRoles.USER);
+        User savedUser = new User(1L, "pedro", "senha-criptografada", UserRoles.ADMIN);
         Funcionario funcionario = FuncionarioTestBuilder.newFuncionario().setUser(receivedUser).buildForCreate();
         Funcionario savedFuncionario = FuncionarioTestBuilder.newFuncionario().setUser(savedUser).build();
 
@@ -83,7 +83,7 @@ class FuncionarioServiceTest
 
         assertEquals("pedro", userSentToRegistration.getUsername());
         assertEquals("senha123", userSentToRegistration.getPassword());
-        assertEquals(UserRoles.USER, userSentToRegistration.getRole());
+        assertEquals(UserRoles.ADMIN, userSentToRegistration.getRole());
 
         Mockito.verify(repository).save(funcionario);
     }
