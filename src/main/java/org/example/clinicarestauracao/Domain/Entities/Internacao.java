@@ -182,7 +182,7 @@ public class Internacao
         this.dataSaida = dataSaida;
     }
 
-    public void setEtapaTratamento(TreatmentStage treatmentStage)
+    private void setEtapaTratamento(TreatmentStage treatmentStage)
     {
         if (treatmentStage == null)
         {
@@ -209,6 +209,11 @@ public class Internacao
         if (convenio.isPagamento() && valorArredondado.compareTo(BigDecimal.ZERO) <= 0)
         {
             throw new InternacaoWithInvalidInformationException("Valor da mensalidade deve ser maior que zero.");
+        }
+
+        if (valorArredondado.compareTo(new  BigDecimal("1000000.00")) > 0)
+        {
+            throw new InternacaoWithInvalidInformationException("Valor da mensalidade não pode ser maior que 1.000.000,00.");
         }
 
         this.valorMensalidade = valorArredondado;

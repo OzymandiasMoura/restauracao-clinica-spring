@@ -407,10 +407,10 @@ class InternacaoControllerTest
         BigDecimal novoValorMensalidade = new BigDecimal("1500.50");
         Acolhido acolhido = AcolhidoTestBuilder.newAcolhido().setId(1L).build();
         Convenio convenio = new ConvenioTestBuilder().setId(1L).setPagamento(true).build();
-        InternacaoUpdateRequestDto request = new InternacaoUpdateRequestDto(novaDataSaidaPrevista, TreatmentStage.PROXIMO_ALTA, novoValorMensalidade);
-        Internacao updated = InternacaoTestBuilder.newInternacao().setId(internacaoId).setAcolhido(acolhido).setConvenio(convenio).setDataEntrada(dataEntrada).setDataSaidaPrevista(novaDataSaidaPrevista).setEtapaTratamento(TreatmentStage.PROXIMO_ALTA).setValorMensalidade(novoValorMensalidade).build();
+        InternacaoUpdateRequestDto request = new InternacaoUpdateRequestDto(novaDataSaidaPrevista, novoValorMensalidade);
+        Internacao updated = InternacaoTestBuilder.newInternacao().setId(internacaoId).setAcolhido(acolhido).setConvenio(convenio).setDataEntrada(dataEntrada).setDataSaidaPrevista(novaDataSaidaPrevista).setEtapaTratamento(TreatmentStage.EM_TRATAMENTO).setValorMensalidade(novoValorMensalidade).build();
 
-        Mockito.when(service.updateInternacao(internacaoId, novaDataSaidaPrevista, TreatmentStage.PROXIMO_ALTA, novoValorMensalidade)).thenReturn(updated);
+        Mockito.when(service.updateInternacao(internacaoId, novaDataSaidaPrevista, novoValorMensalidade)).thenReturn(updated);
 
         ResponseEntity<InternacaoResponseDto> response = controller.updateInternacao(internacaoId, request);
 
@@ -425,14 +425,14 @@ class InternacaoControllerTest
                 () -> assertEquals(convenio.getId(), responseBody.convenio().id()),
                 () -> assertEquals(dataEntrada, responseBody.dataEntrada()),
                 () -> assertEquals(novaDataSaidaPrevista, responseBody.dataSaidaPrevista()),
-                () -> assertEquals(TreatmentStage.PROXIMO_ALTA, responseBody.etapaTratamento()),
+                () -> assertEquals(TreatmentStage.EM_TRATAMENTO, responseBody.etapaTratamento()),
                 () -> assertEquals(novoValorMensalidade, responseBody.valorMensalidade()),
                 () -> assertTrue(responseBody.ativo()),
                 () -> assertNull(responseBody.dataSaida()),
                 () -> assertNull(responseBody.alta())
         );
 
-        Mockito.verify(service).updateInternacao(internacaoId, novaDataSaidaPrevista, TreatmentStage.PROXIMO_ALTA, novoValorMensalidade);
+        Mockito.verify(service).updateInternacao(internacaoId, novaDataSaidaPrevista, novoValorMensalidade);
 
         Mockito.verifyNoMoreInteractions(service);
         Mockito.verifyNoInteractions(acolhidoService, convenioService);

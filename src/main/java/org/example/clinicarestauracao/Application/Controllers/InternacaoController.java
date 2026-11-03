@@ -74,7 +74,7 @@ public class InternacaoController
     @PutMapping("/{id}")
     public ResponseEntity<InternacaoResponseDto> updateInternacao(@PathVariable Long id, @RequestBody InternacaoUpdateRequestDto dto)
     {
-        Internacao internacaoUpdated = service.updateInternacao(id, dto.dataSaidaPrevista(), dto.etapaTratamento(), dto.valorMensalidade());
+        Internacao internacaoUpdated = service.updateInternacao(id, dto.dataSaidaPrevista(), dto.valorMensalidade());
 
         return ResponseEntity.ok().body(InternacaoMapper.entityToResponseDto(internacaoUpdated));
     }

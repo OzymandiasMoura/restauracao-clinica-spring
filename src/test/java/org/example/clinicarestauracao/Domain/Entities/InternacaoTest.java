@@ -666,6 +666,38 @@ class InternacaoTest
                 () -> assertEquals(valorAtual, internacao.getValorMensalidade()));
     }
 
+    @Test
+    void shouldAcceptMonthlyPaymentEqualToMaximumValue()
+    {
+        BigDecimal valorMaximo = new BigDecimal("1000000.00");
+
+        Internacao internacao = InternacaoTestBuilder.newInternacao().setValorMensalidade(valorMaximo).buildForCreate();
+
+        assertEquals(valorMaximo, internacao.getValorMensalidade());
+    }
+
+    @Test
+    void shouldAcceptMonthlyPaymentThatRoundsToMaximumValue()
+    {
+        Internacao internacao = InternacaoTestBuilder.newInternacao().setValorMensalidade(new BigDecimal("1000000.004")).buildForCreate();
+
+        assertEquals(new BigDecimal("1000000.00"), internacao.getValorMensalidade());
+    }
+
+    @Test
+    void shouldRejectMonthlyPaymentAboveMaximumAfterRoundingAndPreserveCurrentValue()
+    {
+        BigDecimal valorAtual = new BigDecimal("1200.00");
+        Internacao internacao = InternacaoTestBuilder.newInternacao().setValorMensalidade(valorAtual).build();
+        InternacaoWithInvalidInformationException exception = assertThrows(InternacaoWithInvalidInformationException.class, () -> internacao.setValorMensalidade(new BigDecimal("1000000.005")));
+
+        assertAll(
+                () -> assertEquals("Valor da mensalidade não pode ser maior que 1.000.000,00.", exception.getMessage()),
+                () -> assertEquals(valorAtual, internacao.getValorMensalidade())
+        );
+    }
+
+
     // Testes updateTreatmentStage
 
     @Test

@@ -89,7 +89,7 @@ public class InternacaoService
     }
 
     @Transactional
-    public Internacao updateInternacao(Long id, LocalDate dataSaidaPrevista, TreatmentStage stage, BigDecimal valorMensalidade)
+    public Internacao updateInternacao(Long id, LocalDate dataSaidaPrevista, BigDecimal valorMensalidade)
     {
         Internacao internacaoToUpdate = findInternacaoById(id);
 
@@ -97,14 +97,13 @@ public class InternacaoService
         {
             throw new InternacaoWithInvalidInformationException("Internação encerrada não pode ser atualizada.");
         }
-        if (dataSaidaPrevista == null || stage == null ||  valorMensalidade == null)
+        if (dataSaidaPrevista == null ||  valorMensalidade == null)
         {
             throw new InternacaoWithInvalidInformationException("Os dados da internação são obrigatórios.");
         }
 
         internacaoToUpdate.setDataSaidaPrevista(dataSaidaPrevista);
         internacaoToUpdate.setValorMensalidade(valorMensalidade);
-        internacaoToUpdate.setEtapaTratamento(stage);
 
         return repository.save(internacaoToUpdate);
     }
