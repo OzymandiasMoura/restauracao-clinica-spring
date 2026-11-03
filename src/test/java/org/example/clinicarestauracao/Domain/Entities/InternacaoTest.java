@@ -156,6 +156,17 @@ class InternacaoTest
     }
 
     @Test
+    void shouldRejectConvenioWithZeroMaxVagasWhenCreatingInternacao()
+    {
+        Convenio convenio = new ConvenioTestBuilder().setMaxVagas(0).build();
+
+        InternacaoWithInvalidInformationException exception = assertThrows(InternacaoWithInvalidInformationException.class, () -> InternacaoTestBuilder.newInternacao().setConvenio(convenio).buildForCreate());
+
+        assertEquals("Convênio deve possuir numero de vagas maior que zero.", exception.getMessage());
+    }
+
+
+    @Test
     void shouldAllowInactiveConvenioWhenRestoringExistingInternacao()
     {
         Convenio convenio = new ConvenioTestBuilder().setAtivo(false).build();

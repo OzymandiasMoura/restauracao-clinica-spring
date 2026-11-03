@@ -130,6 +130,10 @@ public class Internacao
         {
             throw new InternacaoWithInvalidInformationException("Convênio não pode estar desativado.");
         }
+        if (convenio.getMaxVagas() <=0 )
+        {
+            throw new InternacaoWithInvalidInformationException("Convênio deve possuir numero de vagas maior que zero.");
+        }
     }
 
     private void setDataEntrada(LocalDate dataEntrada)
