@@ -179,6 +179,10 @@ public class Acolhido
         {
             throw new AcolhidoWithInvalidInformationException("Data de nascimento não pode ser anterior a 1900.");
         }
+        if (dataNascimento.isAfter(LocalDate.now().minusYears(18)))
+        {
+            throw new AcolhidoWithInvalidInformationException("Acolhido não pode ter menos que 18 anos.");
+        }
 
         this.dataNascimento = dataNascimento;
     }

@@ -205,7 +205,7 @@ class FuncionarioControllerTest
     {
         Endereco endereco = EnderecoTestBuilder.newEndereco().build();
         Cargo cargo = CargoTestBuilder.newCargo().setId(1L).build();
-        FuncionarioUserDataDto userData = new FuncionarioUserDataDto("pedro", "senha123");
+        FuncionarioUserDataDto userData = new FuncionarioUserDataDto("pedro", "senha123", UserRoles.USER);
 
         FuncionarioCreateRequestDto dto = new FuncionarioCreateRequestDto(
                 "Pedro Moura",

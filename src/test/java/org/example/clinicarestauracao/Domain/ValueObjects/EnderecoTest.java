@@ -120,6 +120,32 @@ class EnderecoTest
         assertEquals(1, endereco.getNumero());
     }
 
+    @Test
+    void shouldAcceptNumeroEqualToMaximumLimit()
+    {
+        Endereco endereco = EnderecoTestBuilder.newEndereco().setNumero(10000).build();
+
+        assertEquals(10000, endereco.getNumero());
+    }
+
+    @Test
+    void shouldRejectNumeroGreaterThanMaximumLimit()
+    {
+        EnderecoWithInvalidInformationException exception = assertThrows(EnderecoWithInvalidInformationException.class, () -> EnderecoTestBuilder.newEndereco().setNumero(10001).build());
+
+        assertEquals("Numero de endereço não pode ser maior que 10.000", exception.getMessage());
+    }
+
+    @Test
+    void shouldPreserveNumeroAfterRejectingValueGreaterThanMaximumLimit()
+    {
+        Endereco endereco = EnderecoTestBuilder.newEndereco().setNumero(500).build();
+
+        assertThrows(EnderecoWithInvalidInformationException.class, () -> endereco.setNumero(10001));
+
+        assertEquals(500, endereco.getNumero());
+    }
+
     //Testes setBairro
 
     @Test

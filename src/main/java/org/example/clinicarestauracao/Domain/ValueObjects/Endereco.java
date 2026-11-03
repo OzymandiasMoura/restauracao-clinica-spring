@@ -69,6 +69,10 @@ public class Endereco
         {
             throw new EnderecoWithInvalidInformationException("Numero não pode ser menor ou igual a zero.");
         }
+        if (numero > 10000)
+        {
+            throw new EnderecoWithInvalidInformationException("Numero de endereço não pode ser maior que 10.000");
+        }
 
         this.numero = numero;
     }

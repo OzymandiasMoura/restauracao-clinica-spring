@@ -64,7 +64,7 @@ public class UserService
     {
         User userToUpdate = findUserById(userId);
 
-        User userTransactional = new User(userToUpdate.getUsername(), newPassword, userToUpdate.getRole());
+        User userTransactional = User.forPasswordUpdate(newPassword);
 
         String encryptedPassword = passwordEncoder.encode(userTransactional.getPassword());
 
