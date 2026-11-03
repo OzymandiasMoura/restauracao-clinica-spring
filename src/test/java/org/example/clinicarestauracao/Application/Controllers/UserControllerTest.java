@@ -13,6 +13,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -50,5 +52,16 @@ class UserControllerTest
         assertNull(response.getBody());
 
         Mockito.verify(service).updateRole(userId, UserRoles.ADMIN);
+    }
+
+    @Test
+    void shouldReturnAssignableRoles()
+    {
+        ResponseEntity<List<UserRoles>> response = controller.findAllRoles();
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(List.of(UserRoles.ADMIN, UserRoles.USER), response.getBody());
+
+        Mockito.verifyNoInteractions(service);
     }
 }
