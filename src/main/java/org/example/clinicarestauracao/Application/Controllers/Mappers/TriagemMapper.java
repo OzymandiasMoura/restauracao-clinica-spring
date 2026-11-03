@@ -1,6 +1,6 @@
 package org.example.clinicarestauracao.Application.Controllers.Mappers;
-import org.example.clinicarestauracao.Application.Dtos.Triagem.TriagemRequestDto;
-import org.example.clinicarestauracao.Application.Dtos.Triagem.TriagemResponseDto;
+import org.example.clinicarestauracao.Application.Dtos.TriagemDtos.TriagemRequestDto;
+import org.example.clinicarestauracao.Application.Dtos.TriagemDtos.TriagemResponseDto;
 import org.example.clinicarestauracao.Domain.Entities.Convenio;
 import org.example.clinicarestauracao.Domain.Entities.Triagem;
 

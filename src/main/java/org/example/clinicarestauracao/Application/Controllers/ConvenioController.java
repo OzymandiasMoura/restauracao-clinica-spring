@@ -65,15 +65,15 @@ public class ConvenioController
         return ResponseEntity.ok().body(response);
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> softDeleteConvenioById(@PathVariable Long id)
+    @PatchMapping("/{id}/deactivate")
+    public ResponseEntity<Void> deactivateConvenioById(@PathVariable Long id)
     {
-        service.deleteConvenioById(id);
+        service.deactivateConvenioById(id);
 
         return ResponseEntity.noContent().build();
     }
 
-    @PutMapping("/{id}/activate")
+    @PatchMapping("/{id}/activate")
     public ResponseEntity<Void> activateConvenioById(@PathVariable Long id)
     {
         service.reabrirConvenioById(id);
@@ -88,5 +88,13 @@ public class ConvenioController
         ConvenioResponseDto response = ConvenioMapper.entityToResponseDto(convenio);
 
         return ResponseEntity.ok().body(response);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteConvenioById(@PathVariable Long id)
+    {
+        service.deleteConvenioById(id);
+
+        return ResponseEntity.noContent().build();
     }
 }

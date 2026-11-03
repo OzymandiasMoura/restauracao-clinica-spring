@@ -1,7 +1,8 @@
 
 package org.example.clinicarestauracao.Infrastruct.Database;
-import org.example.clinicarestauracao.Application.Dtos.Triagem.TriagemRequestDto;
-import org.example.clinicarestauracao.Application.Dtos.Triagem.TriagemResponseDto;
+
+import org.example.clinicarestauracao.Application.Dtos.TriagemDtos.TriagemRequestDto;
+import org.example.clinicarestauracao.Application.Dtos.TriagemDtos.TriagemResponseDto;
 import org.example.clinicarestauracao.Application.Interfaces.*;
 import org.example.clinicarestauracao.Application.Services.*;
 import org.example.clinicarestauracao.Domain.Entities.*;
@@ -14,7 +15,6 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
@@ -23,6 +23,7 @@ import java.time.LocalDateTime;
 public class DevDataInitializer implements ApplicationRunner {
 
     private static final String TEST_PASSWORD = "teste123";
+
     private final AcolhidoRepository acolhidoRepository;
     private final CargoRepository cargoRepository;
     private final FuncionarioRepository funcionarioRepository;
@@ -53,9 +54,8 @@ public class DevDataInitializer implements ApplicationRunner {
             FuncionarioService funcionarioService,
             ConvenioService convenioService,
             UserService userService,
-            MedicamentoService medicamentoService
-            TriagemService triagemService,
-            UserService userService
+            MedicamentoService medicamentoService,
+            TriagemService triagemService
     ) {
         this.acolhidoRepository = acolhidoRepository;
         this.cargoRepository = cargoRepository;
@@ -83,7 +83,7 @@ public class DevDataInitializer implements ApplicationRunner {
                 || funcionarioRepository.count() > 0
                 || convenioRepository.count() > 0
                 || userRepository.count() > 0
-                || medicamentoRepository.count() > 0) {
+                || medicamentoRepository.count() > 0
                 || triagemRepository.count() > 0
                 || userRepository.count() > 0) {
             return;
@@ -192,8 +192,8 @@ public class DevDataInitializer implements ApplicationRunner {
                 )
         );
 
-        // Testa exclusão lógica de convênio
-        convenioService.deleteConvenioById(
+        // Testa desativação de convênio
+        convenioService.deactivateConvenioById(
                 convenioComunitario.getId()
         );
 
@@ -289,13 +289,6 @@ public class DevDataInitializer implements ApplicationRunner {
                         "carla.souza@teste.local",
                         LocalDate.of(1988, 11, 2),
                         new Endereco(
-                                "Praça da Liberdade", 20,
-                                "Funcionários", "Belo Horizonte", "MG"
-                        ),
-                        "30140010",
-                        "31987654321",
-                        new User("carla.dev", TEST_PASSWORD, UserRoles.USER),
-
                                 "Praça da Liberdade",
                                 20,
                                 "Funcionários",

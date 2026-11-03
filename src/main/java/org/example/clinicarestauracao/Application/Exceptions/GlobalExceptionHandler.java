@@ -1,4 +1,5 @@
 package org.example.clinicarestauracao.Application.Exceptions;
+
 import org.example.clinicarestauracao.Application.Dtos.SecurityDtos.ErrorResponseDto;
 import org.example.clinicarestauracao.Application.Dtos.SecurityDtos.FieldErrorDto;
 import org.example.clinicarestauracao.Application.Dtos.SecurityDtos.ValidationErrorResponseDto;
@@ -11,6 +12,8 @@ import org.example.clinicarestauracao.Application.Exceptions.Funcionario.Funcion
 import org.example.clinicarestauracao.Application.Exceptions.Funcionario.FuncionarioWithInvalidInformationException;
 import org.example.clinicarestauracao.Application.Exceptions.Medicamento.MedicamentoNotFoundException;
 import org.example.clinicarestauracao.Application.Exceptions.Medicamento.MedicamentoWithInvalidInformationException;
+import org.example.clinicarestauracao.Application.Exceptions.Internacao.InternacaoNotFoundException;
+import org.example.clinicarestauracao.Application.Exceptions.Internacao.InternacaoWithInvalidInformationException;
 import org.example.clinicarestauracao.Application.Exceptions.Triagem.TriagemNotFoundException;
 import org.example.clinicarestauracao.Application.Exceptions.Triagem.TriagemWithInvalidInformationException;
 import org.example.clinicarestauracao.Application.Exceptions.User.UserNotFoundException;
@@ -168,6 +171,17 @@ public class GlobalExceptionHandler
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
 
+    @ExceptionHandler(InternacaoWithInvalidInformationException.class)
+    public ResponseEntity<ErrorResponseDto> handleInternacaoWithInvalidInformation(InternacaoWithInvalidInformationException ex)
+    {
+        var response = new ErrorResponseDto(ex.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
 
-
+    @ExceptionHandler(InternacaoNotFoundException.class)
+    public ResponseEntity<ErrorResponseDto> handleInternacaoNotFound(InternacaoNotFoundException ex)
+    {
+        var response = new ErrorResponseDto(ex.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+    }
 }

@@ -1,9 +1,11 @@
 package org.example.clinicarestauracao.Application.Services;
 
+import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.example.clinicarestauracao.Application.Exceptions.ConvenioNotFoundException;
 import org.example.clinicarestauracao.Application.Exceptions.ConvenioWithInvalidInformationException;
 import org.example.clinicarestauracao.Application.Interfaces.ConvenioRepository;
+import org.example.clinicarestauracao.Application.Interfaces.InternacaoRepository;
 import org.example.clinicarestauracao.Domain.Entities.Convenio;
 import org.springframework.stereotype.Service;
 
@@ -14,7 +16,8 @@ import java.util.Optional;
 @AllArgsConstructor
 public class ConvenioService
 {
-    private ConvenioRepository repository;
+    private final ConvenioRepository repository;
+    private final InternacaoRepository internacaoRepository;
 
     public Convenio createConvenio(Convenio convenio)
     {
@@ -89,7 +92,8 @@ public class ConvenioService
         return repository.save(convenioExistente);
     }
 
-    public void deleteConvenioById(Long id)
+    @Transactional
+    public void deactivateConvenioById(Long id)
     {
         Convenio convenio = findConvenioById(id);
 
@@ -97,6 +101,12 @@ public class ConvenioService
         {
             return;
         }
+
+        if (internacaoRepository.existsByConvenio(convenio))
+        {
+            throw new ConvenioWithInvalidInformationException("Convênio não pode ser desativado enquanto possuir internações.");
+        }
+
         convenio.setAtivo(false);
         repository.save(convenio);
     }
@@ -126,5 +136,18 @@ public class ConvenioService
     public Convenio findConvenioByCor(String cor)
     {
         return repository.findConvenioByCor(cor).orElseThrow(() -> new ConvenioNotFoundException("Convênio não encontrado."));
+    }
+
+    @Transactional
+    public void deleteConvenioById(Long id)
+    {
+        Convenio convenio = findConvenioById(id);
+
+        if (internacaoRepository.existsByConvenio(convenio))
+        {
+            throw new ConvenioWithInvalidInformationException("Convênio não pode ser deletado enquanto possuir internações.");
+        }
+
+        repository.delete(convenio);
     }
 }

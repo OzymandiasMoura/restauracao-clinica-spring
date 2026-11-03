@@ -2,9 +2,9 @@ package org.example.clinicarestauracao.Application.Controllers;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.example.clinicarestauracao.Application.Dtos.Triagem.TriagemReagendamentoDto;
-import org.example.clinicarestauracao.Application.Dtos.Triagem.TriagemRequestDto;
-import org.example.clinicarestauracao.Application.Dtos.Triagem.TriagemResponseDto;
+import org.example.clinicarestauracao.Application.Dtos.TriagemDtos.TriagemReagendamentoDto;
+import org.example.clinicarestauracao.Application.Dtos.TriagemDtos.TriagemRequestDto;
+import org.example.clinicarestauracao.Application.Dtos.TriagemDtos.TriagemResponseDto;
 import org.example.clinicarestauracao.Application.Services.TriagemService;
 import org.example.clinicarestauracao.Domain.Enums.Status;
 import org.springframework.http.ResponseEntity;

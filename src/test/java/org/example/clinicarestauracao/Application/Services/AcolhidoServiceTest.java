@@ -3,6 +3,7 @@ package org.example.clinicarestauracao.Application.Services;
 import org.example.clinicarestauracao.Application.Exceptions.Acolhido.AcolhidoNotFoundException;
 import org.example.clinicarestauracao.Application.Exceptions.Acolhido.AcolhidoWithInvalidInformationException;
 import org.example.clinicarestauracao.Application.Interfaces.AcolhidoRepository;
+import org.example.clinicarestauracao.Application.Interfaces.InternacaoRepository;
 import org.example.clinicarestauracao.Builders.AcolhidoTestBuilder;
 import org.example.clinicarestauracao.Builders.EnderecoTestBuilder;
 import org.example.clinicarestauracao.Domain.Entities.Acolhido;
@@ -28,6 +29,9 @@ class AcolhidoServiceTest
 {
     @Mock
     private AcolhidoRepository repository;
+
+    @Mock
+    private InternacaoRepository internacaoRepository;
 
     @InjectMocks
     private AcolhidoService service;
@@ -524,16 +528,18 @@ class AcolhidoServiceTest
     // Testes deleteAcolhidoById
 
     @Test
-    void shouldDeleteAcolhidoSuccessfully()
+    void shouldDeleteAcolhidoSuccessfullyWhenThereAreNoInternacoes()
     {
-        Acolhido acolhido = AcolhidoTestBuilder.newAcolhido().build();
+        Acolhido acolhido = AcolhidoTestBuilder.newAcolhido().setId(1L).build();
 
         Mockito.when(repository.findById(1L)).thenReturn(Optional.of(acolhido));
+        Mockito.when(internacaoRepository.existsByAcolhido(acolhido)).thenReturn(false);
 
         service.deleteAcolhidoById(1L);
 
         Mockito.verify(repository).findById(1L);
-        Mockito.verify(repository).delete(acolhido);
+        Mockito.verify(internacaoRepository).existsByAcolhido(Mockito.same(acolhido));
+        Mockito.verify(repository).delete(Mockito.same(acolhido));
     }
 
     @Test
@@ -547,6 +553,7 @@ class AcolhidoServiceTest
 
         Mockito.verify(repository).findById(99L);
         Mockito.verify(repository, Mockito.never()).delete(Mockito.any(Acolhido.class));
+        Mockito.verifyNoInteractions(internacaoRepository);
     }
 
     @ParameterizedTest
@@ -558,7 +565,24 @@ class AcolhidoServiceTest
 
         assertEquals("Acolhido não encontrado.", exception.getMessage());
 
-        Mockito.verifyNoInteractions(repository);
+        Mockito.verifyNoInteractions(repository, internacaoRepository);
+    }
+
+    @Test
+    void shouldNotDeleteAcolhidoWhenThereAreInternacoes()
+    {
+        Acolhido acolhido = AcolhidoTestBuilder.newAcolhido().setId(1L).build();
+
+        Mockito.when(repository.findById(1L)).thenReturn(Optional.of(acolhido));
+        Mockito.when(internacaoRepository.existsByAcolhido(acolhido)).thenReturn(true);
+
+        AcolhidoWithInvalidInformationException exception = assertThrows(AcolhidoWithInvalidInformationException.class, () -> service.deleteAcolhidoById(1L));
+
+        assertEquals("Acolhido não pode ser excluído enquanto possuir internações.", exception.getMessage());
+
+        Mockito.verify(repository).findById(1L);
+        Mockito.verify(internacaoRepository).existsByAcolhido(Mockito.same(acolhido));
+        Mockito.verify(repository, Mockito.never()).delete(Mockito.any(Acolhido.class));
     }
 
 }

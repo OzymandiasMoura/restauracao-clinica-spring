@@ -1,4 +1,4 @@
-package org.example.clinicarestauracao.Application.Dtos.Triagem;
+package org.example.clinicarestauracao.Application.Dtos.TriagemDtos;
 
 import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.NotNull;
