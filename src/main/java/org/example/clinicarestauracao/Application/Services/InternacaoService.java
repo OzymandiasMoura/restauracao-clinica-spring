@@ -72,6 +72,7 @@ public class InternacaoService
         Convenio convenio = convenioService.findConvenioById(internacao.getConvenio().getId());
         Acolhido acolhido = acolhidoService.findAcolhidoById(internacao.getAcolhido().getId());
 
+
         if (!convenio.isAtivo())
         {
             throw new InternacaoWithInvalidInformationException("Convênio inválido.");
@@ -83,6 +84,11 @@ public class InternacaoService
         if (repository.existsByAcolhidoAndAtivoTrue(acolhido))
         {
             throw new InternacaoWithInvalidInformationException("Acolhido já possui internação ativa.");
+        }
+        Long numInternacoes = repository.countByConvenioAndAtivoTrue(convenio);
+        if (numInternacoes >= convenio.getMaxVagas())
+        {
+            throw new InternacaoWithInvalidInformationException("Vagas maxima excedente.");
         }
 
         return repository.save(internacao);

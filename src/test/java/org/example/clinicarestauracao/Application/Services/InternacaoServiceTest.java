@@ -252,6 +252,7 @@ class InternacaoServiceTest
         Mockito.when(convenioService.findConvenioById(1L)).thenReturn(convenioPersistido);
         Mockito.when(acolhidoService.findAcolhidoById(1L)).thenReturn(acolhidoPersistido);
         Mockito.when(repository.existsByAcolhidoAndAtivoTrue(Mockito.same(acolhidoPersistido))).thenReturn(false);
+        Mockito.when(repository.countByConvenioAndAtivoTrue(Mockito.same(convenioPersistido))).thenReturn(19L);
         Mockito.when(repository.save(internacao)).thenReturn(internacaoSalva);
 
         Internacao response = service.createInternacao(internacao);
@@ -261,6 +262,7 @@ class InternacaoServiceTest
         Mockito.verify(convenioService).findConvenioById(1L);
         Mockito.verify(acolhidoService).findAcolhidoById(1L);
         Mockito.verify(repository).existsByAcolhidoAndAtivoTrue(Mockito.same(acolhidoPersistido));
+        Mockito.verify(repository).countByConvenioAndAtivoTrue(Mockito.same(convenioPersistido));
         Mockito.verify(repository).save(Mockito.same(internacao));
     }
 
@@ -335,6 +337,36 @@ class InternacaoServiceTest
         Mockito.verify(convenioService).findConvenioById(1L);
         Mockito.verify(acolhidoService).findAcolhidoById(1L);
         Mockito.verify(repository).existsByAcolhidoAndAtivoTrue(Mockito.same(acolhidoPersistido));
+        Mockito.verify(repository, Mockito.never()).countByConvenioAndAtivoTrue(Mockito.any(Convenio.class));
+        Mockito.verify(repository, Mockito.never()).save(Mockito.any(Internacao.class));
+    }
+
+    @ParameterizedTest
+    @ValueSource(longs = {20L, 21L})
+    void shouldRejectInternacaoWhenConvenioHasReachedOrExceededMaximumCapacity(long numeroInternacoesAtivas)
+    {
+        Acolhido acolhidoRecebido = AcolhidoTestBuilder.newAcolhido().setId(1L).build();
+        Acolhido acolhidoPersistido = AcolhidoTestBuilder.newAcolhido().setId(1L).build();
+        Convenio convenioRecebido = new ConvenioTestBuilder().setId(1L).setMaxVagas(20).build();
+        Convenio convenioPersistido = new ConvenioTestBuilder().setId(1L).setMaxVagas(20).build();
+        Internacao internacao = InternacaoTestBuilder.newInternacao().setAcolhido(acolhidoRecebido).setConvenio(convenioRecebido).buildForCreate();
+
+        Mockito.when(convenioService.findConvenioById(1L)).thenReturn(convenioPersistido);
+        Mockito.when(acolhidoService.findAcolhidoById(1L)).thenReturn(acolhidoPersistido);
+        Mockito.when(repository.existsByAcolhidoAndAtivoTrue(Mockito.same(acolhidoPersistido))).thenReturn(false);
+        Mockito.when(repository.countByConvenioAndAtivoTrue(Mockito.same(convenioPersistido))).thenReturn(numeroInternacoesAtivas);
+
+        InternacaoWithInvalidInformationException exception = assertThrows(
+                InternacaoWithInvalidInformationException.class,
+                () -> service.createInternacao(internacao)
+        );
+
+        assertEquals("Vagas maxima excedente.", exception.getMessage());
+
+        Mockito.verify(convenioService).findConvenioById(1L);
+        Mockito.verify(acolhidoService).findAcolhidoById(1L);
+        Mockito.verify(repository).existsByAcolhidoAndAtivoTrue(Mockito.same(acolhidoPersistido));
+        Mockito.verify(repository).countByConvenioAndAtivoTrue(Mockito.same(convenioPersistido));
         Mockito.verify(repository, Mockito.never()).save(Mockito.any(Internacao.class));
     }
 
