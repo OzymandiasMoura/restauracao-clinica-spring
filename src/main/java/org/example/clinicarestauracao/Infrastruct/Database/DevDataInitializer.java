@@ -1,4 +1,3 @@
-
 package org.example.clinicarestauracao.Infrastruct.Database;
 
 import org.example.clinicarestauracao.Application.Dtos.TriagemDtos.TriagemRequestDto;
@@ -14,10 +13,15 @@ import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.sql.Date;
+import java.sql.PreparedStatement;
 
 @Component
 @Profile("dev")
@@ -40,6 +44,9 @@ public class DevDataInitializer implements ApplicationRunner {
     private final TriagemService triagemService;
     private final UserService userService;
     private final MedicamentoService medicamentoService;
+    private final PagamentoRepository pagamentoRepository;
+    private final InternacaoRepository internacaoRepository;
+    private final JdbcTemplate jdbcTemplate;
 
     public DevDataInitializer(
             AcolhidoRepository acolhidoRepository,
@@ -55,7 +62,8 @@ public class DevDataInitializer implements ApplicationRunner {
             ConvenioService convenioService,
             UserService userService,
             MedicamentoService medicamentoService,
-            TriagemService triagemService
+            TriagemService triagemService, PagamentoRepository pagamentoRepository,
+            InternacaoRepository internacaoRepository, JdbcTemplate jdbcTemplate
     ) {
         this.acolhidoRepository = acolhidoRepository;
         this.cargoRepository = cargoRepository;
@@ -71,6 +79,9 @@ public class DevDataInitializer implements ApplicationRunner {
         this.triagemService = triagemService;
         this.userService = userService;
         this.medicamentoService = medicamentoService;
+        this.pagamentoRepository = pagamentoRepository;
+        this.internacaoRepository = internacaoRepository;
+        this.jdbcTemplate = jdbcTemplate;
     }
 
     @Override
@@ -383,5 +394,99 @@ public class DevDataInitializer implements ApplicationRunner {
                         "Teste de atualização automática do status."
                 )
         );
+        // =========================
+        // INTERNAÇÕES MOCKADAS
+        // =========================
+        // Em um H2 novo, as criações acima atribuem normalmente:
+        // 1 = Gabriel Santos; 2 = Juliana Oliveira; 3 = Marcos Pereira (desativado).
+        // Os nomes são conferidos para impedir associação a um acolhido errado.
+        Acolhido gabriel = buscarAcolhidoMock(1L, "Gabriel Santos");
+        Acolhido juliana = buscarAcolhidoMock(2L, "Juliana Oliveira");
+
+        Internacao internacaoGabriel = criarInternacaoMock(
+                gabriel, clinicaParceira, new BigDecimal("950.00"), 45
+        );
+
+        Internacao internacaoJuliana = criarInternacaoMock(
+                juliana, clinicaParceira, new BigDecimal("1000.00"), 35
+        );
+
+        // =========================
+        // PAGAMENTOS MOCKADOS
+        // =========================
+
+        // Gabriel: 300 + 250 + 400 = R$ 950,00
+        pagamentoRepository.save(new Pagamento(
+                new BigDecimal("300.00"), LocalDate.now().minusDays(20), internacaoGabriel
+        ));
+        pagamentoRepository.save(new Pagamento(
+                new BigDecimal("250.00"), LocalDate.now().minusDays(10), internacaoGabriel
+        ));
+        pagamentoRepository.save(new Pagamento(
+                new BigDecimal("400.00"), LocalDate.now().minusDays(2), internacaoGabriel
+        ));
+
+        // Juliana: 500 + 500 = R$ 1.000,00
+        pagamentoRepository.save(new Pagamento(
+                new BigDecimal("500.00"), LocalDate.now().minusDays(15), internacaoJuliana
+        ));
+        pagamentoRepository.save(new Pagamento(
+                new BigDecimal("500.00"), LocalDate.now().minusDays(5), internacaoJuliana
+        ));
+    }
+
+    private Acolhido buscarAcolhidoMock(Long id, String nomeEsperado) {
+        Acolhido acolhido = acolhidoRepository.findById(id)
+                .orElseThrow(() -> new IllegalStateException(
+                        "Acolhido mockado não encontrado: ID " + id
+                ));
+        if (!nomeEsperado.equals(acolhido.getNome())) {
+            throw new IllegalStateException(
+                    "ID " + id + " pertence a " + acolhido.getNome()
+                            + ", mas era esperado " + nomeEsperado
+            );
+        }
+        return acolhido;
+    }
+
+    /** Inserção SQL restrita ao perfil dev/H2; não substitui o fluxo de domínio. */
+    private Internacao criarInternacaoMock(
+            Acolhido acolhido,
+            Convenio convenio,
+            BigDecimal valorMensalidade,
+            int diasDesdeEntrada
+    ) {
+        String sql = """
+                INSERT INTO internacao
+                (ativo, data_entrada, data_saida_prevista,
+                 etapa_tratamento, valor_mensalidade, acolhido_id, convenio_id)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
+                """;
+
+        LocalDate entrada = LocalDate.now().minusDays(diasDesdeEntrada);
+        LocalDate saidaPrevista = entrada.plusMonths(6);
+        KeyHolder keyHolder = new GeneratedKeyHolder();
+
+        jdbcTemplate.update(connection -> {
+            PreparedStatement ps = connection.prepareStatement(sql, new String[]{"id"});
+            ps.setBoolean(1, true);
+            ps.setDate(2, Date.valueOf(entrada));
+            ps.setDate(3, Date.valueOf(saidaPrevista));
+            ps.setString(4, "EM_TRATAMENTO");
+            ps.setBigDecimal(5, valorMensalidade);
+            ps.setLong(6, acolhido.getId());
+            ps.setLong(7, convenio.getId());
+            return ps;
+        }, keyHolder);
+
+        Number id = keyHolder.getKey();
+        if (id == null) {
+            throw new IllegalStateException("Não foi gerado ID para a internação mockada.");
+        }
+
+        return internacaoRepository.findById(id.longValue())
+                .orElseThrow(() -> new IllegalStateException(
+                        "Internação mockada não encontrada: ID " + id
+                ));
     }
 }
