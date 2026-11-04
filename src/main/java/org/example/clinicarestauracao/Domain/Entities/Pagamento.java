@@ -37,8 +37,6 @@ public class Pagamento {
     @JoinColumn(name = "id_internacao", nullable = false)
     private Internacao internacao;
 
-    @Column(name = "total_pago")
-    private BigDecimal totalPago;
 
     public Pagamento(
             BigDecimal valor,
