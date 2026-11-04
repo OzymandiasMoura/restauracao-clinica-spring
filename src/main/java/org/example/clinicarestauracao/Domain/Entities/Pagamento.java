@@ -1,3 +1,4 @@
+
 package org.example.clinicarestauracao.Domain.Entities;
 
 import jakarta.persistence.*;
