@@ -1,4 +1,3 @@
-
 package org.example.clinicarestauracao.Domain.Entities;
 
 import jakarta.persistence.*;
@@ -37,6 +36,9 @@ public class Pagamento {
     @ManyToOne(optional = false)
     @JoinColumn(name = "id_internacao", nullable = false)
     private Internacao internacao;
+
+    @Column(name = "total_pago")
+    private BigDecimal totalPago;
 
     public Pagamento(
             BigDecimal valor,
