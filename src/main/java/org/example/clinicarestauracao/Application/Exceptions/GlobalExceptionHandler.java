@@ -14,6 +14,8 @@ import org.example.clinicarestauracao.Application.Exceptions.Medicamento.Medicam
 import org.example.clinicarestauracao.Application.Exceptions.Medicamento.MedicamentoWithInvalidInformationException;
 import org.example.clinicarestauracao.Application.Exceptions.Internacao.InternacaoNotFoundException;
 import org.example.clinicarestauracao.Application.Exceptions.Internacao.InternacaoWithInvalidInformationException;
+import org.example.clinicarestauracao.Application.Exceptions.Pagamento.PagamentoNotFoundException;
+import org.example.clinicarestauracao.Application.Exceptions.Pagamento.PagamentoWithInvalidInformationException;
 import org.example.clinicarestauracao.Application.Exceptions.Triagem.TriagemNotFoundException;
 import org.example.clinicarestauracao.Application.Exceptions.Triagem.TriagemWithInvalidInformationException;
 import org.example.clinicarestauracao.Application.Exceptions.User.UserNotFoundException;
@@ -180,6 +182,20 @@ public class GlobalExceptionHandler
 
     @ExceptionHandler(InternacaoNotFoundException.class)
     public ResponseEntity<ErrorResponseDto> handleInternacaoNotFound(InternacaoNotFoundException ex)
+    {
+        var response = new ErrorResponseDto(ex.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+    }
+
+    @ExceptionHandler(PagamentoWithInvalidInformationException.class)
+    public ResponseEntity<ErrorResponseDto> handlePagamentoWithInvalidInformation(PagamentoWithInvalidInformationException ex)
+    {
+        var response = new ErrorResponseDto(ex.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
+
+    @ExceptionHandler(PagamentoNotFoundException.class)
+    public ResponseEntity<ErrorResponseDto> handlePagamentoNotFound(PagamentoNotFoundException ex)
     {
         var response = new ErrorResponseDto(ex.getMessage());
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
