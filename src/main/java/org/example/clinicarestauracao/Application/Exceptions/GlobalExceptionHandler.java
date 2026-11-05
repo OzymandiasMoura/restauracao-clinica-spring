@@ -14,6 +14,8 @@ import org.example.clinicarestauracao.Application.Exceptions.Medicamento.Medicam
 import org.example.clinicarestauracao.Application.Exceptions.Medicamento.MedicamentoWithInvalidInformationException;
 import org.example.clinicarestauracao.Application.Exceptions.Internacao.InternacaoNotFoundException;
 import org.example.clinicarestauracao.Application.Exceptions.Internacao.InternacaoWithInvalidInformationException;
+import org.example.clinicarestauracao.Application.Exceptions.Responsavel.ResponsavelNotFoundException;
+import org.example.clinicarestauracao.Application.Exceptions.Responsavel.ResponsavelWithInvalidInformationException;
 import org.example.clinicarestauracao.Application.Exceptions.Triagem.TriagemNotFoundException;
 import org.example.clinicarestauracao.Application.Exceptions.Triagem.TriagemWithInvalidInformationException;
 import org.example.clinicarestauracao.Application.Exceptions.User.UserNotFoundException;
@@ -153,9 +155,6 @@ public class GlobalExceptionHandler
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
 
-
-
-    //Acolhido
     @ExceptionHandler(AcolhidoWithInvalidInformationException.class)
     public ResponseEntity<ErrorResponseDto> handleAcolhidoWithInvalidInformation(AcolhidoWithInvalidInformationException ex)
     {
@@ -180,6 +179,20 @@ public class GlobalExceptionHandler
 
     @ExceptionHandler(InternacaoNotFoundException.class)
     public ResponseEntity<ErrorResponseDto> handleInternacaoNotFound(InternacaoNotFoundException ex)
+    {
+        var response = new ErrorResponseDto(ex.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+    }
+
+    @ExceptionHandler(ResponsavelWithInvalidInformationException.class)
+    public ResponseEntity<ErrorResponseDto> handleResponsavelWithInvalidInformation(ResponsavelWithInvalidInformationException ex)
+    {
+        var response = new ErrorResponseDto(ex.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
+
+    @ExceptionHandler(ResponsavelNotFoundException.class)
+    public ResponseEntity<ErrorResponseDto> handleResponsavelNotFound(ResponsavelNotFoundException ex)
     {
         var response = new ErrorResponseDto(ex.getMessage());
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);

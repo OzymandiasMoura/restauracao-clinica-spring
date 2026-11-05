@@ -10,6 +10,8 @@ import org.example.clinicarestauracao.Application.Exceptions.Funcionario.Funcion
 import org.example.clinicarestauracao.Application.Exceptions.Funcionario.FuncionarioWithInvalidInformationException;
 import org.example.clinicarestauracao.Application.Exceptions.Internacao.InternacaoNotFoundException;
 import org.example.clinicarestauracao.Application.Exceptions.Internacao.InternacaoWithInvalidInformationException;
+import org.example.clinicarestauracao.Application.Exceptions.Responsavel.ResponsavelNotFoundException;
+import org.example.clinicarestauracao.Application.Exceptions.Responsavel.ResponsavelWithInvalidInformationException;
 import org.example.clinicarestauracao.Application.Exceptions.User.UserNotFoundException;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
@@ -205,4 +207,33 @@ class GlobalExceptionHandlerTest
                 () -> assertEquals("Internação não encontrada.", response.getBody().message())
         );
     }
+
+    @Test
+    void shouldReturnBadRequestWhenResponsavelInformationIsInvalid()
+    {
+        ResponsavelWithInvalidInformationException exception = new ResponsavelWithInvalidInformationException("CPF do responsável é inválido.");
+
+        ResponseEntity<ErrorResponseDto> response = handler.handleResponsavelWithInvalidInformation(exception);
+
+        assertAll(
+                () -> assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode()),
+                () -> assertNotNull(response.getBody()),
+                () -> assertEquals("CPF do responsável é inválido.", response.getBody().message())
+        );
+    }
+
+    @Test
+    void shouldReturnNotFoundWhenResponsavelDoesNotExist()
+    {
+        ResponsavelNotFoundException exception = new ResponsavelNotFoundException("Responsável não encontrado.");
+
+        ResponseEntity<ErrorResponseDto> response = handler.handleResponsavelNotFound(exception);
+
+        assertAll(
+                () -> assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode()),
+                () -> assertNotNull(response.getBody()),
+                () -> assertEquals("Responsável não encontrado.", response.getBody().message())
+        );
+    }
+
 }
