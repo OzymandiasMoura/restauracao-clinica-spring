@@ -15,5 +15,6 @@ public interface InternacaoRepository extends JpaRepository<Internacao, Long>
     boolean existsByConvenio(Convenio convenio);
     List<Internacao> findByAtivoTrue();
     long countByConvenioAndAtivoTrue(Convenio convenio);
+    boolean existsByConvenioIdAndAtivoTrue(Long convenioId);
 
 }

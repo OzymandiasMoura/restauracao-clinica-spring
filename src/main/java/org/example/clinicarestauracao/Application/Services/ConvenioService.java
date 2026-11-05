@@ -59,10 +59,9 @@ public class ConvenioService
         boolean descricaoFoiAlterada = !convenio.getDescricao().equals(convenioExistente.getDescricao());
         boolean cnpjFoiAlterado = convenio.getCnpj() == null && convenioExistente.getCnpj() != null || convenio.getCnpj() != null && !convenio.getCnpj().equals(convenioExistente.getCnpj());
         boolean corAlterada =  !convenio.getCor().equals(convenioExistente.getCor());
+        boolean maxVagasFoiReduzido = convenio.getMaxVagas() < convenioExistente.getMaxVagas();
 
-        Optional<Convenio> mesmaDescricao = descricaoFoiAlterada
-                ? repository.findConvenioByDescricaoIgnoreCase(convenio.getDescricao())
-                : Optional.empty();
+        Optional<Convenio> mesmaDescricao = descricaoFoiAlterada ? repository.findConvenioByDescricaoIgnoreCase(convenio.getDescricao()) : Optional.empty();
 
         if(mesmaDescricao.isPresent() && !mesmaDescricao.get().getId().equals(convenioExistente.getId()))
         {
@@ -78,6 +77,16 @@ public class ConvenioService
             throw new ConvenioWithInvalidInformationException("Cor já cadastrada.");
         }
 
+        if(maxVagasFoiReduzido)
+        {
+            long internacoes = internacaoRepository.countByConvenioAndAtivoTrue(convenioExistente);
+
+            if (convenio.getMaxVagas() < internacoes)
+            {
+                throw new ConvenioWithInvalidInformationException("Convênio já possui vagas ocupadas que não podem ser removidas.");
+            }
+        }
+
         if(descricaoFoiAlterada)
         {
             convenioExistente.setDescricao(convenio.getDescricao());
@@ -86,6 +95,7 @@ public class ConvenioService
         {
             convenioExistente.setCnpj(convenio.getCnpj());
         }
+
         convenioExistente.setMaxVagas(convenio.getMaxVagas());
         convenioExistente.setPagamento(convenio.isPagamento());
         if(corAlterada)
@@ -107,7 +117,7 @@ public class ConvenioService
             return;
         }
 
-        if (internacaoRepository.existsByConvenio(convenio))
+        if (internacaoRepository.existsByConvenioIdAndAtivoTrue(convenio.getId()))
         {
             throw new ConvenioWithInvalidInformationException("Convênio não pode ser desativado enquanto possuir internações.");
         }

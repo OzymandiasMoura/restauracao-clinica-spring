@@ -437,7 +437,65 @@ class ConvenioServiceTest
         Mockito.verify(repository, Mockito.never()).findConvenioByDescricaoIgnoreCase(Mockito.anyString());
         Mockito.verify(repository, Mockito.never()).findConvenioByCnpj(Mockito.any());
         Mockito.verify(repository).save(Mockito.same(existente));
+        Mockito.verifyNoInteractions(internacaoRepository);
     }
+
+    @Test
+    void shouldAllowReducingMaxVagasToNumberOfActiveInternacoes()
+    {
+        Convenio existente = new ConvenioTestBuilder().setMaxVagas(20).build();
+        Convenio dadosAtualizados = new ConvenioTestBuilder().setMaxVagas(10).build();
+
+        Mockito.when(repository.findById(existente.getId())).thenReturn(Optional.of(existente));
+        Mockito.when(internacaoRepository.countByConvenioAndAtivoTrue(Mockito.same(existente))).thenReturn(10L);
+        Mockito.when(repository.save(Mockito.same(existente))).thenReturn(existente);
+
+        Convenio response = service.updateConvenio(existente.getId(), dadosAtualizados);
+
+        assertAll(
+                () -> assertSame(existente, response),
+                () -> assertEquals(10, response.getMaxVagas())
+        );
+
+        Mockito.verify(internacaoRepository).countByConvenioAndAtivoTrue(Mockito.same(existente));
+        Mockito.verify(repository).save(Mockito.same(existente));
+    }
+
+    @Test
+    void shouldRejectReducingMaxVagasBelowActiveInternacoesAndPreserveCurrentState()
+    {
+        Convenio existente = new ConvenioTestBuilder().setMaxVagas(20).build();
+        String descricaoOriginal = existente.getDescricao();
+        String cnpjOriginal = existente.getCnpj();
+        int maxVagasOriginal = existente.getMaxVagas();
+        boolean pagamentoOriginal = existente.isPagamento();
+        String corOriginal = existente.getCor();
+
+        Convenio dadosAtualizados = new ConvenioTestBuilder().setDescricao("Nova Descrição").setCNPJ("12.ABC.345/01DE-35").setMaxVagas(9).setPagamento(false).setCor("#FF5733").build();
+
+        Mockito.when(repository.findById(existente.getId())).thenReturn(Optional.of(existente));
+        Mockito.when(repository.findConvenioByDescricaoIgnoreCase(dadosAtualizados.getDescricao())).thenReturn(Optional.empty());
+        Mockito.when(repository.findConvenioByCnpj(dadosAtualizados.getCnpj())).thenReturn(Optional.empty());
+        Mockito.when(repository.findConvenioByCor(dadosAtualizados.getCor())).thenReturn(Optional.empty());
+
+        Mockito.when(internacaoRepository.countByConvenioAndAtivoTrue(Mockito.same(existente))).thenReturn(10L);
+
+        ConvenioWithInvalidInformationException exception = assertThrows(ConvenioWithInvalidInformationException.class, () -> service.updateConvenio(existente.getId(), dadosAtualizados));
+
+        assertAll(
+                () -> assertEquals("Convênio já possui vagas ocupadas que não podem ser removidas.", exception.getMessage()),
+                () -> assertEquals(descricaoOriginal, existente.getDescricao()),
+                () -> assertEquals(cnpjOriginal, existente.getCnpj()),
+                () -> assertEquals(maxVagasOriginal, existente.getMaxVagas()),
+                () -> assertEquals(pagamentoOriginal, existente.isPagamento()),
+                () -> assertEquals(corOriginal, existente.getCor()),
+                () -> assertTrue(existente.isAtivo())
+        );
+
+        Mockito.verify(internacaoRepository).countByConvenioAndAtivoTrue(Mockito.same(existente));
+        Mockito.verify(repository, Mockito.never()).save(Mockito.any(Convenio.class));
+    }
+
 
     @Test
     void shouldRemoveCnpjSuccessfully()
@@ -554,6 +612,7 @@ class ConvenioServiceTest
         Mockito.verify(repository).findConvenioByDescricaoIgnoreCase(dadosAtualizados.getDescricao());
         Mockito.verify(repository, Mockito.never()).findConvenioByCnpj(Mockito.any());
         Mockito.verify(repository).save(Mockito.same(existente));
+        Mockito.verifyNoInteractions(internacaoRepository);
     }
 
     @Test
@@ -606,12 +665,12 @@ class ConvenioServiceTest
     }
 
     @Test
-    void shouldDeactivateConvenioSuccessfullyWhenThereAreNoInternacoes()
+    void shouldDeactivateConvenioWhenThereAreNoActiveInternacoes()
     {
         Convenio existente = new ConvenioTestBuilder().setAtivo(true).build();
 
         Mockito.when(repository.findById(existente.getId())).thenReturn(Optional.of(existente));
-        Mockito.when(internacaoRepository.existsByConvenio(existente)).thenReturn(false);
+        Mockito.when(internacaoRepository.existsByConvenioIdAndAtivoTrue(existente.getId())).thenReturn(false);
         Mockito.when(repository.save(Mockito.same(existente))).thenReturn(existente);
 
         service.deactivateConvenioById(existente.getId());
@@ -619,11 +678,11 @@ class ConvenioServiceTest
         assertFalse(existente.isAtivo());
 
         Mockito.verify(repository).findById(existente.getId());
-        Mockito.verify(internacaoRepository).existsByConvenio(Mockito.same(existente));
+        Mockito.verify(internacaoRepository).existsByConvenioIdAndAtivoTrue(existente.getId());
+        Mockito.verify(internacaoRepository, Mockito.never()).existsByConvenio(Mockito.any(Convenio.class));
         Mockito.verify(repository).save(Mockito.same(existente));
-        Mockito.verify(repository, Mockito.never()).delete(Mockito.any());
-        Mockito.verify(repository, Mockito.never()).deleteById(Mockito.anyLong());
     }
+
 
     @Test
     void shouldNotConsultInternacoesWhenConvenioIsAlreadyInactive()
@@ -642,17 +701,15 @@ class ConvenioServiceTest
     }
 
     @Test
-    void shouldNotDeactivateConvenioWhenThereAreInternacoes()
+    void shouldNotDeactivateConvenioWhenThereAreActiveInternacoes()
     {
         Convenio existente = new ConvenioTestBuilder().setAtivo(true).build();
 
         Mockito.when(repository.findById(existente.getId())).thenReturn(Optional.of(existente));
-        Mockito.when(internacaoRepository.existsByConvenio(existente)).thenReturn(true);
 
-        ConvenioWithInvalidInformationException exception = assertThrows(
-                ConvenioWithInvalidInformationException.class,
-                () -> service.deactivateConvenioById(existente.getId())
-        );
+        Mockito.when(internacaoRepository.existsByConvenioIdAndAtivoTrue(existente.getId())).thenReturn(true);
+
+        ConvenioWithInvalidInformationException exception = assertThrows(ConvenioWithInvalidInformationException.class, () -> service.deactivateConvenioById(existente.getId()));
 
         assertAll(
                 () -> assertEquals("Convênio não pode ser desativado enquanto possuir internações.", exception.getMessage()),
@@ -660,7 +717,8 @@ class ConvenioServiceTest
         );
 
         Mockito.verify(repository).findById(existente.getId());
-        Mockito.verify(internacaoRepository).existsByConvenio(Mockito.same(existente));
+        Mockito.verify(internacaoRepository).existsByConvenioIdAndAtivoTrue(existente.getId());
+        Mockito.verify(internacaoRepository, Mockito.never()).existsByConvenio(Mockito.any(Convenio.class));
         Mockito.verify(repository, Mockito.never()).save(Mockito.any(Convenio.class));
     }
 
