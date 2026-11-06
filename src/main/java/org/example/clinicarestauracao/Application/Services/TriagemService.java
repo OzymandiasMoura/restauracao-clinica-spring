@@ -3,6 +3,7 @@ package org.example.clinicarestauracao.Application.Services;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.example.clinicarestauracao.Application.Controllers.Mappers.TriagemMapper;
+import org.example.clinicarestauracao.Application.Dtos.Triagem.TriagemCancelamentoRequestDto;
 import org.example.clinicarestauracao.Application.Dtos.Triagem.TriagemRequestDto;
 import org.example.clinicarestauracao.Application.Dtos.Triagem.TriagemResponseDto;
 import org.example.clinicarestauracao.Application.Exceptions.ConvenioNotFoundException;
@@ -13,7 +14,7 @@ import org.example.clinicarestauracao.Application.Interfaces.TriagemRepository;
 import org.example.clinicarestauracao.Domain.Entities.Convenio;
 import org.example.clinicarestauracao.Domain.Entities.Triagem;
 
-import org.example.clinicarestauracao.Domain.Enums.Status;
+import org.example.clinicarestauracao.Domain.Enums.TriagemStatus;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -57,8 +58,8 @@ public class TriagemService {
         return TriagemMapper.entityToResponseDto(triagem);
     }
 
-    public List<TriagemResponseDto> findByStatus(Status status) {
-        return triagemRepository.findByStatus(status)
+    public List<TriagemResponseDto> findByStatus(TriagemStatus triagemStatus) {
+        return triagemRepository.findByTriagemStatus(triagemStatus)
                 .stream()
                 .map(TriagemMapper::entityToResponseDto)
                 .toList();
@@ -72,7 +73,7 @@ public class TriagemService {
         Convenio convenio = convenioRepository.findById(dto.convenioId())
                 .orElseThrow(() -> new ConvenioNotFoundException("Convênio não encontrado."));
 
-        if (triagem.getStatus() == Status.CONCLUIDA) {
+        if (triagem.getTriagemStatus() == TriagemStatus.CONCLUIDA) {
             throw new TriagemWithInvalidInformationException(
                     "Uma triagem concluída deve ser desconcluída antes de ser alterada."
             );
@@ -113,8 +114,8 @@ public class TriagemService {
     public void atualizarTriagensVencidas() {
 
         List<Triagem> triagens = triagemRepository
-                .findByStatusAndDataAgendadaBefore(
-                        Status.AGENDADA,
+                .findByTriagemStatusAndDataAgendadaBefore(
+                        TriagemStatus.AGENDADA,
                         LocalDateTime.now()
                 );
 
@@ -148,6 +149,23 @@ public class TriagemService {
                 );
 
         triagem.reagendar(novaData);
+
+        return TriagemMapper.entityToResponseDto(
+                triagemRepository.save(triagem)
+        );
+    }
+
+    @Transactional
+    public TriagemResponseDto cancelar(
+            Long id,
+            TriagemCancelamentoRequestDto dto
+    ) {
+        Triagem triagem = triagemRepository.findById(id)
+                .orElseThrow(() -> new TriagemNotFoundException(
+                        "Triagem não encontrada."
+                ));
+
+        triagem.cancelar(dto.motivo());
 
         return TriagemMapper.entityToResponseDto(
                 triagemRepository.save(triagem)

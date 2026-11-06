@@ -6,7 +6,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.example.clinicarestauracao.Application.Exceptions.Triagem.TriagemWithInvalidInformationException;
-import org.example.clinicarestauracao.Domain.Enums.Status;
+import org.example.clinicarestauracao.Domain.Enums.TriagemStatus;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -40,10 +40,16 @@ public class Triagem {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private Status status;
+    private TriagemStatus triagemStatus;
 
     @Column(name = "data_conclusao")
     private LocalDateTime dataConclusao;
+
+    @Column(name = "data_cancelamento")
+    private LocalDateTime dataCancelamento;
+
+    @Column(name = "motivo_cancelamento", length = 500)
+    private String motivoCancelamento;
 
 
     public Triagem(
@@ -58,7 +64,7 @@ public class Triagem {
         setTelefone(telefone);
         setDataAgendada(dataAgendada);
         setObservacaoEntrevista(observacaoEntrevista);
-        this.status = Status.AGENDADA;
+        this.triagemStatus = TriagemStatus.AGENDADA;
         this.dataConclusao = null;
     }
 
@@ -156,26 +162,26 @@ public class Triagem {
     }
 
     public void concluir() {
-        if (this.status != Status.AGENDADA
-                && this.status != Status.ATRASADA) {
+        if (this.triagemStatus != TriagemStatus.AGENDADA
+                && this.triagemStatus != TriagemStatus.ATRASADA) {
             throw new TriagemWithInvalidInformationException(
                     "Apenas triagens agendadas ou atrasadas podem ser concluídas."
             );
         }
         this.dataConclusao = LocalDateTime.now();
-        this.status = Status.CONCLUIDA;
+        this.triagemStatus = TriagemStatus.CONCLUIDA;
     }
 
     public void marcarComoVencida() {
-        if (this.status == Status.AGENDADA &&
+        if (this.triagemStatus == TriagemStatus.AGENDADA &&
                 this.dataAgendada.isBefore(LocalDateTime.now())) {
 
-            this.status = Status.ATRASADA;
+            this.triagemStatus = TriagemStatus.ATRASADA;
         }
     }
 
     public void desconcluir() {
-        if (this.status != Status.CONCLUIDA) {
+        if (this.triagemStatus != TriagemStatus.CONCLUIDA) {
             throw new TriagemWithInvalidInformationException(
                     "Apenas triagens concluídas podem ser desconcluídas."
             );
@@ -183,14 +189,14 @@ public class Triagem {
 
         this.dataConclusao = null;
 
-        this.status = this.dataAgendada.toLocalDate()
+        this.triagemStatus = this.dataAgendada.toLocalDate()
                 .isBefore(LocalDate.now())
-                ? Status.ATRASADA
-                : Status.AGENDADA;
+                ? TriagemStatus.ATRASADA
+                : TriagemStatus.AGENDADA;
     }
 
     public void reagendar(LocalDateTime novaData) {
-        if (this.status == Status.CONCLUIDA) {
+        if (this.triagemStatus == TriagemStatus.CONCLUIDA) {
             throw new TriagemWithInvalidInformationException(
                     "Não é possível reagendar uma triagem concluída."
             );
@@ -198,8 +204,39 @@ public class Triagem {
 
         setDataAgendada(novaData);
 
-        this.status = Status.AGENDADA;
+        this.triagemStatus = TriagemStatus.AGENDADA;
     }
+    public void cancelar(String motivo) {
 
+        if (this.triagemStatus == TriagemStatus.CANCELADA) {
+            throw new TriagemWithInvalidInformationException(
+                    "A triagem já está cancelada."
+            );
+        }
+
+        if (this.triagemStatus == TriagemStatus.CONCLUIDA) {
+            throw new TriagemWithInvalidInformationException(
+                    "Não é possível cancelar uma triagem concluída."
+            );
+        }
+
+        if (motivo == null || motivo.isBlank()) {
+            throw new TriagemWithInvalidInformationException(
+                    "O motivo do cancelamento é obrigatório."
+            );
+        }
+
+        String motivoFormatado = motivo.trim();
+
+        if (motivoFormatado.length() > 500) {
+            throw new TriagemWithInvalidInformationException(
+                    "O motivo deve conter no máximo 500 caracteres."
+            );
+        }
+
+        this.triagemStatus = TriagemStatus.CANCELADA;
+        this.dataCancelamento = LocalDateTime.now();
+        this.motivoCancelamento = motivoFormatado;
+    }
 
 }

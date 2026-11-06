@@ -2,11 +2,12 @@ package org.example.clinicarestauracao.Application.Controllers;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.example.clinicarestauracao.Application.Dtos.Triagem.TriagemCancelamentoRequestDto;
 import org.example.clinicarestauracao.Application.Dtos.Triagem.TriagemReagendamentoDto;
 import org.example.clinicarestauracao.Application.Dtos.Triagem.TriagemRequestDto;
 import org.example.clinicarestauracao.Application.Dtos.Triagem.TriagemResponseDto;
 import org.example.clinicarestauracao.Application.Services.TriagemService;
-import org.example.clinicarestauracao.Domain.Enums.Status;
+import org.example.clinicarestauracao.Domain.Enums.TriagemStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -50,11 +51,11 @@ public class TriagemController {
         return ResponseEntity.ok(triagemService.findByName(nome));
     }
 
-    @GetMapping("/status/{status}")
+    @GetMapping("/status/{triagemStatus}")
     public ResponseEntity<List<TriagemResponseDto>> findByStatus(
-            @PathVariable Status status
+            @PathVariable TriagemStatus triagemStatus
     ) {
-        return ResponseEntity.ok(triagemService.findByStatus(status));
+        return ResponseEntity.ok(triagemService.findByStatus(triagemStatus));
     }
 
     @PutMapping("/{id}")
@@ -97,6 +98,13 @@ public class TriagemController {
         return ResponseEntity.ok(
                 triagemService.reagendar(id, dto.novaData())
         );
+    }
+    @PatchMapping("/{id}/cancelar")
+    public ResponseEntity<TriagemResponseDto> cancelar(
+            @PathVariable Long id,
+            @Valid @RequestBody TriagemCancelamentoRequestDto dto
+    ) {
+        return ResponseEntity.ok(triagemService.cancelar(id, dto));
     }
 }
 

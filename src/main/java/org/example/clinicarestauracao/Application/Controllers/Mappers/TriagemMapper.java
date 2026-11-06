@@ -31,7 +31,9 @@ public final class TriagemMapper {
                 entity.getDataAgendada(),
                 entity.getDataConclusao(),
                 entity.getObservacaoEntrevista(),
-                entity.getStatus()
+                entity.getTriagemStatus(),
+                entity.getDataCancelamento(),
+                entity.getMotivoCancelamento()
         );
     }
 }
