@@ -23,6 +23,4 @@ public final class ResponsavelMapper
     {
         return new ResponsavelResponseDto(entity.getId(), entity.getNome(), entity.getCpf(), entity.getEmail(), EnderecoMapper.entityToResponseDto(entity.getEndereco()), entity.getCep(), entity.getTelefone(), entity.isAtivo());
     }
-
-
 }
