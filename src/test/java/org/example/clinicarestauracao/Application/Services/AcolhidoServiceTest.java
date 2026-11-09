@@ -6,7 +6,9 @@ import org.example.clinicarestauracao.Application.Interfaces.AcolhidoRepository;
 import org.example.clinicarestauracao.Application.Interfaces.InternacaoRepository;
 import org.example.clinicarestauracao.Builders.AcolhidoTestBuilder;
 import org.example.clinicarestauracao.Builders.EnderecoTestBuilder;
+import org.example.clinicarestauracao.Builders.ResponsavelTestBuilder;
 import org.example.clinicarestauracao.Domain.Entities.Acolhido;
+import org.example.clinicarestauracao.Domain.Entities.Responsavel;
 import org.example.clinicarestauracao.Domain.ValueObjects.Endereco;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -296,9 +298,11 @@ class AcolhidoServiceTest
     @Test
     void shouldUpdateAcolhidoSuccessfully()
     {
-        Acolhido existingAcolhido = AcolhidoTestBuilder.newAcolhido().build();
+        Responsavel responsavelAtual = ResponsavelTestBuilder.newResponsavel().setId(1L).build();
+        Responsavel responsavelRecebido = ResponsavelTestBuilder.newResponsavel().setId(2L).build();
+        Acolhido existingAcolhido = AcolhidoTestBuilder.newAcolhido().setResponsavel(responsavelAtual).build();
         Endereco updatedEndereco = EnderecoTestBuilder.newEndereco().setLogradouro("Avenida Paulista").setNumero(1000).setBairro("Bela Vista").setCidade("São Paulo").setEstado("SP").setComplemento("Sala 10").build();
-        Acolhido receivedAcolhido = AcolhidoTestBuilder.newAcolhido().setNome("Maria Atualizada").setEmail("maria.atualizada@email.com").setCpf("11144477735").setCep("01310100").setEndereco(updatedEndereco).setTelefone("1133334444").setDataNascimento(LocalDate.of(1990, 1, 10)).buildForCreate();
+        Acolhido receivedAcolhido = AcolhidoTestBuilder.newAcolhido().setNome("Maria Atualizada").setEmail("maria.atualizada@email.com").setCpf("11144477735").setCep("01310100").setEndereco(updatedEndereco).setTelefone("1133334444").setDataNascimento(LocalDate.of(1990, 1, 10)).setResponsavel(responsavelRecebido).buildForCreate();
 
         Mockito.when(repository.findById(1L)).thenReturn(Optional.of(existingAcolhido));
         Mockito.when(repository.findAcolhidoByCpf(receivedAcolhido.getCpf())).thenReturn(Optional.empty());
@@ -316,6 +320,7 @@ class AcolhidoServiceTest
         assertSame(updatedEndereco, response.getEndereco());
         assertEquals("1133334444", response.getTelefone());
         assertEquals(LocalDate.of(1990, 1, 10), response.getDataNascimento());
+        assertSame(responsavelAtual, response.getResponsavel());
         assertTrue(response.getAtivo());
 
         Mockito.verify(repository).findById(1L);

@@ -32,6 +32,7 @@ public class DevDataInitializer implements ApplicationRunner {
     private final TriagemRepository triagemRepository;
     private final UserRepository userRepository;
     private final MedicamentoRepository medicamentoRepository;
+    private final ResponsavelRepository responsavelRepository;
 
     private final AcolhidoService acolhidoService;
     private final CargoService cargoService;
@@ -40,6 +41,7 @@ public class DevDataInitializer implements ApplicationRunner {
     private final TriagemService triagemService;
     private final UserService userService;
     private final MedicamentoService medicamentoService;
+    private final ResponsavelService responsavelService;
 
     public DevDataInitializer(
             AcolhidoRepository acolhidoRepository,
@@ -49,13 +51,15 @@ public class DevDataInitializer implements ApplicationRunner {
             UserRepository userRepository,
             MedicamentoRepository medicamentoRepository,
             TriagemRepository triagemRepository,
+            ResponsavelRepository responsavelRepository,
             AcolhidoService acolhidoService,
             CargoService cargoService,
             FuncionarioService funcionarioService,
             ConvenioService convenioService,
             UserService userService,
             MedicamentoService medicamentoService,
-            TriagemService triagemService
+            TriagemService triagemService,
+            ResponsavelService responsavelService
     ) {
         this.acolhidoRepository = acolhidoRepository;
         this.cargoRepository = cargoRepository;
@@ -64,6 +68,7 @@ public class DevDataInitializer implements ApplicationRunner {
         this.triagemRepository = triagemRepository;
         this.userRepository = userRepository;
         this.medicamentoRepository = medicamentoRepository;
+        this.responsavelRepository = responsavelRepository;
         this.acolhidoService = acolhidoService;
         this.cargoService = cargoService;
         this.funcionarioService = funcionarioService;
@@ -71,6 +76,7 @@ public class DevDataInitializer implements ApplicationRunner {
         this.triagemService = triagemService;
         this.userService = userService;
         this.medicamentoService = medicamentoService;
+        this.responsavelService = responsavelService;
     }
 
     @Override
@@ -84,7 +90,8 @@ public class DevDataInitializer implements ApplicationRunner {
                 || convenioRepository.count() > 0
                 || userRepository.count() > 0
                 || medicamentoRepository.count() > 0
-                || triagemRepository.count() > 0) {
+                || triagemRepository.count() > 0
+                || responsavelRepository.count() > 0) {
             return;
         }
 
@@ -236,6 +243,34 @@ public class DevDataInitializer implements ApplicationRunner {
         );
 
         // =========================
+        // RESPONSÁVEIS
+        // =========================
+
+        Responsavel roberto = responsavelService.createResponsavel(new Responsavel(
+                "Roberto Santos",
+                "roberto.santos@teste.local",
+                "15350946056",
+                "11955554567",
+                new Endereco(
+                        "Rua Vergueiro", 500,
+                        "Liberdade", "São Paulo", "SP"
+                ),
+                "01504000"
+        ));
+
+        Responsavel helena = responsavelService.createResponsavel(new Responsavel(
+                "Helena Oliveira",
+                "helena.oliveira@teste.local",
+                "27438165035",
+                "31955555678",
+                new Endereco(
+                        "Rua da Bahia", 1200,
+                        "Centro", "Belo Horizonte", "MG"
+                ),
+                "30160011"
+        ));
+
+        // =========================
         // ACOLHIDOS
         // =========================
 
@@ -250,7 +285,8 @@ public class DevDataInitializer implements ApplicationRunner {
                         "Apartamento 42"
                 ),
                 "11955551234",
-                LocalDate.of(1990, 3, 15)
+                LocalDate.of(1990, 3, 15),
+                roberto
         ));
 
         acolhidoService.createAcolhido(new Acolhido(
@@ -263,7 +299,8 @@ public class DevDataInitializer implements ApplicationRunner {
                         "Centro", "Belo Horizonte", "MG"
                 ),
                 "31955552345",
-                LocalDate.of(1987, 7, 22)
+                LocalDate.of(1987, 7, 22),
+                helena
         ));
 
         Acolhido marcos = acolhidoService.createAcolhido(new Acolhido(
@@ -276,7 +313,8 @@ public class DevDataInitializer implements ApplicationRunner {
                         "Centro", "Rio de Janeiro", "RJ"
                 ),
                 "21955553456",
-                LocalDate.of(1979, 12, 3)
+                LocalDate.of(1979, 12, 3),
+                roberto
         ));
 
         acolhidoService.deactivateAcolhido(marcos.getId());

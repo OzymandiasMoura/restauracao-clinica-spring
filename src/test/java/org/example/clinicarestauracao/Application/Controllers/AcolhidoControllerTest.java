@@ -5,9 +5,12 @@ import org.example.clinicarestauracao.Application.Dtos.AcolhidoDtos.AcolhidoResp
 import org.example.clinicarestauracao.Application.Dtos.AcolhidoDtos.AcolhidoUpdateRequestDto;
 import org.example.clinicarestauracao.Application.Dtos.EnderecoDtos.EnderecoDto;
 import org.example.clinicarestauracao.Application.Services.AcolhidoService;
+import org.example.clinicarestauracao.Application.Services.ResponsavelService;
 import org.example.clinicarestauracao.Builders.AcolhidoTestBuilder;
 import org.example.clinicarestauracao.Builders.EnderecoTestBuilder;
+import org.example.clinicarestauracao.Builders.ResponsavelTestBuilder;
 import org.example.clinicarestauracao.Domain.Entities.Acolhido;
+import org.example.clinicarestauracao.Domain.Entities.Responsavel;
 import org.example.clinicarestauracao.Domain.ValueObjects.Endereco;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -35,6 +38,9 @@ class AcolhidoControllerTest
 {
     @Mock
     private AcolhidoService service;
+
+    @Mock
+    private ResponsavelService responsavelService;
 
     @InjectMocks
     private AcolhidoController controller;
@@ -131,6 +137,8 @@ class AcolhidoControllerTest
         assertEquals(acolhido.getTelefone(), responseBody.telefone());
         assertEquals(acolhido.getAtivo(), responseBody.ativo());
         assertNotNull(responseBody.endereco());
+        assertNotNull(responseBody.responsavel());
+        assertEquals(acolhido.getResponsavel().getId(), responseBody.responsavel().id());
         assertEquals(acolhido.getEndereco().getLogradouro(), responseBody.endereco().logradouro());
         assertEquals(acolhido.getEndereco().getNumero(), responseBody.endereco().numero());
         assertEquals(acolhido.getEndereco().getBairro(), responseBody.endereco().bairro());
@@ -243,10 +251,12 @@ class AcolhidoControllerTest
         Endereco endereco = EnderecoTestBuilder.newEndereco().build();
         EnderecoDto enderecoDto = new EnderecoDto(endereco.getLogradouro(), endereco.getNumero(), endereco.getBairro(), endereco.getCidade(), endereco.getEstado(), endereco.getComplemento());
         LocalDate dataNascimento = LocalDate.of(1999, 9, 9);
-        AcolhidoCreateRequestDto requestDto = new AcolhidoCreateRequestDto("Maria Silva", "52998224725", "maria@email.com", dataNascimento, enderecoDto, "01001000", "11999999999");
+        Responsavel responsavel = ResponsavelTestBuilder.newResponsavel().setId(5L).build();
+        AcolhidoCreateRequestDto requestDto = new AcolhidoCreateRequestDto("Maria Silva", "52998224725", "maria@email.com", dataNascimento, enderecoDto, "01001000", "11999999999", responsavel.getId());
 
-        Acolhido acolhidoCriado = AcolhidoTestBuilder.newAcolhido().setId(10L).setNome(requestDto.nome()).setCpf(requestDto.cpf()).setEmail(requestDto.email()).setDataNascimento(requestDto.dataNascimento()).setEndereco(endereco).setCep(requestDto.cep()).setTelefone(requestDto.telefone()).build();
+        Acolhido acolhidoCriado = AcolhidoTestBuilder.newAcolhido().setId(10L).setNome(requestDto.nome()).setCpf(requestDto.cpf()).setEmail(requestDto.email()).setDataNascimento(requestDto.dataNascimento()).setEndereco(endereco).setCep(requestDto.cep()).setTelefone(requestDto.telefone()).setResponsavel(responsavel).build();
 
+        Mockito.when(responsavelService.findResponsavelById(requestDto.responsavelId())).thenReturn(responsavel);
         Mockito.when(service.createAcolhido(Mockito.any(Acolhido.class))).thenReturn(acolhidoCriado);
 
         ResponseEntity<AcolhidoResponseDto> response = controller.createAcolhido(requestDto);
@@ -266,6 +276,8 @@ class AcolhidoControllerTest
         assertEquals(acolhidoCriado.getTelefone(), responseBody.telefone());
         assertTrue(responseBody.ativo());
         assertNotNull(responseBody.endereco());
+        assertNotNull(responseBody.responsavel());
+        assertEquals(responsavel.getId(), responseBody.responsavel().id());
 
         ArgumentCaptor<Acolhido> acolhidoCaptor = ArgumentCaptor.forClass(Acolhido.class);
 
@@ -281,6 +293,7 @@ class AcolhidoControllerTest
         assertEquals(requestDto.cep(), acolhidoEnviado.getCep());
         assertEquals(requestDto.telefone(), acolhidoEnviado.getTelefone());
         assertTrue(acolhidoEnviado.getAtivo());
+        assertSame(responsavel, acolhidoEnviado.getResponsavel());
         assertNotNull(acolhidoEnviado.getEndereco());
         assertEquals(enderecoDto.logradouro(), acolhidoEnviado.getEndereco().getLogradouro());
         assertEquals(enderecoDto.numero(), acolhidoEnviado.getEndereco().getNumero());
@@ -288,6 +301,7 @@ class AcolhidoControllerTest
         assertEquals(enderecoDto.cidade(), acolhidoEnviado.getEndereco().getCidade());
         assertEquals(enderecoDto.estado(), acolhidoEnviado.getEndereco().getEstado());
         assertEquals(enderecoDto.complemento(), acolhidoEnviado.getEndereco().getComplemento());
+        Mockito.verify(responsavelService).findResponsavelById(requestDto.responsavelId());
     }
 
     // Testes update
@@ -297,9 +311,11 @@ class AcolhidoControllerTest
     {
         Endereco endereco = EnderecoTestBuilder.newEndereco().setLogradouro("Avenida Paulista").setNumero(1000).setBairro("Bela Vista").setCidade("São Paulo").setEstado("SP").setComplemento("Apartamento 10").build();
         EnderecoDto enderecoDto = new EnderecoDto(endereco.getLogradouro(), endereco.getNumero(), endereco.getBairro(), endereco.getCidade(), endereco.getEstado(), endereco.getComplemento());
-        AcolhidoUpdateRequestDto requestDto = new AcolhidoUpdateRequestDto("Maria Souza", "11144477735", "maria.souza@email.com", LocalDate.of(1998, 5, 20), enderecoDto, "01310100", "11988887777");
-        Acolhido acolhidoAtualizado = AcolhidoTestBuilder.newAcolhido().setId(1L).setNome(requestDto.nome()).setCpf(requestDto.cpf()).setEmail(requestDto.email()).setDataNascimento(requestDto.dataNascimento()).setEndereco(endereco).setCep(requestDto.cep()).setTelefone(requestDto.telefone()).build();
+        Responsavel responsavel = ResponsavelTestBuilder.newResponsavel().setId(5L).build();
+        AcolhidoUpdateRequestDto requestDto = new AcolhidoUpdateRequestDto("Maria Souza", "11144477735", "maria.souza@email.com", LocalDate.of(1998, 5, 20), enderecoDto, "01310100", "11988887777", responsavel.getId());
+        Acolhido acolhidoAtualizado = AcolhidoTestBuilder.newAcolhido().setId(1L).setNome(requestDto.nome()).setCpf(requestDto.cpf()).setEmail(requestDto.email()).setDataNascimento(requestDto.dataNascimento()).setEndereco(endereco).setCep(requestDto.cep()).setTelefone(requestDto.telefone()).setResponsavel(responsavel).build();
 
+        Mockito.when(responsavelService.findResponsavelById(requestDto.responsavelId())).thenReturn(responsavel);
         Mockito.when(service.updateAcolhido(Mockito.eq(1L), Mockito.any(Acolhido.class))).thenReturn(acolhidoAtualizado);
 
         ResponseEntity<AcolhidoResponseDto> response = controller.updateAcolhido(1L, requestDto);
@@ -318,6 +334,8 @@ class AcolhidoControllerTest
         assertEquals(acolhidoAtualizado.getTelefone(), responseBody.telefone());
         assertEquals(acolhidoAtualizado.getAtivo(), responseBody.ativo());
         assertNotNull(responseBody.endereco());
+        assertNotNull(responseBody.responsavel());
+        assertEquals(responsavel.getId(), responseBody.responsavel().id());
 
         ArgumentCaptor<Acolhido> acolhidoCaptor = ArgumentCaptor.forClass(Acolhido.class);
 
@@ -332,6 +350,7 @@ class AcolhidoControllerTest
         assertEquals(requestDto.dataNascimento(), acolhidoEnviado.getDataNascimento());
         assertEquals(requestDto.cep(), acolhidoEnviado.getCep());
         assertEquals(requestDto.telefone(), acolhidoEnviado.getTelefone());
+        assertSame(responsavel, acolhidoEnviado.getResponsavel());
         assertNotNull(acolhidoEnviado.getEndereco());
         assertEquals(enderecoDto.logradouro(), acolhidoEnviado.getEndereco().getLogradouro());
         assertEquals(enderecoDto.numero(), acolhidoEnviado.getEndereco().getNumero());
@@ -339,6 +358,7 @@ class AcolhidoControllerTest
         assertEquals(enderecoDto.cidade(), acolhidoEnviado.getEndereco().getCidade());
         assertEquals(enderecoDto.estado(), acolhidoEnviado.getEndereco().getEstado());
         assertEquals(enderecoDto.complemento(), acolhidoEnviado.getEndereco().getComplemento());
+        Mockito.verify(responsavelService).findResponsavelById(requestDto.responsavelId());
     }
 
     // Testes deactivate

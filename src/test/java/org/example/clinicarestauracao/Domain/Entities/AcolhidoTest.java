@@ -3,6 +3,7 @@ package org.example.clinicarestauracao.Domain.Entities;
 import org.example.clinicarestauracao.Application.Exceptions.Acolhido.AcolhidoWithInvalidInformationException;
 import org.example.clinicarestauracao.Builders.AcolhidoTestBuilder;
 import org.example.clinicarestauracao.Builders.EnderecoTestBuilder;
+import org.example.clinicarestauracao.Builders.ResponsavelTestBuilder;
 import org.example.clinicarestauracao.Domain.ValueObjects.Endereco;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -265,6 +266,57 @@ class AcolhidoTest
         AcolhidoWithInvalidInformationException exception = assertThrows(AcolhidoWithInvalidInformationException.class, () -> AcolhidoTestBuilder.newAcolhido().setDataNascimento(birthDate).build());
 
         assertEquals("Acolhido não pode ter menos que 18 anos.", exception.getMessage());
+    }
+
+    // Testes para responsável
+
+    @Test
+    void shouldSetActiveResponsavel()
+    {
+        Responsavel responsavel = ResponsavelTestBuilder.newResponsavel().build();
+
+        Acolhido acolhido = AcolhidoTestBuilder.newAcolhido().setResponsavel(responsavel).build();
+
+        assertSame(responsavel, acolhido.getResponsavel());
+    }
+
+    @Test
+    void shouldRejectNullResponsavel()
+    {
+        AcolhidoWithInvalidInformationException exception = assertThrows(
+                AcolhidoWithInvalidInformationException.class,
+                () -> AcolhidoTestBuilder.newAcolhido().setResponsavel(null).build()
+        );
+
+        assertEquals("Responsável do acolhido não pode ser nulo.", exception.getMessage());
+    }
+
+    @Test
+    void shouldRejectInactiveResponsavel()
+    {
+        Responsavel responsavel = ResponsavelTestBuilder.newResponsavel().setAtivo(false).build();
+
+        AcolhidoWithInvalidInformationException exception = assertThrows(
+                AcolhidoWithInvalidInformationException.class,
+                () -> AcolhidoTestBuilder.newAcolhido().setResponsavel(responsavel).build()
+        );
+
+        assertEquals("Responsável do acolhido não pode ser inativo.", exception.getMessage());
+    }
+
+    @Test
+    void shouldPreserveCurrentResponsavelAfterInvalidUpdate()
+    {
+        Responsavel responsavelAtual = ResponsavelTestBuilder.newResponsavel().build();
+        Responsavel responsavelInativo = ResponsavelTestBuilder.newResponsavel().setAtivo(false).build();
+        Acolhido acolhido = AcolhidoTestBuilder.newAcolhido().setResponsavel(responsavelAtual).build();
+
+        assertThrows(
+                AcolhidoWithInvalidInformationException.class,
+                () -> acolhido.setResponsavel(responsavelInativo)
+        );
+
+        assertSame(responsavelAtual, acolhido.getResponsavel());
     }
 
     // Testes para estado ativo

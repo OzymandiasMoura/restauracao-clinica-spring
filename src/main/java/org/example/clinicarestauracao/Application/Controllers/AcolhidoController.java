@@ -6,7 +6,9 @@ import org.example.clinicarestauracao.Application.Dtos.AcolhidoDtos.AcolhidoCrea
 import org.example.clinicarestauracao.Application.Dtos.AcolhidoDtos.AcolhidoResponseDto;
 import org.example.clinicarestauracao.Application.Dtos.AcolhidoDtos.AcolhidoUpdateRequestDto;
 import org.example.clinicarestauracao.Application.Services.AcolhidoService;
+import org.example.clinicarestauracao.Application.Services.ResponsavelService;
 import org.example.clinicarestauracao.Domain.Entities.Acolhido;
+import org.example.clinicarestauracao.Domain.Entities.Responsavel;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -19,6 +21,7 @@ import java.util.List;
 public class AcolhidoController
 {
     private AcolhidoService service;
+    private ResponsavelService responsavelService;
 
     @GetMapping
     public ResponseEntity<List<AcolhidoResponseDto>> findAllAcolhidos()
@@ -65,7 +68,8 @@ public class AcolhidoController
     @PostMapping
     public ResponseEntity<AcolhidoResponseDto> createAcolhido(@RequestBody AcolhidoCreateRequestDto dto)
     {
-        Acolhido acolhido = AcolhidoMapper.createRequestDtoToEntity(dto);
+        Responsavel responsavel = responsavelService.findResponsavelById(dto.responsavelId());
+        Acolhido acolhido = AcolhidoMapper.createRequestDtoToEntity(dto, responsavel);
         Acolhido created = service.createAcolhido(acolhido);
 
         AcolhidoResponseDto response = AcolhidoMapper.entityToResponseDto(created);
@@ -78,7 +82,8 @@ public class AcolhidoController
     @PutMapping("/{id}")
     public ResponseEntity<AcolhidoResponseDto> updateAcolhido(@PathVariable Long id, @RequestBody AcolhidoUpdateRequestDto dto)
     {
-        Acolhido acolhidoUpdated = service.updateAcolhido(id, AcolhidoMapper.updateRequestDtoToEntity(dto));
+        Responsavel responsavel = responsavelService.findResponsavelById(dto.responsavelId());
+        Acolhido acolhidoUpdated = service.updateAcolhido(id, AcolhidoMapper.updateRequestDtoToEntity(dto, responsavel));
 
         return ResponseEntity.ok().body(AcolhidoMapper.entityToResponseDto(acolhidoUpdated));
     }

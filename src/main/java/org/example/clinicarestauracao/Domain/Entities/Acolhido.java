@@ -39,10 +39,13 @@ public class Acolhido
     private String telefone;
     @Column(nullable = false)
     private LocalDate dataNascimento;
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "responsavel_id", nullable = false)
+    private Responsavel responsavel;
     @Column(nullable = false)
     private Boolean ativo;
 
-    public Acolhido(Long id, String nome, String email, String cpf, String cep, Endereco endereco, String telefone, LocalDate dataNascimento)
+    public Acolhido(Long id, String nome, String email, String cpf, String cep, Endereco endereco, String telefone, LocalDate dataNascimento, Responsavel responsavel)
     {
         this.id = id;
         setNome(nome);
@@ -52,10 +55,11 @@ public class Acolhido
         setEndereco(endereco);
         setTelefone(telefone);
         setDataNascimento(dataNascimento);
+        setResponsavel(responsavel);
         setAtivo(true);
     }
 
-    public Acolhido(String nome, String email, String cpf, String cep, Endereco endereco, String telefone, LocalDate dataNascimento)
+    public Acolhido(String nome, String email, String cpf, String cep, Endereco endereco, String telefone, LocalDate dataNascimento, Responsavel responsavel)
     {
         setNome(nome);
         setEmail(email);
@@ -64,6 +68,7 @@ public class Acolhido
         setEndereco(endereco);
         setTelefone(telefone);
         setDataNascimento(dataNascimento);
+        setResponsavel(responsavel);
         setAtivo(true);
     }
 
@@ -185,6 +190,20 @@ public class Acolhido
         }
 
         this.dataNascimento = dataNascimento;
+    }
+
+    public void setResponsavel(Responsavel responsavel)
+    {
+        if (responsavel == null)
+        {
+            throw new AcolhidoWithInvalidInformationException("Responsável do acolhido não pode ser nulo.");
+        }
+        if (!responsavel.isAtivo())
+        {
+            throw new AcolhidoWithInvalidInformationException("Responsável do acolhido não pode ser inativo.");
+        }
+
+        this.responsavel = responsavel;
     }
 
     private void setAtivo(boolean ativo)
