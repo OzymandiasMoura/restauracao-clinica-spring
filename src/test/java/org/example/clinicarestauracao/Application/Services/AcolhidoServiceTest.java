@@ -4,6 +4,7 @@ import org.example.clinicarestauracao.Application.Exceptions.Acolhido.AcolhidoNo
 import org.example.clinicarestauracao.Application.Exceptions.Acolhido.AcolhidoWithInvalidInformationException;
 import org.example.clinicarestauracao.Application.Interfaces.AcolhidoRepository;
 import org.example.clinicarestauracao.Application.Interfaces.InternacaoRepository;
+import org.example.clinicarestauracao.Application.Interfaces.ResponsavelRepository;
 import org.example.clinicarestauracao.Builders.AcolhidoTestBuilder;
 import org.example.clinicarestauracao.Builders.EnderecoTestBuilder;
 import org.example.clinicarestauracao.Builders.ResponsavelTestBuilder;
@@ -34,6 +35,9 @@ class AcolhidoServiceTest
 
     @Mock
     private InternacaoRepository internacaoRepository;
+
+    @Mock
+    private ResponsavelRepository responsavelRepository;
 
     @InjectMocks
     private AcolhidoService service;
@@ -320,8 +324,34 @@ class AcolhidoServiceTest
         assertSame(updatedEndereco, response.getEndereco());
         assertEquals("1133334444", response.getTelefone());
         assertEquals(LocalDate.of(1990, 1, 10), response.getDataNascimento());
-        assertSame(responsavelAtual, response.getResponsavel());
+        assertSame(responsavelRecebido, response.getResponsavel());
         assertTrue(response.getAtivo());
+
+        Mockito.verify(repository).findById(1L);
+        Mockito.verify(repository).findAcolhidoByCpf(receivedAcolhido.getCpf());
+        Mockito.verify(repository).findAcolhidoByEmail(receivedAcolhido.getEmail());
+        Mockito.verify(repository).save(existingAcolhido);
+    }
+
+    @Test
+    void shouldReplaceResponsavelWhenUpdatingAcolhido()
+    {
+        Responsavel responsavelAtual = ResponsavelTestBuilder.newResponsavel().setId(1L).build();
+        Responsavel novoResponsavel = ResponsavelTestBuilder.newResponsavel().setId(2L).build();
+        Acolhido existingAcolhido = AcolhidoTestBuilder.newAcolhido().setResponsavel(responsavelAtual).build();
+        Acolhido receivedAcolhido = AcolhidoTestBuilder.newAcolhido().setResponsavel(novoResponsavel).buildForCreate();
+
+        Mockito.when(repository.findById(1L)).thenReturn(Optional.of(existingAcolhido));
+        Mockito.when(repository.findAcolhidoByCpf(receivedAcolhido.getCpf())).thenReturn(Optional.of(existingAcolhido));
+        Mockito.when(repository.findAcolhidoByEmail(receivedAcolhido.getEmail())).thenReturn(Optional.of(existingAcolhido));
+        Mockito.when(repository.save(existingAcolhido)).thenReturn(existingAcolhido);
+
+        Acolhido response = service.updateAcolhido(1L, receivedAcolhido);
+
+        assertAll(
+                () -> assertSame(existingAcolhido, response),
+                () -> assertSame(novoResponsavel, response.getResponsavel())
+        );
 
         Mockito.verify(repository).findById(1L);
         Mockito.verify(repository).findAcolhidoByCpf(receivedAcolhido.getCpf());
@@ -419,19 +449,70 @@ class AcolhidoServiceTest
     // Testes deactivateAcolhido
 
     @Test
-    void shouldDeactivateAcolhidoSuccessfullyWhenThereIsNoActiveInternacao()
+    void shouldDeactivateAcolhidoAndResponsavelWhenThereIsNoOtherActiveAcolhido()
     {
         Acolhido acolhido = AcolhidoTestBuilder.newAcolhido().build();
+        Responsavel responsavel = acolhido.getResponsavel();
 
         Mockito.when(repository.findById(1L)).thenReturn(Optional.of(acolhido));
         Mockito.when(internacaoRepository.existsByAcolhidoAndAtivoTrue(Mockito.same(acolhido))).thenReturn(false);
+        Mockito.when(repository.existsByResponsavelIdAndAtivoTrueAndIdNot(responsavel.getId(), acolhido.getId())).thenReturn(false);
 
         service.deactivateAcolhido(1L);
 
-        assertFalse(acolhido.getAtivo());
+        assertAll(
+                () -> assertFalse(acolhido.getAtivo()),
+                () -> assertFalse(responsavel.isAtivo())
+        );
 
         Mockito.verify(repository).findById(1L);
         Mockito.verify(internacaoRepository).existsByAcolhidoAndAtivoTrue(Mockito.same(acolhido));
+        Mockito.verify(repository).existsByResponsavelIdAndAtivoTrueAndIdNot(responsavel.getId(), acolhido.getId());
+        Mockito.verify(responsavelRepository).save(Mockito.same(responsavel));
+        Mockito.verify(repository).save(Mockito.same(acolhido));
+    }
+
+    @Test
+    void shouldDeactivateOnlyAcolhidoWhenResponsavelHasAnotherActiveAcolhido()
+    {
+        Acolhido acolhido = AcolhidoTestBuilder.newAcolhido().build();
+        Responsavel responsavel = acolhido.getResponsavel();
+
+        Mockito.when(repository.findById(1L)).thenReturn(Optional.of(acolhido));
+        Mockito.when(internacaoRepository.existsByAcolhidoAndAtivoTrue(Mockito.same(acolhido))).thenReturn(false);
+        Mockito.when(repository.existsByResponsavelIdAndAtivoTrueAndIdNot(responsavel.getId(), acolhido.getId())).thenReturn(true);
+
+        service.deactivateAcolhido(1L);
+
+        assertAll(
+                () -> assertFalse(acolhido.getAtivo()),
+                () -> assertTrue(responsavel.isAtivo())
+        );
+
+        Mockito.verify(repository).existsByResponsavelIdAndAtivoTrueAndIdNot(responsavel.getId(), acolhido.getId());
+        Mockito.verifyNoInteractions(responsavelRepository);
+        Mockito.verify(repository).save(Mockito.same(acolhido));
+    }
+
+    @Test
+    void shouldNotDeactivateAlreadyInactiveResponsavelAgain()
+    {
+        Acolhido acolhido = AcolhidoTestBuilder.newAcolhido().build();
+        Responsavel responsavel = acolhido.getResponsavel();
+        responsavel.deactivateResponsavel();
+
+        Mockito.when(repository.findById(1L)).thenReturn(Optional.of(acolhido));
+        Mockito.when(internacaoRepository.existsByAcolhidoAndAtivoTrue(Mockito.same(acolhido))).thenReturn(false);
+        Mockito.when(repository.existsByResponsavelIdAndAtivoTrueAndIdNot(responsavel.getId(), acolhido.getId())).thenReturn(false);
+
+        service.deactivateAcolhido(1L);
+
+        assertAll(
+                () -> assertFalse(acolhido.getAtivo()),
+                () -> assertFalse(responsavel.isAtivo())
+        );
+
+        Mockito.verifyNoInteractions(responsavelRepository);
         Mockito.verify(repository).save(Mockito.same(acolhido));
     }
 
@@ -452,6 +533,8 @@ class AcolhidoServiceTest
 
         Mockito.verify(repository).findById(1L);
         Mockito.verify(internacaoRepository).existsByAcolhidoAndAtivoTrue(Mockito.same(acolhido));
+        Mockito.verify(repository, Mockito.never()).existsByResponsavelIdAndAtivoTrueAndIdNot(Mockito.anyLong(), Mockito.anyLong());
+        Mockito.verifyNoInteractions(responsavelRepository);
         Mockito.verify(repository, Mockito.never()).save(Mockito.any(Acolhido.class));
     }
 
@@ -472,6 +555,8 @@ class AcolhidoServiceTest
 
         Mockito.verify(repository).findById(1L);
         Mockito.verifyNoInteractions(internacaoRepository);
+        Mockito.verify(repository, Mockito.never()).existsByResponsavelIdAndAtivoTrueAndIdNot(Mockito.anyLong(), Mockito.anyLong());
+        Mockito.verifyNoInteractions(responsavelRepository);
         Mockito.verify(repository, Mockito.never()).save(Mockito.any(Acolhido.class));
     }
 
@@ -486,25 +571,52 @@ class AcolhidoServiceTest
         assertEquals("Acolhido não encontrado.", exception.getMessage());
 
         Mockito.verify(repository).findById(99L);
-
+        Mockito.verifyNoInteractions(internacaoRepository, responsavelRepository);
         Mockito.verify(repository, Mockito.never()).save(Mockito.any(Acolhido.class));
     }
 
     // Testes reactivateAcolhido
 
     @Test
-    void shouldReactivateAcolhidoSuccessfully()
+    void shouldReactivateAcolhidoAndInactiveResponsavel()
     {
         Acolhido acolhido = AcolhidoTestBuilder.newAcolhido().build();
+        Responsavel responsavel = acolhido.getResponsavel();
+        acolhido.deactivate();
+        responsavel.deactivateResponsavel();
+
+        Mockito.when(repository.findById(1L)).thenReturn(Optional.of(acolhido));
+
+        service.reactivateAcolhido(1L);
+
+        assertAll(
+                () -> assertTrue(acolhido.getAtivo()),
+                () -> assertTrue(responsavel.isAtivo())
+        );
+
+        Mockito.verify(repository).findById(1L);
+        Mockito.verify(responsavelRepository).save(Mockito.same(responsavel));
+        Mockito.verify(repository).save(Mockito.same(acolhido));
+    }
+
+    @Test
+    void shouldReactivateOnlyAcolhidoWhenResponsavelIsAlreadyActive()
+    {
+        Acolhido acolhido = AcolhidoTestBuilder.newAcolhido().build();
+        Responsavel responsavel = acolhido.getResponsavel();
         acolhido.deactivate();
 
         Mockito.when(repository.findById(1L)).thenReturn(Optional.of(acolhido));
 
         service.reactivateAcolhido(1L);
 
-        assertTrue(acolhido.getAtivo());
+        assertAll(
+                () -> assertTrue(acolhido.getAtivo()),
+                () -> assertTrue(responsavel.isAtivo())
+        );
 
         Mockito.verify(repository).findById(1L);
+        Mockito.verifyNoInteractions(responsavelRepository);
         Mockito.verify(repository).save(acolhido);
     }
 
@@ -521,6 +633,7 @@ class AcolhidoServiceTest
         assertTrue(acolhido.getAtivo());
 
         Mockito.verify(repository).findById(1L);
+        Mockito.verifyNoInteractions(responsavelRepository);
         Mockito.verify(repository, Mockito.never()).save(Mockito.any(Acolhido.class));
     }
 
@@ -534,24 +647,50 @@ class AcolhidoServiceTest
         assertEquals("Acolhido não encontrado.", exception.getMessage());
 
         Mockito.verify(repository).findById(99L);
+        Mockito.verifyNoInteractions(responsavelRepository);
         Mockito.verify(repository, Mockito.never()).save(Mockito.any(Acolhido.class));
     }
 
     // Testes deleteAcolhidoById
 
     @Test
-    void shouldDeleteAcolhidoSuccessfullyWhenThereAreNoInternacoes()
+    void shouldDeleteAcolhidoAndDeactivateResponsavelWhenThereAreNoOtherActiveAcolhidos()
     {
         Acolhido acolhido = AcolhidoTestBuilder.newAcolhido().setId(1L).build();
+        Responsavel responsavel = acolhido.getResponsavel();
 
         Mockito.when(repository.findById(1L)).thenReturn(Optional.of(acolhido));
         Mockito.when(internacaoRepository.existsByAcolhido(acolhido)).thenReturn(false);
+        Mockito.when(repository.existsByResponsavelIdAndAtivoTrueAndIdNot(responsavel.getId(), acolhido.getId())).thenReturn(false);
 
         service.deleteAcolhidoById(1L);
+
+        assertFalse(responsavel.isAtivo());
 
         Mockito.verify(repository).findById(1L);
         Mockito.verify(internacaoRepository).existsByAcolhido(Mockito.same(acolhido));
         Mockito.verify(repository).delete(Mockito.same(acolhido));
+        Mockito.verify(repository).existsByResponsavelIdAndAtivoTrueAndIdNot(responsavel.getId(), acolhido.getId());
+        Mockito.verify(responsavelRepository).save(Mockito.same(responsavel));
+    }
+
+    @Test
+    void shouldDeleteAcolhidoWithoutDeactivatingResponsavelWhenThereIsAnotherActiveAcolhido()
+    {
+        Acolhido acolhido = AcolhidoTestBuilder.newAcolhido().setId(1L).build();
+        Responsavel responsavel = acolhido.getResponsavel();
+
+        Mockito.when(repository.findById(1L)).thenReturn(Optional.of(acolhido));
+        Mockito.when(internacaoRepository.existsByAcolhido(acolhido)).thenReturn(false);
+        Mockito.when(repository.existsByResponsavelIdAndAtivoTrueAndIdNot(responsavel.getId(), acolhido.getId())).thenReturn(true);
+
+        service.deleteAcolhidoById(1L);
+
+        assertTrue(responsavel.isAtivo());
+
+        Mockito.verify(repository).delete(Mockito.same(acolhido));
+        Mockito.verify(repository).existsByResponsavelIdAndAtivoTrueAndIdNot(responsavel.getId(), acolhido.getId());
+        Mockito.verifyNoInteractions(responsavelRepository);
     }
 
     @Test
@@ -565,7 +704,7 @@ class AcolhidoServiceTest
 
         Mockito.verify(repository).findById(99L);
         Mockito.verify(repository, Mockito.never()).delete(Mockito.any(Acolhido.class));
-        Mockito.verifyNoInteractions(internacaoRepository);
+        Mockito.verifyNoInteractions(internacaoRepository, responsavelRepository);
     }
 
     @ParameterizedTest
@@ -577,7 +716,7 @@ class AcolhidoServiceTest
 
         assertEquals("Acolhido não encontrado.", exception.getMessage());
 
-        Mockito.verifyNoInteractions(repository, internacaoRepository);
+        Mockito.verifyNoInteractions(repository, internacaoRepository, responsavelRepository);
     }
 
     @Test
@@ -594,6 +733,8 @@ class AcolhidoServiceTest
 
         Mockito.verify(repository).findById(1L);
         Mockito.verify(internacaoRepository).existsByAcolhido(Mockito.same(acolhido));
+        Mockito.verify(repository, Mockito.never()).existsByResponsavelIdAndAtivoTrueAndIdNot(Mockito.anyLong(), Mockito.anyLong());
+        Mockito.verifyNoInteractions(responsavelRepository);
         Mockito.verify(repository, Mockito.never()).delete(Mockito.any(Acolhido.class));
     }
 

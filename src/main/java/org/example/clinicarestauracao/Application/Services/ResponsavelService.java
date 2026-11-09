@@ -2,8 +2,10 @@ package org.example.clinicarestauracao.Application.Services;
 
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
+import org.example.clinicarestauracao.Application.Exceptions.Acolhido.AcolhidoWithInvalidInformationException;
 import org.example.clinicarestauracao.Application.Exceptions.Responsavel.ResponsavelNotFoundException;
 import org.example.clinicarestauracao.Application.Exceptions.Responsavel.ResponsavelWithInvalidInformationException;
+import org.example.clinicarestauracao.Application.Interfaces.AcolhidoRepository;
 import org.example.clinicarestauracao.Application.Interfaces.ResponsavelRepository;
 import org.example.clinicarestauracao.Domain.Entities.Responsavel;
 import org.example.clinicarestauracao.Domain.Validation.CpfValidator;
@@ -18,6 +20,7 @@ import java.util.Optional;
 public class ResponsavelService
 {
     private final ResponsavelRepository repository;
+    private final AcolhidoRepository acolhidoRepository;
 
     public List<Responsavel> findAll()
     {
@@ -136,6 +139,11 @@ public class ResponsavelService
     {
         Responsavel responsavel = findResponsavelById(id);
 
+        if (acolhidoRepository.existsAcolhidoByResponsavelIdAndAtivoTrue(id))
+        {
+            throw new ResponsavelWithInvalidInformationException("Responsável possui um acolhido ativo.");
+        }
+
         responsavel.deactivateResponsavel();
 
         return repository.save(responsavel);
@@ -155,6 +163,11 @@ public class ResponsavelService
     public void deleteResponsavel(Long id)
     {
         Responsavel responsavel = findResponsavelById(id);
+
+        if (acolhidoRepository.existsAcolhidoByResponsavelId(id))
+        {
+            throw new ResponsavelWithInvalidInformationException("Responsável possui um acolhido vinculado.");
+        }
 
         repository.delete(responsavel);
     }

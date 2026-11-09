@@ -6,7 +6,9 @@ import org.example.clinicarestauracao.Application.Exceptions.Acolhido.AcolhidoNo
 import org.example.clinicarestauracao.Application.Exceptions.Acolhido.AcolhidoWithInvalidInformationException;
 import org.example.clinicarestauracao.Application.Interfaces.AcolhidoRepository;
 import org.example.clinicarestauracao.Application.Interfaces.InternacaoRepository;
+import org.example.clinicarestauracao.Application.Interfaces.ResponsavelRepository;
 import org.example.clinicarestauracao.Domain.Entities.Acolhido;
+import org.example.clinicarestauracao.Domain.Entities.Responsavel;
 import org.example.clinicarestauracao.Domain.Validation.CpfValidator;
 import org.example.clinicarestauracao.Domain.Validation.EmailValidator;
 import org.springframework.stereotype.Service;
@@ -20,6 +22,7 @@ public class AcolhidoService
 {
     private final AcolhidoRepository repository;
     private final InternacaoRepository internacaoRepository;
+    private final ResponsavelRepository responsavelRepository;
 
 
     public List<Acolhido> findAllAcolhidos()
@@ -123,6 +126,7 @@ public class AcolhidoService
         acolhidoToUpdate.setEndereco(acolhido.getEndereco());
         acolhidoToUpdate.setTelefone(acolhido.getTelefone());
         acolhidoToUpdate.setDataNascimento(acolhido.getDataNascimento());
+        acolhidoToUpdate.setResponsavel(acolhido.getResponsavel());
 
         return repository.save(acolhidoToUpdate);
     }
@@ -139,6 +143,16 @@ public class AcolhidoService
 
         acolhidoToDeactivate.deactivate();
 
+        Responsavel responsavel = acolhidoToDeactivate.getResponsavel();
+
+        boolean possuiAcolhidoAtivo = repository.existsByResponsavelIdAndAtivoTrueAndIdNot(responsavel.getId(), acolhidoToDeactivate.getId());
+
+        if (!possuiAcolhidoAtivo && responsavel.isAtivo())
+        {
+            responsavel.deactivateResponsavel();
+            responsavelRepository.save(responsavel);
+        }
+
         repository.save(acolhidoToDeactivate);
     }
 
@@ -148,6 +162,14 @@ public class AcolhidoService
         Acolhido acolhidoToReactivate = findAcolhidoById(id);
 
         acolhidoToReactivate.reactivate();
+
+        Responsavel responsavel = acolhidoToReactivate.getResponsavel();
+
+        if(!responsavel.isAtivo())
+        {
+            responsavel.reactivateResponsavel();
+            responsavelRepository.save(responsavel);
+        }
 
         repository.save(acolhidoToReactivate);
     }
@@ -163,5 +185,15 @@ public class AcolhidoService
         }
 
         repository.delete(acolhidoToDelete);
+
+        Responsavel responsavel = acolhidoToDelete.getResponsavel();
+
+        boolean possuiAcolhidoAtivo = repository.existsByResponsavelIdAndAtivoTrueAndIdNot(responsavel.getId(), acolhidoToDelete.getId());
+
+        if(!possuiAcolhidoAtivo && responsavel.isAtivo())
+        {
+            responsavel.deactivateResponsavel();
+            responsavelRepository.save(responsavel);
+        }
     }
 }

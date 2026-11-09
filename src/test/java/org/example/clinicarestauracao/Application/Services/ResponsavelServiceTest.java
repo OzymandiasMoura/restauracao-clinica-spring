@@ -2,6 +2,7 @@ package org.example.clinicarestauracao.Application.Services;
 
 import org.example.clinicarestauracao.Application.Exceptions.Responsavel.ResponsavelNotFoundException;
 import org.example.clinicarestauracao.Application.Exceptions.Responsavel.ResponsavelWithInvalidInformationException;
+import org.example.clinicarestauracao.Application.Interfaces.AcolhidoRepository;
 import org.example.clinicarestauracao.Application.Interfaces.ResponsavelRepository;
 import org.example.clinicarestauracao.Builders.ResponsavelTestBuilder;
 import org.example.clinicarestauracao.Domain.Entities.Responsavel;
@@ -25,6 +26,9 @@ class ResponsavelServiceTest
 {
     @Mock
     private ResponsavelRepository repository;
+
+    @Mock
+    private AcolhidoRepository acolhidoRepository;
 
     @InjectMocks
     private ResponsavelService service;
@@ -466,12 +470,13 @@ class ResponsavelServiceTest
     // Testes do deactivateResponsavel
 
     @Test
-    void shouldDeactivateResponsavelSuccessfully()
+    void shouldDeactivateResponsavelSuccessfullyWhenThereAreNoActiveAcolhidos()
     {
         Responsavel existente = ResponsavelTestBuilder.newResponsavel().setId(1L).setAtivo(true).build();
         Responsavel salvo = ResponsavelTestBuilder.newResponsavel().setId(1L).setAtivo(false).build();
 
         Mockito.when(repository.findById(1L)).thenReturn(Optional.of(existente));
+        Mockito.when(acolhidoRepository.existsAcolhidoByResponsavelIdAndAtivoTrue(1L)).thenReturn(false);
         Mockito.when(repository.save(existente)).thenReturn(salvo);
 
         Responsavel response = service.deactivateResponsavel(1L);
@@ -481,12 +486,40 @@ class ResponsavelServiceTest
                 () -> assertSame(salvo, response)
         );
 
-        var inOrder = Mockito.inOrder(repository);
+        var inOrder = Mockito.inOrder(repository, acolhidoRepository);
 
         inOrder.verify(repository).findById(1L);
+        inOrder.verify(acolhidoRepository).existsAcolhidoByResponsavelIdAndAtivoTrue(1L);
         inOrder.verify(repository).save(existente);
 
-        Mockito.verifyNoMoreInteractions(repository);
+        Mockito.verifyNoMoreInteractions(repository, acolhidoRepository);
+    }
+
+    @Test
+    void shouldRejectDeactivationWhenResponsavelHasActiveAcolhido()
+    {
+        Responsavel existente = ResponsavelTestBuilder.newResponsavel().setId(1L).setAtivo(true).build();
+
+        Mockito.when(repository.findById(1L)).thenReturn(Optional.of(existente));
+        Mockito.when(acolhidoRepository.existsAcolhidoByResponsavelIdAndAtivoTrue(1L)).thenReturn(true);
+
+        ResponsavelWithInvalidInformationException exception = assertThrows(
+                ResponsavelWithInvalidInformationException.class,
+                () -> service.deactivateResponsavel(1L)
+        );
+
+        assertAll(
+                () -> assertEquals("Responsável possui um acolhido ativo.", exception.getMessage()),
+                () -> assertTrue(existente.isAtivo())
+        );
+
+        var inOrder = Mockito.inOrder(repository, acolhidoRepository);
+
+        inOrder.verify(repository).findById(1L);
+        inOrder.verify(acolhidoRepository).existsAcolhidoByResponsavelIdAndAtivoTrue(1L);
+
+        Mockito.verify(repository, Mockito.never()).save(Mockito.any(Responsavel.class));
+        Mockito.verifyNoMoreInteractions(repository, acolhidoRepository);
     }
 
     @Test
@@ -495,6 +528,7 @@ class ResponsavelServiceTest
         Responsavel existente = ResponsavelTestBuilder.newResponsavel().setId(1L).setAtivo(false).build();
 
         Mockito.when(repository.findById(1L)).thenReturn(Optional.of(existente));
+        Mockito.when(acolhidoRepository.existsAcolhidoByResponsavelIdAndAtivoTrue(1L)).thenReturn(false);
 
         ResponsavelWithInvalidInformationException exception = assertThrows(ResponsavelWithInvalidInformationException.class, () -> service.deactivateResponsavel(1L));
 
@@ -504,7 +538,8 @@ class ResponsavelServiceTest
         );
 
         Mockito.verify(repository).findById(1L);
-        Mockito.verifyNoMoreInteractions(repository);
+        Mockito.verify(acolhidoRepository).existsAcolhidoByResponsavelIdAndAtivoTrue(1L);
+        Mockito.verifyNoMoreInteractions(repository, acolhidoRepository);
     }
 
     @Test
@@ -517,6 +552,7 @@ class ResponsavelServiceTest
         assertEquals("Responsável não encontrado.", exception.getMessage());
 
         Mockito.verify(repository).findById(99L);
+        Mockito.verifyNoInteractions(acolhidoRepository);
         Mockito.verifyNoMoreInteractions(repository);
     }
 
@@ -580,20 +616,46 @@ class ResponsavelServiceTest
     // Testes do deleteResponsavel
 
     @Test
-    void shouldDeleteResponsavelSuccessfully()
+    void shouldDeleteResponsavelSuccessfullyWhenThereAreNoLinkedAcolhidos()
     {
         Responsavel responsavel = ResponsavelTestBuilder.newResponsavel().setId(1L).build();
 
         Mockito.when(repository.findById(1L)).thenReturn(Optional.of(responsavel));
+        Mockito.when(acolhidoRepository.existsAcolhidoByResponsavelId(1L)).thenReturn(false);
 
         service.deleteResponsavel(1L);
 
-        var inOrder = Mockito.inOrder(repository);
+        var inOrder = Mockito.inOrder(repository, acolhidoRepository);
 
         inOrder.verify(repository).findById(1L);
+        inOrder.verify(acolhidoRepository).existsAcolhidoByResponsavelId(1L);
         inOrder.verify(repository).delete(responsavel);
 
-        Mockito.verifyNoMoreInteractions(repository);
+        Mockito.verifyNoMoreInteractions(repository, acolhidoRepository);
+    }
+
+    @Test
+    void shouldRejectDeletionWhenResponsavelHasLinkedAcolhido()
+    {
+        Responsavel responsavel = ResponsavelTestBuilder.newResponsavel().setId(1L).build();
+
+        Mockito.when(repository.findById(1L)).thenReturn(Optional.of(responsavel));
+        Mockito.when(acolhidoRepository.existsAcolhidoByResponsavelId(1L)).thenReturn(true);
+
+        ResponsavelWithInvalidInformationException exception = assertThrows(
+                ResponsavelWithInvalidInformationException.class,
+                () -> service.deleteResponsavel(1L)
+        );
+
+        assertEquals("Responsável possui um acolhido vinculado.", exception.getMessage());
+
+        var inOrder = Mockito.inOrder(repository, acolhidoRepository);
+
+        inOrder.verify(repository).findById(1L);
+        inOrder.verify(acolhidoRepository).existsAcolhidoByResponsavelId(1L);
+
+        Mockito.verify(repository, Mockito.never()).delete(Mockito.any(Responsavel.class));
+        Mockito.verifyNoMoreInteractions(repository, acolhidoRepository);
     }
 
     @Test
@@ -606,6 +668,7 @@ class ResponsavelServiceTest
         assertEquals("Responsável não encontrado.", exception.getMessage());
 
         Mockito.verify(repository).findById(99L);
+        Mockito.verifyNoInteractions(acolhidoRepository);
         Mockito.verifyNoMoreInteractions(repository);
     }
 
@@ -618,7 +681,7 @@ class ResponsavelServiceTest
 
         assertEquals("Responsável não encontrado.", exception.getMessage());
 
-        Mockito.verifyNoInteractions(repository);
+        Mockito.verifyNoInteractions(repository, acolhidoRepository);
     }
 
 }
