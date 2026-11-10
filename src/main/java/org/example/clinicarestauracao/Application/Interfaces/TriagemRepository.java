@@ -20,4 +20,8 @@ public interface TriagemRepository extends JpaRepository<Triagem, Long> {
             TriagemStatus triagemStatus,
             LocalDateTime data
     );
+    List<Triagem> findByTriagemStatusAndAtivoTrueAndDataAgendadaBefore(
+            TriagemStatus status,
+            LocalDateTime data
+    );
 }

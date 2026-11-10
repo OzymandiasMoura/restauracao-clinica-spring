@@ -106,5 +106,18 @@ public class TriagemController {
     ) {
         return ResponseEntity.ok(triagemService.cancelar(id, dto));
     }
+    @PatchMapping("/{id}/desativar")
+    public ResponseEntity<TriagemResponseDto> desativar(
+            @PathVariable Long id
+    ) {
+        return ResponseEntity.ok(triagemService.desativar(id));
+    }
+
+    @PatchMapping("/{id}/ativar")
+    public ResponseEntity<TriagemResponseDto> ativar(
+            @PathVariable Long id
+    ) {
+        return ResponseEntity.ok(triagemService.ativar(id));
+    }
 }
 

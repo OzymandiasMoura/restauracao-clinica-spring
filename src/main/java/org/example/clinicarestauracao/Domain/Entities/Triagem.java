@@ -51,13 +51,16 @@ public class Triagem {
     @Column(name = "motivo_cancelamento", length = 500)
     private String motivoCancelamento;
 
+    @Column(name = "ativo", nullable = false)
+    private boolean ativo;
 
     public Triagem(
             Convenio convenio,
             String nomePossivelAcolhido,
             String telefone,
             LocalDateTime dataAgendada,
-            String observacaoEntrevista
+            String observacaoEntrevista,
+            boolean ativo
     ) {
         setConvenio(convenio);
         setNomePossivelAcolhido(nomePossivelAcolhido);
@@ -66,6 +69,7 @@ public class Triagem {
         setObservacaoEntrevista(observacaoEntrevista);
         this.triagemStatus = TriagemStatus.AGENDADA;
         this.dataConclusao = null;
+        this.ativo = true;
     }
 
     public void setConvenio(Convenio convenio) {
@@ -173,8 +177,9 @@ public class Triagem {
     }
 
     public void marcarComoVencida() {
-        if (this.triagemStatus == TriagemStatus.AGENDADA &&
-                this.dataAgendada.isBefore(LocalDateTime.now())) {
+        if (this.ativo
+                && this.triagemStatus == TriagemStatus.AGENDADA
+                && this.dataAgendada.toLocalDate().isBefore(LocalDate.now())) {
 
             this.triagemStatus = TriagemStatus.ATRASADA;
         }
@@ -238,5 +243,23 @@ public class Triagem {
         this.dataCancelamento = LocalDateTime.now();
         this.motivoCancelamento = motivoFormatado;
     }
+    public void desativar() {
+        if (!this.ativo) {
+            throw new TriagemWithInvalidInformationException(
+                    "A triagem já está inativa."
+            );
+        }
 
+        this.ativo = false;
+    }
+
+    public void ativar() {
+        if (this.ativo) {
+            throw new TriagemWithInvalidInformationException(
+                    "A triagem já está ativa."
+            );
+        }
+
+        this.ativo = true;
+    }
 }

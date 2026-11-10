@@ -18,7 +18,8 @@ public final class TriagemMapper {
                 dto.nomePossivelAcolhido(),
                 dto.telefone(),
                 dto.dataAgendada(),
-                dto.observacaoEntrevista()
+                dto.observacaoEntrevista(),
+                true
         );
     }
 
@@ -33,7 +34,8 @@ public final class TriagemMapper {
                 entity.getObservacaoEntrevista(),
                 entity.getTriagemStatus(),
                 entity.getDataCancelamento(),
-                entity.getMotivoCancelamento()
+                entity.getMotivoCancelamento(),
+                entity.isAtivo()
         );
     }
 }

@@ -17,6 +17,7 @@ import org.example.clinicarestauracao.Domain.Entities.Triagem;
 import org.example.clinicarestauracao.Domain.Enums.TriagemStatus;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -31,7 +32,7 @@ public class TriagemService {
     public TriagemResponseDto create(TriagemRequestDto dto) {
 
         Convenio convenio = convenioRepository.findById(dto.convenioId())
-                .orElseThrow(() -> new TriagemNotFoundException("Convênio não encontrado."));
+                .orElseThrow(() -> new ConvenioNotFoundException("Convênio não encontrado."));
         Triagem triagem = TriagemMapper.requestDtoToEntity(dto, convenio);
         Triagem triagemSalva = triagemRepository.save(triagem);
         return TriagemMapper.entityToResponseDto(triagemSalva);
@@ -64,6 +65,7 @@ public class TriagemService {
                 .map(TriagemMapper::entityToResponseDto)
                 .toList();
     }
+
 
     @Transactional
     public TriagemResponseDto update(Long id, TriagemRequestDto dto) {
@@ -114,9 +116,9 @@ public class TriagemService {
     public void atualizarTriagensVencidas() {
 
         List<Triagem> triagens = triagemRepository
-                .findByTriagemStatusAndDataAgendadaBefore(
+                .findByTriagemStatusAndAtivoTrueAndDataAgendadaBefore(
                         TriagemStatus.AGENDADA,
-                        LocalDateTime.now()
+                        LocalDate.now().atStartOfDay()
                 );
 
         for (Triagem triagem : triagens) {
@@ -166,6 +168,36 @@ public class TriagemService {
                 ));
 
         triagem.cancelar(dto.motivo());
+
+        return TriagemMapper.entityToResponseDto(
+                triagemRepository.save(triagem)
+        );
+    }
+
+    @Transactional
+    public TriagemResponseDto desativar(Long id) {
+
+        Triagem triagem = triagemRepository.findById(id)
+                .orElseThrow(() -> new TriagemNotFoundException(
+                        "Triagem não encontrada."
+                ));
+
+        triagem.desativar();
+
+        return TriagemMapper.entityToResponseDto(
+                triagemRepository.save(triagem)
+        );
+    }
+
+    @Transactional
+    public TriagemResponseDto ativar(Long id) {
+
+        Triagem triagem = triagemRepository.findById(id)
+                .orElseThrow(() -> new TriagemNotFoundException(
+                        "Triagem não encontrada."
+                ));
+
+        triagem.ativar();
 
         return TriagemMapper.entityToResponseDto(
                 triagemRepository.save(triagem)

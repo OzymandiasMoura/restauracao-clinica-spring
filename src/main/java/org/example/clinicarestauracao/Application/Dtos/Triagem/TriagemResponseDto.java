@@ -15,7 +15,8 @@ public record TriagemResponseDto(
         String observacaoEntrevista,
         TriagemStatus triagemStatus,
         LocalDateTime dataCancelamento,
-        String motivoCancelamento
+        String motivoCancelamento,
+        boolean ativo
 ) {
 
 }
