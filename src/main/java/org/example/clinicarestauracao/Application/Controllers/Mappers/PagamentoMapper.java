@@ -2,6 +2,9 @@ package org.example.clinicarestauracao.Application.Controllers.Mappers;
 import org.example.clinicarestauracao.Application.Dtos.PagamentoDtos.PagamentoRequestDto;
 import org.example.clinicarestauracao.Application.Dtos.PagamentoDtos.PagamentoResponseDto;
 import org.example.clinicarestauracao.Domain.Entities.*;
+import org.example.clinicarestauracao.Domain.Enums.PagamentoStatus;
+
+import java.time.LocalDateTime;
 
 
 public class PagamentoMapper {
@@ -13,10 +16,11 @@ public class PagamentoMapper {
         return new Pagamento(
                 dto.valor(),
                 dto.dataPagamento(),
-                internacao
+                internacao,
+                dto.competencia(),
+                dto.observacao()
         );
     }
-
     public static PagamentoResponseDto entityToResponseDto(
             Pagamento pagamento
     ) {
@@ -24,7 +28,12 @@ public class PagamentoMapper {
                 pagamento.getId(),
                 pagamento.getValor(),
                 pagamento.getDataPagamento(),
-                pagamento.getInternacao().getId()
+                pagamento.getInternacao().getId(),
+                pagamento.getCompetencia(),
+                pagamento.getObservacao(),
+                pagamento.getStatus(),
+                pagamento.getDataEstorno(),
+                pagamento.getMotivoEstorno()
         );
     }
 }

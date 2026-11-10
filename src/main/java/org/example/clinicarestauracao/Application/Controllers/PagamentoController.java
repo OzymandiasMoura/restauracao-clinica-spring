@@ -2,12 +2,14 @@ package org.example.clinicarestauracao.Application.Controllers;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.example.clinicarestauracao.Application.Dtos.PagamentoDtos.PagamentoEstornoRequestDto;
 import org.example.clinicarestauracao.Application.Dtos.PagamentoDtos.PagamentoRequestDto;
 import org.example.clinicarestauracao.Application.Dtos.PagamentoDtos.PagamentoResponseDto;
 import org.example.clinicarestauracao.Application.Dtos.PagamentoDtos.PagamentoResumoResponseDto;
 import org.example.clinicarestauracao.Application.Services.PagamentoService;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -52,6 +54,15 @@ public class PagamentoController {
         return new PagamentoResumoResponseDto(
                 internacaoId,
                 pagamentoService.calcularTotalPago(internacaoId)
+        );
+    }
+    @PatchMapping("/{id}/estornar")
+    public ResponseEntity<PagamentoResponseDto> estornar(
+            @PathVariable Long id,
+            @Valid @RequestBody PagamentoEstornoRequestDto dto
+    ) {
+        return ResponseEntity.ok(
+                pagamentoService.estornar(id, dto)
         );
     }
 }
