@@ -19,6 +19,18 @@ public record PagamentoRequestDto(
         LocalDate dataPagamento,
 
         @NotNull(message = "A internação é obrigatória.")
-        Long internacaoId
+        Long internacaoId,
+
+        @NotBlank
+        @Pattern(
+                regexp = "\\d{4}-(0[1-9]|1[0-2])",
+                message = "A competência deve estar no formato AAAA-MM."
+        )
+        String competencia,
+
+        @Size(max = 500)
+        String observacao
+
+
 
 ) {}

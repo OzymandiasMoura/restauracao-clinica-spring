@@ -1,3 +1,4 @@
+
 package org.example.clinicarestauracao.Domain.Entities;
 
 import jakarta.persistence.*;
@@ -5,11 +6,14 @@ import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.example.clinicarestauracao.Application.Exceptions.Pagamento.PagamentoNotFoundException;
 import org.example.clinicarestauracao.Application.Exceptions.Pagamento.PagamentoWithInvalidInformationException;
+import org.example.clinicarestauracao.Domain.Enums.PagamentoStatus;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.YearMonth;
+import java.time.format.DateTimeParseException;
 
 @Entity
 @Getter
@@ -37,18 +41,41 @@ public class Pagamento {
     @JoinColumn(name = "id_internacao", nullable = false)
     private Internacao internacao;
 
+    @Column(name = "competencia", nullable = false, length = 7)
+    private String competencia;
+
+    @Column(name = "observacao", length = 500)
+    private String observacao;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status", nullable = false)
+    private PagamentoStatus status;
+
+    @Column(name = "data_estorno")
+    private LocalDateTime dataEstorno;
+
+    @Column(name = "motivo_estorno", length = 500)
+    private String motivoEstorno;
 
     public Pagamento(
             BigDecimal valor,
             LocalDate dataPagamento,
-            Internacao internacao
+            Internacao internacao,
+            String competencia,
+            String observacao
     ) {
         setValor(valor);
         setDataPagamento(dataPagamento);
         setInternacao(internacao);
+        setCompetencia(competencia);
+        setObservacao(observacao);
+
+        this.status = PagamentoStatus.ATIVO;
+        this.dataEstorno = null;
+        this.motivoEstorno = null;
     }
 
-    public void setValor(BigDecimal valor) {
+    private void setValor(BigDecimal valor) {
 
         if (valor == null || valor.signum() <= 0) {
             throw new PagamentoWithInvalidInformationException(
@@ -56,7 +83,8 @@ public class Pagamento {
             );
         }
 
-        if (valor.scale() > 2 || valor.precision() - valor.scale() > 10) {
+        if (valor.scale() > 2
+                || valor.precision() - valor.scale() > 10) {
             throw new PagamentoWithInvalidInformationException(
                     "O valor deve ter no máximo 10 dígitos inteiros e 2 casas decimais."
             );
@@ -65,7 +93,7 @@ public class Pagamento {
         this.valor = valor;
     }
 
-    public void setDataPagamento(LocalDate dataPagamento) {
+    private void setDataPagamento(LocalDate dataPagamento) {
 
         if (dataPagamento == null) {
             throw new PagamentoWithInvalidInformationException(
@@ -82,7 +110,7 @@ public class Pagamento {
         this.dataPagamento = dataPagamento;
     }
 
-    public void setInternacao(Internacao internacao) {
+    private void setInternacao(Internacao internacao) {
 
         if (internacao == null) {
             throw new PagamentoWithInvalidInformationException(
@@ -91,5 +119,71 @@ public class Pagamento {
         }
 
         this.internacao = internacao;
+    }
+
+    private void setCompetencia(String competencia) {
+
+        if (competencia == null || competencia.isBlank()) {
+            throw new PagamentoWithInvalidInformationException(
+                    "A competência é obrigatória."
+            );
+        }
+
+        String competenciaFormatada = competencia.trim();
+
+        try {
+            YearMonth.parse(competenciaFormatada);
+        } catch (DateTimeParseException ex) {
+            throw new PagamentoWithInvalidInformationException(
+                    "A competência deve estar no formato AAAA-MM."
+            );
+        }
+
+        this.competencia = competenciaFormatada;
+    }
+
+    private void setObservacao(String observacao) {
+
+        if (observacao == null || observacao.isBlank()) {
+            this.observacao = null;
+            return;
+        }
+
+        String observacaoFormatada = observacao.trim();
+
+        if (observacaoFormatada.length() > 500) {
+            throw new PagamentoWithInvalidInformationException(
+                    "A observação não pode ultrapassar 500 caracteres."
+            );
+        }
+
+        this.observacao = observacaoFormatada;
+    }
+
+    public void estornar(String motivo) {
+
+        if (this.status == PagamentoStatus.ESTORNADO) {
+            throw new PagamentoWithInvalidInformationException(
+                    "O pagamento já está estornado."
+            );
+        }
+
+        if (motivo == null || motivo.isBlank()) {
+            throw new PagamentoWithInvalidInformationException(
+                    "O motivo do estorno é obrigatório."
+            );
+        }
+
+        String motivoFormatado = motivo.trim();
+
+        if (motivoFormatado.length() > 500) {
+            throw new PagamentoWithInvalidInformationException(
+                    "O motivo do estorno não pode ultrapassar 500 caracteres."
+            );
+        }
+
+        this.status = PagamentoStatus.ESTORNADO;
+        this.dataEstorno = LocalDateTime.now();
+        this.motivoEstorno = motivoFormatado;
     }
 }

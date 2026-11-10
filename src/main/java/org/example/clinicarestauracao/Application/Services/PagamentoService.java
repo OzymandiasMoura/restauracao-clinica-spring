@@ -2,12 +2,14 @@ package org.example.clinicarestauracao.Application.Services;
 
 import lombok.RequiredArgsConstructor;
 import org.example.clinicarestauracao.Application.Controllers.Mappers.PagamentoMapper;
+import org.example.clinicarestauracao.Application.Dtos.PagamentoDtos.PagamentoEstornoRequestDto;
 import org.example.clinicarestauracao.Application.Dtos.PagamentoDtos.PagamentoRequestDto;
 import org.example.clinicarestauracao.Application.Dtos.PagamentoDtos.PagamentoResponseDto;
 import org.example.clinicarestauracao.Application.Exceptions.Pagamento.PagamentoWithInvalidInformationException;
 import org.example.clinicarestauracao.Application.Interfaces.*;
 import org.example.clinicarestauracao.Domain.Entities.*;
 
+import org.example.clinicarestauracao.Domain.Enums.PagamentoStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -35,6 +37,9 @@ public class    PagamentoService {
                 );
 
         validarPagamento(internacao, dto.dataPagamento());
+        validarValorPagamento(internacao, dto);
+        validarCompetencia(internacao, dto);
+
 
         Pagamento pagamento =
                 PagamentoMapper.requestDtoToEntity(dto, internacao);
@@ -75,9 +80,11 @@ public class    PagamentoService {
             );
         }
 
-        return pagamentoRepository.calcularTotalPago(internacaoId);
+        return pagamentoRepository.calcularTotalPago(
+                internacaoId,
+                PagamentoStatus.ATIVO
+        );
     }
-
     @Transactional(readOnly = true)
     public List<PagamentoResponseDto> findByInternacao(
             Long internacaoId
@@ -137,6 +144,84 @@ public class    PagamentoService {
             );
         }
     }
+    @Transactional
+    public PagamentoResponseDto estornar(
+            Long id,
+            PagamentoEstornoRequestDto dto
+    ) {
+
+        Pagamento pagamento = pagamentoRepository.findById(id)
+                .orElseThrow(() -> new NoSuchElementException(
+                        "Pagamento não encontrado."
+                ));
+
+        pagamento.estornar(dto.motivo());
+
+        return PagamentoMapper.entityToResponseDto(
+                pagamentoRepository.save(pagamento)
+        );
+    }
 
 
-}
+
+    private void validarValorPagamento(
+            Internacao internacao,
+            PagamentoRequestDto dto
+    ) {
+        if (dto.valor() == null) {
+            throw new PagamentoWithInvalidInformationException(
+                    "O valor do pagamento é obrigatório."
+            );
+        }
+
+        if (dto.valor().signum() <= 0) {
+            throw new PagamentoWithInvalidInformationException(
+                    "O valor do pagamento deve ser maior que zero."
+            );
+        }
+        if (dto.valor().compareTo(
+                internacao.getValorMensalidade()) != 0) {
+
+            if (dto.observacao() == null
+                    || dto.observacao().isBlank()) {
+
+                throw new PagamentoWithInvalidInformationException(
+                        "Pagamentos com valores diferentes da mensalidade exigem uma observação."
+                );
+            }
+        }
+    }
+
+
+
+    private void validarCompetencia(
+            Internacao internacao,
+            PagamentoRequestDto dto
+    ) {
+        if (dto.competencia() == null
+                || dto.competencia().isBlank()) {
+
+            throw new PagamentoWithInvalidInformationException(
+                    "A competência é obrigatória."
+            );
+        }
+
+        boolean pagamentoExistente = pagamentoRepository
+                .existsByInternacaoIdAndCompetenciaAndStatus(
+                        internacao.getId(),
+                        dto.competencia().trim(),
+                        PagamentoStatus.ATIVO
+                );
+
+        if (pagamentoExistente) {
+            throw new PagamentoWithInvalidInformationException(
+                    "Já existe um pagamento ativo para a competência "
+                            + dto.competencia()
+                            + " nesta internação."
+            );
+        }
+    }
+    }
+
+
+

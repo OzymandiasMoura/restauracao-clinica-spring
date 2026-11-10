@@ -22,6 +22,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.sql.Date;
 import java.sql.PreparedStatement;
+import java.time.YearMonth;
 
 @Component
 @Profile("dev")
@@ -416,23 +417,65 @@ public class DevDataInitializer implements ApplicationRunner {
         // =========================
 
         // Gabriel: 300 + 250 + 400 = R$ 950,00
+
+        // =========================
+        // PAGAMENTOS MOCKADOS
+        // =========================
+
+        // Gabriel: 300 + 250 + 400 = R$ 950,00
+
+        LocalDate dataPagamentoGabriel1 = LocalDate.now().minusDays(20);
+
         pagamentoRepository.save(new Pagamento(
-                new BigDecimal("300.00"), LocalDate.now().minusDays(20), internacaoGabriel
+                new BigDecimal("300.00"),
+                dataPagamentoGabriel1,
+                internacaoGabriel,
+                YearMonth.from(dataPagamentoGabriel1).toString(),
+                "Primeiro pagamento parcial da mensalidade."
         ));
+
+        LocalDate dataPagamentoGabriel2 = LocalDate.now().minusDays(10);
+
         pagamentoRepository.save(new Pagamento(
-                new BigDecimal("250.00"), LocalDate.now().minusDays(10), internacaoGabriel
+                new BigDecimal("250.00"),
+                dataPagamentoGabriel2,
+                internacaoGabriel,
+                YearMonth.from(dataPagamentoGabriel2).toString(),
+                "Segundo pagamento parcial."
         ));
+
+        LocalDate dataPagamentoGabriel3 = LocalDate.now().minusDays(2);
+
         pagamentoRepository.save(new Pagamento(
-                new BigDecimal("400.00"), LocalDate.now().minusDays(2), internacaoGabriel
+                new BigDecimal("400.00"),
+                dataPagamentoGabriel3,
+                internacaoGabriel,
+                YearMonth.from(dataPagamentoGabriel3).toString(),
+                "Complemento do pagamento da mensalidade."
         ));
 
         // Juliana: 500 + 500 = R$ 1.000,00
+
+        LocalDate dataPagamentoJuliana1 = LocalDate.now().minusDays(15);
+
         pagamentoRepository.save(new Pagamento(
-                new BigDecimal("500.00"), LocalDate.now().minusDays(15), internacaoJuliana
+                new BigDecimal("500.00"),
+                dataPagamentoJuliana1,
+                internacaoJuliana,
+                YearMonth.from(dataPagamentoJuliana1).toString(),
+                "Pagamento parcial da mensalidade."
         ));
+
+        LocalDate dataPagamentoJuliana2 = LocalDate.now().minusDays(5);
+
         pagamentoRepository.save(new Pagamento(
-                new BigDecimal("500.00"), LocalDate.now().minusDays(5), internacaoJuliana
+                new BigDecimal("500.00"),
+                dataPagamentoJuliana2,
+                internacaoJuliana,
+                YearMonth.from(dataPagamentoJuliana2).toString(),
+                "Complemento do pagamento da mensalidade."
         ));
+
     }
 
     private Acolhido buscarAcolhidoMock(Long id, String nomeEsperado) {
