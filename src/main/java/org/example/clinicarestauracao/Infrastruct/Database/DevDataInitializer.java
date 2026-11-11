@@ -365,7 +365,7 @@ public class DevDataInitializer implements ApplicationRunner {
         LocalDateTime agora = LocalDateTime.now();
 
         // Triagem 1 - AGENDADA
-        triagemService.create(
+        triagemService.createTriagem(
                 new TriagemRequestDto(
                         atendimentoSocial.getId(),
                         "João Pedro da Silva",
@@ -376,7 +376,7 @@ public class DevDataInitializer implements ApplicationRunner {
         );
 
         // Triagem 2 - Será CONCLUIDA
-        TriagemResponseDto triagemConcluida = triagemService.create(
+        TriagemResponseDto triagemConcluida = triagemService.createTriagem(
                 new TriagemRequestDto(
                         clinicaParceira.getId(),
                         "Maria Eduarda Santos",
@@ -389,7 +389,7 @@ public class DevDataInitializer implements ApplicationRunner {
         triagemService.concluir(triagemConcluida.id());
 
         // Triagem 3 - AGENDADA
-        triagemService.create(
+        triagemService.createTriagem(
                 new TriagemRequestDto(
                         atendimentoSocial.getId(),
                         "Carlos Henrique Souza",
@@ -400,7 +400,7 @@ public class DevDataInitializer implements ApplicationRunner {
         );
 
         // Triagem 4 - AGENDADA
-        triagemService.create(
+        triagemService.createTriagem(
                 new TriagemRequestDto(
                         clinicaParceira.getId(),
                         "Fernanda Oliveira",
@@ -412,7 +412,7 @@ public class DevDataInitializer implements ApplicationRunner {
 
         // Triagem 5 - Teste do Scheduler
         // Após um minuto deve mudar para ATRASADA
-        triagemService.create(
+        triagemService.createTriagem(
                 new TriagemRequestDto(
                         atendimentoSocial.getId(),
                         "Teste Scheduler",

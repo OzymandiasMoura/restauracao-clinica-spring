@@ -24,7 +24,7 @@ public class TriagemController {
     public ResponseEntity<TriagemResponseDto> create(
             @RequestBody @Valid TriagemRequestDto dto
     ) {
-        TriagemResponseDto triagem = triagemService.create(dto);
+        TriagemResponseDto triagem = triagemService.createTriagem(dto);
 
         URI location = URI.create("/triagens/" + triagem.id());
 

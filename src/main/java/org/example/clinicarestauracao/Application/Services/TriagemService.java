@@ -27,12 +27,12 @@ public class TriagemService {
     private final ConvenioRepository convenioRepository;
 
     @Transactional
-    public TriagemResponseDto create(TriagemRequestDto dto) {
+    public TriagemResponseDto createTriagem(TriagemRequestDto dto) {
 
-        Convenio convenio = convenioRepository.findById(dto.convenioId())
-                .orElseThrow(() -> new TriagemNotFoundException("Convênio não encontrado."));
+        Convenio convenio = convenioRepository.findById(dto.convenioId()).orElseThrow(() -> new TriagemNotFoundException("Convênio não encontrado."));
         Triagem triagem = TriagemMapper.requestDtoToEntity(dto, convenio);
         Triagem triagemSalva = triagemRepository.save(triagem);
+
         return TriagemMapper.entityToResponseDto(triagemSalva);
     }
 
@@ -44,8 +44,7 @@ public class TriagemService {
     }
 
     public TriagemResponseDto findById(Long id) {
-        Triagem triagem = triagemRepository.findById(id)
-                .orElseThrow(() -> new TriagemNotFoundException("Triagem não encontrada."));
+        Triagem triagem = triagemRepository.findById(id).orElseThrow(() -> new TriagemNotFoundException("Triagem não encontrada."));
 
         return TriagemMapper.entityToResponseDto(triagem);
     }
@@ -66,17 +65,14 @@ public class TriagemService {
 
     @Transactional
     public TriagemResponseDto update(Long id, TriagemRequestDto dto) {
-        Triagem triagem = triagemRepository.findById(id)
-                .orElseThrow(() -> new TriagemNotFoundException("Triagem não encontrada."));
+        Triagem triagem = triagemRepository.findById(id).orElseThrow(() -> new TriagemNotFoundException("Triagem não encontrada."));
+        Convenio convenio = convenioRepository.findById(dto.convenioId()).orElseThrow(() -> new ConvenioNotFoundException("Convênio não encontrado."));
 
-        Convenio convenio = convenioRepository.findById(dto.convenioId())
-                .orElseThrow(() -> new ConvenioNotFoundException("Convênio não encontrado."));
-
-        if (triagem.getStatus() == Status.CONCLUIDA) {
-            throw new TriagemWithInvalidInformationException(
-                    "Uma triagem concluída deve ser desconcluída antes de ser alterada."
-            );
+        if (triagem.getStatus() == Status.CONCLUIDA)
+        {
+            throw new TriagemWithInvalidInformationException("Uma triagem concluída deve ser desconcluída antes de ser alterada.");
         }
+
         triagem.setConvenio(convenio);
         triagem.setNomePossivelAcolhido(dto.nomePossivelAcolhido());
         triagem.setTelefone(dto.telefone());
