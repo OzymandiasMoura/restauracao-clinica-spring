@@ -748,6 +748,58 @@ class TriagemTest
         );
     }
 
+    // Testes do descancelamento
+
+    @Test
+    void shouldRestoreCancelledTriagemAsScheduledWhenScheduledDateIsInTheFuture()
+    {
+        Triagem triagem = buildTriagemWithStatus(Status.CANCELADA);
+
+        triagem.descancelarTriagem();
+
+        assertAll(
+                () -> assertEquals(Status.AGENDADA, triagem.getStatus()),
+                () -> assertNull(triagem.getDataConclusao())
+        );
+    }
+
+    @Test
+    void shouldRestoreCancelledTriagemAsOverdueWhenScheduledDateHasPassed()
+    {
+        LocalDateTime dataAgendada = LocalDateTime.now().minusDays(1);
+        Triagem triagem = TriagemTestBuilder.newTriagem()
+                .setDataAgendada(dataAgendada)
+                .setStatus(Status.CANCELADA)
+                .build();
+
+        triagem.descancelarTriagem();
+
+        assertAll(
+                () -> assertEquals(Status.ATRASADA, triagem.getStatus()),
+                () -> assertEquals(dataAgendada, triagem.getDataAgendada()),
+                () -> assertNull(triagem.getDataConclusao())
+        );
+    }
+
+    @ParameterizedTest
+    @EnumSource(value = Status.class, names = {"AGENDADA", "ATRASADA", "CONCLUIDA"})
+    void shouldRejectUndoCancellationWhenTriagemIsNotCancelled(Status status)
+    {
+        Triagem triagem = buildTriagemWithStatus(status);
+        LocalDateTime dataConclusao = triagem.getDataConclusao();
+
+        TriagemWithInvalidInformationException exception = assertThrows(
+                TriagemWithInvalidInformationException.class,
+                triagem::descancelarTriagem
+        );
+
+        assertAll(
+                () -> assertEquals("Triagem não está cancelada.", exception.getMessage()),
+                () -> assertEquals(status, triagem.getStatus()),
+                () -> assertEquals(dataConclusao, triagem.getDataConclusao())
+        );
+    }
+
     // Testes da marcação como atrasada
 
     @Test

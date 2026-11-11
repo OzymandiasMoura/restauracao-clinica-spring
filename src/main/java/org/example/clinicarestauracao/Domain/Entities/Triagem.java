@@ -243,6 +243,16 @@ public class Triagem {
         setStatus(Status.CANCELADA);
     }
 
+    public void descancelarTriagem()
+    {
+        if (!(this.status == Status.CANCELADA))
+        {
+            throw new TriagemWithInvalidInformationException("Triagem não está cancelada.");
+        }
+
+        setStatus(this.dataAgendada.isBefore(LocalDateTime.now()) ? Status.ATRASADA : Status.AGENDADA);
+    }
+
     public void marcarComoVencida()
     {
         if (this.status == Status.AGENDADA && this.dataAgendada.isBefore(LocalDateTime.now()))
