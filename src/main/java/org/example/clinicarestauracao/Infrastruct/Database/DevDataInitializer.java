@@ -1,8 +1,6 @@
 
 package org.example.clinicarestauracao.Infrastruct.Database;
 
-import org.example.clinicarestauracao.Application.Dtos.TriagemDtos.TriagemRequestDto;
-import org.example.clinicarestauracao.Application.Dtos.TriagemDtos.TriagemResponseDto;
 import org.example.clinicarestauracao.Application.Interfaces.*;
 import org.example.clinicarestauracao.Application.Services.*;
 import org.example.clinicarestauracao.Domain.Entities.*;
@@ -366,8 +364,8 @@ public class DevDataInitializer implements ApplicationRunner {
 
         // Triagem 1 - AGENDADA
         triagemService.createTriagem(
-                new TriagemRequestDto(
-                        atendimentoSocial.getId(),
+                new Triagem(
+                        atendimentoSocial,
                         "João Pedro da Silva",
                         "11987654321",
                         agora.plusDays(1),
@@ -375,10 +373,10 @@ public class DevDataInitializer implements ApplicationRunner {
                 )
         );
 
-        // Triagem 2 - Será CONCLUIDA
-        TriagemResponseDto triagemConcluida = triagemService.createTriagem(
-                new TriagemRequestDto(
-                        clinicaParceira.getId(),
+        // Triagem 2 - AGENDADA
+        triagemService.createTriagem(
+                new Triagem(
+                        clinicaParceira,
                         "Maria Eduarda Santos",
                         "11976543210",
                         agora.plusDays(2),
@@ -386,12 +384,10 @@ public class DevDataInitializer implements ApplicationRunner {
                 )
         );
 
-        triagemService.concluir(triagemConcluida.id());
-
         // Triagem 3 - AGENDADA
         triagemService.createTriagem(
-                new TriagemRequestDto(
-                        atendimentoSocial.getId(),
+                new Triagem(
+                        atendimentoSocial,
                         "Carlos Henrique Souza",
                         "11999887766",
                         agora.plusHours(4),
@@ -401,8 +397,8 @@ public class DevDataInitializer implements ApplicationRunner {
 
         // Triagem 4 - AGENDADA
         triagemService.createTriagem(
-                new TriagemRequestDto(
-                        clinicaParceira.getId(),
+                new Triagem(
+                        clinicaParceira,
                         "Fernanda Oliveira",
                         "11988776655",
                         agora.plusDays(3),
@@ -413,8 +409,8 @@ public class DevDataInitializer implements ApplicationRunner {
         // Triagem 5 - Teste do Scheduler
         // Após um minuto deve mudar para ATRASADA
         triagemService.createTriagem(
-                new TriagemRequestDto(
-                        atendimentoSocial.getId(),
+                new Triagem(
+                        atendimentoSocial,
                         "Teste Scheduler",
                         "11999998888",
                         agora.plusMinutes(1),
