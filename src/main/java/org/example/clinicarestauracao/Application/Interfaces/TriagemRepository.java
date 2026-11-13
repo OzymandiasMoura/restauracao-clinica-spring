@@ -13,7 +13,7 @@ import java.util.Optional;
 
 public interface TriagemRepository extends JpaRepository<Triagem, Long> {
 
-    Optional<Triagem> findByNomePossivelAcolhidoIgnoreCase(String nomePossivelAcolhido);
+    List<Triagem> findByNomePossivelAcolhidoContainingIgnoreCase(String nomePossivelAcolhido);
     List<Triagem> findByStatus(Status status);
     List<Triagem> findByStatusAndDataAgendadaBefore(Status status, LocalDateTime data);
 

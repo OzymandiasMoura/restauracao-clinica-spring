@@ -1,16 +1,10 @@
 package org.example.clinicarestauracao.Application.Services;
 
 import jakarta.transaction.Transactional;
-import lombok.RequiredArgsConstructor;
-import org.example.clinicarestauracao.Application.Controllers.Mappers.TriagemMapper;
-import org.example.clinicarestauracao.Application.Dtos.TriagemDtos.TriagemRequestDto;
-import org.example.clinicarestauracao.Application.Dtos.TriagemDtos.TriagemResponseDto;
-import org.example.clinicarestauracao.Application.Exceptions.ConvenioNotFoundException;
+import lombok.AllArgsConstructor;
 import org.example.clinicarestauracao.Application.Exceptions.Triagem.TriagemNotFoundException;
 import org.example.clinicarestauracao.Application.Exceptions.Triagem.TriagemWithInvalidInformationException;
-import org.example.clinicarestauracao.Application.Interfaces.ConvenioRepository;
 import org.example.clinicarestauracao.Application.Interfaces.TriagemRepository;
-import org.example.clinicarestauracao.Domain.Entities.Convenio;
 import org.example.clinicarestauracao.Domain.Entities.Triagem;
 
 import org.example.clinicarestauracao.Domain.Enums.Status;
@@ -20,133 +14,174 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
-@RequiredArgsConstructor
+@AllArgsConstructor
 public class TriagemService {
 
-    private final TriagemRepository triagemRepository;
-    private final ConvenioRepository convenioRepository;
+    private final TriagemRepository repository;
+    public List<Triagem> findAllTriagens() {
+        return repository.findAll();
+    }
+
+    public Triagem findTriagemById(Long id)
+    {
+        if (id == null || id <= 0)
+        {
+            throw new TriagemNotFoundException("Triagem não encontrada.");
+        }
+
+        return repository.findById(id).orElseThrow(() -> new TriagemNotFoundException("Triagem não encontrada."));
+    }
+
+    public List<Triagem> findTriagemByName(String nomePossivelAcolhido)
+    {
+        if (nomePossivelAcolhido == null || nomePossivelAcolhido.isBlank())
+        {
+            throw new TriagemNotFoundException("Triagens não encontradas.");
+        }
+        List<Triagem> triagem = repository.findByNomePossivelAcolhidoContainingIgnoreCase(nomePossivelAcolhido.strip());
+
+        if(triagem.isEmpty())
+        {
+            throw new TriagemNotFoundException("Triagens não encontradas.");
+        }
+
+        return triagem;
+    }
+
+    public List<Triagem> findTriagemByStatus(Status status)
+    {
+        if (status == null)
+        {
+            throw new TriagemNotFoundException("Triagem não encontrada.");
+        }
+        List<Triagem> triagens = repository.findByStatus(status);
+
+        if(triagens.isEmpty())
+        {
+            throw new TriagemNotFoundException("Triagens não encontradas.");
+        }
+
+        return triagens;
+    }
 
     @Transactional
-    public TriagemResponseDto createTriagem(TriagemRequestDto dto) {
+    public Triagem createTriagem(Triagem toCreate) {
 
-        Convenio convenio = convenioRepository.findById(dto.convenioId()).orElseThrow(() -> new TriagemNotFoundException("Convênio não encontrado."));
-        Triagem triagem = TriagemMapper.requestDtoToEntity(dto, convenio);
-        Triagem triagemSalva = triagemRepository.save(triagem);
+        if (toCreate == null)
+        {
+            throw new TriagemWithInvalidInformationException("Informações de triagem não pode ser nula.");
+        }
 
-        return TriagemMapper.entityToResponseDto(triagemSalva);
-    }
-
-    public List<TriagemResponseDto> listAll() {
-        return triagemRepository.findAll()
-                .stream()
-                .map(TriagemMapper::entityToResponseDto)
-                .toList();
-    }
-
-    public TriagemResponseDto findById(Long id) {
-        Triagem triagem = triagemRepository.findById(id).orElseThrow(() -> new TriagemNotFoundException("Triagem não encontrada."));
-
-        return TriagemMapper.entityToResponseDto(triagem);
-    }
-
-    public TriagemResponseDto findByName(String nomePossivelAcolhido) {
-        Triagem triagem = triagemRepository.findByNomePossivelAcolhidoIgnoreCase(nomePossivelAcolhido)
-                .orElseThrow(() -> new TriagemNotFoundException("Triagem não encontrada."));
-
-        return TriagemMapper.entityToResponseDto(triagem);
-    }
-
-    public List<TriagemResponseDto> findByStatus(Status status) {
-        return triagemRepository.findByStatus(status)
-                .stream()
-                .map(TriagemMapper::entityToResponseDto)
-                .toList();
+        return repository.save(toCreate);
     }
 
     @Transactional
-    public TriagemResponseDto update(Long id, TriagemRequestDto dto) {
-        Triagem triagem = triagemRepository.findById(id).orElseThrow(() -> new TriagemNotFoundException("Triagem não encontrada."));
-        Convenio convenio = convenioRepository.findById(dto.convenioId()).orElseThrow(() -> new ConvenioNotFoundException("Convênio não encontrado."));
+    public Triagem updateTriagem(Long id, Triagem toUpdate)
+    {
+        if (toUpdate == null)
+        {
+            throw new TriagemWithInvalidInformationException("Informações de triagem não podem ser nulas.");
+        }
+        Triagem triagem = findTriagemById(id);
 
         if (triagem.getStatus() == Status.CONCLUIDA)
         {
             throw new TriagemWithInvalidInformationException("Uma triagem concluída deve ser desconcluída antes de ser alterada.");
         }
 
-        triagem.setConvenio(convenio);
-        triagem.setNomePossivelAcolhido(dto.nomePossivelAcolhido());
-        triagem.setTelefone(dto.telefone());
-        triagem.reagendar(dto.dataAgendada());
-        triagem.setObservacaoEntrevista(dto.observacaoEntrevista());
+        triagem.setConvenio(toUpdate.getConvenio());
+        triagem.setNomePossivelAcolhido(toUpdate.getNomePossivelAcolhido());
+        triagem.setTelefone(toUpdate.getTelefone());
+        triagem.reagendar(toUpdate.getDataAgendada());
+        triagem.setObservacaoEntrevista(toUpdate.getObservacaoEntrevista());
 
-        Triagem triagemAtualizada = triagemRepository.save(triagem);
+        Triagem triagemAtualizada = repository.save(triagem);
 
-        return TriagemMapper.entityToResponseDto(triagemAtualizada);
+        return triagemAtualizada;
     }
 
     @Transactional
-    public void delete(Long id) {
-        Triagem triagem = triagemRepository.findById(id)
-                .orElseThrow(() -> new TriagemNotFoundException("Triagem não encontrada."));
-        triagemRepository.delete(triagem);
+    public void deleteTriagem(Long id)
+    {
+        if (id == null || id <= 0)
+        {
+            throw new TriagemNotFoundException("Triagem não encontrada.");
+        }
+
+        Triagem triagem = findTriagemById(id);
+
+        repository.delete(triagem);
     }
 
     @Transactional
-    public TriagemResponseDto concluir(Long id) {
+    public Triagem concluir(Long id) {
 
-        Triagem triagem = triagemRepository.findById(id)
-                .orElseThrow(() ->
-                        new TriagemNotFoundException("Triagem não encontrada.")
-                );
+        Triagem triagem = findTriagemById(id);
+
         triagem.concluir();
 
-        Triagem triagemAtualizada = triagemRepository.save(triagem);
-
-        return TriagemMapper.entityToResponseDto(triagemAtualizada);
+        return repository.save(triagem);
     }
 
     @Transactional
-    public void atualizarTriagensVencidas() {
+    public Triagem concluir(Long id, LocalDateTime dateConclusao) {
 
-        List<Triagem> triagens = triagemRepository
-                .findByStatusAndDataAgendadaBefore(
-                        Status.AGENDADA,
-                        LocalDateTime.now()
-                );
+        Triagem triagem = findTriagemById(id);
+
+        triagem.concluir(dateConclusao);
+
+        return repository.save(triagem);
+    }
+
+    @Transactional
+    public Triagem desconcluir(Long id) {
+
+        Triagem triagem = findTriagemById(id);
+
+        triagem.desconcluir();
+
+        return repository.save(triagem);
+    }
+
+    @Transactional
+    public Triagem reagendar(Long id, LocalDateTime novaData) {
+
+        Triagem triagem = findTriagemById(id);
+
+        triagem.reagendar(novaData);
+
+        return repository.save(triagem);
+    }
+
+    @Transactional
+    public Triagem cancelarTriagem(Long id)
+    {
+        Triagem triagem = findTriagemById(id);
+
+        triagem.cancelarTriagem();
+
+        return repository.save(triagem);
+    }
+
+    @Transactional
+    public Triagem descancelarTriagem(Long id)
+    {
+        Triagem triagem = findTriagemById(id);
+
+        triagem.descancelarTriagem();
+
+        return repository.save(triagem);
+    }
+
+    @Transactional
+    public void atualizarTriagensVencidas()
+    {
+        List<Triagem> triagens = repository.findByStatusAndDataAgendadaBefore(Status.AGENDADA, LocalDateTime.now());
 
         for (Triagem triagem : triagens) {
             triagem.marcarComoVencida();
         }
 
-        triagemRepository.saveAll(triagens);
-    }
-    @Transactional
-    public TriagemResponseDto desconcluir(Long id) {
-
-        Triagem triagem = triagemRepository.findById(id)
-                .orElseThrow(() ->
-                        new TriagemNotFoundException("Triagem não encontrada.")
-                );
-
-        triagem.desconcluir();
-
-        return TriagemMapper.entityToResponseDto(
-                triagemRepository.save(triagem)
-        );
-    }
-
-    @Transactional
-    public TriagemResponseDto reagendar(Long id, LocalDateTime novaData) {
-
-        Triagem triagem = triagemRepository.findById(id)
-                .orElseThrow(() ->
-                        new TriagemNotFoundException("Triagem não encontrada.")
-                );
-
-        triagem.reagendar(novaData);
-
-        return TriagemMapper.entityToResponseDto(
-                triagemRepository.save(triagem)
-        );
+        repository.saveAll(triagens);
     }
 }
