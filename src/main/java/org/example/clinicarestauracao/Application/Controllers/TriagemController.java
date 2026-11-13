@@ -52,7 +52,7 @@ public class TriagemController {
         return ResponseEntity.ok().body(response);
     }
 
-    @GetMapping("/status/status")
+    @GetMapping("/search/status")
     public ResponseEntity<List<TriagemResponseDto>> findByStatus(@RequestParam Status status)
     {
         List<Triagem> triagens = service.findTriagemByStatus(status);
@@ -69,7 +69,7 @@ public class TriagemController {
 
         URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(created.getId()).toUri();
 
-        return ResponseEntity.created(location).body(TriagemMapper.entityToResponseDto(triagem));
+        return ResponseEntity.created(location).body(TriagemMapper.entityToResponseDto(created));
     }
 
     @PutMapping("/{id}")
@@ -77,7 +77,8 @@ public class TriagemController {
     {
         Convenio convenio = convenioService.findConvenioById(dto.convenioId());
         Triagem triagem = TriagemMapper.requestDtoToEntity(dto, convenio);
-        return ResponseEntity.ok().body(TriagemMapper.entityToResponseDto(triagem));
+        Triagem updated = service.updateTriagem(id, triagem);
+        return ResponseEntity.ok().body(TriagemMapper.entityToResponseDto(updated));
     }
 
     @DeleteMapping("/{id}")
@@ -105,6 +106,22 @@ public class TriagemController {
     public ResponseEntity<TriagemResponseDto> reagendar(@PathVariable Long id, @RequestBody @Valid TriagemReagendamentoDto dto)
     {
         Triagem triagem = service.reagendar(id, dto.novaData());
+        return ResponseEntity.ok().body(TriagemMapper.entityToResponseDto(triagem));
+    }
+
+    @PatchMapping("/{id}/cancelar")
+    public ResponseEntity<TriagemResponseDto> cancelarTriagem(@PathVariable Long id)
+    {
+        Triagem triagem = service.cancelarTriagem(id);
+
+        return  ResponseEntity.ok().body(TriagemMapper.entityToResponseDto(triagem));
+    }
+
+    @PatchMapping("/{id}/descancelar")
+    public ResponseEntity<TriagemResponseDto> descancelarTriagem(@PathVariable Long id)
+    {
+        Triagem triagem = service.descancelarTriagem(id);
+
         return ResponseEntity.ok().body(TriagemMapper.entityToResponseDto(triagem));
     }
 }
