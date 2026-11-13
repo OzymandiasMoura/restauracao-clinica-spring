@@ -21,6 +21,15 @@ public class ResponsavelController
 {
     private final ResponsavelService service;
 
+    @GetMapping
+    public ResponseEntity<List<ResponsavelResponseDto>> findAllResponsaveis()
+    {
+        List<Responsavel> list = service.findAll();
+        List<ResponsavelResponseDto> response = list.stream().map(ResponsavelMapper::entityToResponseDto).toList();
+
+        return ResponseEntity.ok().body(response);
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<ResponsavelResponseDto> findResponsavelById(@PathVariable Long id)
     {

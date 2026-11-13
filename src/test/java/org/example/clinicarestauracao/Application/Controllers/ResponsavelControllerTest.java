@@ -54,6 +54,56 @@ class ResponsavelControllerTest
         RequestContextHolder.resetRequestAttributes();
     }
 
+    // Testes do findAllResponsaveis
+
+    @Test
+    void shouldFindAllResponsaveisSuccessfully()
+    {
+        Responsavel primeiroResponsavel = ResponsavelTestBuilder.newResponsavel().setId(1L).setNome("João da Silva").build();
+        Responsavel segundoResponsavel = ResponsavelTestBuilder.newResponsavel().setId(2L).setNome("Maria da Silva").setAtivo(false).build();
+
+        Mockito.when(service.findAll()).thenReturn(List.of(primeiroResponsavel, segundoResponsavel));
+
+        ResponseEntity<List<ResponsavelResponseDto>> response = controller.findAllResponsaveis();
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertNotNull(response.getBody());
+
+        List<ResponsavelResponseDto> responseBody = response.getBody();
+
+        assertAll(
+                () -> assertEquals(2, responseBody.size()),
+                () -> assertEquals(1L, responseBody.getFirst().id()),
+                () -> assertEquals("João da Silva", responseBody.getFirst().nome()),
+                () -> assertTrue(responseBody.getFirst().ativo()),
+                () -> assertEquals(2L, responseBody.get(1).id()),
+                () -> assertEquals("Maria da Silva", responseBody.get(1).nome()),
+                () -> assertFalse(responseBody.get(1).ativo()),
+                () -> assertNotNull(responseBody.getFirst().endereco()),
+                () -> assertNotNull(responseBody.get(1).endereco())
+        );
+
+        Mockito.verify(service).findAll();
+        Mockito.verifyNoMoreInteractions(service);
+    }
+
+    @Test
+    void shouldReturnEmptyListWhenThereAreNoResponsaveis()
+    {
+        Mockito.when(service.findAll()).thenReturn(List.of());
+
+        ResponseEntity<List<ResponsavelResponseDto>> response = controller.findAllResponsaveis();
+
+        assertAll(
+                () -> assertEquals(HttpStatus.OK, response.getStatusCode()),
+                () -> assertNotNull(response.getBody()),
+                () -> assertTrue(response.getBody().isEmpty())
+        );
+
+        Mockito.verify(service).findAll();
+        Mockito.verifyNoMoreInteractions(service);
+    }
+
 
     // Testes do findResponsavelById
 
