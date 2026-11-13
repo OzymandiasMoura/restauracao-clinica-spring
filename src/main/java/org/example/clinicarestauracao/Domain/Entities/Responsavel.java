@@ -22,22 +22,22 @@ public class Responsavel
 {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    Long id;
+    private Long id;
     @Column(nullable = false)
-    String nome;
+    private String nome;
     @Column(nullable = false, unique = true)
-    String email;
+    private String email;
     @Column(nullable = false, unique = true)
-    String cpf;
+    private String cpf;
     @Column(nullable = false)
-    String telefone;
+    private String telefone;
     @Column(nullable = false, length = 1024)
     @Convert(converter = EnderecoConverter.class)
-    Endereco endereco;
+    private Endereco endereco;
     @Column(nullable = false)
-    String cep;
+    private String cep;
     @Column(nullable = false)
-    boolean ativo;
+    private boolean ativo;
 
     public Responsavel(Long id, String nome, String email, String cpf, String telefone, Endereco endereco, String cep,  boolean ativo)
     {
