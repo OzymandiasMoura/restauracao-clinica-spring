@@ -495,4 +495,45 @@ class InternacaoControllerTest
         Mockito.verifyNoMoreInteractions(service);
         Mockito.verifyNoInteractions(acolhidoService, convenioService);
     }
+
+    // Testes countInternacoesAtivasByConvenio
+
+    @Test
+    void shouldCountActiveInternacoesByConvenioSuccessfully()
+    {
+        Long convenioId = 2L;
+
+        Mockito.when(service.countInternacoesAtivasByConvenio(convenioId)).thenReturn(5L);
+
+        ResponseEntity<Long> response = controller.countInternacoesAtivasByConvenio(convenioId);
+
+        assertAll(
+                () -> assertEquals(HttpStatus.OK, response.getStatusCode()),
+                () -> assertEquals(Long.valueOf(5L), response.getBody())
+        );
+
+        Mockito.verify(service).countInternacoesAtivasByConvenio(convenioId);
+        Mockito.verifyNoMoreInteractions(service);
+        Mockito.verifyNoInteractions(acolhidoService, convenioService);
+    }
+
+    @Test
+    void shouldReturnZeroWhenConvenioHasNoActiveInternacoes()
+    {
+        Long convenioId = 1L;
+
+        Mockito.when(service.countInternacoesAtivasByConvenio(convenioId)).thenReturn(0L);
+
+        ResponseEntity<Long> response = controller.countInternacoesAtivasByConvenio(convenioId);
+
+        assertAll(
+                () -> assertEquals(HttpStatus.OK, response.getStatusCode()),
+                () -> assertEquals(Long.valueOf(0L), response.getBody())
+        );
+
+        Mockito.verify(service).countInternacoesAtivasByConvenio(convenioId);
+        Mockito.verifyNoMoreInteractions(service);
+        Mockito.verifyNoInteractions(acolhidoService, convenioService);
+    }
+
 }

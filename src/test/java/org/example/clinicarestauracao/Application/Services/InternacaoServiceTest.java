@@ -1,5 +1,6 @@
 package org.example.clinicarestauracao.Application.Services;
 
+import org.example.clinicarestauracao.Application.Exceptions.ConvenioNotFoundException;
 import org.example.clinicarestauracao.Application.Exceptions.Internacao.InternacaoNotFoundException;
 import org.example.clinicarestauracao.Application.Exceptions.Internacao.InternacaoWithInvalidInformationException;
 import org.example.clinicarestauracao.Application.Interfaces.InternacaoRepository;
@@ -724,5 +725,75 @@ class InternacaoServiceTest
         Mockito.verifyNoInteractions(repository, acolhidoService, convenioService);
     }
 
+    // Testes countInternacoesAtivasByConvenio
+
+    @ParameterizedTest
+    @ValueSource(longs = {0, 1, 15})
+    void shouldCountActiveInternacoesByConvenio(Long quantidade)
+    {
+        Convenio convenio = new ConvenioTestBuilder().setId(1L).build();
+
+        Mockito.when(convenioService.findConvenioById(1L)).thenReturn(convenio);
+        Mockito.when(repository.countByConvenioAndAtivoTrue(Mockito.same(convenio))).thenReturn(quantidade);
+
+        Long response = service.countInternacoesAtivasByConvenio(1L);
+
+        assertEquals(quantidade, response);
+
+        Mockito.verify(convenioService).findConvenioById(1L);
+        Mockito.verify(repository).countByConvenioAndAtivoTrue(Mockito.same(convenio));
+        Mockito.verifyNoMoreInteractions(repository, convenioService);
+        Mockito.verifyNoInteractions(acolhidoService);
+    }
+
+    @Test
+    void shouldCountActiveInternacoesForInactiveConvenio()
+    {
+        Convenio convenio = new ConvenioTestBuilder().setId(1L).setAtivo(false).build();
+
+        Mockito.when(convenioService.findConvenioById(1L)).thenReturn(convenio);
+        Mockito.when(repository.countByConvenioAndAtivoTrue(Mockito.same(convenio))).thenReturn(0L);
+
+        Long response = service.countInternacoesAtivasByConvenio(1L);
+
+        assertEquals(0L, response);
+
+        Mockito.verify(convenioService).findConvenioById(1L);
+        Mockito.verify(repository).countByConvenioAndAtivoTrue(Mockito.same(convenio));
+        Mockito.verifyNoMoreInteractions(repository, convenioService);
+        Mockito.verifyNoInteractions(acolhidoService);
+    }
+
+    @Test
+    void shouldNotCountWhenConvenioDoesNotExist()
+    {
+        ConvenioNotFoundException expected = new ConvenioNotFoundException("Convênio não encontrado.");
+
+        Mockito.when(convenioService.findConvenioById(99L)).thenThrow(expected);
+
+        ConvenioNotFoundException exception = assertThrows(ConvenioNotFoundException.class, () -> service.countInternacoesAtivasByConvenio(99L));
+
+        assertSame(expected, exception);
+
+        Mockito.verify(convenioService).findConvenioById(99L);
+        Mockito.verifyNoMoreInteractions(convenioService);
+        Mockito.verifyNoInteractions(repository, acolhidoService);
+    }
+
+    @ParameterizedTest
+    @NullSource
+    @ValueSource(longs = {0, -1, -10})
+    void shouldNotCountWhenConvenioIdIsInvalid(Long id)
+    {
+        Mockito.when(convenioService.findConvenioById(id)).thenThrow(new ConvenioNotFoundException("Convênio não encontrado."));
+
+        ConvenioNotFoundException exception = assertThrows(ConvenioNotFoundException.class, () -> service.countInternacoesAtivasByConvenio(id));
+
+        assertEquals("Convênio não encontrado.", exception.getMessage());
+
+        Mockito.verify(convenioService).findConvenioById(id);
+        Mockito.verifyNoMoreInteractions(convenioService);
+        Mockito.verifyNoInteractions(repository, acolhidoService);
+    }
 
 }

@@ -148,4 +148,12 @@ public class InternacaoService
 
         repository.saveAll(ativas);
     }
+
+    public Long countInternacoesAtivasByConvenio(Long id)
+    {
+        Convenio convenio = convenioService.findConvenioById(id);
+        long qtde = repository.countByConvenioAndAtivoTrue(convenio);
+
+        return qtde;
+    }
 }

@@ -94,4 +94,12 @@ public class InternacaoController
 
         return ResponseEntity.noContent().build();
     }
+
+    @GetMapping("/count/{id}")
+    public ResponseEntity<Long> countInternacoesAtivasByConvenio(@PathVariable Long id)
+    {
+        Long qtde = service.countInternacoesAtivasByConvenio(id);
+
+        return ResponseEntity.ok().body(qtde);
+    }
 }
