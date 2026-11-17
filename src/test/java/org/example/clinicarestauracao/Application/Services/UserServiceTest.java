@@ -3,6 +3,7 @@ package org.example.clinicarestauracao.Application.Services;
 import org.example.clinicarestauracao.Application.Exceptions.User.UserNotFoundException;
 import org.example.clinicarestauracao.Application.Exceptions.User.UserWithInvalidInformationException;
 import org.example.clinicarestauracao.Application.Exceptions.User.UsernameAlredyInUseException;
+import org.example.clinicarestauracao.Application.Interfaces.FuncionarioRepository;
 import org.example.clinicarestauracao.Application.Interfaces.UserRepository;
 import org.example.clinicarestauracao.Builders.UserTestBuilder;
 import org.example.clinicarestauracao.Domain.Entities.User;
@@ -28,6 +29,8 @@ import static org.mockito.Mockito.verify;
 class UserServiceTest
 {
     private UserTestBuilder builder = new UserTestBuilder();
+    @Mock
+    private FuncionarioRepository funcionarioRepository;
     @Mock
     private UserRepository repository;
     @Mock
@@ -491,6 +494,80 @@ class UserServiceTest
         assertEquals("Usuário não encontrado.", exception.getMessage());
 
         Mockito.verifyNoInteractions(repository, passwordEncoder);
+    }
+
+    @Test
+    void shouldDeleteUserWhenNoFuncionarioIsLinked()
+    {
+        User user = new User(1L, "Pedro", "senha-criptografada", UserRoles.USER);
+
+        Mockito.when(repository.findById(1L)).thenReturn(Optional.of(user));
+        Mockito.when(funcionarioRepository.existsByUser(user)).thenReturn(false);
+
+        assertDoesNotThrow(() -> service.deleteUser(1L));
+
+        Mockito.verify(repository).findById(1L);
+        Mockito.verify(funcionarioRepository).existsByUser(user);
+        Mockito.verify(repository).delete(user);
+        Mockito.verifyNoMoreInteractions(repository, funcionarioRepository);
+        Mockito.verifyNoInteractions(passwordEncoder);
+    }
+
+    @Test
+    void shouldRejectDeletingUserWhenFuncionarioIsLinked()
+    {
+        User user = new User(1L, "Pedro", "senha-criptografada", UserRoles.USER);
+
+        Mockito.when(repository.findById(1L)).thenReturn(Optional.of(user));
+        Mockito.when(funcionarioRepository.existsByUser(user)).thenReturn(true);
+
+        UserWithInvalidInformationException exception = assertThrows(
+                UserWithInvalidInformationException.class,
+                () -> service.deleteUser(1L)
+        );
+
+        assertEquals(
+                "Não é possível excluir usuário vinculado a um funcionário.",
+                exception.getMessage()
+        );
+
+        Mockito.verify(repository).findById(1L);
+        Mockito.verify(funcionarioRepository).existsByUser(user);
+        Mockito.verify(repository, Mockito.never()).delete(Mockito.any(User.class));
+        Mockito.verifyNoMoreInteractions(repository, funcionarioRepository);
+        Mockito.verifyNoInteractions(passwordEncoder);
+    }
+
+    @Test
+    void shouldRejectDeletingUserThatDoesNotExist()
+    {
+        Mockito.when(repository.findById(99L)).thenReturn(Optional.empty());
+
+        UserNotFoundException exception = assertThrows(
+                UserNotFoundException.class,
+                () -> service.deleteUser(99L)
+        );
+
+        assertEquals("Usuário não encontrado.", exception.getMessage());
+
+        Mockito.verify(repository).findById(99L);
+        Mockito.verifyNoMoreInteractions(repository);
+        Mockito.verifyNoInteractions(funcionarioRepository, passwordEncoder);
+    }
+
+    @ParameterizedTest
+    @NullSource
+    @ValueSource(longs = {0, -1, -10})
+    void shouldRejectDeletingUserWithInvalidId(Long id)
+    {
+        UserNotFoundException exception = assertThrows(
+                UserNotFoundException.class,
+                () -> service.deleteUser(id)
+        );
+
+        assertEquals("Usuário não encontrado.", exception.getMessage());
+
+        Mockito.verifyNoInteractions(repository, funcionarioRepository, passwordEncoder);
     }
 
 }

@@ -2,7 +2,9 @@ package org.example.clinicarestauracao.Application.Services;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.example.clinicarestauracao.Application.Exceptions.User.UserNotFoundException;
+import org.example.clinicarestauracao.Application.Exceptions.User.UserWithInvalidInformationException;
 import org.example.clinicarestauracao.Application.Exceptions.User.UsernameAlredyInUseException;
+import org.example.clinicarestauracao.Application.Interfaces.FuncionarioRepository;
 import org.example.clinicarestauracao.Application.Interfaces.UserRepository;
 import org.example.clinicarestauracao.Domain.Entities.User;
 import org.example.clinicarestauracao.Domain.Enums.UserRoles;
@@ -16,6 +18,7 @@ import java.util.Objects;
 public class UserService
 {
     private UserRepository userRepository;
+    private FuncionarioRepository funcionarioRepository;
     private PasswordEncoder passwordEncoder;
 
     public User registerUser(User user)
@@ -86,5 +89,18 @@ public class UserService
         }
 
         return userRepository.save(userToUpdate);
+    }
+
+    @Transactional
+    public void deleteUser(Long id)
+    {
+        User user = this.findUserById(id);
+
+        if (funcionarioRepository.existsByUser(user))
+        {
+            throw new UserWithInvalidInformationException("Não é possível excluir usuário vinculado a um funcionário.");
+        }
+
+        userRepository.delete(user);
     }
 }

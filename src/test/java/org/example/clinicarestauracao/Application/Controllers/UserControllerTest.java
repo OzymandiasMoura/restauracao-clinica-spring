@@ -64,4 +64,18 @@ class UserControllerTest
 
         Mockito.verifyNoInteractions(service);
     }
+
+    @Test
+    void shouldDeleteUserAndReturnNoContent()
+    {
+        Long userId = 1L;
+
+        ResponseEntity<Void> response = controller.deleteUser(userId);
+
+        assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
+        assertNull(response.getBody());
+
+        Mockito.verify(service).deleteUser(userId);
+        Mockito.verifyNoMoreInteractions(service);
+    }
 }
