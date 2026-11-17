@@ -53,7 +53,19 @@ VALUES
      '31955552345', DATE '1987-07-22', 2, TRUE),
     (3, 'Marcos Pereira', 'marcos.pereira@teste.local', '98765432100', '20040002',
      'Rua da Assembleia, 50 - Centro - Rio de Janeiro/RJ',
-     '21955553456', DATE '1979-12-03', 1, FALSE);
+     '21955553456', DATE '1979-12-03', 1, FALSE),
+    (4, 'Lucas Almeida', 'lucas.almeida@teste.local', '71460293878', '01310100',
+     'Avenida Paulista, 1100 - Bela Vista - São Paulo/SP',
+     '11988881111', DATE '1991-05-10', 1, TRUE),
+    (5, 'Pedro Henrique', 'pedro.henrique@teste.local', '82571304941', '30140071',
+     'Avenida Afonso Pena, 1600 - Centro - Belo Horizonte/MG',
+     '31988882222', DATE '1989-08-21', 2, TRUE),
+    (6, 'Rafael Martins', 'rafael.martins@teste.local', '93682415033', '01504000',
+     'Rua Vergueiro, 600 - Liberdade - São Paulo/SP',
+     '11988883333', DATE '1985-02-14', 1, TRUE),
+    (7, 'Felipe Rocha', 'felipe.rocha@teste.local', '14793526160', '30160011',
+     'Rua da Bahia, 1300 - Centro - Belo Horizonte/MG',
+     '31988884444', DATE '1993-10-07', 2, TRUE);
 
 INSERT INTO medicamento (id, nome, preco, quantidade_estoque, quantidade_minima) VALUES
     (1, 'Dipirona 500mg', 12.50, 50, 10),
@@ -79,8 +91,10 @@ VALUES
     (7, 2, 'Luciana Costa', '11977776666', DATEADD('DAY', 4, LOCALTIMESTAMP),
      'Cancelada a pedido da família.', 'CANCELADA', NULL);
 
--- Uma internação ativa por acolhido. Marcos possui apenas histórico encerrado;
--- seu convênio pode estar inativo hoje sem invalidar a internação histórica.
+-- 20 internações: 6 ativas e 14 encerradas, sem sobreposição por acolhido.
+-- Ativas: 2 em tratamento, 2 próximas da alta e 2 com alta vencida.
+-- Marcos possui apenas histórico encerrado; seu convênio pode estar inativo
+-- hoje sem invalidar a internação histórica. A Lista de Espera não tem internações.
 INSERT INTO internacao
     (id, acolhido_id, convenio_id, data_entrada, data_saida_prevista, data_saida,
      etapa_tratamento, valor_mensalidade, ativo, alta)
@@ -93,7 +107,71 @@ VALUES
      'EM_TRATAMENTO', 1200.00, TRUE, NULL),
     (3, 3, 3, DATEADD('DAY', -300, CURRENT_DATE),
      DATEADD('MONTH', 9, DATEADD('DAY', -300, CURRENT_DATE)), DATEADD('DAY', -30, CURRENT_DATE),
-     'ALTA_CONCEDIDA', 900.00, FALSE, 'CONCLUSAO');
+     'ALTA_CONCEDIDA', 900.00, FALSE, 'CONCLUSAO'),
+    (4, 4, 1, DATEADD('MONTH', -9, DATEADD('DAY', 15, CURRENT_DATE)),
+     DATEADD('DAY', 15, CURRENT_DATE), NULL,
+     'PROXIMO_ALTA', 0.00, TRUE, NULL),
+    (5, 5, 2, DATEADD('MONTH', -9, DATEADD('DAY', 20, CURRENT_DATE)),
+     DATEADD('DAY', 20, CURRENT_DATE), NULL,
+     'PROXIMO_ALTA', 1350.00, TRUE, NULL),
+    (6, 6, 1, DATEADD('MONTH', -9, DATEADD('DAY', -15, CURRENT_DATE)),
+     DATEADD('DAY', -15, CURRENT_DATE), NULL,
+     'ALTA_VENCIDA', 0.00, TRUE, NULL),
+    (7, 7, 2, DATEADD('MONTH', -9, DATEADD('DAY', -10, CURRENT_DATE)),
+     DATEADD('DAY', -10, CURRENT_DATE), NULL,
+     'ALTA_VENCIDA', 1500.00, TRUE, NULL),
+    (8, 1, 1, DATEADD('YEAR', -6, CURRENT_DATE),
+     DATEADD('MONTH', 9, DATEADD('YEAR', -6, CURRENT_DATE)),
+     DATEADD('MONTH', 9, DATEADD('YEAR', -6, CURRENT_DATE)),
+     'ALTA_CONCEDIDA', 0.00, FALSE, 'CONCLUSAO'),
+    (9, 2, 1, DATEADD('YEAR', -6, CURRENT_DATE),
+     DATEADD('MONTH', 9, DATEADD('YEAR', -6, CURRENT_DATE)),
+     DATEADD('MONTH', 3, DATEADD('YEAR', -6, CURRENT_DATE)),
+     'ALTA_CONCEDIDA', 0.00, FALSE, 'DESISTENCIA'),
+    (10, 3, 1, DATEADD('YEAR', -6, CURRENT_DATE),
+     DATEADD('MONTH', 9, DATEADD('YEAR', -6, CURRENT_DATE)),
+     DATEADD('MONTH', 4, DATEADD('YEAR', -6, CURRENT_DATE)),
+     'ALTA_CONCEDIDA', 0.00, FALSE, 'DESLIGAMENTO'),
+    (11, 1, 1, DATEADD('YEAR', -4, CURRENT_DATE),
+     DATEADD('MONTH', 9, DATEADD('YEAR', -4, CURRENT_DATE)),
+     DATEADD('MONTH', 9, DATEADD('YEAR', -4, CURRENT_DATE)),
+     'ALTA_CONCEDIDA', 0.00, FALSE, 'CONCLUSAO'),
+    (12, 2, 1, DATEADD('YEAR', -4, CURRENT_DATE),
+     DATEADD('MONTH', 9, DATEADD('YEAR', -4, CURRENT_DATE)),
+     DATEADD('MONTH', 9, DATEADD('YEAR', -4, CURRENT_DATE)),
+     'ALTA_CONCEDIDA', 0.00, FALSE, 'CONCLUSAO'),
+    (13, 3, 1, DATEADD('YEAR', -4, CURRENT_DATE),
+     DATEADD('MONTH', 9, DATEADD('YEAR', -4, CURRENT_DATE)),
+     DATEADD('MONTH', 3, DATEADD('YEAR', -4, CURRENT_DATE)),
+     'ALTA_CONCEDIDA', 0.00, FALSE, 'DESISTENCIA'),
+    (14, 1, 2, DATEADD('YEAR', -5, CURRENT_DATE),
+     DATEADD('MONTH', 9, DATEADD('YEAR', -5, CURRENT_DATE)),
+     DATEADD('MONTH', 9, DATEADD('YEAR', -5, CURRENT_DATE)),
+     'ALTA_CONCEDIDA', 1000.00, FALSE, 'CONCLUSAO'),
+    (15, 2, 2, DATEADD('YEAR', -5, CURRENT_DATE),
+     DATEADD('MONTH', 9, DATEADD('YEAR', -5, CURRENT_DATE)),
+     DATEADD('MONTH', 4, DATEADD('YEAR', -5, CURRENT_DATE)),
+     'ALTA_CONCEDIDA', 1100.00, FALSE, 'DESLIGAMENTO'),
+    (16, 3, 2, DATEADD('YEAR', -5, CURRENT_DATE),
+     DATEADD('MONTH', 9, DATEADD('YEAR', -5, CURRENT_DATE)),
+     DATEADD('MONTH', 3, DATEADD('YEAR', -5, CURRENT_DATE)),
+     'ALTA_CONCEDIDA', 950.00, FALSE, 'DESISTENCIA'),
+    (17, 1, 2, DATEADD('YEAR', -3, CURRENT_DATE),
+     DATEADD('MONTH', 9, DATEADD('YEAR', -3, CURRENT_DATE)),
+     DATEADD('MONTH', 9, DATEADD('YEAR', -3, CURRENT_DATE)),
+     'ALTA_CONCEDIDA', 1200.00, FALSE, 'CONCLUSAO'),
+    (18, 2, 2, DATEADD('YEAR', -3, CURRENT_DATE),
+     DATEADD('MONTH', 9, DATEADD('YEAR', -3, CURRENT_DATE)),
+     DATEADD('MONTH', 9, DATEADD('YEAR', -3, CURRENT_DATE)),
+     'ALTA_CONCEDIDA', 1250.00, FALSE, 'CONCLUSAO'),
+    (19, 3, 2, DATEADD('YEAR', -3, CURRENT_DATE),
+     DATEADD('MONTH', 9, DATEADD('YEAR', -3, CURRENT_DATE)),
+     DATEADD('MONTH', 4, DATEADD('YEAR', -3, CURRENT_DATE)),
+     'ALTA_CONCEDIDA', 1150.00, FALSE, 'DESLIGAMENTO'),
+    (20, 3, 3, DATEADD('YEAR', -2, CURRENT_DATE),
+     DATEADD('MONTH', 9, DATEADD('YEAR', -2, CURRENT_DATE)),
+     DATEADD('MONTH', 9, DATEADD('YEAR', -2, CURRENT_DATE)),
+     'ALTA_CONCEDIDA', 850.00, FALSE, 'CONCLUSAO');
 
 -- IDs explícitos não avançam automaticamente as identidades no H2.
 -- Os próximos cadastros da API devem começar depois dos registros desta carga.
@@ -102,7 +180,7 @@ ALTER TABLE usuarios ALTER COLUMN id RESTART WITH 5;
 ALTER TABLE convenios ALTER COLUMN id RESTART WITH 5;
 ALTER TABLE funcionarios ALTER COLUMN id RESTART WITH 4;
 ALTER TABLE responsaveis ALTER COLUMN id RESTART WITH 3;
-ALTER TABLE acolhidos ALTER COLUMN id RESTART WITH 4;
+ALTER TABLE acolhidos ALTER COLUMN id RESTART WITH 8;
 ALTER TABLE medicamento ALTER COLUMN id RESTART WITH 4;
 ALTER TABLE triagem ALTER COLUMN id RESTART WITH 8;
-ALTER TABLE internacao ALTER COLUMN id RESTART WITH 4;
+ALTER TABLE internacao ALTER COLUMN id RESTART WITH 21;

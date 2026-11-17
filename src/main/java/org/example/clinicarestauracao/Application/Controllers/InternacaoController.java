@@ -107,4 +107,13 @@ public class InternacaoController
 
         return ResponseEntity.ok(response);
     }
+
+
+    @GetMapping("/relatorios/etapas-por-convenio")
+    public ResponseEntity<List<TreatmentStageByConvenioDto>> findRelatorioTreatmentStageByConvenio()
+    {
+        List<TreatmentStageByConvenioDto> response = service.findRelatorioSituacaoInternacoesPorConvenio().stream().map(InternacaoMapper::reportToResponseDto).toList();
+
+        return ResponseEntity.ok().body(response);
+    }
 }

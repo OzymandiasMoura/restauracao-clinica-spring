@@ -1,7 +1,8 @@
 package org.example.clinicarestauracao.Application.Controllers;
 
 import org.example.clinicarestauracao.Application.Dtos.InternacaoDtos.*;
-import org.example.clinicarestauracao.Application.Reports.InternacoesAtivasPorConvenio;
+import org.example.clinicarestauracao.Application.Reports.InternacoesAtivasByConvenio;
+import org.example.clinicarestauracao.Application.Reports.TreatmentStageByConvenio;
 import org.example.clinicarestauracao.Application.Services.AcolhidoService;
 import org.example.clinicarestauracao.Application.Services.ConvenioService;
 import org.example.clinicarestauracao.Application.Services.InternacaoService;
@@ -538,7 +539,7 @@ class InternacaoControllerTest
     @Test
     void shouldFindActiveInternacoesReportByConvenioSuccessfully()
     {
-        List<InternacoesAtivasPorConvenio> relatorio = List.of(new InternacoesAtivasPorConvenio(1L, "Social", 12L), new InternacoesAtivasPorConvenio(2L, "Particular", 0L)
+        List<InternacoesAtivasByConvenio> relatorio = List.of(new InternacoesAtivasByConvenio(1L, "Social", 12L), new InternacoesAtivasByConvenio(2L, "Particular", 0L)
         );
 
         Mockito.when(service.findRelatorioInternacoesAtivasPorConvenio()).thenReturn(relatorio);
@@ -576,6 +577,48 @@ class InternacaoControllerTest
         Mockito.verifyNoInteractions(acolhidoService, convenioService);
     }
 
+    // Testes findRelatorioTreatmentStageByConvenio
 
+    @Test
+    void shouldFindTreatmentStageReportByConvenioSuccessfully()
+    {
+        List<TreatmentStageByConvenio> relatorio = List.of(
+                new TreatmentStageByConvenio(1L, "Social", 8L, 3L, 1L, 12L, 24L),
+                new TreatmentStageByConvenio(2L, "Particular", 0L, 0L, 0L, 0L, 0L)
+        );
+
+        Mockito.when(service.findRelatorioSituacaoInternacoesPorConvenio()).thenReturn(relatorio);
+
+        ResponseEntity<List<TreatmentStageByConvenioDto>> response = controller.findRelatorioTreatmentStageByConvenio();
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertNotNull(response.getBody());
+
+        List<TreatmentStageByConvenioDto> esperado = List.of(
+                new TreatmentStageByConvenioDto(1L, "Social", 8L, 3L, 1L, 12L, 24L), new TreatmentStageByConvenioDto(2L, "Particular", 0L, 0L, 0L, 0L, 0L)
+        );
+
+        assertEquals(esperado, response.getBody());
+
+        Mockito.verify(service).findRelatorioSituacaoInternacoesPorConvenio();
+        Mockito.verifyNoMoreInteractions(service);
+        Mockito.verifyNoInteractions(acolhidoService, convenioService);
+    }
+
+    @Test
+    void shouldReturnEmptyListWhenTreatmentStageReportHasNoConvenios()
+    {
+        Mockito.when(service.findRelatorioSituacaoInternacoesPorConvenio()).thenReturn(List.of());
+
+        ResponseEntity<List<TreatmentStageByConvenioDto>> response = controller.findRelatorioTreatmentStageByConvenio();
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertNotNull(response.getBody());
+        assertTrue(response.getBody().isEmpty());
+
+        Mockito.verify(service).findRelatorioSituacaoInternacoesPorConvenio();
+        Mockito.verifyNoMoreInteractions(service);
+        Mockito.verifyNoInteractions(acolhidoService, convenioService);
+    }
 
 }
