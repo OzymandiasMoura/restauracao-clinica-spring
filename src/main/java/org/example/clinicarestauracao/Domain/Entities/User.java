@@ -2,7 +2,7 @@ package org.example.clinicarestauracao.Domain.Entities;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.example.clinicarestauracao.Application.Exceptions.UserWithInvalidInformationException;
+import org.example.clinicarestauracao.Application.Exceptions.User.UserWithInvalidInformationException;
 import org.example.clinicarestauracao.Domain.Enums.UserRoles;
 import org.jspecify.annotations.NullMarked;
 import org.springframework.security.core.GrantedAuthority;

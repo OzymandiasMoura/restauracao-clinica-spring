@@ -5,6 +5,8 @@ import org.example.clinicarestauracao.Application.Exceptions.Acolhido.AcolhidoNo
 import org.example.clinicarestauracao.Application.Exceptions.Acolhido.AcolhidoWithInvalidInformationException;
 import org.example.clinicarestauracao.Application.Exceptions.Cargo.CargoNotFoundException;
 import org.example.clinicarestauracao.Application.Exceptions.Cargo.CargoWithInvalidInformationException;
+import org.example.clinicarestauracao.Application.Exceptions.Convenio.ConvenioNotFoundException;
+import org.example.clinicarestauracao.Application.Exceptions.Convenio.ConvenioWithInvalidInformationException;
 import org.example.clinicarestauracao.Application.Exceptions.Endereco.EnderecoWithInvalidInformationException;
 import org.example.clinicarestauracao.Application.Exceptions.Funcionario.FuncionarioNotFoundException;
 import org.example.clinicarestauracao.Application.Exceptions.Funcionario.FuncionarioWithInvalidInformationException;
@@ -13,6 +15,8 @@ import org.example.clinicarestauracao.Application.Exceptions.Internacao.Internac
 import org.example.clinicarestauracao.Application.Exceptions.Responsavel.ResponsavelNotFoundException;
 import org.example.clinicarestauracao.Application.Exceptions.Responsavel.ResponsavelWithInvalidInformationException;
 import org.example.clinicarestauracao.Application.Exceptions.User.UserNotFoundException;
+import org.example.clinicarestauracao.Application.Exceptions.User.UserWithInvalidInformationException;
+import org.example.clinicarestauracao.Application.Exceptions.User.UsernameAlredyInUseException;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

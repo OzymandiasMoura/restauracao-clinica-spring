@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import org.example.clinicarestauracao.Application.Exceptions.ConvenioWithInvalidInformationException;
+import org.example.clinicarestauracao.Application.Exceptions.Convenio.ConvenioWithInvalidInformationException;
 import org.example.clinicarestauracao.Domain.Validation.CnpjValidator;
 
 @Entity

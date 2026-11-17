@@ -1,7 +1,7 @@
 package org.example.clinicarestauracao.Application.Services;
 
-import org.example.clinicarestauracao.Application.Exceptions.ConvenioNotFoundException;
-import org.example.clinicarestauracao.Application.Exceptions.ConvenioWithInvalidInformationException;
+import org.example.clinicarestauracao.Application.Exceptions.Convenio.ConvenioNotFoundException;
+import org.example.clinicarestauracao.Application.Exceptions.Convenio.ConvenioWithInvalidInformationException;
 import org.example.clinicarestauracao.Application.Interfaces.ConvenioRepository;
 import org.example.clinicarestauracao.Application.Interfaces.InternacaoRepository;
 import org.example.clinicarestauracao.Application.Interfaces.TriagemRepository;

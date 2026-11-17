@@ -1,13 +1,12 @@
 package org.example.clinicarestauracao.Application.Services;
 
 import org.example.clinicarestauracao.Application.Exceptions.User.UserNotFoundException;
-import org.example.clinicarestauracao.Application.Exceptions.UserWithInvalidInformationException;
-import org.example.clinicarestauracao.Application.Exceptions.UsernameAlredyInUseException;
+import org.example.clinicarestauracao.Application.Exceptions.User.UserWithInvalidInformationException;
+import org.example.clinicarestauracao.Application.Exceptions.User.UsernameAlredyInUseException;
 import org.example.clinicarestauracao.Application.Interfaces.UserRepository;
 import org.example.clinicarestauracao.Builders.UserTestBuilder;
 import org.example.clinicarestauracao.Domain.Entities.User;
 import org.example.clinicarestauracao.Domain.Enums.UserRoles;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -19,7 +18,6 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.Optional;
 

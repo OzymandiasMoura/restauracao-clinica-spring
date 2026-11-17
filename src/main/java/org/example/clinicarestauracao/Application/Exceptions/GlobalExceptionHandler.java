@@ -7,6 +7,8 @@ import org.example.clinicarestauracao.Application.Exceptions.Acolhido.AcolhidoNo
 import org.example.clinicarestauracao.Application.Exceptions.Acolhido.AcolhidoWithInvalidInformationException;
 import org.example.clinicarestauracao.Application.Exceptions.Cargo.CargoNotFoundException;
 import org.example.clinicarestauracao.Application.Exceptions.Cargo.CargoWithInvalidInformationException;
+import org.example.clinicarestauracao.Application.Exceptions.Convenio.ConvenioNotFoundException;
+import org.example.clinicarestauracao.Application.Exceptions.Convenio.ConvenioWithInvalidInformationException;
 import org.example.clinicarestauracao.Application.Exceptions.Endereco.EnderecoWithInvalidInformationException;
 import org.example.clinicarestauracao.Application.Exceptions.Funcionario.FuncionarioNotFoundException;
 import org.example.clinicarestauracao.Application.Exceptions.Funcionario.FuncionarioWithInvalidInformationException;
@@ -21,6 +23,8 @@ import org.example.clinicarestauracao.Application.Exceptions.Pagamento.Pagamento
 import org.example.clinicarestauracao.Application.Exceptions.Triagem.TriagemNotFoundException;
 import org.example.clinicarestauracao.Application.Exceptions.Triagem.TriagemWithInvalidInformationException;
 import org.example.clinicarestauracao.Application.Exceptions.User.UserNotFoundException;
+import org.example.clinicarestauracao.Application.Exceptions.User.UserWithInvalidInformationException;
+import org.example.clinicarestauracao.Application.Exceptions.User.UsernameAlredyInUseException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;

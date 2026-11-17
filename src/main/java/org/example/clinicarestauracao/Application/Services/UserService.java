@@ -2,7 +2,7 @@ package org.example.clinicarestauracao.Application.Services;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.example.clinicarestauracao.Application.Exceptions.User.UserNotFoundException;
-import org.example.clinicarestauracao.Application.Exceptions.UsernameAlredyInUseException;
+import org.example.clinicarestauracao.Application.Exceptions.User.UsernameAlredyInUseException;
 import org.example.clinicarestauracao.Application.Interfaces.UserRepository;
 import org.example.clinicarestauracao.Domain.Entities.User;
 import org.example.clinicarestauracao.Domain.Enums.UserRoles;

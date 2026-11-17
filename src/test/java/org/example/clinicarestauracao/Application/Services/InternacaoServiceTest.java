@@ -1,6 +1,6 @@
 package org.example.clinicarestauracao.Application.Services;
 
-import org.example.clinicarestauracao.Application.Exceptions.ConvenioNotFoundException;
+import org.example.clinicarestauracao.Application.Exceptions.Convenio.ConvenioNotFoundException;
 import org.example.clinicarestauracao.Application.Exceptions.Internacao.InternacaoNotFoundException;
 import org.example.clinicarestauracao.Application.Exceptions.Internacao.InternacaoWithInvalidInformationException;
 import org.example.clinicarestauracao.Application.Interfaces.InternacaoRepository;

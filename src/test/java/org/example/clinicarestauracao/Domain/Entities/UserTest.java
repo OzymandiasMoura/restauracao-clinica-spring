@@ -1,6 +1,6 @@
 package org.example.clinicarestauracao.Domain.Entities;
 
-import org.example.clinicarestauracao.Application.Exceptions.UserWithInvalidInformationException;
+import org.example.clinicarestauracao.Application.Exceptions.User.UserWithInvalidInformationException;
 import org.example.clinicarestauracao.Builders.UserTestBuilder;
 import org.example.clinicarestauracao.Domain.Enums.UserRoles;
 import org.junit.jupiter.api.Test;

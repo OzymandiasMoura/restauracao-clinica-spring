@@ -2,7 +2,7 @@ package org.example.clinicarestauracao.Application.Controllers;
 
 import org.example.clinicarestauracao.Application.Dtos.ConvenioDtos.ConvenioRequestDto;
 import org.example.clinicarestauracao.Application.Dtos.ConvenioDtos.ConvenioResponseDto;
-import org.example.clinicarestauracao.Application.Exceptions.ConvenioWithInvalidInformationException;
+import org.example.clinicarestauracao.Application.Exceptions.Convenio.ConvenioWithInvalidInformationException;
 import org.example.clinicarestauracao.Application.Services.ConvenioService;
 import org.example.clinicarestauracao.Builders.ConvenioTestBuilder;
 import org.example.clinicarestauracao.Domain.Entities.Convenio;

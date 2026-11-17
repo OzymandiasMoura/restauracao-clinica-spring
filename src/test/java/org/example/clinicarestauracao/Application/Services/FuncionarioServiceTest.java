@@ -2,8 +2,8 @@ package org.example.clinicarestauracao.Application.Services;
 
 import org.example.clinicarestauracao.Application.Exceptions.Funcionario.FuncionarioNotFoundException;
 import org.example.clinicarestauracao.Application.Exceptions.Funcionario.FuncionarioWithInvalidInformationException;
-import org.example.clinicarestauracao.Application.Exceptions.UserWithInvalidInformationException;
-import org.example.clinicarestauracao.Application.Exceptions.UsernameAlredyInUseException;
+import org.example.clinicarestauracao.Application.Exceptions.User.UserWithInvalidInformationException;
+import org.example.clinicarestauracao.Application.Exceptions.User.UsernameAlredyInUseException;
 import org.example.clinicarestauracao.Application.Interfaces.FuncionarioRepository;
 import org.example.clinicarestauracao.Builders.CargoTestBuilder;
 import org.example.clinicarestauracao.Builders.EnderecoTestBuilder;

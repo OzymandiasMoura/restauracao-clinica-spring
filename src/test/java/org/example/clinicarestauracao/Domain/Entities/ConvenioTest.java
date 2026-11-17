@@ -1,6 +1,6 @@
 package org.example.clinicarestauracao.Domain.Entities;
 
-import org.example.clinicarestauracao.Application.Exceptions.ConvenioWithInvalidInformationException;
+import org.example.clinicarestauracao.Application.Exceptions.Convenio.ConvenioWithInvalidInformationException;
 import org.example.clinicarestauracao.Builders.ConvenioTestBuilder;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
