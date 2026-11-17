@@ -2,6 +2,8 @@ package org.example.clinicarestauracao.Application.Controllers.Mappers;
 
 import org.example.clinicarestauracao.Application.Dtos.InternacaoDtos.InternacaoCreateRequestDto;
 import org.example.clinicarestauracao.Application.Dtos.InternacaoDtos.InternacaoResponseDto;
+import org.example.clinicarestauracao.Application.Dtos.InternacaoDtos.InternacoesAtivasByConvenioDto;
+import org.example.clinicarestauracao.Application.Reports.InternacoesAtivasPorConvenio;
 import org.example.clinicarestauracao.Domain.Entities.Acolhido;
 import org.example.clinicarestauracao.Domain.Entities.Convenio;
 import org.example.clinicarestauracao.Domain.Entities.Internacao;
@@ -25,5 +27,10 @@ public final class InternacaoMapper
     public static InternacaoResponseDto entityToResponseDto(Internacao entity)
     {
         return new InternacaoResponseDto(entity.getId(), AcolhidoMapper.entityToResponseDto(entity.getAcolhido()), ConvenioMapper.entityToResponseDto(entity.getConvenio()), entity.getDataEntrada(), entity.getDataSaidaPrevista(), entity.getDataSaida(), entity.getEtapaTratamento(), entity.getValorMensalidade(), entity.getAtivo(), entity.getAlta());
+    }
+
+    public static InternacoesAtivasByConvenioDto reportToResponseDto(InternacoesAtivasPorConvenio report)
+    {
+        return new InternacoesAtivasByConvenioDto(report.convenioId(), report.descricao(), report.quantidadeAtivas());
     }
 }

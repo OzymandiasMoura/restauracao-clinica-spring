@@ -2,10 +2,7 @@ package org.example.clinicarestauracao.Application.Controllers;
 
 import lombok.AllArgsConstructor;
 import org.example.clinicarestauracao.Application.Controllers.Mappers.InternacaoMapper;
-import org.example.clinicarestauracao.Application.Dtos.InternacaoDtos.InternacaoCreateRequestDto;
-import org.example.clinicarestauracao.Application.Dtos.InternacaoDtos.InternacaoEndRequestDto;
-import org.example.clinicarestauracao.Application.Dtos.InternacaoDtos.InternacaoResponseDto;
-import org.example.clinicarestauracao.Application.Dtos.InternacaoDtos.InternacaoUpdateRequestDto;
+import org.example.clinicarestauracao.Application.Dtos.InternacaoDtos.*;
 import org.example.clinicarestauracao.Application.Services.AcolhidoService;
 import org.example.clinicarestauracao.Application.Services.ConvenioService;
 import org.example.clinicarestauracao.Application.Services.InternacaoService;
@@ -101,5 +98,13 @@ public class InternacaoController
         Long qtde = service.countInternacoesAtivasByConvenio(id);
 
         return ResponseEntity.ok().body(qtde);
+    }
+
+    @GetMapping("/relatorios/ativas-por-convenio")
+    public ResponseEntity<List<InternacoesAtivasByConvenioDto>> findRelatorioInternacoesAtivasPorConvenio()
+    {
+        List<InternacoesAtivasByConvenioDto> response = service.findRelatorioInternacoesAtivasPorConvenio().stream().map(InternacaoMapper::reportToResponseDto).toList();
+
+        return ResponseEntity.ok(response);
     }
 }
