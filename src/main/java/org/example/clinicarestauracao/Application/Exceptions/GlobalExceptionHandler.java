@@ -157,6 +157,9 @@ public class GlobalExceptionHandler
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
 
+
+
+    //Acolhido
     @ExceptionHandler(AcolhidoWithInvalidInformationException.class)
     public ResponseEntity<ErrorResponseDto> handleAcolhidoWithInvalidInformation(AcolhidoWithInvalidInformationException ex)
     {

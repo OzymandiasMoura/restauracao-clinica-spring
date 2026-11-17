@@ -1,6 +1,8 @@
 
 package org.example.clinicarestauracao.Infrastruct.Database;
 
+import org.example.clinicarestauracao.Application.Dtos.TriagemDtos.TriagemRequestDto;
+import org.example.clinicarestauracao.Application.Dtos.TriagemDtos.TriagemResponseDto;
 import org.example.clinicarestauracao.Application.Interfaces.*;
 import org.example.clinicarestauracao.Application.Services.*;
 import org.example.clinicarestauracao.Domain.Entities.*;
@@ -47,8 +49,8 @@ public class DevDataInitializer implements ApplicationRunner {
     private final MedicamentoService medicamentoService;
     private final PagamentoRepository pagamentoRepository;
     private final InternacaoRepository internacaoRepository;
-    private final JdbcTemplate jdbcTemplate;
-    private final ResponsavelService responsavelService;
+    private JdbcTemplate jdbcTemplate;
+    private ResponsavelService responsavelService = null;
 
     public DevDataInitializer(
             AcolhidoRepository acolhidoRepository,
@@ -65,11 +67,7 @@ public class DevDataInitializer implements ApplicationRunner {
             ConvenioService convenioService,
             UserService userService,
             MedicamentoService medicamentoService,
-            TriagemService triagemService,
-            PagamentoRepository pagamentoRepository,
-            InternacaoRepository internacaoRepository,
-            JdbcTemplate jdbcTemplate,
-            ResponsavelService responsavelService
+            TriagemService triagemService, PagamentoRepository pagamentoRepository, InternacaoRepository internacaoRepository, JdbcTemplate jdbcTemplate
     ) {
         this.acolhidoRepository = acolhidoRepository;
         this.cargoRepository = cargoRepository;
@@ -86,10 +84,10 @@ public class DevDataInitializer implements ApplicationRunner {
         this.triagemService = triagemService;
         this.userService = userService;
         this.medicamentoService = medicamentoService;
-        this.responsavelService = responsavelService;
         this.pagamentoRepository = pagamentoRepository;
         this.internacaoRepository = internacaoRepository;
         this.jdbcTemplate = jdbcTemplate;
+
     }
 
     @Override
@@ -327,7 +325,7 @@ public class DevDataInitializer implements ApplicationRunner {
                 ),
                 "21955553456",
                 LocalDate.of(1979, 12, 3),
-                helena
+                roberto
         ));
 
         acolhidoService.deactivateAcolhido(marcos.getId());
