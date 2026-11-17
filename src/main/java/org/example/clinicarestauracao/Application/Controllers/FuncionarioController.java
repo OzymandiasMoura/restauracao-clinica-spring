@@ -114,4 +114,12 @@ public class FuncionarioController
 
         return ResponseEntity.noContent().build();
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteFuncionario(@PathVariable Long id)
+    {
+        service.deleteFuncionarioById(id);
+
+        return ResponseEntity.noContent().build();
+    }
 }

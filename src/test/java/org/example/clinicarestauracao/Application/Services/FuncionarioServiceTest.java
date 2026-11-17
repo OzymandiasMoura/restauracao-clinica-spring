@@ -1123,4 +1123,126 @@ class FuncionarioServiceTest
         Mockito.verify(repository).findFuncionarioByUser(receivedUser);
         Mockito.verify(repository, Mockito.never()).save(Mockito.any());
     }
+
+    // Testes deleteFuncionarioById
+
+    @ParameterizedTest
+    @EnumSource(value = UserRoles.class, names = {"USER", "ADMIN"})
+    void shouldDeleteFuncionarioAndDeactivateUser(UserRoles role)
+    {
+        User user = new User(10L, "pedro", "senha123", role);
+        Funcionario funcionario = FuncionarioTestBuilder.newFuncionario().setId(1L).setUser(user).build();
+
+        Mockito.when(repository.findFuncionarioById(1L)).thenReturn(Optional.of(funcionario));
+
+        service.deleteFuncionarioById(1L);
+
+        assertAll(
+                () -> assertFalse(user.isEnabled()),
+                () -> assertEquals(UserRoles.NO_ACCESS, user.getRole()),
+                () -> assertEquals(role, user.getPreviousRole()),
+                () -> assertEquals(10L, user.getId()),
+                () -> assertEquals("pedro", user.getUsername()),
+                () -> assertEquals("senha123", user.getPassword()),
+                () -> assertSame(user, funcionario.getUser())
+        );
+
+        Mockito.verify(repository).findFuncionarioById(1L);
+        Mockito.verify(repository).delete(Mockito.same(funcionario));
+        Mockito.verifyNoMoreInteractions(repository);
+        Mockito.verifyNoInteractions(userService);
+    }
+
+    @ParameterizedTest
+    @EnumSource(value = UserRoles.class, names = {"USER", "ADMIN"})
+    void shouldDeleteDismissedFuncionarioWithoutChangingBlockedUser(UserRoles previousRole)
+    {
+        User user = new User(10L, "pedro", "senha123", previousRole);
+        user.deactivate();
+
+        LocalDate dataDemissao = LocalDate.now().minusDays(1);
+        Funcionario funcionario = FuncionarioTestBuilder.newFuncionario().setId(1L).setUser(user).setAtivo(false).setDataDemissao(dataDemissao).build();
+
+        Mockito.when(repository.findFuncionarioById(1L)).thenReturn(Optional.of(funcionario));
+
+        service.deleteFuncionarioById(1L);
+
+        assertAll(
+                () -> assertFalse(user.isEnabled()),
+                () -> assertEquals(UserRoles.NO_ACCESS, user.getRole()),
+                () -> assertEquals(previousRole, user.getPreviousRole()),
+                () -> assertSame(user, funcionario.getUser()),
+                () -> assertEquals(dataDemissao, funcionario.getDataDemissao())
+        );
+
+        Mockito.verify(repository).findFuncionarioById(1L);
+        Mockito.verify(repository).delete(Mockito.same(funcionario));
+        Mockito.verifyNoMoreInteractions(repository);
+        Mockito.verifyNoInteractions(userService);
+    }
+
+    @Test
+    void shouldDeleteFuncionarioWithLegacyBlockedUserWithoutPreviousRole()
+    {
+        User user = new User(10L, "pedro", "senha123", UserRoles.NO_ACCESS);
+        Funcionario funcionario = FuncionarioTestBuilder.newFuncionario().setId(1L).setUser(user).build();
+
+        Mockito.when(repository.findFuncionarioById(1L)).thenReturn(Optional.of(funcionario));
+
+        service.deleteFuncionarioById(1L);
+
+        assertAll(
+                () -> assertFalse(user.isEnabled()),
+                () -> assertEquals(UserRoles.NO_ACCESS, user.getRole()),
+                () -> assertNull(user.getPreviousRole())
+        );
+
+        Mockito.verify(repository).findFuncionarioById(1L);
+        Mockito.verify(repository).delete(Mockito.same(funcionario));
+        Mockito.verifyNoMoreInteractions(repository);
+        Mockito.verifyNoInteractions(userService);
+    }
+
+    @Test
+    void shouldRejectDeletingFuncionarioWithoutUser()
+    {
+        Funcionario funcionario = FuncionarioTestBuilder.newFuncionario().setId(1L).buildWithNullUser();
+
+        Mockito.when(repository.findFuncionarioById(1L)).thenReturn(Optional.of(funcionario));
+
+        FuncionarioWithInvalidInformationException exception = assertThrows(FuncionarioWithInvalidInformationException.class, () -> service.deleteFuncionarioById(1L));
+
+        assertEquals("Funcionário não possui usuário vinculado.", exception.getMessage());
+
+        Mockito.verify(repository).findFuncionarioById(1L);
+        Mockito.verifyNoMoreInteractions(repository);
+        Mockito.verifyNoInteractions(userService);
+    }
+
+    @Test
+    void shouldRejectDeletingNonexistentFuncionario()
+    {
+        Mockito.when(repository.findFuncionarioById(1L)).thenReturn(Optional.empty());
+
+        FuncionarioNotFoundException exception = assertThrows(FuncionarioNotFoundException.class, () -> service.deleteFuncionarioById(1L));
+
+        assertEquals("Funcionário não encontrado.", exception.getMessage());
+
+        Mockito.verify(repository).findFuncionarioById(1L);
+        Mockito.verifyNoMoreInteractions(repository);
+        Mockito.verifyNoInteractions(userService);
+    }
+
+    @ParameterizedTest
+    @NullSource
+    @ValueSource(longs = {0, -1, -10})
+    void shouldRejectDeletingFuncionarioWithInvalidId(Long id)
+    {
+        FuncionarioNotFoundException exception = assertThrows(FuncionarioNotFoundException.class, () -> service.deleteFuncionarioById(id));
+
+        assertEquals("Funcionário não encontrado.", exception.getMessage());
+
+        Mockito.verifyNoInteractions(repository, userService);
+    }
+
 }

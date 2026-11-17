@@ -394,4 +394,19 @@ class FuncionarioControllerTest
         Mockito.verifyNoInteractions(cargoService);
     }
 
+    @Test
+    void shouldDeleteFuncionarioSuccessfully()
+    {
+        Long id = 1L;
+
+        ResponseEntity<Void> response = controller.deleteFuncionario(id);
+
+        assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
+        assertNull(response.getBody());
+
+        Mockito.verify(service).deleteFuncionarioById(id);
+        Mockito.verifyNoInteractions(cargoService, userService);
+    }
+
+
 }

@@ -231,4 +231,23 @@ public class FuncionarioService
         f.setUser(user);
         repository.save(f);
     }
+
+    @Transactional
+    public void deleteFuncionarioById(Long id)
+    {
+        Funcionario funcionario = findFuncionarioById(id);
+        User user = funcionario.getUser();
+
+        if (user == null)
+        {
+            throw new FuncionarioWithInvalidInformationException("Funcionário não possui usuário vinculado.");
+        }
+
+        if (user.isEnabled())
+        {
+            user.deactivate();
+        }
+
+        repository.delete(funcionario);
+    }
 }
