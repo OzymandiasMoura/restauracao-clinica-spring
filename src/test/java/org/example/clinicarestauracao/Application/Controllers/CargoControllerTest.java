@@ -216,4 +216,20 @@ class CargoControllerTest
         Mockito.verify(service).reactivateCargoById(1L);
     }
 
+    // Teste deleteCargo
+
+    @Test
+    void shouldDeleteCargoAndReturnNoContent()
+    {
+        ResponseEntity<Void> response = controller.deleteCargo(1L);
+
+        assertAll(
+                () -> assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode()),
+                () -> assertNull(response.getBody())
+        );
+
+        Mockito.verify(service).deleteCargo(1L);
+        Mockito.verifyNoMoreInteractions(service);
+    }
+
 }

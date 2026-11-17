@@ -475,4 +475,71 @@ class CargoServiceTest
         Mockito.verify(funcionarioRepository).existsByCargoAndAtivoTrue(existing);
         Mockito.verify(repository, Mockito.never()).save(Mockito.any());
     }
+
+    // Testes deleteCargo
+
+    @ParameterizedTest
+    @ValueSource(booleans = {true, false})
+    void shouldDeleteCargoWithoutLinkedFuncionarios(boolean ativo)
+    {
+        Cargo cargo = CargoTestBuilder.newCargo().setId(1L).setAtivo(ativo).build();
+
+        Mockito.when(repository.findCargoById(1L)).thenReturn(Optional.of(cargo));
+        Mockito.when(funcionarioRepository.existsByCargo(Mockito.same(cargo))).thenReturn(false);
+
+        service.deleteCargo(1L);
+
+        Mockito.verify(repository).findCargoById(1L);
+        Mockito.verify(funcionarioRepository).existsByCargo(Mockito.same(cargo));
+        Mockito.verify(repository).delete(Mockito.same(cargo));
+        Mockito.verifyNoMoreInteractions(repository, funcionarioRepository);
+    }
+
+    @ParameterizedTest
+    @ValueSource(booleans = {true, false})
+    void shouldRejectDeletingCargoWithLinkedFuncionarios(boolean ativo)
+    {
+        Cargo cargo = CargoTestBuilder.newCargo().setId(1L).setAtivo(ativo).build();
+
+        Mockito.when(repository.findCargoById(1L)).thenReturn(Optional.of(cargo));
+        Mockito.when(funcionarioRepository.existsByCargo(Mockito.same(cargo))).thenReturn(true);
+
+        CargoWithInvalidInformationException exception = assertThrows(CargoWithInvalidInformationException.class, () -> service.deleteCargo(1L));
+
+        assertAll(
+                () -> assertEquals("Cargo possui funcionário cadastrado.", exception.getMessage()),
+                () -> assertEquals(ativo, cargo.isAtivo())
+        );
+
+        Mockito.verify(repository).findCargoById(1L);
+        Mockito.verify(funcionarioRepository).existsByCargo(Mockito.same(cargo));
+        Mockito.verify(repository, Mockito.never()).delete(Mockito.any(Cargo.class));
+        Mockito.verifyNoMoreInteractions(repository, funcionarioRepository);
+    }
+
+    @Test
+    void shouldRejectDeletingNonexistentCargo()
+    {
+        Mockito.when(repository.findCargoById(1L)).thenReturn(Optional.empty());
+
+        CargoNotFoundException exception = assertThrows(CargoNotFoundException.class, () -> service.deleteCargo(1L));
+
+        assertEquals("Cargo não encontrado.", exception.getMessage());
+
+        Mockito.verify(repository).findCargoById(1L);
+        Mockito.verifyNoMoreInteractions(repository);
+        Mockito.verifyNoInteractions(funcionarioRepository);
+    }
+
+    @ParameterizedTest
+    @NullSource
+    @ValueSource(longs = {0, -1, -10})
+    void shouldRejectDeletingCargoWithInvalidId(Long id)
+    {
+        CargoNotFoundException exception = assertThrows(CargoNotFoundException.class, () -> service.deleteCargo(id));
+
+        assertEquals("Cargo não encontrado.", exception.getMessage());
+
+        Mockito.verifyNoInteractions(repository, funcionarioRepository);
+    }
 }

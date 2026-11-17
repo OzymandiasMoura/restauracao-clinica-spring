@@ -94,4 +94,12 @@ public class CargoController
 
         return ResponseEntity.noContent().build();
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteCargo(@PathVariable Long id)
+    {
+        service.deleteCargo(id);
+
+        return ResponseEntity.noContent().build();
+    }
 }

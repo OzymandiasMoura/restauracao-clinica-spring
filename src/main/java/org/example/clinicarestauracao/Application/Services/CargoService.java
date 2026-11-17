@@ -109,4 +109,17 @@ public class CargoService
         cargo.activate();
         repository.save(cargo);
     }
+
+    @Transactional
+    public void deleteCargo(Long id)
+    {
+        Cargo cargo = this.findCargoById(id);
+
+        if (funcionarioRepository.existsByCargo(cargo))
+        {
+            throw new CargoWithInvalidInformationException("Cargo possui funcionário cadastrado.");
+        }
+
+        repository.delete(cargo);
+    }
 }
