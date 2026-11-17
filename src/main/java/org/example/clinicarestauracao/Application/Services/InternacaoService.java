@@ -5,12 +5,12 @@ import lombok.AllArgsConstructor;
 import org.example.clinicarestauracao.Application.Exceptions.Internacao.InternacaoNotFoundException;
 import org.example.clinicarestauracao.Application.Exceptions.Internacao.InternacaoWithInvalidInformationException;
 import org.example.clinicarestauracao.Application.Interfaces.InternacaoRepository;
-import org.example.clinicarestauracao.Application.Reports.InternacoesAtivasPorConvenio;
+import org.example.clinicarestauracao.Application.Reports.InternacoesAtivasByConvenio;
+import org.example.clinicarestauracao.Application.Reports.TreatmentStageByConvenio;
 import org.example.clinicarestauracao.Domain.Entities.Acolhido;
 import org.example.clinicarestauracao.Domain.Entities.Convenio;
 import org.example.clinicarestauracao.Domain.Entities.Internacao;
 import org.example.clinicarestauracao.Domain.Enums.AltaTypes;
-import org.example.clinicarestauracao.Domain.Enums.TreatmentStage;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -158,8 +158,13 @@ public class InternacaoService
         return qtde;
     }
 
-    public List<InternacoesAtivasPorConvenio> findRelatorioInternacoesAtivasPorConvenio()
+    public List<InternacoesAtivasByConvenio> findRelatorioInternacoesAtivasPorConvenio()
     {
         return repository.countInternacoesAtivasPorConvenio();
+    }
+
+    public List<TreatmentStageByConvenio> findRelatorioSituacaoInternacoesPorConvenio()
+    {
+        return repository.findTreatmentStageByConvenio();
     }
 }

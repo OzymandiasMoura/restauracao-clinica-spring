@@ -4,7 +4,8 @@ import org.example.clinicarestauracao.Application.Exceptions.ConvenioNotFoundExc
 import org.example.clinicarestauracao.Application.Exceptions.Internacao.InternacaoNotFoundException;
 import org.example.clinicarestauracao.Application.Exceptions.Internacao.InternacaoWithInvalidInformationException;
 import org.example.clinicarestauracao.Application.Interfaces.InternacaoRepository;
-import org.example.clinicarestauracao.Application.Reports.InternacoesAtivasPorConvenio;
+import org.example.clinicarestauracao.Application.Reports.InternacoesAtivasByConvenio;
+import org.example.clinicarestauracao.Application.Reports.TreatmentStageByConvenio;
 import org.example.clinicarestauracao.Builders.AcolhidoTestBuilder;
 import org.example.clinicarestauracao.Builders.ConvenioTestBuilder;
 import org.example.clinicarestauracao.Builders.InternacaoTestBuilder;
@@ -802,14 +803,14 @@ class InternacaoServiceTest
     @Test
     void shouldFindActiveInternacoesReportByConvenio()
     {
-        List<InternacoesAtivasPorConvenio> relatorio = List.of(
-                new InternacoesAtivasPorConvenio(1L, "Social", 12L),
-                new InternacoesAtivasPorConvenio(2L, "Particular", 0L)
+        List<InternacoesAtivasByConvenio> relatorio = List.of(
+                new InternacoesAtivasByConvenio(1L, "Social", 12L),
+                new InternacoesAtivasByConvenio(2L, "Particular", 0L)
         );
 
         Mockito.when(repository.countInternacoesAtivasPorConvenio()).thenReturn(relatorio);
 
-        List<InternacoesAtivasPorConvenio> response = service.findRelatorioInternacoesAtivasPorConvenio();
+        List<InternacoesAtivasByConvenio> response = service.findRelatorioInternacoesAtivasPorConvenio();
 
         assertEquals(relatorio, response);
 
@@ -823,11 +824,46 @@ class InternacaoServiceTest
     {
         Mockito.when(repository.countInternacoesAtivasPorConvenio()).thenReturn(List.of());
 
-        List<InternacoesAtivasPorConvenio> response = service.findRelatorioInternacoesAtivasPorConvenio();
+        List<InternacoesAtivasByConvenio> response = service.findRelatorioInternacoesAtivasPorConvenio();
 
         assertTrue(response.isEmpty());
 
         Mockito.verify(repository).countInternacoesAtivasPorConvenio();
+        Mockito.verifyNoMoreInteractions(repository);
+        Mockito.verifyNoInteractions(acolhidoService, convenioService);
+    }
+
+    // Testes findRelatorioSituacaoInternacoesPorConvenio
+
+    @Test
+    void shouldFindInternacoesSituationReportByConvenio()
+    {
+        List<TreatmentStageByConvenio> relatorio = List.of(
+                new TreatmentStageByConvenio(1L, "Social", 8L, 3L, 1L, 12L, 24L),
+                new TreatmentStageByConvenio(2L, "Particular", 0L, 0L, 0L, 0L, 0L)
+        );
+
+        Mockito.when(repository.findTreatmentStageByConvenio()).thenReturn(relatorio);
+
+        List<TreatmentStageByConvenio> response = service.findRelatorioSituacaoInternacoesPorConvenio();
+
+        assertEquals(relatorio, response);
+
+        Mockito.verify(repository).findTreatmentStageByConvenio();
+        Mockito.verifyNoMoreInteractions(repository);
+        Mockito.verifyNoInteractions(acolhidoService, convenioService);
+    }
+
+    @Test
+    void shouldReturnEmptySituationReportWhenThereAreNoConvenios()
+    {
+        Mockito.when(repository.findTreatmentStageByConvenio()).thenReturn(List.of());
+
+        List<TreatmentStageByConvenio> response = service.findRelatorioSituacaoInternacoesPorConvenio();
+
+        assertTrue(response.isEmpty());
+
+        Mockito.verify(repository).findTreatmentStageByConvenio();
         Mockito.verifyNoMoreInteractions(repository);
         Mockito.verifyNoInteractions(acolhidoService, convenioService);
     }
