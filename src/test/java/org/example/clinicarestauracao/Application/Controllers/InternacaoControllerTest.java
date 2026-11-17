@@ -1,9 +1,7 @@
 package org.example.clinicarestauracao.Application.Controllers;
 
-import org.example.clinicarestauracao.Application.Dtos.InternacaoDtos.InternacaoCreateRequestDto;
-import org.example.clinicarestauracao.Application.Dtos.InternacaoDtos.InternacaoEndRequestDto;
-import org.example.clinicarestauracao.Application.Dtos.InternacaoDtos.InternacaoResponseDto;
-import org.example.clinicarestauracao.Application.Dtos.InternacaoDtos.InternacaoUpdateRequestDto;
+import org.example.clinicarestauracao.Application.Dtos.InternacaoDtos.*;
+import org.example.clinicarestauracao.Application.Reports.InternacoesAtivasPorConvenio;
 import org.example.clinicarestauracao.Application.Services.AcolhidoService;
 import org.example.clinicarestauracao.Application.Services.ConvenioService;
 import org.example.clinicarestauracao.Application.Services.InternacaoService;
@@ -535,5 +533,49 @@ class InternacaoControllerTest
         Mockito.verifyNoMoreInteractions(service);
         Mockito.verifyNoInteractions(acolhidoService, convenioService);
     }
+    // Testes findRelatorioInternacoesAtivasPorConvenio
+
+    @Test
+    void shouldFindActiveInternacoesReportByConvenioSuccessfully()
+    {
+        List<InternacoesAtivasPorConvenio> relatorio = List.of(new InternacoesAtivasPorConvenio(1L, "Social", 12L), new InternacoesAtivasPorConvenio(2L, "Particular", 0L)
+        );
+
+        Mockito.when(service.findRelatorioInternacoesAtivasPorConvenio()).thenReturn(relatorio);
+
+        ResponseEntity<List<InternacoesAtivasByConvenioDto>> response = controller.findRelatorioInternacoesAtivasPorConvenio();
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertNotNull(response.getBody());
+
+        List<InternacoesAtivasByConvenioDto> esperado = List.of(
+                new InternacoesAtivasByConvenioDto(1L, "Social", 12L),
+                new InternacoesAtivasByConvenioDto(2L, "Particular", 0L)
+        );
+
+        assertEquals(esperado, response.getBody());
+
+        Mockito.verify(service).findRelatorioInternacoesAtivasPorConvenio();
+        Mockito.verifyNoMoreInteractions(service);
+        Mockito.verifyNoInteractions(acolhidoService, convenioService);
+    }
+
+    @Test
+    void shouldReturnEmptyListWhenReportHasNoConvenios()
+    {
+        Mockito.when(service.findRelatorioInternacoesAtivasPorConvenio()).thenReturn(List.of());
+
+        ResponseEntity<List<InternacoesAtivasByConvenioDto>> response = controller.findRelatorioInternacoesAtivasPorConvenio();
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertNotNull(response.getBody());
+        assertTrue(response.getBody().isEmpty());
+
+        Mockito.verify(service).findRelatorioInternacoesAtivasPorConvenio();
+        Mockito.verifyNoMoreInteractions(service);
+        Mockito.verifyNoInteractions(acolhidoService, convenioService);
+    }
+
+
 
 }

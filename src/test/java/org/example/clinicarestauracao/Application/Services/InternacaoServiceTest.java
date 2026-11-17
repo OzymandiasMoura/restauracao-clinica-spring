@@ -4,6 +4,7 @@ import org.example.clinicarestauracao.Application.Exceptions.ConvenioNotFoundExc
 import org.example.clinicarestauracao.Application.Exceptions.Internacao.InternacaoNotFoundException;
 import org.example.clinicarestauracao.Application.Exceptions.Internacao.InternacaoWithInvalidInformationException;
 import org.example.clinicarestauracao.Application.Interfaces.InternacaoRepository;
+import org.example.clinicarestauracao.Application.Reports.InternacoesAtivasPorConvenio;
 import org.example.clinicarestauracao.Builders.AcolhidoTestBuilder;
 import org.example.clinicarestauracao.Builders.ConvenioTestBuilder;
 import org.example.clinicarestauracao.Builders.InternacaoTestBuilder;
@@ -794,6 +795,41 @@ class InternacaoServiceTest
         Mockito.verify(convenioService).findConvenioById(id);
         Mockito.verifyNoMoreInteractions(convenioService);
         Mockito.verifyNoInteractions(repository, acolhidoService);
+    }
+
+    // Testes findRelatorioInternacoesAtivasPorConvenio
+
+    @Test
+    void shouldFindActiveInternacoesReportByConvenio()
+    {
+        List<InternacoesAtivasPorConvenio> relatorio = List.of(
+                new InternacoesAtivasPorConvenio(1L, "Social", 12L),
+                new InternacoesAtivasPorConvenio(2L, "Particular", 0L)
+        );
+
+        Mockito.when(repository.countInternacoesAtivasPorConvenio()).thenReturn(relatorio);
+
+        List<InternacoesAtivasPorConvenio> response = service.findRelatorioInternacoesAtivasPorConvenio();
+
+        assertEquals(relatorio, response);
+
+        Mockito.verify(repository).countInternacoesAtivasPorConvenio();
+        Mockito.verifyNoMoreInteractions(repository);
+        Mockito.verifyNoInteractions(acolhidoService, convenioService);
+    }
+
+    @Test
+    void shouldReturnEmptyReportWhenThereAreNoConvenios()
+    {
+        Mockito.when(repository.countInternacoesAtivasPorConvenio()).thenReturn(List.of());
+
+        List<InternacoesAtivasPorConvenio> response = service.findRelatorioInternacoesAtivasPorConvenio();
+
+        assertTrue(response.isEmpty());
+
+        Mockito.verify(repository).countInternacoesAtivasPorConvenio();
+        Mockito.verifyNoMoreInteractions(repository);
+        Mockito.verifyNoInteractions(acolhidoService, convenioService);
     }
 
 }

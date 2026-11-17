@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import org.example.clinicarestauracao.Application.Exceptions.Internacao.InternacaoNotFoundException;
 import org.example.clinicarestauracao.Application.Exceptions.Internacao.InternacaoWithInvalidInformationException;
 import org.example.clinicarestauracao.Application.Interfaces.InternacaoRepository;
+import org.example.clinicarestauracao.Application.Reports.InternacoesAtivasPorConvenio;
 import org.example.clinicarestauracao.Domain.Entities.Acolhido;
 import org.example.clinicarestauracao.Domain.Entities.Convenio;
 import org.example.clinicarestauracao.Domain.Entities.Internacao;
@@ -155,5 +156,10 @@ public class InternacaoService
         long qtde = repository.countByConvenioAndAtivoTrue(convenio);
 
         return qtde;
+    }
+
+    public List<InternacoesAtivasPorConvenio> findRelatorioInternacoesAtivasPorConvenio()
+    {
+        return repository.countInternacoesAtivasPorConvenio();
     }
 }
