@@ -1,8 +1,6 @@
 
 package org.example.clinicarestauracao.Infrastruct.Database;
 
-import org.example.clinicarestauracao.Application.Dtos.TriagemDtos.TriagemRequestDto;
-import org.example.clinicarestauracao.Application.Dtos.TriagemDtos.TriagemResponseDto;
 import org.example.clinicarestauracao.Application.Interfaces.*;
 import org.example.clinicarestauracao.Application.Services.*;
 import org.example.clinicarestauracao.Domain.Entities.*;
@@ -21,9 +19,9 @@ import org.springframework.jdbc.support.KeyHolder;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.YearMonth;
 import java.sql.Date;
 import java.sql.PreparedStatement;
-import java.time.YearMonth;
 
 @Component
 @Profile("dev")
@@ -67,9 +65,10 @@ public class DevDataInitializer implements ApplicationRunner {
             ConvenioService convenioService,
             UserService userService,
             MedicamentoService medicamentoService,
-            TriagemService triagemService, PagamentoRepository pagamentoRepository,
-            InternacaoRepository internacaoRepository, JdbcTemplate jdbcTemplate
             TriagemService triagemService,
+            PagamentoRepository pagamentoRepository,
+            InternacaoRepository internacaoRepository,
+            JdbcTemplate jdbcTemplate,
             ResponsavelService responsavelService
     ) {
         this.acolhidoRepository = acolhidoRepository;
@@ -299,7 +298,8 @@ public class DevDataInitializer implements ApplicationRunner {
                         "Apartamento 42"
                 ),
                 "11955551234",
-                LocalDate.of(1990, 3, 15)
+                LocalDate.of(1990, 3, 15),
+                roberto
         ));
 
         acolhidoService.createAcolhido(new Acolhido(
@@ -312,7 +312,8 @@ public class DevDataInitializer implements ApplicationRunner {
                         "Centro", "Belo Horizonte", "MG"
                 ),
                 "31955552345",
-                LocalDate.of(1987, 7, 22)
+                LocalDate.of(1987, 7, 22),
+                helena
         ));
 
         Acolhido marcos = acolhidoService.createAcolhido(new Acolhido(
@@ -325,7 +326,8 @@ public class DevDataInitializer implements ApplicationRunner {
                         "Centro", "Rio de Janeiro", "RJ"
                 ),
                 "21955553456",
-                LocalDate.of(1979, 12, 3)
+                LocalDate.of(1979, 12, 3),
+                helena
         ));
 
         acolhidoService.deactivateAcolhido(marcos.getId());
@@ -386,18 +388,20 @@ public class DevDataInitializer implements ApplicationRunner {
                 )
         );
 
-        // Triagem 2 - AGENDADA
-        triagemService.createTriagem(
-                new Triagem(
-                        clinicaParceira,
-                        "Maria Eduarda Santos",
-                        "11976543210",
-                        agora.plusDays(2),
-                        "Possível acolhida demonstrou interesse."
-                )
+        // Triagem 2 - CONCLUIDA: salvamos a entidade para obter seu ID.
+        Triagem triagemConcluida = triagemRepository.save(
+
+                triagemService.createTriagem(
+                        new Triagem(
+                                clinicaParceira,
+                                "Maria Eduarda Santos",
+                                "11976543210",
+                                agora.plusDays(2),
+                                "Possível acolhida demonstrou interesse."
+                        ))
         );
 
-        triagemService.concluir(triagemConcluida.id());
+
 
         // Triagem 3 - AGENDADA
         triagemService.createTriagem(
@@ -422,7 +426,7 @@ public class DevDataInitializer implements ApplicationRunner {
         );
 
         // Triagem 5 - Teste do Scheduler
-        // Após um minuto deve mudar para ATRASADA
+        // Pela regra atual, só fica ATRASADA após virar o dia.
         triagemService.createTriagem(
                 new Triagem(
                         atendimentoSocial,
@@ -453,66 +457,48 @@ public class DevDataInitializer implements ApplicationRunner {
         // PAGAMENTOS MOCKADOS
         // =========================
 
-        // Gabriel: 300 + 250 + 400 = R$ 950,00
-
-        // =========================
-        // PAGAMENTOS MOCKADOS
-        // =========================
-
-        // Gabriel: 300 + 250 + 400 = R$ 950,00
-
-        LocalDate dataPagamentoGabriel1 = LocalDate.now().minusDays(20);
+        // Competencias distintas por internacao (um pagamento ATIVO por competencia).
+        // Valores parciais sao intencionais para testar a regra de observacao.
+        // O terceiro pagamento do Gabriel e um adiantamento de competencia futura.
+        YearMonth competenciaGabriel = YearMonth.from(internacaoGabriel.getDataEntrada());
+        YearMonth competenciaJuliana = YearMonth.from(internacaoJuliana.getDataEntrada());
 
         pagamentoRepository.save(new Pagamento(
                 new BigDecimal("300.00"),
-                dataPagamentoGabriel1,
+                LocalDate.now().minusDays(20),
                 internacaoGabriel,
-                YearMonth.from(dataPagamentoGabriel1).toString(),
-                "Primeiro pagamento parcial da mensalidade."
+                competenciaGabriel.toString(),
+                "Pagamento parcial da primeira competencia."
         ));
-
-        LocalDate dataPagamentoGabriel2 = LocalDate.now().minusDays(10);
-
         pagamentoRepository.save(new Pagamento(
                 new BigDecimal("250.00"),
-                dataPagamentoGabriel2,
+                LocalDate.now().minusDays(10),
                 internacaoGabriel,
-                YearMonth.from(dataPagamentoGabriel2).toString(),
-                "Segundo pagamento parcial."
+                competenciaGabriel.plusMonths(1).toString(),
+                "Pagamento parcial da segunda competencia."
         ));
-
-        LocalDate dataPagamentoGabriel3 = LocalDate.now().minusDays(2);
-
         pagamentoRepository.save(new Pagamento(
                 new BigDecimal("400.00"),
-                dataPagamentoGabriel3,
+                LocalDate.now().minusDays(2),
                 internacaoGabriel,
-                YearMonth.from(dataPagamentoGabriel3).toString(),
-                "Complemento do pagamento da mensalidade."
+                competenciaGabriel.plusMonths(2).toString(),
+                "Adiantamento parcial de competencia futura."
         ));
-
-        // Juliana: 500 + 500 = R$ 1.000,00
-
-        LocalDate dataPagamentoJuliana1 = LocalDate.now().minusDays(15);
 
         pagamentoRepository.save(new Pagamento(
                 new BigDecimal("500.00"),
-                dataPagamentoJuliana1,
+                LocalDate.now().minusDays(15),
                 internacaoJuliana,
-                YearMonth.from(dataPagamentoJuliana1).toString(),
-                "Pagamento parcial da mensalidade."
+                competenciaJuliana.toString(),
+                "Pagamento parcial da primeira competencia."
         ));
-
-        LocalDate dataPagamentoJuliana2 = LocalDate.now().minusDays(5);
-
         pagamentoRepository.save(new Pagamento(
                 new BigDecimal("500.00"),
-                dataPagamentoJuliana2,
+                LocalDate.now().minusDays(5),
                 internacaoJuliana,
-                YearMonth.from(dataPagamentoJuliana2).toString(),
-                "Complemento do pagamento da mensalidade."
+                competenciaJuliana.plusMonths(1).toString(),
+                "Pagamento parcial da segunda competencia."
         ));
-
     }
 
     private Acolhido buscarAcolhidoMock(Long id, String nomeEsperado) {

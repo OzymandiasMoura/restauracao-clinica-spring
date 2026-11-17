@@ -24,4 +24,10 @@ public interface PagamentoRepository extends JpaRepository<Pagamento, Long> {
     );
 
     List<Pagamento> findByInternacaoId(Long internacaoId);
+
+    boolean existsByInternacaoIdAndCompetenciaAndStatus(
+            Long internacaoId,
+            String competencia,
+            PagamentoStatus status
+    );
 }
