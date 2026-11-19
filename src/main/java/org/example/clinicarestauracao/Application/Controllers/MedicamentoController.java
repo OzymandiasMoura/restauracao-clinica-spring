@@ -1,4 +1,3 @@
-
 package org.example.clinicarestauracao.Application.Controllers;
 
 import jakarta.validation.Valid;
@@ -7,7 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.example.clinicarestauracao.Application.Controllers.Mappers.MedicamentoMapper;
 import org.example.clinicarestauracao.Application.Dtos.MedicamentoDtos.MedicamentoRequestDto;
 import org.example.clinicarestauracao.Application.Dtos.MedicamentoDtos.MedicamentoResponseDto;
-import org.example.clinicarestauracao.Application.Dtos.MedicamentoDtos.MovimentacaoEstoqueRequestDto;
+import org.example.clinicarestauracao.Application.Dtos.MovimentacaoEstoqueDtos.MovimentacaoEstoqueRequestDto;
 import org.example.clinicarestauracao.Application.Dtos.MovimentacaoEstoqueDtos.MovimentacaoEstoqueResponseDto;
 
 import org.example.clinicarestauracao.Application.Services.MedicamentoService;

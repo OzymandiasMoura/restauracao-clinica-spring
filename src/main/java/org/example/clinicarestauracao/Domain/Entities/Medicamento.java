@@ -91,7 +91,7 @@ public class Medicamento {
         this.preco = preco;
     }
 
-    public void setQuantidadeEstoque(int quantidadeEstoque) {
+    private void setQuantidadeEstoque(int quantidadeEstoque) {
 
         if (quantidadeEstoque < 0) {
             throw new MedicamentoWithInvalidInformationException(

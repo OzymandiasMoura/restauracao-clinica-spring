@@ -19,4 +19,5 @@ public interface MovimentacaoEstoqueRepository
             Long medicamentoId
     );
 
+    boolean existsByMedicamentoId(Long id);
 }

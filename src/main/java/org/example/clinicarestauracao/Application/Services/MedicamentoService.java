@@ -3,11 +3,13 @@ package org.example.clinicarestauracao.Application.Services;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+
 import org.example.clinicarestauracao.Application.Exceptions.Medicamento.MedicamentoNotFoundException;
 import org.example.clinicarestauracao.Application.Exceptions.Medicamento.MedicamentoWithInvalidInformationException;
 import org.example.clinicarestauracao.Application.Interfaces.MedicamentoRepository;
+import org.example.clinicarestauracao.Application.Interfaces.MovimentacaoEstoqueRepository;
 import org.example.clinicarestauracao.Domain.Entities.Medicamento;
-import org.example.clinicarestauracao.Infrastruct.Database.Audit.DatabaseAuditContext;
+
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -17,7 +19,7 @@ import java.util.List;
 public class MedicamentoService {
 
     private final MedicamentoRepository medicamentoRepository;
-    private final DatabaseAuditContext audit;
+    private final MovimentacaoEstoqueRepository movimentacaoRepository;
 
     public List<Medicamento> findAll() {
         return medicamentoRepository.findAll();
@@ -26,44 +28,32 @@ public class MedicamentoService {
 
     public Medicamento findMedicamentoById(Long id) {
         return medicamentoRepository.findById(id)
-                .orElseThrow(() ->
-                        new MedicamentoNotFoundException(
-                                "Medicamento não encontrado com o ID: " + id
-                        )
-                );
+                .orElseThrow(() -> new MedicamentoNotFoundException(
+                        "Medicamento não encontrado com o ID: " + id
+                ));
     }
 
     public Medicamento findMedicamentoByNome(String nome) {
         return medicamentoRepository.findByNomeIgnoreCase(nome)
-                .orElseThrow(() ->
-                        new MedicamentoNotFoundException(
-                                "Medicamento não encontrado com o nome: " + nome
-                        )
-                );
+                .orElseThrow(() -> new MedicamentoNotFoundException(
+                        "Medicamento não encontrado com o nome: " + nome
+                ));
     }
 
     @Transactional
     public Medicamento create(Medicamento medicamento) {
-        medicamento.setNome(medicamento.getNome());
         validarNomeDuplicado(medicamento.getNome());
         return medicamentoRepository.save(medicamento);
     }
 
     @Transactional
-    public Medicamento update(Long id, Medicamento dadosAtualizados) {
+    public Medicamento update(Long id, Medicamento dados) {
 
         Medicamento medicamento = findMedicamentoById(id);
 
-        if (!medicamento.getNome().equalsIgnoreCase(
-                dadosAtualizados.getNome())) {
-
-            validarNomeDuplicado(dadosAtualizados.getNome());
-        }
-
-        medicamento.setNome(dadosAtualizados.getNome());
-        medicamento.setPreco(dadosAtualizados.getPreco());
-        medicamento.setQuantidadeEstoque(dadosAtualizados.getQuantidadeEstoque());
-        medicamento.setQuantidadeMinima(dadosAtualizados.getQuantidadeMinima());
+        medicamento.setNome(dados.getNome());
+        medicamento.setPreco(dados.getPreco());
+        medicamento.setQuantidadeMinima(dados.getQuantidadeMinima());
 
         return medicamentoRepository.save(medicamento);
     }
@@ -73,49 +63,16 @@ public class MedicamentoService {
 
         Medicamento medicamento = findMedicamentoById(id);
 
-        audit.setCurrentActor();
-
-        try
-        {
-            medicamentoRepository.delete(medicamento);
-            medicamentoRepository.flush();
+        if (movimentacaoRepository.existsByMedicamentoId(id)) {
+            throw new MedicamentoWithInvalidInformationException(
+                    "Não é possível excluir um medicamento que possui histórico de movimentações."
+            );
         }
-        finally
-        {
-            audit.clearActor();
-        }
+
+        medicamentoRepository.delete(medicamento);
     }
-
-
-    @Transactional
-    public Medicamento adicionarEstoque(
-            Long idMedicamento,
-            int quantidadeParaAdicionar
-    ) {
-
-        Medicamento medicamento = findMedicamentoById(idMedicamento);
-
-        medicamento.adicionarEstoque(quantidadeParaAdicionar);
-
-        return medicamentoRepository.save(medicamento);
-    }
-
-    @Transactional
-    public Medicamento baixarEstoque(
-            Long idMedicamento,
-            int quantidadeParaBaixar
-    ) {
-
-        Medicamento medicamento = findMedicamentoById(idMedicamento);
-
-        medicamento.baixarEstoque(quantidadeParaBaixar);
-
-        return medicamentoRepository.save(medicamento);
-    }
-
 
     public List<Medicamento> listarEstoquesEmAlerta() {
-
         return medicamentoRepository.findEstoquesEmAlerta();
     }
 
@@ -126,9 +83,7 @@ public class MedicamentoService {
             );
         }
 
-        String nomeFormatado = nome.trim();
-
-        if (medicamentoRepository.existsByNomeIgnoreCase(nomeFormatado)) {
+        if (medicamentoRepository.existsByNomeIgnoreCase(nome.trim())) {
             throw new MedicamentoWithInvalidInformationException(
                     "Já existe um medicamento cadastrado com esse nome."
             );
