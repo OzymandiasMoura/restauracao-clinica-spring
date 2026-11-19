@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.example.clinicarestauracao.Application.Controllers.Mappers.MovimentacaoEstoqueMapper;
 import org.example.clinicarestauracao.Application.Dtos.MovimentacaoEstoqueDtos.MovimentacaoEstoqueResponseDto;
 import org.example.clinicarestauracao.Application.Exceptions.Medicamento.MedicamentoWithInvalidInformationException;
+import org.example.clinicarestauracao.Application.Exceptions.MovimentacaoEstoque.MovimentacaoEstoqueNotFoundException;
 import org.example.clinicarestauracao.Application.Interfaces.MedicamentoRepository;
 import org.example.clinicarestauracao.Application.Interfaces.MovimentacaoEstoqueRepository;
 import org.example.clinicarestauracao.Domain.Entities.Medicamento;
@@ -81,7 +82,7 @@ public class MovimentacaoEstoqueService {
 
         Medicamento medicamento = medicamentoRepository
                 .buscarParaMovimentacao(medicamentoId)
-                .orElseThrow(() -> new NoSuchElementException(
+                .orElseThrow(() -> new MovimentacaoEstoqueNotFoundException(
                         "Medicamento não encontrado."
                 ));
 
@@ -128,7 +129,7 @@ public class MovimentacaoEstoqueService {
             Long medicamentoId
     ) {
         if (!medicamentoRepository.existsById(medicamentoId)) {
-            throw new NoSuchElementException(
+            throw new MovimentacaoEstoqueNotFoundException(
                     "Medicamento não encontrado."
             );
         }
@@ -138,7 +139,7 @@ public class MovimentacaoEstoqueService {
                         medicamentoId
                 )
                 .stream()
-                .map(this::converterParaDto)
+                .map(MovimentacaoEstoqueMapper::entityToResponseDto)
                 .toList();
     }
 
@@ -147,7 +148,7 @@ public class MovimentacaoEstoqueService {
 
         MovimentacaoEstoque movimentacao =
                 movimentacaoRepository.findById(id)
-                        .orElseThrow(() -> new NoSuchElementException(
+                        .orElseThrow(() -> new MovimentacaoEstoqueNotFoundException(
                                 "Movimentação não encontrada."
                         ));
 

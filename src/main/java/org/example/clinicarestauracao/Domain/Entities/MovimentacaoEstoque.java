@@ -5,6 +5,7 @@ import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.example.clinicarestauracao.Application.Exceptions.MovimentacaoEstoque.MovimentacaoEstoqueWithInvalidInformationException;
 import org.example.clinicarestauracao.Domain.Enums.TipoMovimentacao;
 
 import java.time.LocalDateTime;
@@ -56,27 +57,27 @@ public class MovimentacaoEstoque {
             String justificativa
     ) {
         if (medicamento == null || tipo == null) {
-            throw new IllegalArgumentException(
+            throw new MovimentacaoEstoqueWithInvalidInformationException(
                     "Medicamento e tipo são obrigatórios."
             );
         }
 
         if (quantidade == null || quantidade <= 0) {
-            throw new IllegalArgumentException(
+            throw new MovimentacaoEstoqueWithInvalidInformationException(
                     "A quantidade deve ser maior que zero."
             );
         }
 
         if (usuarioResponsavel == null
                 || usuarioResponsavel.isBlank()) {
-            throw new IllegalArgumentException(
+            throw new MovimentacaoEstoqueWithInvalidInformationException(
                     "O responsável é obrigatório."
             );
         }
 
         if (saldoAnterior == null || saldoAnterior < 0
                 || saldoPosterior == null || saldoPosterior < 0) {
-            throw new IllegalArgumentException(
+            throw new MovimentacaoEstoqueWithInvalidInformationException(
                     "Os saldos devem ser válidos."
             );
         }
@@ -84,7 +85,7 @@ public class MovimentacaoEstoque {
         if (justificativa == null
                 || justificativa.isBlank()
                 || justificativa.trim().length() > 500) {
-            throw new IllegalArgumentException(
+            throw new MovimentacaoEstoqueWithInvalidInformationException(
                     "A justificativa deve ter entre 1 e 500 caracteres."
             );
         }
@@ -94,7 +95,7 @@ public class MovimentacaoEstoque {
                 : saldoAnterior - quantidade;
 
         if (saldoEsperado != saldoPosterior) {
-            throw new IllegalArgumentException(
+            throw new MovimentacaoEstoqueWithInvalidInformationException(
                     "O saldo posterior não corresponde à movimentação."
             );
         }

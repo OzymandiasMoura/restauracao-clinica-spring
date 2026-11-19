@@ -16,6 +16,8 @@ import org.example.clinicarestauracao.Application.Exceptions.Medicamento.Medicam
 import org.example.clinicarestauracao.Application.Exceptions.Medicamento.MedicamentoWithInvalidInformationException;
 import org.example.clinicarestauracao.Application.Exceptions.Internacao.InternacaoNotFoundException;
 import org.example.clinicarestauracao.Application.Exceptions.Internacao.InternacaoWithInvalidInformationException;
+import org.example.clinicarestauracao.Application.Exceptions.MovimentacaoEstoque.MovimentacaoEstoqueNotFoundException;
+import org.example.clinicarestauracao.Application.Exceptions.MovimentacaoEstoque.MovimentacaoEstoqueWithInvalidInformationException;
 import org.example.clinicarestauracao.Application.Exceptions.Responsavel.ResponsavelNotFoundException;
 import org.example.clinicarestauracao.Application.Exceptions.Responsavel.ResponsavelWithInvalidInformationException;
 import org.example.clinicarestauracao.Application.Exceptions.Pagamento.PagamentoNotFoundException;
@@ -219,5 +221,20 @@ public class GlobalExceptionHandler
     {
         var response = new ErrorResponseDto(ex.getMessage());
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+    }
+    @ExceptionHandler(MovimentacaoEstoqueNotFoundException.class)
+    public ResponseEntity<String> handleMovimentacaoNotFound(
+            MovimentacaoEstoqueNotFoundException ex
+    ) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(ex.getMessage());
+    }
+
+    @ExceptionHandler(MovimentacaoEstoqueWithInvalidInformationException.class)
+    public ResponseEntity<String> handleMovimentacaoInvalid(
+            MovimentacaoEstoqueWithInvalidInformationException ex
+    ) {
+        return ResponseEntity.badRequest()
+                .body(ex.getMessage());
     }
 }
