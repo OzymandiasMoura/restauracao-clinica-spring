@@ -8,6 +8,7 @@ import org.example.clinicarestauracao.Application.Interfaces.UserRepository;
 import org.example.clinicarestauracao.Builders.UserTestBuilder;
 import org.example.clinicarestauracao.Domain.Entities.User;
 import org.example.clinicarestauracao.Domain.Enums.UserRoles;
+import org.example.clinicarestauracao.Infrastruct.Database.Audit.DatabaseAuditContext;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -35,6 +36,8 @@ class UserServiceTest
     private UserRepository repository;
     @Mock
     private PasswordEncoder passwordEncoder;
+    @Mock
+    private DatabaseAuditContext audit;
     @InjectMocks
     private UserService service;
 
@@ -506,10 +509,14 @@ class UserServiceTest
 
         assertDoesNotThrow(() -> service.deleteUser(1L));
 
-        Mockito.verify(repository).findById(1L);
-        Mockito.verify(funcionarioRepository).existsByUser(user);
-        Mockito.verify(repository).delete(user);
-        Mockito.verifyNoMoreInteractions(repository, funcionarioRepository);
+        var inOrder = Mockito.inOrder(repository, funcionarioRepository, audit);
+        inOrder.verify(repository).findById(1L);
+        inOrder.verify(funcionarioRepository).existsByUser(user);
+        inOrder.verify(audit).setCurrentActor();
+        inOrder.verify(repository).delete(user);
+        inOrder.verify(repository).flush();
+        inOrder.verify(audit).clearActor();
+        Mockito.verifyNoMoreInteractions(repository, funcionarioRepository, audit);
         Mockito.verifyNoInteractions(passwordEncoder);
     }
 
@@ -534,6 +541,7 @@ class UserServiceTest
         Mockito.verify(repository).findById(1L);
         Mockito.verify(funcionarioRepository).existsByUser(user);
         Mockito.verify(repository, Mockito.never()).delete(Mockito.any(User.class));
+        Mockito.verifyNoInteractions(audit);
         Mockito.verifyNoMoreInteractions(repository, funcionarioRepository);
         Mockito.verifyNoInteractions(passwordEncoder);
     }
@@ -552,7 +560,7 @@ class UserServiceTest
 
         Mockito.verify(repository).findById(99L);
         Mockito.verifyNoMoreInteractions(repository);
-        Mockito.verifyNoInteractions(funcionarioRepository, passwordEncoder);
+        Mockito.verifyNoInteractions(funcionarioRepository, passwordEncoder, audit);
     }
 
     @ParameterizedTest
@@ -567,7 +575,7 @@ class UserServiceTest
 
         assertEquals("Usuário não encontrado.", exception.getMessage());
 
-        Mockito.verifyNoInteractions(repository, funcionarioRepository, passwordEncoder);
+        Mockito.verifyNoInteractions(repository, funcionarioRepository, passwordEncoder, audit);
     }
 
 }

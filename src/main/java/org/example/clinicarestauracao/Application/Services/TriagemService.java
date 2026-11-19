@@ -6,6 +6,7 @@ import org.example.clinicarestauracao.Application.Exceptions.Triagem.TriagemNotF
 import org.example.clinicarestauracao.Application.Exceptions.Triagem.TriagemWithInvalidInformationException;
 import org.example.clinicarestauracao.Application.Interfaces.TriagemRepository;
 import org.example.clinicarestauracao.Domain.Entities.Triagem;
+import org.example.clinicarestauracao.Infrastruct.Database.Audit.DatabaseAuditContext;
 
 import org.example.clinicarestauracao.Domain.Enums.Status;
 import org.springframework.stereotype.Service;
@@ -18,6 +19,7 @@ import java.util.List;
 public class TriagemService {
 
     private final TriagemRepository repository;
+    private final DatabaseAuditContext audit;
     public List<Triagem> findAllTriagens() {
         return repository.findAll();
     }
@@ -110,7 +112,17 @@ public class TriagemService {
 
         Triagem triagem = findTriagemById(id);
 
-        repository.delete(triagem);
+        audit.setCurrentActor();
+
+        try
+        {
+            repository.delete(triagem);
+            repository.flush();
+        }
+        finally
+        {
+            audit.clearActor();
+        }
     }
 
     @Transactional

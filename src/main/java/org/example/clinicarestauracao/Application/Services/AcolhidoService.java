@@ -9,6 +9,7 @@ import org.example.clinicarestauracao.Application.Interfaces.InternacaoRepositor
 import org.example.clinicarestauracao.Application.Interfaces.ResponsavelRepository;
 import org.example.clinicarestauracao.Domain.Entities.Acolhido;
 import org.example.clinicarestauracao.Domain.Entities.Responsavel;
+import org.example.clinicarestauracao.Infrastruct.Database.Audit.DatabaseAuditContext;
 import org.example.clinicarestauracao.Domain.Validation.CpfValidator;
 import org.example.clinicarestauracao.Domain.Validation.EmailValidator;
 import org.springframework.stereotype.Service;
@@ -23,6 +24,7 @@ public class AcolhidoService
     private final AcolhidoRepository repository;
     private final InternacaoRepository internacaoRepository;
     private final ResponsavelRepository responsavelRepository;
+    private final DatabaseAuditContext audit;
 
 
     public List<Acolhido> findAllAcolhidos()
@@ -184,16 +186,26 @@ public class AcolhidoService
             throw new AcolhidoWithInvalidInformationException("Acolhido não pode ser excluído enquanto possuir internações.");
         }
 
-        repository.delete(acolhidoToDelete);
+        audit.setCurrentActor();
 
-        Responsavel responsavel = acolhidoToDelete.getResponsavel();
-
-        boolean possuiAcolhidoAtivo = repository.existsByResponsavelIdAndAtivoTrueAndIdNot(responsavel.getId(), acolhidoToDelete.getId());
-
-        if(!possuiAcolhidoAtivo && responsavel.isAtivo())
+        try
         {
-            responsavel.deactivateResponsavel();
-            responsavelRepository.save(responsavel);
+            repository.delete(acolhidoToDelete);
+            repository.flush();
+
+            Responsavel responsavel = acolhidoToDelete.getResponsavel();
+
+            boolean possuiAcolhidoAtivo = repository.existsByResponsavelIdAndAtivoTrueAndIdNot(responsavel.getId(), acolhidoToDelete.getId());
+
+            if(!possuiAcolhidoAtivo && responsavel.isAtivo())
+            {
+                responsavel.deactivateResponsavel();
+                responsavelRepository.save(responsavel);
+            }
+        }
+        finally
+        {
+            audit.clearActor();
         }
     }
 }

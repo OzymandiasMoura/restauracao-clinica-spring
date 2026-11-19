@@ -1,6 +1,7 @@
 package org.example.clinicarestauracao.Application.Services;
 
 import jakarta.transaction.Transactional;
+import lombok.AllArgsConstructor;
 import org.example.clinicarestauracao.Application.Exceptions.Funcionario.FuncionarioNotFoundException;
 import org.example.clinicarestauracao.Application.Exceptions.Funcionario.FuncionarioWithInvalidInformationException;
 import org.example.clinicarestauracao.Application.Interfaces.FuncionarioRepository;
@@ -9,6 +10,7 @@ import org.example.clinicarestauracao.Domain.Entities.User;
 import org.example.clinicarestauracao.Domain.Enums.UserRoles;
 import org.example.clinicarestauracao.Domain.Validation.CpfValidator;
 import org.example.clinicarestauracao.Domain.Validation.EmailValidator;
+import org.example.clinicarestauracao.Infrastruct.Database.Audit.DatabaseAuditContext;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -16,16 +18,12 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
+@AllArgsConstructor
 public class FuncionarioService
 {
     private final FuncionarioRepository repository;
     private final UserService userService;
-
-    public FuncionarioService(FuncionarioRepository repository, UserService userService)
-    {
-        this.repository = repository;
-        this.userService = userService;
-    }
+    DatabaseAuditContext auditContext;
 
     @Transactional
     public Funcionario createFuncionario(Funcionario funcionario)
@@ -243,11 +241,21 @@ public class FuncionarioService
             throw new FuncionarioWithInvalidInformationException("Funcionário não possui usuário vinculado.");
         }
 
-        if (user.isEnabled())
-        {
-            user.deactivate();
-        }
+        auditContext.setCurrentActor();
 
-        repository.delete(funcionario);
+        try
+        {
+            if (user.isEnabled())
+            {
+                user.deactivate();
+            }
+
+            repository.delete(funcionario);
+            repository.flush();
+        }
+        finally
+        {
+            auditContext.clearActor();
+        }
     }
 }

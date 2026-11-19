@@ -1,28 +1,27 @@
 package org.example.clinicarestauracao.Application.Services;
 
 import jakarta.transaction.Transactional;
+import lombok.AllArgsConstructor;
 import org.example.clinicarestauracao.Application.Exceptions.Cargo.CargoNotFoundException;
 import org.example.clinicarestauracao.Application.Exceptions.Cargo.CargoWithInvalidInformationException;
 import org.example.clinicarestauracao.Application.Exceptions.Funcionario.FuncionarioWithInvalidInformationException;
 import org.example.clinicarestauracao.Application.Interfaces.CargoRepository;
 import org.example.clinicarestauracao.Application.Interfaces.FuncionarioRepository;
 import org.example.clinicarestauracao.Domain.Entities.Cargo;
+import org.example.clinicarestauracao.Infrastruct.Database.Audit.DatabaseAuditContext;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
 
 @Service
+@AllArgsConstructor
 public class CargoService
 {
-    CargoRepository repository;
-    FuncionarioRepository funcionarioRepository;
+    private final CargoRepository repository;
+    private final FuncionarioRepository funcionarioRepository;
+    private final DatabaseAuditContext audit;
 
-    public CargoService(CargoRepository cargoRepository, FuncionarioRepository funcionarioRepository)
-    {
-        this.repository = cargoRepository;
-        this.funcionarioRepository = funcionarioRepository;
-    }
 
     public Cargo createCargo(Cargo cargo)
     {
@@ -120,6 +119,16 @@ public class CargoService
             throw new CargoWithInvalidInformationException("Cargo possui funcionário cadastrado.");
         }
 
-        repository.delete(cargo);
+        audit.setCurrentActor();
+
+        try
+        {
+            repository.delete(cargo);
+            repository.flush();
+        }
+        finally
+        {
+            audit.clearActor();
+        }
     }
 }

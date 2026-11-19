@@ -8,6 +8,7 @@ import org.example.clinicarestauracao.Application.Interfaces.ConvenioRepository;
 import org.example.clinicarestauracao.Application.Interfaces.InternacaoRepository;
 import org.example.clinicarestauracao.Application.Interfaces.TriagemRepository;
 import org.example.clinicarestauracao.Domain.Entities.Convenio;
+import org.example.clinicarestauracao.Infrastruct.Database.Audit.DatabaseAuditContext;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -20,6 +21,7 @@ public class ConvenioService
     private final ConvenioRepository repository;
     private final InternacaoRepository internacaoRepository;
     private final TriagemRepository triagemRepository;
+    private final DatabaseAuditContext audit;
 
     public Convenio createConvenio(Convenio convenio)
     {
@@ -169,6 +171,16 @@ public class ConvenioService
             throw new ConvenioWithInvalidInformationException("Convênio não pode ser excluído enquanto possuir triagens.");
         }
 
-        repository.delete(convenio);
+        audit.setCurrentActor();
+
+        try
+        {
+            repository.delete(convenio);
+            repository.flush();
+        }
+        finally
+        {
+            audit.clearActor();
+        }
     }
 }

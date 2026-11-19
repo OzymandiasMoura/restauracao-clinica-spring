@@ -10,6 +10,7 @@ import org.example.clinicarestauracao.Application.Reports.TreatmentStageByConven
 import org.example.clinicarestauracao.Domain.Entities.Acolhido;
 import org.example.clinicarestauracao.Domain.Entities.Convenio;
 import org.example.clinicarestauracao.Domain.Entities.Internacao;
+import org.example.clinicarestauracao.Infrastruct.Database.Audit.DatabaseAuditContext;
 import org.example.clinicarestauracao.Domain.Enums.AltaTypes;
 import org.springframework.stereotype.Service;
 
@@ -24,6 +25,7 @@ public class InternacaoService
     private final InternacaoRepository repository;
     private final AcolhidoService acolhidoService;
     private final ConvenioService convenioService;
+    private final DatabaseAuditContext audit;
 
     public Internacao findInternacaoById(Long id)
     {
@@ -130,7 +132,17 @@ public class InternacaoService
     {
         Internacao internacaoToDelete = findInternacaoById(id);
 
-        repository.delete(internacaoToDelete);
+        audit.setCurrentActor();
+
+        try
+        {
+            repository.delete(internacaoToDelete);
+            repository.flush();
+        }
+        finally
+        {
+            audit.clearActor();
+        }
     }
 
     @Transactional

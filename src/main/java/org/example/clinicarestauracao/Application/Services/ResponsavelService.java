@@ -8,6 +8,7 @@ import org.example.clinicarestauracao.Application.Exceptions.Responsavel.Respons
 import org.example.clinicarestauracao.Application.Interfaces.AcolhidoRepository;
 import org.example.clinicarestauracao.Application.Interfaces.ResponsavelRepository;
 import org.example.clinicarestauracao.Domain.Entities.Responsavel;
+import org.example.clinicarestauracao.Infrastruct.Database.Audit.DatabaseAuditContext;
 import org.example.clinicarestauracao.Domain.Validation.CpfValidator;
 import org.example.clinicarestauracao.Domain.Validation.EmailValidator;
 import org.springframework.stereotype.Service;
@@ -21,6 +22,7 @@ public class ResponsavelService
 {
     private final ResponsavelRepository repository;
     private final AcolhidoRepository acolhidoRepository;
+    private final DatabaseAuditContext audit;
 
     public List<Responsavel> findAll()
     {
@@ -169,6 +171,16 @@ public class ResponsavelService
             throw new ResponsavelWithInvalidInformationException("Responsável possui um acolhido vinculado.");
         }
 
-        repository.delete(responsavel);
+        audit.setCurrentActor();
+
+        try
+        {
+            repository.delete(responsavel);
+            repository.flush();
+        }
+        finally
+        {
+            audit.clearActor();
+        }
     }
 }

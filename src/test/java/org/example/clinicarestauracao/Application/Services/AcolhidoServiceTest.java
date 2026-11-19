@@ -11,6 +11,7 @@ import org.example.clinicarestauracao.Builders.ResponsavelTestBuilder;
 import org.example.clinicarestauracao.Domain.Entities.Acolhido;
 import org.example.clinicarestauracao.Domain.Entities.Responsavel;
 import org.example.clinicarestauracao.Domain.ValueObjects.Endereco;
+import org.example.clinicarestauracao.Infrastruct.Database.Audit.DatabaseAuditContext;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -38,6 +39,9 @@ class AcolhidoServiceTest
 
     @Mock
     private ResponsavelRepository responsavelRepository;
+
+    @Mock
+    private DatabaseAuditContext audit;
 
     @InjectMocks
     private AcolhidoService service;
@@ -667,11 +671,15 @@ class AcolhidoServiceTest
 
         assertFalse(responsavel.isAtivo());
 
-        Mockito.verify(repository).findById(1L);
-        Mockito.verify(internacaoRepository).existsByAcolhido(Mockito.same(acolhido));
-        Mockito.verify(repository).delete(Mockito.same(acolhido));
-        Mockito.verify(repository).existsByResponsavelIdAndAtivoTrueAndIdNot(responsavel.getId(), acolhido.getId());
-        Mockito.verify(responsavelRepository).save(Mockito.same(responsavel));
+        var inOrder = Mockito.inOrder(repository, internacaoRepository, responsavelRepository, audit);
+        inOrder.verify(repository).findById(1L);
+        inOrder.verify(internacaoRepository).existsByAcolhido(Mockito.same(acolhido));
+        inOrder.verify(audit).setCurrentActor();
+        inOrder.verify(repository).delete(Mockito.same(acolhido));
+        inOrder.verify(repository).flush();
+        inOrder.verify(repository).existsByResponsavelIdAndAtivoTrueAndIdNot(responsavel.getId(), acolhido.getId());
+        inOrder.verify(responsavelRepository).save(Mockito.same(responsavel));
+        inOrder.verify(audit).clearActor();
     }
 
     @Test
@@ -688,8 +696,14 @@ class AcolhidoServiceTest
 
         assertTrue(responsavel.isAtivo());
 
-        Mockito.verify(repository).delete(Mockito.same(acolhido));
-        Mockito.verify(repository).existsByResponsavelIdAndAtivoTrueAndIdNot(responsavel.getId(), acolhido.getId());
+        var inOrder = Mockito.inOrder(repository, internacaoRepository, audit);
+        inOrder.verify(repository).findById(1L);
+        inOrder.verify(internacaoRepository).existsByAcolhido(Mockito.same(acolhido));
+        inOrder.verify(audit).setCurrentActor();
+        inOrder.verify(repository).delete(Mockito.same(acolhido));
+        inOrder.verify(repository).flush();
+        inOrder.verify(repository).existsByResponsavelIdAndAtivoTrueAndIdNot(responsavel.getId(), acolhido.getId());
+        inOrder.verify(audit).clearActor();
         Mockito.verifyNoInteractions(responsavelRepository);
     }
 
@@ -704,7 +718,7 @@ class AcolhidoServiceTest
 
         Mockito.verify(repository).findById(99L);
         Mockito.verify(repository, Mockito.never()).delete(Mockito.any(Acolhido.class));
-        Mockito.verifyNoInteractions(internacaoRepository, responsavelRepository);
+        Mockito.verifyNoInteractions(internacaoRepository, responsavelRepository, audit);
     }
 
     @ParameterizedTest
@@ -716,7 +730,7 @@ class AcolhidoServiceTest
 
         assertEquals("Acolhido não encontrado.", exception.getMessage());
 
-        Mockito.verifyNoInteractions(repository, internacaoRepository, responsavelRepository);
+        Mockito.verifyNoInteractions(repository, internacaoRepository, responsavelRepository, audit);
     }
 
     @Test
@@ -735,6 +749,7 @@ class AcolhidoServiceTest
         Mockito.verify(internacaoRepository).existsByAcolhido(Mockito.same(acolhido));
         Mockito.verify(repository, Mockito.never()).existsByResponsavelIdAndAtivoTrueAndIdNot(Mockito.anyLong(), Mockito.anyLong());
         Mockito.verifyNoInteractions(responsavelRepository);
+        Mockito.verifyNoInteractions(audit);
         Mockito.verify(repository, Mockito.never()).delete(Mockito.any(Acolhido.class));
     }
 
