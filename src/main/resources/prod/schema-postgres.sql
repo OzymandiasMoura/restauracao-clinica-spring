@@ -42,8 +42,7 @@ BEGIN
             descricao_registro := 'Nome: ' || COALESCE(registro ->> 'nome', '');
         WHEN 'internacao' THEN
             tabela_auditada := 'Internacao';
-            descricao_registro := 'Acolhido ID: ' || COALESCE(registro ->> 'acolhido_id', '')
-                || ' | Convênio ID: ' || COALESCE(registro ->> 'convenio_id', '')
+            descricao_registro := 'Acolhido ID: ' || COALESCE(registro ->> 'acolhido_id', '')   || ' | Convênio ID: ' || COALESCE(registro ->> 'convenio_id', '')
                 || ' | Data de entrada: ' || COALESCE(registro ->> 'data_entrada', '');
         WHEN 'medicamento' THEN
             tabela_auditada := 'Medicamento';
