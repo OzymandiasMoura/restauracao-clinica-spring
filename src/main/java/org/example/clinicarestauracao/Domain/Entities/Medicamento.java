@@ -146,7 +146,5 @@ public class Medicamento {
 
         this.quantidadeEstoque -= quantidade;
     }
-    public boolean estoqueEmAlerta() {
-        return this.quantidadeEstoque <= this.quantidadeMinima;
-    }
+
 }
