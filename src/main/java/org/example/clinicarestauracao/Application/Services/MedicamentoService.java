@@ -1,3 +1,4 @@
+
 package org.example.clinicarestauracao.Application.Services;
 
 import jakarta.transaction.Transactional;
@@ -23,6 +24,7 @@ public class MedicamentoService {
     public List<Medicamento> findAll() {
         return medicamentoRepository.findAll();
     }
+
 
     public Medicamento findMedicamentoById(Long id) {
         return medicamentoRepository.findById(id)

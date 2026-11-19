@@ -6,12 +6,14 @@ import org.example.clinicarestauracao.Application.Interfaces.CargoRepository;
 import org.example.clinicarestauracao.Application.Interfaces.FuncionarioRepository;
 import org.example.clinicarestauracao.Builders.CargoTestBuilder;
 import org.example.clinicarestauracao.Domain.Entities.Cargo;
+import org.example.clinicarestauracao.Infrastruct.Database.Audit.DatabaseAuditContext;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.NullSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.ArgumentCaptor;
+import org.mockito.InOrder;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -29,6 +31,8 @@ class CargoServiceTest
     private CargoRepository repository;
     @Mock
     private FuncionarioRepository funcionarioRepository;
+    @Mock
+    private DatabaseAuditContext audit;
     @InjectMocks
     private CargoService service;
 
@@ -489,10 +493,35 @@ class CargoServiceTest
 
         service.deleteCargo(1L);
 
-        Mockito.verify(repository).findCargoById(1L);
-        Mockito.verify(funcionarioRepository).existsByCargo(Mockito.same(cargo));
-        Mockito.verify(repository).delete(Mockito.same(cargo));
-        Mockito.verifyNoMoreInteractions(repository, funcionarioRepository);
+        InOrder inOrder = Mockito.inOrder(repository, funcionarioRepository, audit);
+        inOrder.verify(repository).findCargoById(1L);
+        inOrder.verify(funcionarioRepository).existsByCargo(Mockito.same(cargo));
+        inOrder.verify(audit).setCurrentActor();
+        inOrder.verify(repository).delete(Mockito.same(cargo));
+        inOrder.verify(repository).flush();
+        inOrder.verify(audit).clearActor();
+        Mockito.verifyNoMoreInteractions(repository, funcionarioRepository, audit);
+    }
+
+    @Test
+    void shouldClearAuditContextWhenCargoDeletionFails()
+    {
+        Cargo cargo = CargoTestBuilder.newCargo().setId(1L).build();
+
+        Mockito.when(repository.findCargoById(1L)).thenReturn(Optional.of(cargo));
+        Mockito.when(funcionarioRepository.existsByCargo(Mockito.same(cargo))).thenReturn(false);
+        Mockito.doThrow(new IllegalStateException("Falha ao excluir cargo.")).when(repository).flush();
+
+        assertThrows(IllegalStateException.class, () -> service.deleteCargo(1L));
+
+        InOrder inOrder = Mockito.inOrder(repository, funcionarioRepository, audit);
+        inOrder.verify(repository).findCargoById(1L);
+        inOrder.verify(funcionarioRepository).existsByCargo(Mockito.same(cargo));
+        inOrder.verify(audit).setCurrentActor();
+        inOrder.verify(repository).delete(Mockito.same(cargo));
+        inOrder.verify(repository).flush();
+        inOrder.verify(audit).clearActor();
+        Mockito.verifyNoMoreInteractions(repository, funcionarioRepository, audit);
     }
 
     @ParameterizedTest
@@ -514,6 +543,7 @@ class CargoServiceTest
         Mockito.verify(repository).findCargoById(1L);
         Mockito.verify(funcionarioRepository).existsByCargo(Mockito.same(cargo));
         Mockito.verify(repository, Mockito.never()).delete(Mockito.any(Cargo.class));
+        Mockito.verifyNoInteractions(audit);
         Mockito.verifyNoMoreInteractions(repository, funcionarioRepository);
     }
 
@@ -528,7 +558,7 @@ class CargoServiceTest
 
         Mockito.verify(repository).findCargoById(1L);
         Mockito.verifyNoMoreInteractions(repository);
-        Mockito.verifyNoInteractions(funcionarioRepository);
+        Mockito.verifyNoInteractions(funcionarioRepository, audit);
     }
 
     @ParameterizedTest
@@ -540,6 +570,6 @@ class CargoServiceTest
 
         assertEquals("Cargo não encontrado.", exception.getMessage());
 
-        Mockito.verifyNoInteractions(repository, funcionarioRepository);
+        Mockito.verifyNoInteractions(repository, funcionarioRepository, audit);
     }
 }

@@ -65,7 +65,10 @@ VALUES
      '11988883333', DATE '1985-02-14', 1, TRUE),
     (7, 'Felipe Rocha', 'felipe.rocha@teste.local', '14793526160', '30160011',
      'Rua da Bahia, 1300 - Centro - Belo Horizonte/MG',
-     '31988884444', DATE '1993-10-07', 2, TRUE);
+     '31988884444', DATE '1993-10-07', 2, TRUE),
+    (8, 'Acolhido para teste de exclusão', 'acolhido.exclusao@teste.local', '93541134780', '01310100',
+     'Avenida Paulista, 1200 - Bela Vista - São Paulo/SP',
+     '11977778888', DATE '1995-06-12', 1, TRUE);
 
 INSERT INTO medicamento (id, nome, preco, quantidade_estoque, quantidade_minima) VALUES
     (1, 'Dipirona 500mg', 12.50, 50, 10),
@@ -180,7 +183,7 @@ ALTER TABLE usuarios ALTER COLUMN id RESTART WITH 5;
 ALTER TABLE convenios ALTER COLUMN id RESTART WITH 5;
 ALTER TABLE funcionarios ALTER COLUMN id RESTART WITH 4;
 ALTER TABLE responsaveis ALTER COLUMN id RESTART WITH 3;
-ALTER TABLE acolhidos ALTER COLUMN id RESTART WITH 8;
+ALTER TABLE acolhidos ALTER COLUMN id RESTART WITH 9;
 ALTER TABLE medicamento ALTER COLUMN id RESTART WITH 4;
 ALTER TABLE triagem ALTER COLUMN id RESTART WITH 8;
 ALTER TABLE internacao ALTER COLUMN id RESTART WITH 21;

@@ -8,6 +8,7 @@ import org.example.clinicarestauracao.Application.Interfaces.FuncionarioReposito
 import org.example.clinicarestauracao.Application.Interfaces.UserRepository;
 import org.example.clinicarestauracao.Domain.Entities.User;
 import org.example.clinicarestauracao.Domain.Enums.UserRoles;
+import org.example.clinicarestauracao.Infrastruct.Database.Audit.DatabaseAuditContext;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -20,6 +21,7 @@ public class UserService
     private UserRepository userRepository;
     private FuncionarioRepository funcionarioRepository;
     private PasswordEncoder passwordEncoder;
+    private DatabaseAuditContext audit;
 
     public User registerUser(User user)
     {
@@ -101,6 +103,16 @@ public class UserService
             throw new UserWithInvalidInformationException("Não é possível excluir usuário vinculado a um funcionário.");
         }
 
-        userRepository.delete(user);
+        audit.setCurrentActor();
+
+        try
+        {
+            userRepository.delete(user);
+            userRepository.flush();
+        }
+        finally
+        {
+            audit.clearActor();
+        }
     }
 }

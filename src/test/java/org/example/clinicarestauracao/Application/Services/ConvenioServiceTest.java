@@ -7,6 +7,7 @@ import org.example.clinicarestauracao.Application.Interfaces.InternacaoRepositor
 import org.example.clinicarestauracao.Application.Interfaces.TriagemRepository;
 import org.example.clinicarestauracao.Builders.ConvenioTestBuilder;
 import org.example.clinicarestauracao.Domain.Entities.Convenio;
+import org.example.clinicarestauracao.Infrastruct.Database.Audit.DatabaseAuditContext;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -31,6 +32,8 @@ class ConvenioServiceTest
     private InternacaoRepository internacaoRepository;
     @Mock
     private TriagemRepository triagemRepository;
+    @Mock
+    private DatabaseAuditContext audit;
     @InjectMocks
     private ConvenioService service;
 
@@ -899,10 +902,14 @@ class ConvenioServiceTest
 
         assertTrue(existente.isAtivo());
 
-        Mockito.verify(repository).findById(existente.getId());
-        Mockito.verify(internacaoRepository).existsByConvenio(Mockito.same(existente));
-        Mockito.verify(triagemRepository).existsByConvenio(Mockito.same(existente));
-        Mockito.verify(repository).delete(Mockito.same(existente));
+        var inOrder = Mockito.inOrder(repository, internacaoRepository, triagemRepository, audit);
+        inOrder.verify(repository).findById(existente.getId());
+        inOrder.verify(internacaoRepository).existsByConvenio(Mockito.same(existente));
+        inOrder.verify(triagemRepository).existsByConvenio(Mockito.same(existente));
+        inOrder.verify(audit).setCurrentActor();
+        inOrder.verify(repository).delete(Mockito.same(existente));
+        inOrder.verify(repository).flush();
+        inOrder.verify(audit).clearActor();
         Mockito.verify(repository, Mockito.never()).save(Mockito.any(Convenio.class));
     }
 
@@ -921,10 +928,14 @@ class ConvenioServiceTest
 
         assertFalse(existente.isAtivo());
 
-        Mockito.verify(repository).findById(existente.getId());
-        Mockito.verify(internacaoRepository).existsByConvenio(Mockito.same(existente));
-        Mockito.verify(triagemRepository).existsByConvenio(Mockito.same(existente));
-        Mockito.verify(repository).delete(Mockito.same(existente));
+        var inOrder = Mockito.inOrder(repository, internacaoRepository, triagemRepository, audit);
+        inOrder.verify(repository).findById(existente.getId());
+        inOrder.verify(internacaoRepository).existsByConvenio(Mockito.same(existente));
+        inOrder.verify(triagemRepository).existsByConvenio(Mockito.same(existente));
+        inOrder.verify(audit).setCurrentActor();
+        inOrder.verify(repository).delete(Mockito.same(existente));
+        inOrder.verify(repository).flush();
+        inOrder.verify(audit).clearActor();
         Mockito.verify(repository, Mockito.never()).save(Mockito.any(Convenio.class));
     }
 
@@ -949,6 +960,7 @@ class ConvenioServiceTest
         Mockito.verify(repository).findById(existente.getId());
         Mockito.verify(internacaoRepository).existsByConvenio(Mockito.same(existente));
         Mockito.verifyNoInteractions(triagemRepository);
+        Mockito.verifyNoInteractions(audit);
         Mockito.verify(repository, Mockito.never()).delete(Mockito.any(Convenio.class));
         Mockito.verify(repository, Mockito.never()).save(Mockito.any(Convenio.class));
     }
@@ -974,6 +986,7 @@ class ConvenioServiceTest
         Mockito.verify(triagemRepository).existsByConvenio(Mockito.same(existente));
         Mockito.verify(repository, Mockito.never()).delete(Mockito.any(Convenio.class));
         Mockito.verify(repository, Mockito.never()).save(Mockito.any(Convenio.class));
+        Mockito.verifyNoInteractions(audit);
     }
 
 }

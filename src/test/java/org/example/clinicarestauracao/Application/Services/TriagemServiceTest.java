@@ -8,6 +8,7 @@ import org.example.clinicarestauracao.Builders.TriagemTestBuilder;
 import org.example.clinicarestauracao.Domain.Entities.Convenio;
 import org.example.clinicarestauracao.Domain.Entities.Triagem;
 import org.example.clinicarestauracao.Domain.Enums.Status;
+import org.example.clinicarestauracao.Infrastruct.Database.Audit.DatabaseAuditContext;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -32,6 +33,9 @@ class TriagemServiceTest
 {
     @Mock
     private TriagemRepository repository;
+
+    @Mock
+    private DatabaseAuditContext audit;
 
     @InjectMocks
     private TriagemService service;
@@ -361,8 +365,12 @@ class TriagemServiceTest
 
         service.deleteTriagem(1L);
 
-        Mockito.verify(repository).findById(1L);
-        Mockito.verify(repository).delete(triagem);
+        var inOrder = Mockito.inOrder(repository, audit);
+        inOrder.verify(repository).findById(1L);
+        inOrder.verify(audit).setCurrentActor();
+        inOrder.verify(repository).delete(triagem);
+        inOrder.verify(repository).flush();
+        inOrder.verify(audit).clearActor();
     }
 
     @ParameterizedTest
@@ -376,7 +384,7 @@ class TriagemServiceTest
         );
 
         assertEquals("Triagem não encontrada.", exception.getMessage());
-        Mockito.verifyNoInteractions(repository);
+        Mockito.verifyNoInteractions(repository, audit);
     }
 
     @Test
@@ -388,6 +396,7 @@ class TriagemServiceTest
 
         Mockito.verify(repository).findById(1L);
         Mockito.verify(repository, Mockito.never()).delete(any());
+        Mockito.verifyNoInteractions(audit);
     }
 
     // Testes da conclusão

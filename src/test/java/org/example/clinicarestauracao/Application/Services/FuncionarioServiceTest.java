@@ -8,6 +8,7 @@ import org.example.clinicarestauracao.Application.Interfaces.FuncionarioReposito
 import org.example.clinicarestauracao.Builders.CargoTestBuilder;
 import org.example.clinicarestauracao.Builders.EnderecoTestBuilder;
 import org.example.clinicarestauracao.Builders.FuncionarioTestBuilder;
+import org.example.clinicarestauracao.Infrastruct.Database.Audit.DatabaseAuditContext;
 import org.example.clinicarestauracao.Domain.Entities.Cargo;
 import org.example.clinicarestauracao.Domain.Entities.Funcionario;
 import org.example.clinicarestauracao.Domain.Entities.User;
@@ -21,6 +22,7 @@ import org.junit.jupiter.params.provider.NullSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
+import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -38,6 +40,8 @@ class FuncionarioServiceTest
     private FuncionarioRepository repository;
     @Mock
     private UserService userService;
+    @Mock
+    private DatabaseAuditContext auditContext;
     @InjectMocks
     private FuncionarioService service;
 
@@ -1148,8 +1152,13 @@ class FuncionarioServiceTest
         );
 
         Mockito.verify(repository).findFuncionarioById(1L);
-        Mockito.verify(repository).delete(Mockito.same(funcionario));
+        InOrder inOrder = Mockito.inOrder(auditContext, repository);
+        inOrder.verify(auditContext).setCurrentActor();
+        inOrder.verify(repository).delete(Mockito.same(funcionario));
+        inOrder.verify(repository).flush();
+        inOrder.verify(auditContext).clearActor();
         Mockito.verifyNoMoreInteractions(repository);
+        Mockito.verifyNoMoreInteractions(auditContext);
         Mockito.verifyNoInteractions(userService);
     }
 
@@ -1176,8 +1185,13 @@ class FuncionarioServiceTest
         );
 
         Mockito.verify(repository).findFuncionarioById(1L);
-        Mockito.verify(repository).delete(Mockito.same(funcionario));
+        InOrder inOrder = Mockito.inOrder(auditContext, repository);
+        inOrder.verify(auditContext).setCurrentActor();
+        inOrder.verify(repository).delete(Mockito.same(funcionario));
+        inOrder.verify(repository).flush();
+        inOrder.verify(auditContext).clearActor();
         Mockito.verifyNoMoreInteractions(repository);
+        Mockito.verifyNoMoreInteractions(auditContext);
         Mockito.verifyNoInteractions(userService);
     }
 
@@ -1198,8 +1212,13 @@ class FuncionarioServiceTest
         );
 
         Mockito.verify(repository).findFuncionarioById(1L);
-        Mockito.verify(repository).delete(Mockito.same(funcionario));
+        InOrder inOrder = Mockito.inOrder(auditContext, repository);
+        inOrder.verify(auditContext).setCurrentActor();
+        inOrder.verify(repository).delete(Mockito.same(funcionario));
+        inOrder.verify(repository).flush();
+        inOrder.verify(auditContext).clearActor();
         Mockito.verifyNoMoreInteractions(repository);
+        Mockito.verifyNoMoreInteractions(auditContext);
         Mockito.verifyNoInteractions(userService);
     }
 
@@ -1216,7 +1235,7 @@ class FuncionarioServiceTest
 
         Mockito.verify(repository).findFuncionarioById(1L);
         Mockito.verifyNoMoreInteractions(repository);
-        Mockito.verifyNoInteractions(userService);
+        Mockito.verifyNoInteractions(userService, auditContext);
     }
 
     @Test
@@ -1230,7 +1249,7 @@ class FuncionarioServiceTest
 
         Mockito.verify(repository).findFuncionarioById(1L);
         Mockito.verifyNoMoreInteractions(repository);
-        Mockito.verifyNoInteractions(userService);
+        Mockito.verifyNoInteractions(userService, auditContext);
     }
 
     @ParameterizedTest
@@ -1242,7 +1261,7 @@ class FuncionarioServiceTest
 
         assertEquals("Funcionário não encontrado.", exception.getMessage());
 
-        Mockito.verifyNoInteractions(repository, userService);
+        Mockito.verifyNoInteractions(repository, userService, auditContext);
     }
 
 }

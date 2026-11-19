@@ -14,6 +14,7 @@ import org.example.clinicarestauracao.Domain.Entities.Convenio;
 import org.example.clinicarestauracao.Domain.Entities.Internacao;
 import org.example.clinicarestauracao.Domain.Enums.AltaTypes;
 import org.example.clinicarestauracao.Domain.Enums.TreatmentStage;
+import org.example.clinicarestauracao.Infrastruct.Database.Audit.DatabaseAuditContext;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -40,6 +41,8 @@ class InternacaoServiceTest
     private AcolhidoService acolhidoService;
     @Mock
     private ConvenioService convenioService;
+    @Mock
+    private DatabaseAuditContext audit;
     @InjectMocks
     private InternacaoService service;
 
@@ -630,8 +633,12 @@ class InternacaoServiceTest
 
         service.deleteInternacaoById(1L);
 
-        Mockito.verify(repository).findById(1L);
-        Mockito.verify(repository).delete(Mockito.same(internacao));
+        var inOrder = Mockito.inOrder(repository, audit);
+        inOrder.verify(repository).findById(1L);
+        inOrder.verify(audit).setCurrentActor();
+        inOrder.verify(repository).delete(Mockito.same(internacao));
+        inOrder.verify(repository).flush();
+        inOrder.verify(audit).clearActor();
         Mockito.verifyNoInteractions(acolhidoService, convenioService);
     }
 
@@ -647,8 +654,12 @@ class InternacaoServiceTest
 
         service.deleteInternacaoById(1L);
 
-        Mockito.verify(repository).findById(1L);
-        Mockito.verify(repository).delete(Mockito.same(internacao));
+        var inOrder = Mockito.inOrder(repository, audit);
+        inOrder.verify(repository).findById(1L);
+        inOrder.verify(audit).setCurrentActor();
+        inOrder.verify(repository).delete(Mockito.same(internacao));
+        inOrder.verify(repository).flush();
+        inOrder.verify(audit).clearActor();
         Mockito.verifyNoInteractions(acolhidoService, convenioService);
     }
 
@@ -663,6 +674,7 @@ class InternacaoServiceTest
 
         Mockito.verify(repository).findById(1L);
         Mockito.verify(repository, Mockito.never()).delete(Mockito.any(Internacao.class));
+        Mockito.verifyNoInteractions(audit);
         Mockito.verifyNoInteractions(acolhidoService, convenioService);
     }
 
@@ -675,7 +687,7 @@ class InternacaoServiceTest
 
         assertEquals("Internação não encontrada.", exception.getMessage());
 
-        Mockito.verifyNoInteractions(repository, acolhidoService, convenioService);
+        Mockito.verifyNoInteractions(repository, acolhidoService, convenioService, audit);
     }
 
     // Testes updateTreatmentStage

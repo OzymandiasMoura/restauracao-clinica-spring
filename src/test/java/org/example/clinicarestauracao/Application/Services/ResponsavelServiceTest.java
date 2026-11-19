@@ -6,6 +6,7 @@ import org.example.clinicarestauracao.Application.Interfaces.AcolhidoRepository;
 import org.example.clinicarestauracao.Application.Interfaces.ResponsavelRepository;
 import org.example.clinicarestauracao.Builders.ResponsavelTestBuilder;
 import org.example.clinicarestauracao.Domain.Entities.Responsavel;
+import org.example.clinicarestauracao.Infrastruct.Database.Audit.DatabaseAuditContext;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -29,6 +30,9 @@ class ResponsavelServiceTest
 
     @Mock
     private AcolhidoRepository acolhidoRepository;
+
+    @Mock
+    private DatabaseAuditContext audit;
 
     @InjectMocks
     private ResponsavelService service;
@@ -625,13 +629,16 @@ class ResponsavelServiceTest
 
         service.deleteResponsavel(1L);
 
-        var inOrder = Mockito.inOrder(repository, acolhidoRepository);
+        var inOrder = Mockito.inOrder(repository, acolhidoRepository, audit);
 
         inOrder.verify(repository).findById(1L);
         inOrder.verify(acolhidoRepository).existsAcolhidoByResponsavelId(1L);
+        inOrder.verify(audit).setCurrentActor();
         inOrder.verify(repository).delete(responsavel);
+        inOrder.verify(repository).flush();
+        inOrder.verify(audit).clearActor();
 
-        Mockito.verifyNoMoreInteractions(repository, acolhidoRepository);
+        Mockito.verifyNoMoreInteractions(repository, acolhidoRepository, audit);
     }
 
     @Test
@@ -655,6 +662,7 @@ class ResponsavelServiceTest
         inOrder.verify(acolhidoRepository).existsAcolhidoByResponsavelId(1L);
 
         Mockito.verify(repository, Mockito.never()).delete(Mockito.any(Responsavel.class));
+        Mockito.verifyNoInteractions(audit);
         Mockito.verifyNoMoreInteractions(repository, acolhidoRepository);
     }
 
@@ -668,7 +676,7 @@ class ResponsavelServiceTest
         assertEquals("Responsável não encontrado.", exception.getMessage());
 
         Mockito.verify(repository).findById(99L);
-        Mockito.verifyNoInteractions(acolhidoRepository);
+        Mockito.verifyNoInteractions(acolhidoRepository, audit);
         Mockito.verifyNoMoreInteractions(repository);
     }
 
@@ -681,7 +689,7 @@ class ResponsavelServiceTest
 
         assertEquals("Responsável não encontrado.", exception.getMessage());
 
-        Mockito.verifyNoInteractions(repository, acolhidoRepository);
+        Mockito.verifyNoInteractions(repository, acolhidoRepository, audit);
     }
 
 }
