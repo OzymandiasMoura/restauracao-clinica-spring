@@ -9,6 +9,7 @@ import org.example.clinicarestauracao.Application.Exceptions.Medicamento.Medicam
 import org.example.clinicarestauracao.Application.Interfaces.MedicamentoRepository;
 import org.example.clinicarestauracao.Application.Interfaces.MovimentacaoEstoqueRepository;
 import org.example.clinicarestauracao.Domain.Entities.Medicamento;
+import org.example.clinicarestauracao.Infrastruct.Database.Audit.DatabaseAuditContext;
 
 import org.springframework.stereotype.Service;
 
@@ -20,6 +21,7 @@ public class MedicamentoService {
 
     private final MedicamentoRepository medicamentoRepository;
     private final MovimentacaoEstoqueRepository movimentacaoRepository;
+    private final DatabaseAuditContext audit;
 
     public List<Medicamento> findAll() {
         return medicamentoRepository.findAll();
@@ -69,7 +71,17 @@ public class MedicamentoService {
             );
         }
 
-        medicamentoRepository.delete(medicamento);
+        audit.setCurrentActor();
+
+        try
+        {
+            medicamentoRepository.delete(medicamento);
+            medicamentoRepository.flush();
+        }
+        finally
+        {
+            audit.clearActor();
+        }
     }
 
     public List<Medicamento> listarEstoquesEmAlerta() {
