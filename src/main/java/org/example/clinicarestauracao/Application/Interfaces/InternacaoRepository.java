@@ -7,19 +7,29 @@ import org.example.clinicarestauracao.Domain.Entities.Convenio;
 import org.example.clinicarestauracao.Domain.Entities.Internacao;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
 public interface InternacaoRepository extends JpaRepository<Internacao, Long>
 {
     List<Internacao> findByAcolhido(Acolhido acolhido);
+
     List<Internacao> findByConvenio(Convenio convenio);
+
     boolean existsByAcolhidoAndAtivoTrue(Acolhido acolhido);
+
     boolean existsByAcolhido(Acolhido acolhido);
+
     boolean existsByConvenio(Convenio convenio);
+
     List<Internacao> findByAtivoTrue();
+
     long countByConvenioAndAtivoTrue(Convenio convenio);
+
     boolean existsByConvenioIdAndAtivoTrue(Long convenioId);
+
     @Query("""
         SELECT new org.example.clinicarestauracao.Application.Reports.InternacoesAtivasByConvenio(
             c.id,
@@ -53,5 +63,7 @@ public interface InternacaoRepository extends JpaRepository<Internacao, Long>
         ORDER BY c.descricao
         """)
     List<TreatmentStageByConvenio> findTreatmentStageByConvenio();
+
+    Page<Internacao> findInternacaoByAcolhido_NomeContainingIgnoreCase(String nome, Pageable pageable);
 
 }

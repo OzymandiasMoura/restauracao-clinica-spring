@@ -24,6 +24,10 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -879,5 +883,64 @@ class InternacaoServiceTest
         Mockito.verifyNoMoreInteractions(repository);
         Mockito.verifyNoInteractions(acolhidoService, convenioService);
     }
+
+    // Testes findInternacaoByAcolhidoName
+
+    @Test
+    void shouldFindInternacoesByAcolhidoNameAndReturnPage()
+    {
+        Pageable pageable = PageRequest.of(1, 2);
+        List<Internacao> internacoes = List.of(InternacaoTestBuilder.newInternacao().setId(3L).build(), InternacaoTestBuilder.newInternacao().setId(4L).build());
+        Page<Internacao> paginaEsperada = new PageImpl<>(internacoes, pageable, 5);
+
+        Mockito.when(repository.findInternacaoByAcolhido_NomeContainingIgnoreCase("Ana", pageable)).thenReturn(paginaEsperada);
+
+        Page<Internacao> response = service.findInternacaoByAcolhidoName(" Ana ", pageable);
+
+        assertAll(
+                () -> assertSame(paginaEsperada, response),
+                () -> assertEquals(2, response.getContent().size()),
+                () -> assertEquals(5, response.getTotalElements()),
+                () -> assertEquals(3, response.getTotalPages()),
+                () -> assertEquals(1, response.getNumber()),
+                () -> assertEquals(2, response.getSize())
+        );
+
+        Mockito.verify(repository).findInternacaoByAcolhido_NomeContainingIgnoreCase("Ana", pageable);
+        Mockito.verifyNoMoreInteractions(repository);
+    }
+
+    @ParameterizedTest
+    @NullSource
+    @ValueSource(strings = {"", " ", "\t"})
+    void shouldThrowInternacaoNotFoundExceptionWhenAcolhidoNameIsNullOrBlank(String nome)
+    {
+        InternacaoNotFoundException exception = assertThrows(InternacaoNotFoundException.class, () -> service.findInternacaoByAcolhidoName(nome, PageRequest.of(0, 10)));
+
+        assertEquals("Internação não encontrada.", exception.getMessage());
+        Mockito.verifyNoInteractions(repository);
+    }
+
+    @Test
+    void shouldReturnEmptyPageWhenNoInternacoesMatchAcolhidoName()
+    {
+        Pageable pageable = PageRequest.of(0, 10);
+        Page<Internacao> paginaVazia = Page.empty(pageable);
+
+        Mockito.when(repository.findInternacaoByAcolhido_NomeContainingIgnoreCase("Maria", pageable)).thenReturn(paginaVazia);
+
+        Page<Internacao> response = service.findInternacaoByAcolhidoName("Maria", pageable);
+
+        assertAll(
+                () -> assertSame(paginaVazia, response),
+                () -> assertTrue(response.isEmpty()),
+                () -> assertEquals(0, response.getTotalElements()),
+                () -> assertEquals(0, response.getTotalPages())
+        );
+
+        Mockito.verify(repository).findInternacaoByAcolhido_NomeContainingIgnoreCase("Maria", pageable);
+        Mockito.verifyNoMoreInteractions(repository);
+    }
+
 
 }

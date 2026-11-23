@@ -3,10 +3,13 @@ package org.example.clinicarestauracao.Application.Controllers;
 import lombok.AllArgsConstructor;
 import org.example.clinicarestauracao.Application.Controllers.Mappers.InternacaoMapper;
 import org.example.clinicarestauracao.Application.Dtos.InternacaoDtos.*;
+import org.example.clinicarestauracao.Application.Dtos.PageResponseDto;
 import org.example.clinicarestauracao.Application.Services.AcolhidoService;
 import org.example.clinicarestauracao.Application.Services.ConvenioService;
 import org.example.clinicarestauracao.Application.Services.InternacaoService;
 import org.example.clinicarestauracao.Domain.Entities.Internacao;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -108,12 +111,20 @@ public class InternacaoController
         return ResponseEntity.ok(response);
     }
 
-
     @GetMapping("/relatorios/etapas-por-convenio")
     public ResponseEntity<List<TreatmentStageByConvenioDto>> findRelatorioTreatmentStageByConvenio()
     {
         List<TreatmentStageByConvenioDto> response = service.findRelatorioSituacaoInternacoesPorConvenio().stream().map(InternacaoMapper::reportToResponseDto).toList();
 
         return ResponseEntity.ok().body(response);
+    }
+
+    @GetMapping("/search/acolhido/nome")
+    public ResponseEntity<PageResponseDto<InternacaoResponseDto>> findInternacaoByAcolhidoName(@RequestParam String nome, Pageable pageable)
+    {
+        Page<Internacao> page = service.findInternacaoByAcolhidoName(nome, pageable);
+        Page<InternacaoResponseDto> responsePage = page.map(InternacaoMapper::entityToResponseDto);
+
+        return ResponseEntity.ok(PageResponseDto.from(responsePage));
     }
 }

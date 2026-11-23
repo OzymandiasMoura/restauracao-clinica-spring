@@ -23,6 +23,10 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -33,6 +37,7 @@ import java.net.URI;
 import java.time.LocalDate;
 import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
+import org.example.clinicarestauracao.Application.Dtos.PageResponseDto;
 
 @ExtendWith(MockitoExtension.class)
 class InternacaoControllerTest
@@ -617,6 +622,77 @@ class InternacaoControllerTest
         assertTrue(response.getBody().isEmpty());
 
         Mockito.verify(service).findRelatorioSituacaoInternacoesPorConvenio();
+        Mockito.verifyNoMoreInteractions(service);
+        Mockito.verifyNoInteractions(acolhidoService, convenioService);
+    }
+
+    // Testes findInternacaoByAcolhidoName
+
+    @Test
+    void shouldFindInternacoesByAcolhidoNameAndReturnPageMetadata()
+    {
+        String nome = "Maria";
+        Pageable pageable = PageRequest.of(1, 2);
+        Acolhido primeiroAcolhido = AcolhidoTestBuilder.newAcolhido().setId(1L).setNome("Maria Silva").build();
+        Acolhido segundoAcolhido = AcolhidoTestBuilder.newAcolhido().setId(2L).setNome("Maria Souza").build();
+        Convenio convenio = new ConvenioTestBuilder().setId(1L).setDescricao("Convênio particular").build();
+        Internacao primeira = InternacaoTestBuilder.newInternacao().setId(10L).setAcolhido(primeiroAcolhido).setConvenio(convenio).build();
+        Internacao segunda = InternacaoTestBuilder.newInternacao().setId(11L).setAcolhido(segundoAcolhido).setConvenio(convenio).build();
+        Page<Internacao> resultado = new PageImpl<>(List.of(primeira, segunda), pageable, 5);
+
+        Mockito.when(service.findInternacaoByAcolhidoName(nome, pageable)).thenReturn(resultado);
+
+        ResponseEntity<PageResponseDto<InternacaoResponseDto>> response = controller.findInternacaoByAcolhidoName(nome, pageable);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertNotNull(response.getBody());
+
+        PageResponseDto<InternacaoResponseDto> body = response.getBody();
+
+        assertAll(
+                () -> assertEquals(2, body.content().size()),
+                () -> assertEquals(10L, body.content().get(0).id()),
+                () -> assertEquals(11L, body.content().get(1).id()),
+                () -> assertEquals(1, body.page()),
+                () -> assertEquals(2, body.size()),
+                () -> assertEquals(5, body.totalElements()),
+                () -> assertEquals(3, body.totalPages()),
+                () -> assertFalse(body.first()),
+                () -> assertFalse(body.last())
+        );
+
+        Mockito.verify(service).findInternacaoByAcolhidoName(nome, pageable);
+        Mockito.verifyNoMoreInteractions(service);
+        Mockito.verifyNoInteractions(acolhidoService, convenioService);
+    }
+
+    @Test
+    void shouldReturnEmptyPageWhenNoInternacoesMatchAcolhidoName()
+    {
+        String nome = "Nome inexistente";
+        Pageable pageable = PageRequest.of(0, 10);
+        Page<Internacao> resultado = new PageImpl<>(List.of(), pageable, 0);
+
+        Mockito.when(service.findInternacaoByAcolhidoName(nome, pageable)).thenReturn(resultado);
+
+        ResponseEntity<PageResponseDto<InternacaoResponseDto>> response = controller.findInternacaoByAcolhidoName(nome, pageable);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertNotNull(response.getBody());
+
+        PageResponseDto<InternacaoResponseDto> body = response.getBody();
+
+        assertAll(
+                () -> assertTrue(body.content().isEmpty()),
+                () -> assertEquals(0, body.page()),
+                () -> assertEquals(10, body.size()),
+                () -> assertEquals(0, body.totalElements()),
+                () -> assertEquals(0, body.totalPages()),
+                () -> assertTrue(body.first()),
+                () -> assertTrue(body.last())
+        );
+
+        Mockito.verify(service).findInternacaoByAcolhidoName(nome, pageable);
         Mockito.verifyNoMoreInteractions(service);
         Mockito.verifyNoInteractions(acolhidoService, convenioService);
     }

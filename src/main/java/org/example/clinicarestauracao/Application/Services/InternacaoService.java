@@ -12,8 +12,9 @@ import org.example.clinicarestauracao.Domain.Entities.Convenio;
 import org.example.clinicarestauracao.Domain.Entities.Internacao;
 import org.example.clinicarestauracao.Infrastruct.Database.Audit.DatabaseAuditContext;
 import org.example.clinicarestauracao.Domain.Enums.AltaTypes;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
@@ -178,5 +179,17 @@ public class InternacaoService
     public List<TreatmentStageByConvenio> findRelatorioSituacaoInternacoesPorConvenio()
     {
         return repository.findTreatmentStageByConvenio();
+    }
+
+    public Page<Internacao> findInternacaoByAcolhidoName(String nome, Pageable pageable)
+    {
+        if (nome == null || nome.isBlank())
+        {
+            throw new InternacaoNotFoundException("Internação não encontrada.");
+        }
+
+        String formated = nome.strip();
+
+        return repository.findInternacaoByAcolhido_NomeContainingIgnoreCase(formated, pageable);
     }
 }
