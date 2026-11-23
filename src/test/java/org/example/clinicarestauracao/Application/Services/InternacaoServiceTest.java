@@ -1002,5 +1002,70 @@ class InternacaoServiceTest
         Mockito.verifyNoMoreInteractions(repository);
     }
 
+    // Testes findInternacaoByTreatmentStage
+
+    @Test
+    void shouldFindInternacoesByTreatmentStageAndReturnPage()
+    {
+        TreatmentStage stage = TreatmentStage.PROXIMO_ALTA;
+        Pageable pageable = PageRequest.of(1, 2);
+        List<Internacao> internacoes = List.of(
+                InternacaoTestBuilder.newInternacao().setId(3L).setEtapaTratamento(stage).build(),
+                InternacaoTestBuilder.newInternacao().setId(4L).setEtapaTratamento(stage).build()
+        );
+        Page<Internacao> paginaEsperada = new PageImpl<>(internacoes, pageable, 5);
+
+        Mockito.when(repository.findInternacaoByEtapaTratamento(stage, pageable)).thenReturn(paginaEsperada);
+
+        Page<Internacao> response = service.findInternacaoByTreatmentStage(stage, pageable);
+
+        assertAll(
+                () -> assertSame(paginaEsperada, response),
+                () -> assertEquals(2, response.getContent().size()),
+                () -> assertEquals(5, response.getTotalElements()),
+                () -> assertEquals(3, response.getTotalPages()),
+                () -> assertEquals(1, response.getNumber()),
+                () -> assertEquals(2, response.getSize()),
+                () -> assertTrue(response.getContent().stream().allMatch(internacao -> internacao.getEtapaTratamento() == stage))
+        );
+
+        Mockito.verify(repository).findInternacaoByEtapaTratamento(stage, pageable);
+        Mockito.verifyNoMoreInteractions(repository);
+    }
+
+    @Test
+    void shouldThrowInternacaoNotFoundExceptionWhenTreatmentStageIsNull()
+    {
+        InternacaoNotFoundException exception = assertThrows(
+                InternacaoNotFoundException.class,
+                () -> service.findInternacaoByTreatmentStage(null, PageRequest.of(0, 10))
+        );
+
+        assertEquals("Internação não encontrada.", exception.getMessage());
+        Mockito.verifyNoInteractions(repository);
+    }
+
+    @Test
+    void shouldReturnEmptyPageWhenNoInternacoesMatchTreatmentStage()
+    {
+        TreatmentStage stage = TreatmentStage.ALTA_CONCEDIDA;
+        Pageable pageable = PageRequest.of(0, 10);
+        Page<Internacao> paginaVazia = Page.empty(pageable);
+
+        Mockito.when(repository.findInternacaoByEtapaTratamento(stage, pageable)).thenReturn(paginaVazia);
+
+        Page<Internacao> response = service.findInternacaoByTreatmentStage(stage, pageable);
+
+        assertAll(
+                () -> assertSame(paginaVazia, response),
+                () -> assertTrue(response.isEmpty()),
+                () -> assertEquals(0, response.getTotalElements()),
+                () -> assertEquals(0, response.getTotalPages())
+        );
+
+        Mockito.verify(repository).findInternacaoByEtapaTratamento(stage, pageable);
+        Mockito.verifyNoMoreInteractions(repository);
+    }
+
 
 }

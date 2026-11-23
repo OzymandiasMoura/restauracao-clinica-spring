@@ -8,6 +8,7 @@ import org.example.clinicarestauracao.Application.Services.AcolhidoService;
 import org.example.clinicarestauracao.Application.Services.ConvenioService;
 import org.example.clinicarestauracao.Application.Services.InternacaoService;
 import org.example.clinicarestauracao.Domain.Entities.Internacao;
+import org.example.clinicarestauracao.Domain.Enums.TreatmentStage;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
@@ -132,6 +133,15 @@ public class InternacaoController
     public ResponseEntity<PageResponseDto<InternacaoResponseDto>> findInternacaoByAcolhidoCpf(@RequestParam String cpf, Pageable pageable)
     {
         Page<Internacao> page = service.findInternacaoByAcolhidoCpf(cpf, pageable);
+        Page<InternacaoResponseDto> responsePage = page.map(InternacaoMapper::entityToResponseDto);
+
+        return ResponseEntity.ok().body(PageResponseDto.from(responsePage));
+    }
+
+    @GetMapping("/search/estagio")
+    public ResponseEntity<PageResponseDto<InternacaoResponseDto>> findInternacaoByTreatmentStage(@RequestParam TreatmentStage stage, Pageable pageable)
+    {
+        Page<Internacao> page = service.findInternacaoByTreatmentStage(stage, pageable);
         Page<InternacaoResponseDto> responsePage = page.map(InternacaoMapper::entityToResponseDto);
 
         return ResponseEntity.ok().body(PageResponseDto.from(responsePage));

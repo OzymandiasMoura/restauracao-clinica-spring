@@ -5,6 +5,7 @@ import org.example.clinicarestauracao.Application.Reports.TreatmentStageByConven
 import org.example.clinicarestauracao.Domain.Entities.Acolhido;
 import org.example.clinicarestauracao.Domain.Entities.Convenio;
 import org.example.clinicarestauracao.Domain.Entities.Internacao;
+import org.example.clinicarestauracao.Domain.Enums.TreatmentStage;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.domain.Page;
@@ -67,5 +68,7 @@ public interface InternacaoRepository extends JpaRepository<Internacao, Long>
     Page<Internacao> findInternacaoByAcolhido_NomeContainingIgnoreCase(String nome, Pageable pageable);
 
     Page<Internacao> findInternacaoByAcolhido_CpfContainingIgnoreCase(String cpf, Pageable pageable);
+
+    Page<Internacao> findInternacaoByEtapaTratamento(TreatmentStage etapaTratamento, Pageable pageable);
 
 }

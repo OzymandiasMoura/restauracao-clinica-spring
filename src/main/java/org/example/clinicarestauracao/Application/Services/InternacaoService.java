@@ -10,6 +10,7 @@ import org.example.clinicarestauracao.Application.Reports.TreatmentStageByConven
 import org.example.clinicarestauracao.Domain.Entities.Acolhido;
 import org.example.clinicarestauracao.Domain.Entities.Convenio;
 import org.example.clinicarestauracao.Domain.Entities.Internacao;
+import org.example.clinicarestauracao.Domain.Enums.TreatmentStage;
 import org.example.clinicarestauracao.Domain.Validation.CpfValidator;
 import org.example.clinicarestauracao.Infrastruct.Database.Audit.DatabaseAuditContext;
 import org.example.clinicarestauracao.Domain.Enums.AltaTypes;
@@ -209,5 +210,15 @@ public class InternacaoService
         }
 
         return repository.findInternacaoByAcolhido_CpfContainingIgnoreCase(formatted, pageable);
+    }
+
+    public Page<Internacao> findInternacaoByTreatmentStage(TreatmentStage stage, Pageable pageable)
+    {
+        if (stage == null)
+        {
+            throw new InternacaoNotFoundException("Internação não encontrada.");
+        }
+
+        return repository.findInternacaoByEtapaTratamento(stage, pageable);
     }
 }
