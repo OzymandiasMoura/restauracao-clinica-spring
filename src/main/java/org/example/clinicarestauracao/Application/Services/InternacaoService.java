@@ -91,7 +91,7 @@ public class InternacaoService
         {
             throw new InternacaoWithInvalidInformationException("Acolhido já possui internação ativa.");
         }
-        Long numInternacoes = repository.countByConvenioAndAtivoTrue(convenio);
+        long numInternacoes = repository.countByConvenioAndAtivoTrue(convenio);
         if (numInternacoes >= convenio.getMaxVagas())
         {
             throw new InternacaoWithInvalidInformationException("Vagas maxima excedente.");
@@ -168,9 +168,8 @@ public class InternacaoService
     public Long countInternacoesAtivasByConvenio(Long id)
     {
         Convenio convenio = convenioService.findConvenioById(id);
-        long qtde = repository.countByConvenioAndAtivoTrue(convenio);
 
-        return qtde;
+        return repository.countByConvenioAndAtivoTrue(convenio);
     }
 
     public List<InternacoesAtivasByConvenio> findRelatorioInternacoesAtivasPorConvenio()
