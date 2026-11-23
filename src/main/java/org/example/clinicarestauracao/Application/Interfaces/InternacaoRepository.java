@@ -66,4 +66,6 @@ public interface InternacaoRepository extends JpaRepository<Internacao, Long>
 
     Page<Internacao> findInternacaoByAcolhido_NomeContainingIgnoreCase(String nome, Pageable pageable);
 
+    Page<Internacao> findInternacaoByAcolhido_CpfContainingIgnoreCase(String cpf, Pageable pageable);
+
 }

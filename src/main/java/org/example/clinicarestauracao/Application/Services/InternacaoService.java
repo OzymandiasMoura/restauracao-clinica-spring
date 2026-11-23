@@ -10,6 +10,7 @@ import org.example.clinicarestauracao.Application.Reports.TreatmentStageByConven
 import org.example.clinicarestauracao.Domain.Entities.Acolhido;
 import org.example.clinicarestauracao.Domain.Entities.Convenio;
 import org.example.clinicarestauracao.Domain.Entities.Internacao;
+import org.example.clinicarestauracao.Domain.Validation.CpfValidator;
 import org.example.clinicarestauracao.Infrastruct.Database.Audit.DatabaseAuditContext;
 import org.example.clinicarestauracao.Domain.Enums.AltaTypes;
 import org.springframework.data.domain.Page;
@@ -188,8 +189,25 @@ public class InternacaoService
             throw new InternacaoNotFoundException("Internação não encontrada.");
         }
 
-        String formated = nome.strip();
+        String formatted = nome.strip();
 
-        return repository.findInternacaoByAcolhido_NomeContainingIgnoreCase(formated, pageable);
+        return repository.findInternacaoByAcolhido_NomeContainingIgnoreCase(formatted, pageable);
+    }
+
+    public Page<Internacao> findInternacaoByAcolhidoCpf(String cpf, Pageable pageable)
+    {
+        if(cpf == null || cpf.isBlank())
+        {
+            throw new InternacaoNotFoundException("Internação não encontrada.");
+        }
+
+        String formatted = CpfValidator.normalize(cpf);
+
+        if (formatted.isBlank())
+        {
+            throw new InternacaoNotFoundException("Internação não encontrada.");
+        }
+
+        return repository.findInternacaoByAcolhido_CpfContainingIgnoreCase(formatted, pageable);
     }
 }

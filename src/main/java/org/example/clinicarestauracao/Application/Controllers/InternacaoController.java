@@ -125,6 +125,15 @@ public class InternacaoController
         Page<Internacao> page = service.findInternacaoByAcolhidoName(nome, pageable);
         Page<InternacaoResponseDto> responsePage = page.map(InternacaoMapper::entityToResponseDto);
 
-        return ResponseEntity.ok(PageResponseDto.from(responsePage));
+        return ResponseEntity.ok().body(PageResponseDto.from(responsePage));
+    }
+
+    @GetMapping("/search/acolhido/cpf")
+    public ResponseEntity<PageResponseDto<InternacaoResponseDto>> findInternacaoByAcolhidoCpf(@RequestParam String cpf, Pageable pageable)
+    {
+        Page<Internacao> page = service.findInternacaoByAcolhidoCpf(cpf, pageable);
+        Page<InternacaoResponseDto> responsePage = page.map(InternacaoMapper::entityToResponseDto);
+
+        return ResponseEntity.ok().body(PageResponseDto.from(responsePage));
     }
 }

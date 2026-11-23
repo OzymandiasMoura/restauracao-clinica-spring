@@ -942,5 +942,65 @@ class InternacaoServiceTest
         Mockito.verifyNoMoreInteractions(repository);
     }
 
+    // Testes findInternacaoByAcolhidoCpf
+
+    @Test
+    void shouldFindInternacoesByPartialAcolhidoCpfAndReturnPage()
+    {
+        String cpf = "390.533";
+        Pageable pageable = PageRequest.of(1, 2);
+        List<Internacao> internacoes = List.of(InternacaoTestBuilder.newInternacao().setId(3L).build(), InternacaoTestBuilder.newInternacao().setId(4L).build());
+        Page<Internacao> paginaEsperada = new PageImpl<>(internacoes, pageable, 5);
+
+        Mockito.when(repository.findInternacaoByAcolhido_CpfContainingIgnoreCase("390533", pageable)).thenReturn(paginaEsperada);
+
+        Page<Internacao> response = service.findInternacaoByAcolhidoCpf(cpf, pageable);
+
+        assertAll(
+                () -> assertSame(paginaEsperada, response),
+                () -> assertEquals(2, response.getContent().size()),
+                () -> assertEquals(5, response.getTotalElements()),
+                () -> assertEquals(3, response.getTotalPages()),
+                () -> assertEquals(1, response.getNumber()),
+                () -> assertEquals(2, response.getSize())
+        );
+
+        Mockito.verify(repository).findInternacaoByAcolhido_CpfContainingIgnoreCase("390533", pageable);
+        Mockito.verifyNoMoreInteractions(repository);
+    }
+
+    @ParameterizedTest
+    @NullSource
+    @ValueSource(strings = {"", " ", "\t", ".", "-", " .- "})
+    void shouldThrowInternacaoNotFoundExceptionWhenAcolhidoCpfIsNullBlankOrNormalizesToBlank(String cpf)
+    {
+        InternacaoNotFoundException exception = assertThrows(InternacaoNotFoundException.class, () -> service.findInternacaoByAcolhidoCpf(cpf, PageRequest.of(0, 10)));
+
+        assertEquals("Internação não encontrada.", exception.getMessage());
+        Mockito.verifyNoInteractions(repository);
+    }
+
+    @Test
+    void shouldReturnEmptyPageWhenNoInternacoesMatchAcolhidoCpf()
+    {
+        String cpf = "390.533";
+        Pageable pageable = PageRequest.of(0, 10);
+        Page<Internacao> paginaVazia = Page.empty(pageable);
+
+        Mockito.when(repository.findInternacaoByAcolhido_CpfContainingIgnoreCase("390533", pageable)).thenReturn(paginaVazia);
+
+        Page<Internacao> response = service.findInternacaoByAcolhidoCpf(cpf, pageable);
+
+        assertAll(
+                () -> assertSame(paginaVazia, response),
+                () -> assertTrue(response.isEmpty()),
+                () -> assertEquals(0, response.getTotalElements()),
+                () -> assertEquals(0, response.getTotalPages())
+        );
+
+        Mockito.verify(repository).findInternacaoByAcolhido_CpfContainingIgnoreCase("390533", pageable);
+        Mockito.verifyNoMoreInteractions(repository);
+    }
+
 
 }
