@@ -10,6 +10,7 @@ import org.example.clinicarestauracao.Application.Exceptions.Convenio.ConvenioWi
 import org.example.clinicarestauracao.Application.Exceptions.Endereco.EnderecoWithInvalidInformationException;
 import org.example.clinicarestauracao.Application.Exceptions.Funcionario.FuncionarioNotFoundException;
 import org.example.clinicarestauracao.Application.Exceptions.Funcionario.FuncionarioWithInvalidInformationException;
+import org.example.clinicarestauracao.Application.Exceptions.Internacao.InternacaoInvalidQueryException;
 import org.example.clinicarestauracao.Application.Exceptions.Internacao.InternacaoNotFoundException;
 import org.example.clinicarestauracao.Application.Exceptions.Internacao.InternacaoWithInvalidInformationException;
 import org.example.clinicarestauracao.Application.Exceptions.Responsavel.ResponsavelNotFoundException;
@@ -209,6 +210,20 @@ class GlobalExceptionHandlerTest
                 () -> assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode()),
                 () -> assertNotNull(response.getBody()),
                 () -> assertEquals("Internação não encontrada.", response.getBody().message())
+        );
+    }
+
+    @Test
+    void shouldReturnBadRequestWhenInternacaoQueryIsInvalid()
+    {
+        InternacaoInvalidQueryException exception = new InternacaoInvalidQueryException("Data de início não pode ser posterior à data de fim.");
+
+        ResponseEntity<ErrorResponseDto> response = handler.handleInternacaoInvalidQueryException(exception);
+
+        assertAll(
+                () -> assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode()),
+                () -> assertNotNull(response.getBody()),
+                () -> assertEquals("Data de início não pode ser posterior à data de fim.", response.getBody().message())
         );
     }
 

@@ -12,6 +12,7 @@ import org.example.clinicarestauracao.Application.Exceptions.Convenio.ConvenioWi
 import org.example.clinicarestauracao.Application.Exceptions.Endereco.EnderecoWithInvalidInformationException;
 import org.example.clinicarestauracao.Application.Exceptions.Funcionario.FuncionarioNotFoundException;
 import org.example.clinicarestauracao.Application.Exceptions.Funcionario.FuncionarioWithInvalidInformationException;
+import org.example.clinicarestauracao.Application.Exceptions.Internacao.InternacaoInvalidQueryException;
 import org.example.clinicarestauracao.Application.Exceptions.Medicamento.MedicamentoNotFoundException;
 import org.example.clinicarestauracao.Application.Exceptions.Medicamento.MedicamentoWithInvalidInformationException;
 import org.example.clinicarestauracao.Application.Exceptions.Internacao.InternacaoNotFoundException;
@@ -193,6 +194,13 @@ public class GlobalExceptionHandler
     {
         var response = new ErrorResponseDto(ex.getMessage());
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+    }
+
+    @ExceptionHandler(InternacaoInvalidQueryException.class)
+    public ResponseEntity<ErrorResponseDto> handleInternacaoInvalidQueryException(InternacaoInvalidQueryException ex)
+    {
+        var response = new ErrorResponseDto(ex.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
 
     @ExceptionHandler(PagamentoWithInvalidInformationException.class)
