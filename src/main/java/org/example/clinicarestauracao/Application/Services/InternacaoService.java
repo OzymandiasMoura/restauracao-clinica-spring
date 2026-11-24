@@ -2,6 +2,7 @@ package org.example.clinicarestauracao.Application.Services;
 
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
+import org.example.clinicarestauracao.Application.Exceptions.Internacao.InternacaoInvalidQueryException;
 import org.example.clinicarestauracao.Application.Exceptions.Internacao.InternacaoNotFoundException;
 import org.example.clinicarestauracao.Application.Exceptions.Internacao.InternacaoWithInvalidInformationException;
 import org.example.clinicarestauracao.Application.Interfaces.InternacaoRepository;
@@ -215,9 +216,27 @@ public class InternacaoService
     {
         if (stage == null)
         {
-            throw new InternacaoNotFoundException("Internação não encontrada.");
+            throw new InternacaoInvalidQueryException("Estagio do tratamento não pode ser nulo.");
         }
 
         return repository.findInternacaoByEtapaTratamento(stage, pageable);
+    }
+
+    public Page<Internacao> findInternacaoByDataEntrada(LocalDate inicio, LocalDate fim, Pageable pageable)
+    {
+        if(inicio == null || fim == null)
+        {
+            throw new InternacaoInvalidQueryException("Datas não podem ser nulas.");
+        }
+        if(inicio.isBefore(LocalDate.of(1900, 1, 1)))
+        {
+            throw new InternacaoInvalidQueryException("Data de inicio não pode ser anterior a 1900.");
+        }
+        if(inicio.isAfter(fim))
+        {
+            throw new InternacaoInvalidQueryException("Data de inicio não pode ser posterior a data de fim.");
+        }
+
+        return repository.findInternacaoByDataEntradaBetween(inicio, fim, pageable);
     }
 }

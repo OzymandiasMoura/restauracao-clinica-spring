@@ -11,6 +11,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import java.time.LocalDate;
 import java.util.List;
 
 public interface InternacaoRepository extends JpaRepository<Internacao, Long>
@@ -70,5 +71,7 @@ public interface InternacaoRepository extends JpaRepository<Internacao, Long>
     Page<Internacao> findInternacaoByAcolhido_CpfContainingIgnoreCase(String cpf, Pageable pageable);
 
     Page<Internacao> findInternacaoByEtapaTratamento(TreatmentStage etapaTratamento, Pageable pageable);
+
+    Page<Internacao> findInternacaoByDataEntradaBetween(LocalDate inicio, LocalDate fim, Pageable pageable);
 
 }

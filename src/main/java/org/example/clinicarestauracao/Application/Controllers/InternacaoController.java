@@ -11,11 +11,13 @@ import org.example.clinicarestauracao.Domain.Entities.Internacao;
 import org.example.clinicarestauracao.Domain.Enums.TreatmentStage;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -145,5 +147,14 @@ public class InternacaoController
         Page<InternacaoResponseDto> responsePage = page.map(InternacaoMapper::entityToResponseDto);
 
         return ResponseEntity.ok().body(PageResponseDto.from(responsePage));
+    }
+
+    @GetMapping("/search/data-entrada")
+    public ResponseEntity<PageResponseDto<InternacaoResponseDto>> findInternacaoByDataEntrada(@RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dataEntradaInicio, @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dataEntradaFim, Pageable pageable)
+    {
+        Page<Internacao> page = service.findInternacaoByDataEntrada(dataEntradaInicio, dataEntradaFim, pageable);
+        Page<InternacaoResponseDto> responsePage = page.map(InternacaoMapper::entityToResponseDto);
+
+        return ResponseEntity.ok(PageResponseDto.from(responsePage));
     }
 }

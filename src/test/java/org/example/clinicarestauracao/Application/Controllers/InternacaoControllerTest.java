@@ -841,4 +841,79 @@ class InternacaoControllerTest
         Mockito.verifyNoInteractions(acolhidoService, convenioService);
     }
 
+    // Testes findInternacaoByDataEntrada
+
+    @Test
+    void shouldFindInternacoesByDataEntradaRangeAndReturnPageMetadata()
+    {
+        LocalDate inicio = LocalDate.of(2026, 1, 1);
+        LocalDate fim = LocalDate.of(2026, 3, 31);
+        Pageable pageable = PageRequest.of(1, 2);
+        Acolhido primeiroAcolhido = AcolhidoTestBuilder.newAcolhido().setId(1L).setNome("Gabriel Santos").build();
+        Acolhido segundoAcolhido = AcolhidoTestBuilder.newAcolhido().setId(2L).setNome("Juliana Oliveira").build();
+        Convenio convenio = new ConvenioTestBuilder().setId(1L).setDescricao("Convênio particular").build();
+        Internacao primeira = InternacaoTestBuilder.newInternacao().setId(10L).setAcolhido(primeiroAcolhido).setConvenio(convenio).setDataEntrada(LocalDate.of(2026, 1, 15)).build();
+        Internacao segunda = InternacaoTestBuilder.newInternacao().setId(11L).setAcolhido(segundoAcolhido).setConvenio(convenio).setDataEntrada(LocalDate.of(2026, 3, 15)).build();
+        Page<Internacao> resultado = new PageImpl<>(List.of(primeira, segunda), pageable, 5);
+
+        Mockito.when(service.findInternacaoByDataEntrada(inicio, fim, pageable)).thenReturn(resultado);
+
+        ResponseEntity<PageResponseDto<InternacaoResponseDto>> response = controller.findInternacaoByDataEntrada(inicio, fim, pageable);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertNotNull(response.getBody());
+
+        PageResponseDto<InternacaoResponseDto> body = response.getBody();
+
+        assertAll(
+                () -> assertEquals(2, body.content().size()),
+                () -> assertEquals(10L, body.content().get(0).id()),
+                () -> assertEquals(11L, body.content().get(1).id()),
+                () -> assertEquals(LocalDate.of(2026, 1, 15), body.content().get(0).dataEntrada()),
+                () -> assertEquals(LocalDate.of(2026, 3, 15), body.content().get(1).dataEntrada()),
+                () -> assertEquals(1, body.page()),
+                () -> assertEquals(2, body.size()),
+                () -> assertEquals(5, body.totalElements()),
+                () -> assertEquals(3, body.totalPages()),
+                () -> assertFalse(body.first()),
+                () -> assertFalse(body.last())
+        );
+
+        Mockito.verify(service).findInternacaoByDataEntrada(inicio, fim, pageable);
+        Mockito.verifyNoMoreInteractions(service);
+        Mockito.verifyNoInteractions(acolhidoService, convenioService);
+    }
+
+    @Test
+    void shouldReturnEmptyPageWhenNoInternacoesMatchDataEntradaRange()
+    {
+        LocalDate inicio = LocalDate.of(2026, 1, 1);
+        LocalDate fim = LocalDate.of(2026, 3, 31);
+        Pageable pageable = PageRequest.of(0, 10);
+        Page<Internacao> resultado = new PageImpl<>(List.of(), pageable, 0);
+
+        Mockito.when(service.findInternacaoByDataEntrada(inicio, fim, pageable)).thenReturn(resultado);
+
+        ResponseEntity<PageResponseDto<InternacaoResponseDto>> response = controller.findInternacaoByDataEntrada(inicio, fim, pageable);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertNotNull(response.getBody());
+
+        PageResponseDto<InternacaoResponseDto> body = response.getBody();
+
+        assertAll(
+                () -> assertTrue(body.content().isEmpty()),
+                () -> assertEquals(0, body.page()),
+                () -> assertEquals(10, body.size()),
+                () -> assertEquals(0, body.totalElements()),
+                () -> assertEquals(0, body.totalPages()),
+                () -> assertTrue(body.first()),
+                () -> assertTrue(body.last())
+        );
+
+        Mockito.verify(service).findInternacaoByDataEntrada(inicio, fim, pageable);
+        Mockito.verifyNoMoreInteractions(service);
+        Mockito.verifyNoInteractions(acolhidoService, convenioService);
+    }
+
 }

@@ -1,6 +1,7 @@
 package org.example.clinicarestauracao.Application.Services;
 
 import org.example.clinicarestauracao.Application.Exceptions.Convenio.ConvenioNotFoundException;
+import org.example.clinicarestauracao.Application.Exceptions.Internacao.InternacaoInvalidQueryException;
 import org.example.clinicarestauracao.Application.Exceptions.Internacao.InternacaoNotFoundException;
 import org.example.clinicarestauracao.Application.Exceptions.Internacao.InternacaoWithInvalidInformationException;
 import org.example.clinicarestauracao.Application.Interfaces.InternacaoRepository;
@@ -1034,14 +1035,14 @@ class InternacaoServiceTest
     }
 
     @Test
-    void shouldThrowInternacaoNotFoundExceptionWhenTreatmentStageIsNull()
+    void shouldThrowInternacaoInvalidQueryExceptionWhenTreatmentStageIsNull()
     {
-        InternacaoNotFoundException exception = assertThrows(
-                InternacaoNotFoundException.class,
+        InternacaoInvalidQueryException exception = assertThrows(
+                InternacaoInvalidQueryException.class,
                 () -> service.findInternacaoByTreatmentStage(null, PageRequest.of(0, 10))
         );
 
-        assertEquals("Internação não encontrada.", exception.getMessage());
+        assertEquals("Estagio do tratamento não pode ser nulo.", exception.getMessage());
         Mockito.verifyNoInteractions(repository);
     }
 
@@ -1064,6 +1065,114 @@ class InternacaoServiceTest
         );
 
         Mockito.verify(repository).findInternacaoByEtapaTratamento(stage, pageable);
+        Mockito.verifyNoMoreInteractions(repository);
+    }
+
+    // Testes findInternacaoByDataEntrada
+
+    @Test
+    void shouldFindInternacoesWithinDataEntradaRangeAndReturnPage()
+    {
+        LocalDate inicio = LocalDate.of(2026, 1, 1);
+        LocalDate fim = LocalDate.of(2026, 3, 31);
+        Pageable pageable = PageRequest.of(0, 10);
+        List<Internacao> internacoes = List.of(
+                InternacaoTestBuilder.newInternacao().setId(3L).build(),
+                InternacaoTestBuilder.newInternacao().setId(4L).build()
+        );
+        Page<Internacao> paginaEsperada = new PageImpl<>(internacoes, pageable, 2);
+
+        Mockito.when(repository.findInternacaoByDataEntradaBetween(inicio, fim, pageable))
+                .thenReturn(paginaEsperada);
+
+        Page<Internacao> response = service.findInternacaoByDataEntrada(inicio, fim, pageable);
+
+        assertAll(
+                () -> assertSame(paginaEsperada, response),
+                () -> assertEquals(2, response.getContent().size()),
+                () -> assertEquals(2, response.getTotalElements()),
+                () -> assertEquals(1, response.getTotalPages()),
+                () -> assertEquals(0, response.getNumber()),
+                () -> assertEquals(10, response.getSize())
+        );
+
+        Mockito.verify(repository).findInternacaoByDataEntradaBetween(inicio, fim, pageable);
+        Mockito.verifyNoMoreInteractions(repository);
+    }
+
+    @Test
+    void shouldThrowInternacaoInvalidQueryExceptionWhenDateRangeContainsNull()
+    {
+        LocalDate data = LocalDate.of(2026, 1, 1);
+        Pageable pageable = PageRequest.of(0, 10);
+
+        InternacaoInvalidQueryException nullStartException = assertThrows(
+                InternacaoInvalidQueryException.class,
+                () -> service.findInternacaoByDataEntrada(null, data, pageable)
+        );
+        InternacaoInvalidQueryException nullEndException = assertThrows(
+                InternacaoInvalidQueryException.class,
+                () -> service.findInternacaoByDataEntrada(data, null, pageable)
+        );
+
+        assertAll(
+                () -> assertEquals("Datas não podem ser nulas.", nullStartException.getMessage()),
+                () -> assertEquals("Datas não podem ser nulas.", nullEndException.getMessage())
+        );
+        Mockito.verifyNoInteractions(repository);
+    }
+
+    @Test
+    void shouldThrowInternacaoInvalidQueryExceptionWhenStartDateIsBefore1900()
+    {
+        LocalDate inicio = LocalDate.of(1899, 12, 31);
+        LocalDate fim = LocalDate.of(1900, 1, 1);
+
+        InternacaoInvalidQueryException exception = assertThrows(
+                InternacaoInvalidQueryException.class,
+                () -> service.findInternacaoByDataEntrada(inicio, fim, PageRequest.of(0, 10))
+        );
+
+        assertEquals("Data de inicio não pode ser anterior a 1900.", exception.getMessage());
+        Mockito.verifyNoInteractions(repository);
+    }
+
+    @Test
+    void shouldThrowInternacaoInvalidQueryExceptionWhenStartDateIsAfterEndDate()
+    {
+        LocalDate inicio = LocalDate.of(2026, 3, 1);
+        LocalDate fim = LocalDate.of(2026, 2, 28);
+
+        InternacaoInvalidQueryException exception = assertThrows(
+                InternacaoInvalidQueryException.class,
+                () -> service.findInternacaoByDataEntrada(inicio, fim, PageRequest.of(0, 10))
+        );
+
+        assertEquals("Data de inicio não pode ser posterior a data de fim.", exception.getMessage());
+        Mockito.verifyNoInteractions(repository);
+    }
+
+    @Test
+    void shouldReturnEmptyPageWhenNoInternacoesMatchDataEntradaRange()
+    {
+        LocalDate inicio = LocalDate.of(2026, 1, 1);
+        LocalDate fim = LocalDate.of(2026, 3, 31);
+        Pageable pageable = PageRequest.of(0, 10);
+        Page<Internacao> paginaVazia = Page.empty(pageable);
+
+        Mockito.when(repository.findInternacaoByDataEntradaBetween(inicio, fim, pageable))
+                .thenReturn(paginaVazia);
+
+        Page<Internacao> response = service.findInternacaoByDataEntrada(inicio, fim, pageable);
+
+        assertAll(
+                () -> assertSame(paginaVazia, response),
+                () -> assertTrue(response.isEmpty()),
+                () -> assertEquals(0, response.getTotalElements()),
+                () -> assertEquals(0, response.getTotalPages())
+        );
+
+        Mockito.verify(repository).findInternacaoByDataEntradaBetween(inicio, fim, pageable);
         Mockito.verifyNoMoreInteractions(repository);
     }
 
