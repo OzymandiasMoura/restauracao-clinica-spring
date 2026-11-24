@@ -81,7 +81,10 @@ public class InternacaoService
         Convenio convenio = convenioService.findConvenioById(internacao.getConvenio().getId());
         Acolhido acolhido = acolhidoService.findAcolhidoById(internacao.getAcolhido().getId());
 
-
+        if(repository.existsByAcolhidoAndAlta(acolhido, AltaTypes.OBITO))
+        {
+            throw new InternacaoWithInvalidInformationException("Acolhido se encontra em óbito.");
+        }
         if (!convenio.isAtivo())
         {
             throw new InternacaoWithInvalidInformationException("Convênio inválido.");

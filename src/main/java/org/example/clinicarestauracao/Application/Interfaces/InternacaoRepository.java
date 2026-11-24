@@ -5,6 +5,7 @@ import org.example.clinicarestauracao.Application.Reports.TreatmentStageByConven
 import org.example.clinicarestauracao.Domain.Entities.Acolhido;
 import org.example.clinicarestauracao.Domain.Entities.Convenio;
 import org.example.clinicarestauracao.Domain.Entities.Internacao;
+import org.example.clinicarestauracao.Domain.Enums.AltaTypes;
 import org.example.clinicarestauracao.Domain.Enums.TreatmentStage;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -73,5 +74,7 @@ public interface InternacaoRepository extends JpaRepository<Internacao, Long>
     Page<Internacao> findInternacaoByEtapaTratamento(TreatmentStage etapaTratamento, Pageable pageable);
 
     Page<Internacao> findInternacaoByDataEntradaBetween(LocalDate inicio, LocalDate fim, Pageable pageable);
+
+    boolean existsByAcolhidoAndAlta(Acolhido acolhido, AltaTypes alta);
 
 }

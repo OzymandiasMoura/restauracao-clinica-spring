@@ -265,6 +265,7 @@ class InternacaoServiceTest
 
         Mockito.when(convenioService.findConvenioById(1L)).thenReturn(convenioPersistido);
         Mockito.when(acolhidoService.findAcolhidoById(1L)).thenReturn(acolhidoPersistido);
+        Mockito.when(repository.existsByAcolhidoAndAlta(Mockito.same(acolhidoPersistido), Mockito.eq(AltaTypes.OBITO))).thenReturn(false);
         Mockito.when(repository.existsByAcolhidoAndAtivoTrue(Mockito.same(acolhidoPersistido))).thenReturn(false);
         Mockito.when(repository.countByConvenioAndAtivoTrue(Mockito.same(convenioPersistido))).thenReturn(19L);
         Mockito.when(repository.save(internacao)).thenReturn(internacaoSalva);
@@ -275,9 +276,42 @@ class InternacaoServiceTest
 
         Mockito.verify(convenioService).findConvenioById(1L);
         Mockito.verify(acolhidoService).findAcolhidoById(1L);
+        Mockito.verify(repository).existsByAcolhidoAndAlta(Mockito.same(acolhidoPersistido), Mockito.eq(AltaTypes.OBITO));
         Mockito.verify(repository).existsByAcolhidoAndAtivoTrue(Mockito.same(acolhidoPersistido));
         Mockito.verify(repository).countByConvenioAndAtivoTrue(Mockito.same(convenioPersistido));
         Mockito.verify(repository).save(Mockito.same(internacao));
+    }
+
+    @Test
+    void shouldRejectCreatingInternacaoWhenAcolhidoHasDeathDischarge()
+    {
+        Acolhido acolhidoRecebido = AcolhidoTestBuilder.newAcolhido().setId(1L).build();
+        Acolhido acolhidoPersistido = AcolhidoTestBuilder.newAcolhido().setId(1L).build();
+        Convenio convenioRecebido = new ConvenioTestBuilder().setId(1L).build();
+        Convenio convenioPersistido = new ConvenioTestBuilder().setId(1L).build();
+        Internacao internacao = InternacaoTestBuilder.newInternacao()
+                .setAcolhido(acolhidoRecebido)
+                .setConvenio(convenioRecebido)
+                .buildForCreate();
+
+        Mockito.when(convenioService.findConvenioById(1L)).thenReturn(convenioPersistido);
+        Mockito.when(acolhidoService.findAcolhidoById(1L)).thenReturn(acolhidoPersistido);
+        Mockito.when(repository.existsByAcolhidoAndAlta(acolhidoPersistido, AltaTypes.OBITO)).thenReturn(true);
+
+        InternacaoWithInvalidInformationException exception = assertThrows(
+                InternacaoWithInvalidInformationException.class,
+                () -> service.createInternacao(internacao)
+        );
+
+        assertEquals("Acolhido se encontra em óbito.", exception.getMessage());
+
+        Mockito.verify(convenioService).findConvenioById(1L);
+        Mockito.verify(acolhidoService).findAcolhidoById(1L);
+        Mockito.verify(repository).existsByAcolhidoAndAlta(acolhidoPersistido, AltaTypes.OBITO);
+        Mockito.verify(repository, Mockito.never()).existsByAcolhidoAndAtivoTrue(Mockito.any(Acolhido.class));
+        Mockito.verify(repository, Mockito.never()).countByConvenioAndAtivoTrue(Mockito.any(Convenio.class));
+        Mockito.verify(repository, Mockito.never()).save(Mockito.any(Internacao.class));
+        Mockito.verifyNoMoreInteractions(repository);
     }
 
     @Test
@@ -300,6 +334,7 @@ class InternacaoServiceTest
 
         Mockito.when(convenioService.findConvenioById(1L)).thenReturn(convenioPersistido);
         Mockito.when(acolhidoService.findAcolhidoById(1L)).thenReturn(acolhido);
+        Mockito.when(repository.existsByAcolhidoAndAlta(acolhido, AltaTypes.OBITO)).thenReturn(false);
 
         InternacaoWithInvalidInformationException exception = assertThrows(InternacaoWithInvalidInformationException.class, () -> service.createInternacao(internacao));
 
@@ -307,7 +342,8 @@ class InternacaoServiceTest
 
         Mockito.verify(convenioService).findConvenioById(1L);
         Mockito.verify(acolhidoService).findAcolhidoById(1L);
-        Mockito.verifyNoInteractions(repository);
+        Mockito.verify(repository).existsByAcolhidoAndAlta(acolhido, AltaTypes.OBITO);
+        Mockito.verifyNoMoreInteractions(repository);
     }
 
     @Test
@@ -321,6 +357,7 @@ class InternacaoServiceTest
 
         Mockito.when(convenioService.findConvenioById(1L)).thenReturn(convenio);
         Mockito.when(acolhidoService.findAcolhidoById(1L)).thenReturn(acolhidoPersistido);
+        Mockito.when(repository.existsByAcolhidoAndAlta(acolhidoPersistido, AltaTypes.OBITO)).thenReturn(false);
 
         InternacaoWithInvalidInformationException exception = assertThrows(InternacaoWithInvalidInformationException.class, () -> service.createInternacao(internacao));
 
@@ -328,7 +365,8 @@ class InternacaoServiceTest
 
         Mockito.verify(convenioService).findConvenioById(1L);
         Mockito.verify(acolhidoService).findAcolhidoById(1L);
-        Mockito.verifyNoInteractions(repository);
+        Mockito.verify(repository).existsByAcolhidoAndAlta(acolhidoPersistido, AltaTypes.OBITO);
+        Mockito.verifyNoMoreInteractions(repository);
     }
 
     @Test
@@ -342,6 +380,7 @@ class InternacaoServiceTest
 
         Mockito.when(convenioService.findConvenioById(1L)).thenReturn(convenioPersistido);
         Mockito.when(acolhidoService.findAcolhidoById(1L)).thenReturn(acolhidoPersistido);
+        Mockito.when(repository.existsByAcolhidoAndAlta(acolhidoPersistido, AltaTypes.OBITO)).thenReturn(false);
         Mockito.when(repository.existsByAcolhidoAndAtivoTrue(Mockito.same(acolhidoPersistido))).thenReturn(true);
 
         InternacaoWithInvalidInformationException exception = assertThrows(InternacaoWithInvalidInformationException.class, () -> service.createInternacao(internacao));
@@ -350,6 +389,7 @@ class InternacaoServiceTest
 
         Mockito.verify(convenioService).findConvenioById(1L);
         Mockito.verify(acolhidoService).findAcolhidoById(1L);
+        Mockito.verify(repository).existsByAcolhidoAndAlta(acolhidoPersistido, AltaTypes.OBITO);
         Mockito.verify(repository).existsByAcolhidoAndAtivoTrue(Mockito.same(acolhidoPersistido));
         Mockito.verify(repository, Mockito.never()).countByConvenioAndAtivoTrue(Mockito.any(Convenio.class));
         Mockito.verify(repository, Mockito.never()).save(Mockito.any(Internacao.class));
@@ -367,6 +407,7 @@ class InternacaoServiceTest
 
         Mockito.when(convenioService.findConvenioById(1L)).thenReturn(convenioPersistido);
         Mockito.when(acolhidoService.findAcolhidoById(1L)).thenReturn(acolhidoPersistido);
+        Mockito.when(repository.existsByAcolhidoAndAlta(acolhidoPersistido, AltaTypes.OBITO)).thenReturn(false);
         Mockito.when(repository.existsByAcolhidoAndAtivoTrue(Mockito.same(acolhidoPersistido))).thenReturn(false);
         Mockito.when(repository.countByConvenioAndAtivoTrue(Mockito.same(convenioPersistido))).thenReturn(numeroInternacoesAtivas);
 
@@ -379,6 +420,7 @@ class InternacaoServiceTest
 
         Mockito.verify(convenioService).findConvenioById(1L);
         Mockito.verify(acolhidoService).findAcolhidoById(1L);
+        Mockito.verify(repository).existsByAcolhidoAndAlta(acolhidoPersistido, AltaTypes.OBITO);
         Mockito.verify(repository).existsByAcolhidoAndAtivoTrue(Mockito.same(acolhidoPersistido));
         Mockito.verify(repository).countByConvenioAndAtivoTrue(Mockito.same(convenioPersistido));
         Mockito.verify(repository, Mockito.never()).save(Mockito.any(Internacao.class));
