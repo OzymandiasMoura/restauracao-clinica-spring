@@ -6,6 +6,7 @@ import org.example.clinicarestauracao.Application.Exceptions.Internacao.Internac
 import org.example.clinicarestauracao.Application.Exceptions.Internacao.InternacaoNotFoundException;
 import org.example.clinicarestauracao.Application.Exceptions.Internacao.InternacaoWithInvalidInformationException;
 import org.example.clinicarestauracao.Application.Interfaces.InternacaoRepository;
+import org.example.clinicarestauracao.Application.Interfaces.PagamentoRepository;
 import org.example.clinicarestauracao.Application.Reports.InternacoesAtivasByConvenio;
 import org.example.clinicarestauracao.Application.Reports.TreatmentStageByConvenio;
 import org.example.clinicarestauracao.Domain.Entities.Acolhido;
@@ -27,6 +28,7 @@ import java.util.List;
 public class InternacaoService
 {
     private final InternacaoRepository repository;
+    private final PagamentoRepository pagamentoRepository;
     private final AcolhidoService acolhidoService;
     private final ConvenioService convenioService;
     private final DatabaseAuditContext audit;
@@ -135,6 +137,11 @@ public class InternacaoService
     public void deleteInternacaoById(Long id)
     {
         Internacao internacaoToDelete = findInternacaoById(id);
+
+        if (pagamentoRepository.existsByInternacaoId(id))
+        {
+            throw new InternacaoWithInvalidInformationException("Não é possível excluir a internação porque existem pagamentos vinculados.");
+        }
 
         audit.setCurrentActor();
 
