@@ -4,6 +4,7 @@ import org.example.clinicarestauracao.Application.Exceptions.Convenio.ConvenioNo
 import org.example.clinicarestauracao.Application.Exceptions.Internacao.InternacaoNotFoundException;
 import org.example.clinicarestauracao.Application.Exceptions.Internacao.InternacaoWithInvalidInformationException;
 import org.example.clinicarestauracao.Application.Interfaces.InternacaoRepository;
+import org.example.clinicarestauracao.Application.Interfaces.PagamentoRepository;
 import org.example.clinicarestauracao.Application.Reports.InternacoesAtivasByConvenio;
 import org.example.clinicarestauracao.Application.Reports.TreatmentStageByConvenio;
 import org.example.clinicarestauracao.Builders.AcolhidoTestBuilder;
@@ -37,6 +38,8 @@ class InternacaoServiceTest
 {
     @Mock
     private InternacaoRepository repository;
+    @Mock
+    private PagamentoRepository pagamentoRepository;
     @Mock
     private AcolhidoService acolhidoService;
     @Mock
@@ -630,15 +633,18 @@ class InternacaoServiceTest
         Internacao internacao = InternacaoTestBuilder.newInternacao().setId(1L).setAtivo(true).build();
 
         Mockito.when(repository.findById(1L)).thenReturn(Optional.of(internacao));
+        Mockito.when(pagamentoRepository.existsByInternacaoId(1L)).thenReturn(false);
 
         service.deleteInternacaoById(1L);
 
-        var inOrder = Mockito.inOrder(repository, audit);
+        var inOrder = Mockito.inOrder(repository, pagamentoRepository, audit);
         inOrder.verify(repository).findById(1L);
+        inOrder.verify(pagamentoRepository).existsByInternacaoId(1L);
         inOrder.verify(audit).setCurrentActor();
         inOrder.verify(repository).delete(Mockito.same(internacao));
         inOrder.verify(repository).flush();
         inOrder.verify(audit).clearActor();
+        Mockito.verifyNoMoreInteractions(repository, pagamentoRepository, audit);
         Mockito.verifyNoInteractions(acolhidoService, convenioService);
     }
 
@@ -651,16 +657,43 @@ class InternacaoServiceTest
         Internacao internacao = InternacaoTestBuilder.newInternacao().setId(1L).setDataEntrada(dataEntrada).setDataSaidaPrevista(dataEntrada.plusMonths(9)).setDataSaida(dataSaida).setAlta(AltaTypes.CONCLUSAO).setAtivo(false).build();
 
         Mockito.when(repository.findById(1L)).thenReturn(Optional.of(internacao));
+        Mockito.when(pagamentoRepository.existsByInternacaoId(1L)).thenReturn(false);
 
         service.deleteInternacaoById(1L);
 
-        var inOrder = Mockito.inOrder(repository, audit);
+        var inOrder = Mockito.inOrder(repository, pagamentoRepository, audit);
         inOrder.verify(repository).findById(1L);
+        inOrder.verify(pagamentoRepository).existsByInternacaoId(1L);
         inOrder.verify(audit).setCurrentActor();
         inOrder.verify(repository).delete(Mockito.same(internacao));
         inOrder.verify(repository).flush();
         inOrder.verify(audit).clearActor();
+        Mockito.verifyNoMoreInteractions(repository, pagamentoRepository, audit);
         Mockito.verifyNoInteractions(acolhidoService, convenioService);
+    }
+
+    @Test
+    void shouldRejectDeletingInternacaoWhenItHasLinkedPayments()
+    {
+        Internacao internacao = InternacaoTestBuilder.newInternacao().setId(1L).build();
+
+        Mockito.when(repository.findById(1L)).thenReturn(Optional.of(internacao));
+        Mockito.when(pagamentoRepository.existsByInternacaoId(1L)).thenReturn(true);
+
+        InternacaoWithInvalidInformationException exception = assertThrows(
+                InternacaoWithInvalidInformationException.class,
+                () -> service.deleteInternacaoById(1L)
+        );
+
+        assertEquals("Não é possível excluir a internação porque existem pagamentos vinculados.", exception.getMessage());
+
+        var inOrder = Mockito.inOrder(repository, pagamentoRepository);
+        inOrder.verify(repository).findById(1L);
+        inOrder.verify(pagamentoRepository).existsByInternacaoId(1L);
+        Mockito.verify(repository, Mockito.never()).delete(Mockito.any(Internacao.class));
+        Mockito.verify(repository, Mockito.never()).flush();
+        Mockito.verifyNoMoreInteractions(repository, pagamentoRepository);
+        Mockito.verifyNoInteractions(audit, acolhidoService, convenioService);
     }
 
     @Test
@@ -674,6 +707,7 @@ class InternacaoServiceTest
 
         Mockito.verify(repository).findById(1L);
         Mockito.verify(repository, Mockito.never()).delete(Mockito.any(Internacao.class));
+        Mockito.verifyNoInteractions(pagamentoRepository);
         Mockito.verifyNoInteractions(audit);
         Mockito.verifyNoInteractions(acolhidoService, convenioService);
     }
@@ -687,7 +721,7 @@ class InternacaoServiceTest
 
         assertEquals("Internação não encontrada.", exception.getMessage());
 
-        Mockito.verifyNoInteractions(repository, acolhidoService, convenioService, audit);
+        Mockito.verifyNoInteractions(repository, pagamentoRepository, acolhidoService, convenioService, audit);
     }
 
     // Testes updateTreatmentStage

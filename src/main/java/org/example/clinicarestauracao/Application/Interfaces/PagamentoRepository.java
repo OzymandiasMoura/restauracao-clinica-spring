@@ -30,4 +30,6 @@ public interface PagamentoRepository extends JpaRepository<Pagamento, Long> {
             String competencia,
             PagamentoStatus status
     );
+
+    boolean existsByInternacaoId(Long internacaoId);
 }
