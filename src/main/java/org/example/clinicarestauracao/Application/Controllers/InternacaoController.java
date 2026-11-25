@@ -106,7 +106,7 @@ public class InternacaoController
         return ResponseEntity.ok().body(qtde);
     }
 
-    @GetMapping("/relatorios/ativas-por-convenio")
+    @GetMapping("/report/ativas-por-convenio")
     public ResponseEntity<List<InternacoesAtivasByConvenioDto>> findRelatorioInternacoesAtivasPorConvenio()
     {
         List<InternacoesAtivasByConvenioDto> response = service.findRelatorioInternacoesAtivasPorConvenio().stream().map(InternacaoMapper::reportToResponseDto).toList();
@@ -114,7 +114,7 @@ public class InternacaoController
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/relatorios/etapas-por-convenio")
+    @GetMapping("/report/etapas-por-convenio")
     public ResponseEntity<List<TreatmentStageByConvenioDto>> findRelatorioTreatmentStageByConvenio()
     {
         List<TreatmentStageByConvenioDto> response = service.findRelatorioSituacaoInternacoesPorConvenio().stream().map(InternacaoMapper::reportToResponseDto).toList();
@@ -158,7 +158,7 @@ public class InternacaoController
         return ResponseEntity.ok(PageResponseDto.from(responsePage));
     }
 
-    @GetMapping("/relatorios/count-total")
+    @GetMapping("/report/count-total")
     public ResponseEntity<Long> countTotalInternacao()
     {
         return ResponseEntity.ok().body(service.countTotalInternacao());
