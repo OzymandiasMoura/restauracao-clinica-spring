@@ -254,4 +254,9 @@ public class InternacaoService
     {
         return repository.count();
     }
+
+    public Long countTotalInternacaoAtiva()
+    {
+        return repository.countByAtivoTrue();
+    }
 }

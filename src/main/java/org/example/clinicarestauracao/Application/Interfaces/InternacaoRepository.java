@@ -77,4 +77,6 @@ public interface InternacaoRepository extends JpaRepository<Internacao, Long>
 
     boolean existsByAcolhidoAndAlta(Acolhido acolhido, AltaTypes alta);
 
+    Long countByAtivoTrue();
+
 }

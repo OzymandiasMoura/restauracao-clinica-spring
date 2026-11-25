@@ -163,4 +163,10 @@ public class InternacaoController
     {
         return ResponseEntity.ok().body(service.countTotalInternacao());
     }
+
+    @GetMapping("/report/count-ativos")
+    public ResponseEntity<Long> countTotalInternacaoAtivo()
+    {
+        return ResponseEntity.ok().body(service.countTotalInternacaoAtiva());
+    }
 }

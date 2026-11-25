@@ -562,6 +562,24 @@ class InternacaoControllerTest
         Mockito.verifyNoInteractions(acolhidoService, convenioService);
     }
 
+    @ParameterizedTest
+    @ValueSource(longs = {0L, 5L})
+    void shouldReturnActiveInternacaoCountSuccessfully(long total)
+    {
+        Mockito.when(service.countTotalInternacaoAtiva()).thenReturn(total);
+
+        ResponseEntity<Long> response = controller.countTotalInternacaoAtivo();
+
+        assertAll(
+                () -> assertEquals(HttpStatus.OK, response.getStatusCode()),
+                () -> assertEquals(Long.valueOf(total), response.getBody())
+        );
+
+        Mockito.verify(service).countTotalInternacaoAtiva();
+        Mockito.verifyNoMoreInteractions(service);
+        Mockito.verifyNoInteractions(acolhidoService, convenioService);
+    }
+
     // Testes findRelatorioInternacoesAtivasPorConvenio
 
     @Test

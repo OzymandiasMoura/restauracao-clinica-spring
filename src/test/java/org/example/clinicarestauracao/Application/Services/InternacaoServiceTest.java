@@ -907,6 +907,20 @@ class InternacaoServiceTest
         Mockito.verifyNoInteractions(pagamentoRepository, acolhidoService, convenioService, audit);
     }
 
+    @ParameterizedTest
+    @ValueSource(longs = {0L, 1L, 12L})
+    void shouldReturnActiveInternacaoCountFromRepository(long quantidade)
+    {
+        Mockito.when(repository.countByAtivoTrue()).thenReturn(quantidade);
+
+        Long response = service.countTotalInternacaoAtiva();
+
+        assertEquals(quantidade, response);
+        Mockito.verify(repository).countByAtivoTrue();
+        Mockito.verifyNoMoreInteractions(repository);
+        Mockito.verifyNoInteractions(pagamentoRepository, acolhidoService, convenioService, audit);
+    }
+
     // Testes findRelatorioInternacoesAtivasPorConvenio
 
     @Test
