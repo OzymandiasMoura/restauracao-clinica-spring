@@ -259,4 +259,14 @@ public class InternacaoService
     {
         return repository.countByAtivoTrue();
     }
+
+    public Long countTotalIntenacoesByTreatmentStage(TreatmentStage stage)
+    {
+        if (stage == null)
+        {
+            throw new InternacaoInvalidQueryException("Estagio de tratamento deve ser informado.");
+        }
+        return repository.countByEtapaTratamentoAndAtivoTrue(stage);
+    }
+
 }

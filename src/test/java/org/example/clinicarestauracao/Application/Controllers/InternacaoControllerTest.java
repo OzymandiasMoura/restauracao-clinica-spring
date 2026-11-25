@@ -19,6 +19,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
@@ -576,6 +577,24 @@ class InternacaoControllerTest
         );
 
         Mockito.verify(service).countTotalInternacaoAtiva();
+        Mockito.verifyNoMoreInteractions(service);
+        Mockito.verifyNoInteractions(acolhidoService, convenioService);
+    }
+
+    @ParameterizedTest
+    @EnumSource(TreatmentStage.class)
+    void shouldReturnActiveInternacaoCountByTreatmentStageSuccessfully(TreatmentStage stage)
+    {
+        Mockito.when(service.countTotalIntenacoesByTreatmentStage(stage)).thenReturn(5L);
+
+        ResponseEntity<Long> response = controller.countInternacoesByTreatmentStage(stage);
+
+        assertAll(
+                () -> assertEquals(HttpStatus.OK, response.getStatusCode()),
+                () -> assertEquals(Long.valueOf(5L), response.getBody())
+        );
+
+        Mockito.verify(service).countTotalIntenacoesByTreatmentStage(stage);
         Mockito.verifyNoMoreInteractions(service);
         Mockito.verifyNoInteractions(acolhidoService, convenioService);
     }

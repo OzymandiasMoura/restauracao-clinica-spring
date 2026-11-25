@@ -20,6 +20,7 @@ import org.example.clinicarestauracao.Infrastruct.Database.Audit.DatabaseAuditCo
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.NullSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.InjectMocks;
@@ -919,6 +920,32 @@ class InternacaoServiceTest
         Mockito.verify(repository).countByAtivoTrue();
         Mockito.verifyNoMoreInteractions(repository);
         Mockito.verifyNoInteractions(pagamentoRepository, acolhidoService, convenioService, audit);
+    }
+
+    @ParameterizedTest
+    @EnumSource(TreatmentStage.class)
+    void shouldReturnActiveInternacaoCountByTreatmentStage(TreatmentStage stage)
+    {
+        Mockito.when(repository.countByEtapaTratamentoAndAtivoTrue(stage)).thenReturn(3L);
+
+        Long response = service.countTotalIntenacoesByTreatmentStage(stage);
+
+        assertEquals(3L, response);
+        Mockito.verify(repository).countByEtapaTratamentoAndAtivoTrue(stage);
+        Mockito.verifyNoMoreInteractions(repository);
+        Mockito.verifyNoInteractions(pagamentoRepository, acolhidoService, convenioService, audit);
+    }
+
+    @Test
+    void shouldThrowInternacaoInvalidQueryExceptionWhenCountingByNullTreatmentStage()
+    {
+        InternacaoInvalidQueryException exception = assertThrows(
+                InternacaoInvalidQueryException.class,
+                () -> service.countTotalIntenacoesByTreatmentStage(null)
+        );
+
+        assertEquals("Estagio de tratamento deve ser informado.", exception.getMessage());
+        Mockito.verifyNoInteractions(repository, pagamentoRepository, acolhidoService, convenioService, audit);
     }
 
     // Testes findRelatorioInternacoesAtivasPorConvenio

@@ -169,4 +169,10 @@ public class InternacaoController
     {
         return ResponseEntity.ok().body(service.countTotalInternacaoAtiva());
     }
+
+    @GetMapping("/report/count-by-etapas")
+    public ResponseEntity<Long> countInternacoesByTreatmentStage(@RequestParam TreatmentStage stage)
+    {
+        return ResponseEntity.ok().body(service.countTotalIntenacoesByTreatmentStage(stage));
+    }
 }

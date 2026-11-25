@@ -79,4 +79,6 @@ public interface InternacaoRepository extends JpaRepository<Internacao, Long>
 
     Long countByAtivoTrue();
 
+    long countByEtapaTratamentoAndAtivoTrue(TreatmentStage etapaTratamento);
+
 }
