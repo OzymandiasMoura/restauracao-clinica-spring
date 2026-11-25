@@ -6,6 +6,8 @@ import org.example.clinicarestauracao.Application.Exceptions.Internacao.Internac
 import org.example.clinicarestauracao.Application.Exceptions.Internacao.InternacaoWithInvalidInformationException;
 import org.example.clinicarestauracao.Application.Interfaces.InternacaoRepository;
 import org.example.clinicarestauracao.Application.Interfaces.PagamentoRepository;
+import org.example.clinicarestauracao.Application.Reports.InternacaoMonthlyCountProjection;
+import org.example.clinicarestauracao.Application.Reports.InternacaoMonthlyMovement;
 import org.example.clinicarestauracao.Application.Reports.InternacoesAtivasByConvenio;
 import org.example.clinicarestauracao.Application.Reports.TreatmentStageByConvenio;
 import org.example.clinicarestauracao.Builders.AcolhidoTestBuilder;
@@ -946,6 +948,112 @@ class InternacaoServiceTest
 
         assertEquals("Estagio de tratamento deve ser informado.", exception.getMessage());
         Mockito.verifyNoInteractions(repository, pagamentoRepository, acolhidoService, convenioService, audit);
+    }
+
+    // Testes findReportMonthlyMovement
+
+    @Test
+    void shouldCombineMonthlyEntriesAndDischargesAndIncludeMonthsWithoutMovement()
+    {
+        LocalDate start = LocalDate.of(2025, 12, 10);
+        LocalDate end = LocalDate.of(2026, 3, 20);
+
+        Mockito.when(repository.countEntradasGroupByMonth(start, end)).thenReturn(List.of(
+                new InternacaoMonthlyCountProjection(2025, 12, 3L),
+                new InternacaoMonthlyCountProjection(2026, 2, 2L)
+        ));
+        Mockito.when(repository.countSaidasGroupByMonth(start, end)).thenReturn(List.of(
+                new InternacaoMonthlyCountProjection(2026, 1, 1L),
+                new InternacaoMonthlyCountProjection(2026, 2, 4L)
+        ));
+
+        List<InternacaoMonthlyMovement> response = service.findReportMonthlyMovement(start, end);
+
+        assertEquals(List.of(
+                new InternacaoMonthlyMovement(2025, 12, 3L, 0L),
+                new InternacaoMonthlyMovement(2026, 1, 0L, 1L),
+                new InternacaoMonthlyMovement(2026, 2, 2L, 4L),
+                new InternacaoMonthlyMovement(2026, 3, 0L, 0L)
+        ), response);
+
+        Mockito.verify(repository).countEntradasGroupByMonth(start, end);
+        Mockito.verify(repository).countSaidasGroupByMonth(start, end);
+        Mockito.verifyNoMoreInteractions(repository);
+        Mockito.verifyNoInteractions(pagamentoRepository, acolhidoService, convenioService, audit);
+    }
+
+    @Test
+    void shouldReturnAllMonthsWithZeroCountsWhenThereAreNoMonthlyMovements()
+    {
+        LocalDate start = LocalDate.of(2026, 5, 1);
+        LocalDate end = LocalDate.of(2026, 7, 31);
+
+        Mockito.when(repository.countEntradasGroupByMonth(start, end)).thenReturn(List.of());
+        Mockito.when(repository.countSaidasGroupByMonth(start, end)).thenReturn(List.of());
+
+        List<InternacaoMonthlyMovement> response = service.findReportMonthlyMovement(start, end);
+
+        assertEquals(List.of(
+                new InternacaoMonthlyMovement(2026, 5, 0L, 0L),
+                new InternacaoMonthlyMovement(2026, 6, 0L, 0L),
+                new InternacaoMonthlyMovement(2026, 7, 0L, 0L)
+        ), response);
+
+        Mockito.verify(repository).countEntradasGroupByMonth(start, end);
+        Mockito.verify(repository).countSaidasGroupByMonth(start, end);
+        Mockito.verifyNoMoreInteractions(repository);
+        Mockito.verifyNoInteractions(pagamentoRepository, acolhidoService, convenioService, audit);
+    }
+
+    @Test
+    void shouldThrowInternacaoInvalidQueryExceptionWhenMonthlyMovementPeriodContainsNull()
+    {
+        LocalDate date = LocalDate.of(2026, 1, 1);
+
+        InternacaoInvalidQueryException nullStartException = assertThrows(
+                InternacaoInvalidQueryException.class,
+                () -> service.findReportMonthlyMovement(null, date)
+        );
+        InternacaoInvalidQueryException nullEndException = assertThrows(
+                InternacaoInvalidQueryException.class,
+                () -> service.findReportMonthlyMovement(date, null)
+        );
+
+        assertAll(
+                () -> assertEquals("Datas não podem ser nulas.", nullStartException.getMessage()),
+                () -> assertEquals("Datas não podem ser nulas.", nullEndException.getMessage())
+        );
+        Mockito.verifyNoInteractions(repository);
+    }
+
+    @Test
+    void shouldThrowInternacaoInvalidQueryExceptionWhenMonthlyMovementStartsBefore1900()
+    {
+        LocalDate start = LocalDate.of(1899, 12, 31);
+        LocalDate end = LocalDate.of(1900, 1, 1);
+
+        InternacaoInvalidQueryException exception = assertThrows(
+                InternacaoInvalidQueryException.class,
+                () -> service.findReportMonthlyMovement(start, end)
+        );
+
+        assertEquals("Data de início não pode ser anterior a 1900.", exception.getMessage());
+        Mockito.verifyNoInteractions(repository);
+    }
+
+    @Test
+    void shouldThrowInternacaoInvalidQueryExceptionWhenMonthlyMovementStartIsAfterEnd()
+    {
+        LocalDate start = LocalDate.of(2026, 3, 1);
+        LocalDate end = LocalDate.of(2026, 2, 28);
+
+        InternacaoInvalidQueryException exception = assertThrows(
+                InternacaoInvalidQueryException.class,
+                () -> service.findReportMonthlyMovement(start, end)
+        );
+
+        assertEquals("Data de início não pode ser posterior à data de fim.", exception.getMessage());
+        Mockito.verifyNoInteractions(repository);
     }
 
     // Testes findRelatorioInternacoesAtivasPorConvenio

@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import org.example.clinicarestauracao.Application.Controllers.Mappers.InternacaoMapper;
 import org.example.clinicarestauracao.Application.Dtos.InternacaoDtos.*;
 import org.example.clinicarestauracao.Application.Dtos.PageResponseDto;
+import org.example.clinicarestauracao.Application.Reports.InternacaoMonthlyMovement;
 import org.example.clinicarestauracao.Application.Services.AcolhidoService;
 import org.example.clinicarestauracao.Application.Services.ConvenioService;
 import org.example.clinicarestauracao.Application.Services.InternacaoService;
@@ -174,5 +175,11 @@ public class InternacaoController
     public ResponseEntity<Long> countInternacoesByTreatmentStage(@RequestParam TreatmentStage stage)
     {
         return ResponseEntity.ok().body(service.countTotalIntenacoesByTreatmentStage(stage));
+    }
+
+    @GetMapping("/report/movimentacao-mensal")
+    public ResponseEntity<List<InternacaoMonthlyMovement>> findReportMonthlyMovement(@RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate inicio, @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fim)
+    {
+        return ResponseEntity.ok().body(service.findReportMonthlyMovement(inicio, fim));
     }
 }

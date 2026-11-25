@@ -7,6 +7,8 @@ import org.example.clinicarestauracao.Application.Exceptions.Internacao.Internac
 import org.example.clinicarestauracao.Application.Exceptions.Internacao.InternacaoWithInvalidInformationException;
 import org.example.clinicarestauracao.Application.Interfaces.InternacaoRepository;
 import org.example.clinicarestauracao.Application.Interfaces.PagamentoRepository;
+import org.example.clinicarestauracao.Application.Reports.InternacaoMonthlyCountProjection;
+import org.example.clinicarestauracao.Application.Reports.InternacaoMonthlyMovement;
 import org.example.clinicarestauracao.Application.Reports.InternacoesAtivasByConvenio;
 import org.example.clinicarestauracao.Application.Reports.TreatmentStageByConvenio;
 import org.example.clinicarestauracao.Domain.Entities.Acolhido;
@@ -21,7 +23,11 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.YearMonth;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @AllArgsConstructor
@@ -267,6 +273,46 @@ public class InternacaoService
             throw new InternacaoInvalidQueryException("Estagio de tratamento deve ser informado.");
         }
         return repository.countByEtapaTratamentoAndAtivoTrue(stage);
+    }
+
+    public List<InternacaoMonthlyMovement> findReportMonthlyMovement(LocalDate start, LocalDate end)
+    {
+        if (start == null || end == null)
+        {
+            throw new InternacaoInvalidQueryException("Datas não podem ser nulas.");
+        }
+        if (start.isBefore(LocalDate.of(1900, 1, 1)))
+        {
+            throw new InternacaoInvalidQueryException("Data de início não pode ser anterior a 1900.");
+        }
+        if (start.isAfter(end))
+        {
+            throw new InternacaoInvalidQueryException("Data de início não pode ser posterior à data de fim.");
+        }
+
+        Map<YearMonth, InternacaoMonthlyMovement> movimentos = new LinkedHashMap<>();
+
+        for (YearMonth mes = YearMonth.from(start); !mes.isAfter(YearMonth.from(end)); mes = mes.plusMonths(1))
+        {
+            movimentos.computeIfAbsent(mes, chave -> new InternacaoMonthlyMovement(chave.getYear(), chave.getMonthValue(), 0L, 0L));
+        }
+
+        for (InternacaoMonthlyCountProjection entrada : repository.countEntradasGroupByMonth(start, end))
+        {
+            YearMonth mes = YearMonth.of(entrada.ano(), entrada.mes());
+
+            movimentos.computeIfPresent(mes, (chave, atual) -> new InternacaoMonthlyMovement(atual.ano(), atual.mes(), entrada.qtde(), atual.saidas()));
+        }
+
+        for (InternacaoMonthlyCountProjection saida : repository.countSaidasGroupByMonth(start, end))
+        {
+            YearMonth mes = YearMonth.of(saida.ano(), saida.mes());
+
+            movimentos.computeIfPresent(mes, (chave, atual) -> new InternacaoMonthlyMovement(atual.ano(), atual.mes(), atual.entradas(), saida.qtde()));
+        }
+
+        return new ArrayList<>(movimentos.values());
+
     }
 
 }

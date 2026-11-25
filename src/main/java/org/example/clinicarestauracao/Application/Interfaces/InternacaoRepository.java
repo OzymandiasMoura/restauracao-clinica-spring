@@ -1,5 +1,6 @@
 package org.example.clinicarestauracao.Application.Interfaces;
 
+import org.example.clinicarestauracao.Application.Reports.InternacaoMonthlyCountProjection;
 import org.example.clinicarestauracao.Application.Reports.InternacoesAtivasByConvenio;
 import org.example.clinicarestauracao.Application.Reports.TreatmentStageByConvenio;
 import org.example.clinicarestauracao.Domain.Entities.Acolhido;
@@ -11,6 +12,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -81,4 +83,31 @@ public interface InternacaoRepository extends JpaRepository<Internacao, Long>
 
     long countByEtapaTratamentoAndAtivoTrue(TreatmentStage etapaTratamento);
 
+    @Query(value = """
+    SELECT
+        CAST(EXTRACT(YEAR FROM data_entrada) AS INTEGER) AS ano,
+        CAST(EXTRACT(MONTH FROM data_entrada) AS INTEGER) AS mes,
+        COUNT(*) AS qtde
+    FROM internacao
+    WHERE data_entrada BETWEEN :inicio AND :fim
+    GROUP BY
+        CAST(EXTRACT(YEAR FROM data_entrada) AS INTEGER),
+        CAST(EXTRACT(MONTH FROM data_entrada) AS INTEGER)
+    ORDER BY ano, mes
+    """, nativeQuery = true)
+    List<InternacaoMonthlyCountProjection> countEntradasGroupByMonth(@Param("inicio") LocalDate inicio, @Param("fim") LocalDate fim);
+
+    @Query(value = """
+    SELECT
+        CAST(EXTRACT(YEAR FROM data_saida) AS INTEGER) AS ano,
+        CAST(EXTRACT(MONTH FROM data_saida) AS INTEGER) AS mes,
+        COUNT(*) AS qtde
+    FROM internacao
+    WHERE data_saida BETWEEN :inicio AND :fim
+    GROUP BY
+        CAST(EXTRACT(YEAR FROM data_saida) AS INTEGER),
+        CAST(EXTRACT(MONTH FROM data_saida) AS INTEGER)
+    ORDER BY ano, mes
+    """, nativeQuery = true)
+    List<InternacaoMonthlyCountProjection> countSaidasGroupByMonth(@Param("inicio") LocalDate inicio, @Param("fim") LocalDate fim);
 }

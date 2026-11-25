@@ -2,6 +2,7 @@ package org.example.clinicarestauracao.Application.Controllers;
 
 import org.example.clinicarestauracao.Application.Dtos.InternacaoDtos.*;
 import org.example.clinicarestauracao.Application.Reports.InternacoesAtivasByConvenio;
+import org.example.clinicarestauracao.Application.Reports.InternacaoMonthlyMovement;
 import org.example.clinicarestauracao.Application.Reports.TreatmentStageByConvenio;
 import org.example.clinicarestauracao.Application.Services.AcolhidoService;
 import org.example.clinicarestauracao.Application.Services.ConvenioService;
@@ -595,6 +596,49 @@ class InternacaoControllerTest
         );
 
         Mockito.verify(service).countTotalIntenacoesByTreatmentStage(stage);
+        Mockito.verifyNoMoreInteractions(service);
+        Mockito.verifyNoInteractions(acolhidoService, convenioService);
+    }
+
+    @Test
+    void shouldReturnMonthlyMovementReportSuccessfully()
+    {
+        LocalDate inicio = LocalDate.of(2025, 12, 10);
+        LocalDate fim = LocalDate.of(2026, 2, 20);
+        List<InternacaoMonthlyMovement> report = List.of(
+                new InternacaoMonthlyMovement(2025, 12, 3L, 0L),
+                new InternacaoMonthlyMovement(2026, 1, 0L, 1L),
+                new InternacaoMonthlyMovement(2026, 2, 2L, 4L)
+        );
+        Mockito.when(service.findReportMonthlyMovement(inicio, fim)).thenReturn(report);
+
+        ResponseEntity<List<InternacaoMonthlyMovement>> response = controller.findReportMonthlyMovement(inicio, fim);
+
+        assertAll(
+                () -> assertEquals(HttpStatus.OK, response.getStatusCode()),
+                () -> assertEquals(report, response.getBody())
+        );
+
+        Mockito.verify(service).findReportMonthlyMovement(inicio, fim);
+        Mockito.verifyNoMoreInteractions(service);
+        Mockito.verifyNoInteractions(acolhidoService, convenioService);
+    }
+
+    @Test
+    void shouldReturnEmptyMonthlyMovementReportSuccessfully()
+    {
+        LocalDate inicio = LocalDate.of(2026, 1, 1);
+        LocalDate fim = LocalDate.of(2026, 1, 31);
+        Mockito.when(service.findReportMonthlyMovement(inicio, fim)).thenReturn(List.of());
+
+        ResponseEntity<List<InternacaoMonthlyMovement>> response = controller.findReportMonthlyMovement(inicio, fim);
+
+        assertAll(
+                () -> assertEquals(HttpStatus.OK, response.getStatusCode()),
+                () -> assertEquals(List.of(), response.getBody())
+        );
+
+        Mockito.verify(service).findReportMonthlyMovement(inicio, fim);
         Mockito.verifyNoMoreInteractions(service);
         Mockito.verifyNoInteractions(acolhidoService, convenioService);
     }
