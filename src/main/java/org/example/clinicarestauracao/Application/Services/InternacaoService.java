@@ -249,4 +249,9 @@ public class InternacaoService
 
         return repository.findInternacaoByDataEntradaBetween(inicio, fim, pageable);
     }
+
+    public Long countTotalInternacao()
+    {
+        return repository.count();
+    }
 }

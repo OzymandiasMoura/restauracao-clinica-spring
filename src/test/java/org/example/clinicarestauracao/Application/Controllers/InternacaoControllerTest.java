@@ -18,6 +18,8 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -539,6 +541,27 @@ class InternacaoControllerTest
         Mockito.verifyNoMoreInteractions(service);
         Mockito.verifyNoInteractions(acolhidoService, convenioService);
     }
+
+    // Testes countTotalInternacao
+
+    @ParameterizedTest
+    @ValueSource(longs = {0L, 5L})
+    void shouldReturnTotalInternacaoCountSuccessfully(long total)
+    {
+        Mockito.when(service.countTotalInternacao()).thenReturn(total);
+
+        ResponseEntity<Long> response = controller.countTotalInternacao();
+
+        assertAll(
+                () -> assertEquals(HttpStatus.OK, response.getStatusCode()),
+                () -> assertEquals(Long.valueOf(total), response.getBody())
+        );
+
+        Mockito.verify(service).countTotalInternacao();
+        Mockito.verifyNoMoreInteractions(service);
+        Mockito.verifyNoInteractions(acolhidoService, convenioService);
+    }
+
     // Testes findRelatorioInternacoesAtivasPorConvenio
 
     @Test

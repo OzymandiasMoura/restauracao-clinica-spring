@@ -157,4 +157,10 @@ public class InternacaoController
 
         return ResponseEntity.ok(PageResponseDto.from(responsePage));
     }
+
+    @GetMapping("/relatorios/count-total")
+    public ResponseEntity<Long> countTotalInternacao()
+    {
+        return ResponseEntity.ok().body(service.countTotalInternacao());
+    }
 }
