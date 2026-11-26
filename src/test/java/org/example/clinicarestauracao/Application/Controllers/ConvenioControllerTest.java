@@ -408,4 +408,23 @@ class ConvenioControllerTest
         Mockito.verifyNoMoreInteractions(service);
     }
 
+    // Testes countAllConvenios
+    @DisplayName("Deve retornar a quantidade total de convênios cadastrados")
+    @ParameterizedTest
+    @ValueSource(longs = {0L, 1L, 8L})
+    void shouldReturnTotalConveniosCountAndReturnOk(long totalConvenios)
+    {
+        Mockito.when(service.countAllConvenios()).thenReturn(totalConvenios);
+
+        ResponseEntity<Long> response = controller.countAllConvenios();
+
+        assertAll(
+                () -> assertEquals(HttpStatus.OK, response.getStatusCode()),
+                () -> assertEquals(totalConvenios, response.getBody())
+        );
+
+        Mockito.verify(service).countAllConvenios();
+        Mockito.verifyNoMoreInteractions(service);
+    }
+
 }

@@ -121,4 +121,10 @@ public class ConvenioController
     {
         return ResponseEntity.ok().body(service.countConvenioActivated());
     }
+
+    @GetMapping("/report/count-all")
+    public ResponseEntity<Long> countAllConvenios()
+    {
+        return ResponseEntity.ok().body(service.countAllConvenios());
+    }
 }

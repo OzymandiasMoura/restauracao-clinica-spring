@@ -213,4 +213,9 @@ public class ConvenioService
     {
         return repository.countByAtivoTrue();
     }
+
+    public Long countAllConvenios()
+    {
+        return repository.count();
+    }
 }

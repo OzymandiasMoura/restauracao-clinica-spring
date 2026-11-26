@@ -1137,4 +1137,20 @@ class ConvenioServiceTest
         Mockito.verifyNoInteractions(internacaoRepository, triagemRepository, audit);
     }
 
+    // Testes countAllConvenios
+    @DisplayName("Deve retornar a quantidade total de convênios cadastrados")
+    @ParameterizedTest
+    @ValueSource(longs = {0L, 1L, 8L})
+    void shouldReturnTotalConveniosCount(long totalConvenios)
+    {
+        Mockito.when(repository.count()).thenReturn(totalConvenios);
+
+        Long response = service.countAllConvenios();
+
+        assertEquals(totalConvenios, response);
+        Mockito.verify(repository).count();
+        Mockito.verifyNoMoreInteractions(repository);
+        Mockito.verifyNoInteractions(internacaoRepository, triagemRepository, audit);
+    }
+
 }
