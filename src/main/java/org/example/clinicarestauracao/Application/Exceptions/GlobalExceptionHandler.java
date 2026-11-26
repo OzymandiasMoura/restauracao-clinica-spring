@@ -8,6 +8,7 @@ import org.example.clinicarestauracao.Application.Exceptions.Acolhido.AcolhidoWi
 import org.example.clinicarestauracao.Application.Exceptions.Cargo.CargoNotFoundException;
 import org.example.clinicarestauracao.Application.Exceptions.Cargo.CargoWithInvalidInformationException;
 import org.example.clinicarestauracao.Application.Exceptions.Convenio.ConvenioNotFoundException;
+import org.example.clinicarestauracao.Application.Exceptions.Convenio.ConvenioWithInconsistentAvailableVacanciesException;
 import org.example.clinicarestauracao.Application.Exceptions.Convenio.ConvenioWithInvalidInformationException;
 import org.example.clinicarestauracao.Application.Exceptions.Endereco.EnderecoWithInvalidInformationException;
 import org.example.clinicarestauracao.Application.Exceptions.Funcionario.FuncionarioNotFoundException;
@@ -88,6 +89,8 @@ public class GlobalExceptionHandler
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
 
+    //Convenio
+
     @ExceptionHandler(ConvenioWithInvalidInformationException.class)
     public ResponseEntity<ErrorResponseDto> handleConvenioWithInvalidInformation(ConvenioWithInvalidInformationException ex)
     {
@@ -102,6 +105,15 @@ public class GlobalExceptionHandler
         var response = new ErrorResponseDto(ex.getMessage());
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
+
+    @ExceptionHandler(ConvenioWithInconsistentAvailableVacanciesException.class)
+    public ResponseEntity<ErrorResponseDto> handleConvenioInconsistentAvailableVacancies(ConvenioWithInconsistentAvailableVacanciesException ex)
+    {
+        var response = new ErrorResponseDto(ex.getMessage());
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+    }
+
+    //Cargo
 
     @ExceptionHandler(CargoWithInvalidInformationException.class)
     public ResponseEntity<ErrorResponseDto>  handleCargoWithInvalidInformation(CargoWithInvalidInformationException ex)
@@ -150,6 +162,8 @@ public class GlobalExceptionHandler
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
 
+    //Triagem
+
     @ExceptionHandler(TriagemNotFoundException.class)
     public ResponseEntity<ErrorResponseDto> handleTriagemNotFound(TriagemNotFoundException ex)
     {
@@ -163,8 +177,6 @@ public class GlobalExceptionHandler
         var response = new ErrorResponseDto(ex.getMessage());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
-
-
 
     //Acolhido
     @ExceptionHandler(AcolhidoWithInvalidInformationException.class)
