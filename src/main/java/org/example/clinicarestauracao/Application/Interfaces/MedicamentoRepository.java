@@ -25,4 +25,7 @@ public interface MedicamentoRepository extends JpaRepository<Medicamento, Long> 
     Optional<Medicamento> buscarParaMovimentacao(
             @Param("id") Long id
     );
+
+    @Query("SELECT COUNT(m) FROM Medicamento m WHERE m.quantidadeEstoque < m.quantidadeMinima")
+    Long countMedicamentosAbaixoDoEstoqueMinimo();
 }

@@ -101,4 +101,14 @@ public class MedicamentoService {
             );
         }
     }
+
+    public Long countAllMedicamentos()
+    {
+        return medicamentoRepository.count();
+    }
+
+    public Long countMedicamentosBelowMinimo()
+    {
+        return medicamentoRepository.countMedicamentosAbaixoDoEstoqueMinimo();
+    }
 }

@@ -170,4 +170,16 @@ public class MedicamentoController {
 
         return ResponseEntity.ok(dtos);
     }
+
+    @GetMapping("/report/count-all")
+    public ResponseEntity<Long> countAllMedicamentos()
+    {
+        return ResponseEntity.ok().body(medicamentoService.countAllMedicamentos());
+    }
+
+    @GetMapping("/report/count-below-min")
+    public ResponseEntity<Long> countMedicamentosBelowMinimio()
+    {
+        return ResponseEntity.ok().body(medicamentoService.countMedicamentosBelowMinimo());
+    }
 }

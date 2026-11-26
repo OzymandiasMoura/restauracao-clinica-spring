@@ -18,6 +18,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.math.BigDecimal;
 import java.util.Optional;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @ExtendWith(MockitoExtension.class)
@@ -105,5 +106,35 @@ class MedicamentoServiceTest
         inOrder.verify(repository).flush();
         inOrder.verify(audit).clearActor();
         Mockito.verifyNoMoreInteractions(repository, movimentacaoRepository, audit);
+    }
+
+    // Testes countAllMedicamentos
+    @DisplayName("Deve retornar a quantidade total de medicamentos cadastrados")
+    @Test
+    void shouldReturnTotalMedicamentosCountFromRepository()
+    {
+        Mockito.when(repository.count()).thenReturn(5L);
+
+        Long resultado = service.countAllMedicamentos();
+
+        assertEquals(5L, resultado);
+        Mockito.verify(repository).count();
+        Mockito.verifyNoMoreInteractions(repository);
+        Mockito.verifyNoInteractions(movimentacaoRepository, audit);
+    }
+
+    // Testes countMedicamentosBelowMinimo
+    @DisplayName("Deve retornar a quantidade de medicamentos abaixo do estoque mínimo")
+    @Test
+    void shouldReturnMedicamentosBelowMinimumStockCountFromRepository()
+    {
+        Mockito.when(repository.countMedicamentosAbaixoDoEstoqueMinimo()).thenReturn(2L);
+
+        Long resultado = service.countMedicamentosBelowMinimo();
+
+        assertEquals(2L, resultado);
+        Mockito.verify(repository).countMedicamentosAbaixoDoEstoqueMinimo();
+        Mockito.verifyNoMoreInteractions(repository);
+        Mockito.verifyNoInteractions(movimentacaoRepository, audit);
     }
 }
