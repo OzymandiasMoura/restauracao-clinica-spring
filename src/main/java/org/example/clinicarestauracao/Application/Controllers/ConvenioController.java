@@ -97,4 +97,10 @@ public class ConvenioController
 
         return ResponseEntity.noContent().build();
     }
+
+    @GetMapping("/report/vagas-livres")
+    public ResponseEntity<Long> countOpenVagas()
+    {
+        return ResponseEntity.ok().body(service.countOpenVagas());
+    }
 }

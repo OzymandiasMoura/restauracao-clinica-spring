@@ -3,6 +3,7 @@ package org.example.clinicarestauracao.Application.Services;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.example.clinicarestauracao.Application.Exceptions.Convenio.ConvenioNotFoundException;
+import org.example.clinicarestauracao.Application.Exceptions.Convenio.ConvenioWithInconsistentAvailableVacanciesException;
 import org.example.clinicarestauracao.Application.Exceptions.Convenio.ConvenioWithInvalidInformationException;
 import org.example.clinicarestauracao.Application.Interfaces.ConvenioRepository;
 import org.example.clinicarestauracao.Application.Interfaces.InternacaoRepository;
@@ -182,5 +183,19 @@ public class ConvenioService
         {
             audit.clearActor();
         }
+    }
+
+    public Long countOpenVagas()
+    {
+        Long sumVagas = repository.sumMaxVagasDosConveniosAtivos();
+        Long ocupiedVagas = internacaoRepository.countByAtivoTrue();
+        Long result = sumVagas - ocupiedVagas;
+
+        if (result < 0)
+        {
+            throw new ConvenioWithInconsistentAvailableVacanciesException("A quantidade de internações ativas excede a capacidade total dos convênios ativos. Verifique as internações e as vagas cadastradas.");
+        }
+
+        return result;
     }
 }

@@ -305,4 +305,36 @@ class ConvenioControllerTest
         Mockito.verifyNoMoreInteractions(service);
     }
 
+    @Test
+    void shouldReturnAvailableVacanciesAndReturnOk()
+    {
+        Mockito.when(service.countOpenVagas()).thenReturn(7L);
+
+        ResponseEntity<Long> response = controller.countOpenVagas();
+
+        assertAll(
+                () -> assertEquals(HttpStatus.OK, response.getStatusCode()),
+                () -> assertEquals(7L, response.getBody())
+        );
+
+        Mockito.verify(service).countOpenVagas();
+        Mockito.verifyNoMoreInteractions(service);
+    }
+
+    @Test
+    void shouldReturnZeroAvailableVacanciesAndReturnOk()
+    {
+        Mockito.when(service.countOpenVagas()).thenReturn(0L);
+
+        ResponseEntity<Long> response = controller.countOpenVagas();
+
+        assertAll(
+                () -> assertEquals(HttpStatus.OK, response.getStatusCode()),
+                () -> assertEquals(0L, response.getBody())
+        );
+
+        Mockito.verify(service).countOpenVagas();
+        Mockito.verifyNoMoreInteractions(service);
+    }
+
 }

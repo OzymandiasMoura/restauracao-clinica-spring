@@ -2,6 +2,7 @@ package org.example.clinicarestauracao.Application.Services;
 
 import org.example.clinicarestauracao.Application.Exceptions.Convenio.ConvenioNotFoundException;
 import org.example.clinicarestauracao.Application.Exceptions.Convenio.ConvenioWithInvalidInformationException;
+import org.example.clinicarestauracao.Application.Exceptions.Convenio.ConvenioWithInconsistentAvailableVacanciesException;
 import org.example.clinicarestauracao.Application.Interfaces.ConvenioRepository;
 import org.example.clinicarestauracao.Application.Interfaces.InternacaoRepository;
 import org.example.clinicarestauracao.Application.Interfaces.TriagemRepository;
@@ -987,6 +988,57 @@ class ConvenioServiceTest
         Mockito.verify(repository, Mockito.never()).delete(Mockito.any(Convenio.class));
         Mockito.verify(repository, Mockito.never()).save(Mockito.any(Convenio.class));
         Mockito.verifyNoInteractions(audit);
+    }
+
+    @Test
+    void shouldReturnAvailableVacanciesWhenCapacityExceedsActiveInternacoes()
+    {
+        Mockito.when(repository.sumMaxVagasDosConveniosAtivos()).thenReturn(12L);
+        Mockito.when(internacaoRepository.countByAtivoTrue()).thenReturn(5L);
+
+        Long response = service.countOpenVagas();
+
+        assertEquals(7L, response);
+        Mockito.verify(repository).sumMaxVagasDosConveniosAtivos();
+        Mockito.verify(internacaoRepository).countByAtivoTrue();
+        Mockito.verifyNoMoreInteractions(repository, internacaoRepository);
+        Mockito.verifyNoInteractions(triagemRepository, audit);
+    }
+
+    @Test
+    void shouldReturnZeroAvailableVacanciesWhenCapacityIsFullyOccupied()
+    {
+        Mockito.when(repository.sumMaxVagasDosConveniosAtivos()).thenReturn(8L);
+        Mockito.when(internacaoRepository.countByAtivoTrue()).thenReturn(8L);
+
+        Long response = service.countOpenVagas();
+
+        assertEquals(0L, response);
+        Mockito.verify(repository).sumMaxVagasDosConveniosAtivos();
+        Mockito.verify(internacaoRepository).countByAtivoTrue();
+        Mockito.verifyNoMoreInteractions(repository, internacaoRepository);
+        Mockito.verifyNoInteractions(triagemRepository, audit);
+    }
+
+    @Test
+    void shouldThrowInconsistentAvailableVacanciesExceptionWhenActiveInternacoesExceedCapacity()
+    {
+        Mockito.when(repository.sumMaxVagasDosConveniosAtivos()).thenReturn(5L);
+        Mockito.when(internacaoRepository.countByAtivoTrue()).thenReturn(7L);
+
+        ConvenioWithInconsistentAvailableVacanciesException exception = assertThrows(
+                ConvenioWithInconsistentAvailableVacanciesException.class,
+                () -> service.countOpenVagas()
+        );
+
+        assertEquals(
+                "A quantidade de internações ativas excede a capacidade total dos convênios ativos. Verifique as internações e as vagas cadastradas.",
+                exception.getMessage()
+        );
+        Mockito.verify(repository).sumMaxVagasDosConveniosAtivos();
+        Mockito.verify(internacaoRepository).countByAtivoTrue();
+        Mockito.verifyNoMoreInteractions(repository, internacaoRepository);
+        Mockito.verifyNoInteractions(triagemRepository, audit);
     }
 
 }
