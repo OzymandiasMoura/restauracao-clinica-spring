@@ -21,4 +21,6 @@ public interface ConvenioRepository extends JpaRepository<Convenio, Long>
     """)
     Long sumMaxVagasDosConveniosAtivos();
 
+    Long countByAtivoTrue();
+
 }

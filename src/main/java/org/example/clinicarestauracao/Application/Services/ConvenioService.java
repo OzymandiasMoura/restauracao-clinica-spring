@@ -198,4 +198,19 @@ public class ConvenioService
 
         return result;
     }
+
+    public Long countAllActivateVagas()
+    {
+        return repository.sumMaxVagasDosConveniosAtivos();
+    }
+
+    public Long countOccupiedVacancies()
+    {
+        return internacaoRepository.countByAtivoTrue();
+    }
+
+    public Long countConvenioActivated()
+    {
+        return repository.countByAtivoTrue();
+    }
 }

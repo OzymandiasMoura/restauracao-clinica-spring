@@ -1041,4 +1041,46 @@ class ConvenioServiceTest
         Mockito.verifyNoInteractions(triagemRepository, audit);
     }
 
+    @ParameterizedTest
+    @ValueSource(longs = {0L, 12L, 25L})
+    void shouldReturnTotalVacanciesOfActiveConvenios(long totalVagas)
+    {
+        Mockito.when(repository.sumMaxVagasDosConveniosAtivos()).thenReturn(totalVagas);
+
+        Long response = service.countAllActivateVagas();
+
+        assertEquals(totalVagas, response);
+        Mockito.verify(repository).sumMaxVagasDosConveniosAtivos();
+        Mockito.verifyNoMoreInteractions(repository);
+        Mockito.verifyNoInteractions(internacaoRepository, triagemRepository, audit);
+    }
+
+    @ParameterizedTest
+    @ValueSource(longs = {0L, 1L, 8L})
+    void shouldReturnOccupiedVacanciesFromActiveInternacoes(long occupiedVacancies)
+    {
+        Mockito.when(internacaoRepository.countByAtivoTrue()).thenReturn(occupiedVacancies);
+
+        Long response = service.countOccupiedVacancies();
+
+        assertEquals(occupiedVacancies, response);
+        Mockito.verify(internacaoRepository).countByAtivoTrue();
+        Mockito.verifyNoMoreInteractions(internacaoRepository);
+        Mockito.verifyNoInteractions(repository, triagemRepository, audit);
+    }
+
+    @ParameterizedTest
+    @ValueSource(longs = {0L, 1L, 8L})
+    void shouldReturnCountOfActiveConvenios(long totalAtivos)
+    {
+        Mockito.when(repository.countByAtivoTrue()).thenReturn(totalAtivos);
+
+        Long response = service.countConvenioActivated();
+
+        assertEquals(totalAtivos, response);
+        Mockito.verify(repository).countByAtivoTrue();
+        Mockito.verifyNoMoreInteractions(repository);
+        Mockito.verifyNoInteractions(internacaoRepository, triagemRepository, audit);
+    }
+
 }

@@ -10,6 +10,8 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
@@ -334,6 +336,57 @@ class ConvenioControllerTest
         );
 
         Mockito.verify(service).countOpenVagas();
+        Mockito.verifyNoMoreInteractions(service);
+    }
+
+    @ParameterizedTest
+    @ValueSource(longs = {0L, 12L})
+    void shouldReturnTotalActiveConvenioVacanciesAndReturnOk(long totalVagas)
+    {
+        Mockito.when(service.countAllActivateVagas()).thenReturn(totalVagas);
+
+        ResponseEntity<Long> response = controller.countAllActivateVagas();
+
+        assertAll(
+                () -> assertEquals(HttpStatus.OK, response.getStatusCode()),
+                () -> assertEquals(totalVagas, response.getBody())
+        );
+
+        Mockito.verify(service).countAllActivateVagas();
+        Mockito.verifyNoMoreInteractions(service);
+    }
+
+    @ParameterizedTest
+    @ValueSource(longs = {0L, 5L})
+    void shouldReturnOccupiedVacanciesAndReturnOk(long occupiedVacancies)
+    {
+        Mockito.when(service.countOccupiedVacancies()).thenReturn(occupiedVacancies);
+
+        ResponseEntity<Long> response = controller.countOccupiedVacancies();
+
+        assertAll(
+                () -> assertEquals(HttpStatus.OK, response.getStatusCode()),
+                () -> assertEquals(occupiedVacancies, response.getBody())
+        );
+
+        Mockito.verify(service).countOccupiedVacancies();
+        Mockito.verifyNoMoreInteractions(service);
+    }
+
+    @ParameterizedTest
+    @ValueSource(longs = {0L, 4L})
+    void shouldReturnActiveConveniosCountAndReturnOk(long totalAtivos)
+    {
+        Mockito.when(service.countConvenioActivated()).thenReturn(totalAtivos);
+
+        ResponseEntity<Long> response = controller.countConvenios();
+
+        assertAll(
+                () -> assertEquals(HttpStatus.OK, response.getStatusCode()),
+                () -> assertEquals(totalAtivos, response.getBody())
+        );
+
+        Mockito.verify(service).countConvenioActivated();
         Mockito.verifyNoMoreInteractions(service);
     }
 

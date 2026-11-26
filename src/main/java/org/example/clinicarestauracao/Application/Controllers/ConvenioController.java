@@ -103,4 +103,22 @@ public class ConvenioController
     {
         return ResponseEntity.ok().body(service.countOpenVagas());
     }
+
+    @GetMapping("/report/total-vagas")
+    public ResponseEntity<Long> countAllActivateVagas()
+    {
+        return ResponseEntity.ok().body(service.countAllActivateVagas());
+    }
+
+    @GetMapping("/report/total-ocupacao")
+    public ResponseEntity<Long> countOccupiedVacancies()
+    {
+        return ResponseEntity.ok().body(service.countOccupiedVacancies());
+    }
+
+    @GetMapping("/report/count-convenios-ativos")
+    public ResponseEntity<Long> countConvenios()
+    {
+        return ResponseEntity.ok().body(service.countConvenioActivated());
+    }
 }
