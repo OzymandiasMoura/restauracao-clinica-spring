@@ -753,4 +753,49 @@ class AcolhidoServiceTest
         Mockito.verify(repository, Mockito.never()).delete(Mockito.any(Acolhido.class));
     }
 
+    // Testes countAllAcolhidos
+    @ParameterizedTest
+    @ValueSource(longs = {0L, 1L, 10L})
+    void shouldReturnTotalAcolhidosCount(long total)
+    {
+        Mockito.when(repository.count()).thenReturn(total);
+
+        Long response = service.countAllAcolhidos();
+
+        assertEquals(total, response);
+        Mockito.verify(repository).count();
+        Mockito.verifyNoMoreInteractions(repository);
+        Mockito.verifyNoInteractions(internacaoRepository, responsavelRepository, audit);
+    }
+
+    // Testes countActiveAcolhidos
+    @ParameterizedTest
+    @ValueSource(longs = {0L, 1L, 10L})
+    void shouldReturnActiveAcolhidosCount(long totalAtivos)
+    {
+        Mockito.when(repository.countAcolhidoByAtivoTrue()).thenReturn(totalAtivos);
+
+        Long response = service.countActiveAcolhidos();
+
+        assertEquals(totalAtivos, response);
+        Mockito.verify(repository).countAcolhidoByAtivoTrue();
+        Mockito.verifyNoMoreInteractions(repository);
+        Mockito.verifyNoInteractions(internacaoRepository, responsavelRepository, audit);
+    }
+
+    // Testes countInactiveAcolhidos
+    @ParameterizedTest
+    @ValueSource(longs = {0L, 1L, 10L})
+    void shouldReturnInactiveAcolhidosCount(long totalInativos)
+    {
+        Mockito.when(repository.countAcolhidoByAtivoFalse()).thenReturn(totalInativos);
+
+        Long response = service.countInactiveAcolhidos();
+
+        assertEquals(totalInativos, response);
+        Mockito.verify(repository).countAcolhidoByAtivoFalse();
+        Mockito.verifyNoMoreInteractions(repository);
+        Mockito.verifyNoInteractions(internacaoRepository, responsavelRepository, audit);
+    }
+
 }

@@ -208,4 +208,19 @@ public class AcolhidoService
             audit.clearActor();
         }
     }
+
+    public Long countAllAcolhidos()
+    {
+        return repository.count();
+    }
+
+    public Long countActiveAcolhidos()
+    {
+        return repository.countAcolhidoByAtivoTrue();
+    }
+
+    public Long countInactiveAcolhidos()
+    {
+        return repository.countAcolhidoByAtivoFalse();
+    }
 }

@@ -111,4 +111,22 @@ public class AcolhidoController
 
         return ResponseEntity.noContent().build();
     }
+
+    @GetMapping("/report/count-all")
+    public ResponseEntity<Long> countAllAcolhidos()
+    {
+        return ResponseEntity.ok().body(service.countAllAcolhidos());
+    }
+
+    @GetMapping("/report/count-ativos")
+    public ResponseEntity<Long> countActiveAcolhidos()
+    {
+        return ResponseEntity.ok().body(service.countActiveAcolhidos());
+    }
+
+    @GetMapping("/report/count-inativos")
+    public ResponseEntity<Long> countInactiveAcolhidos()
+    {
+        return ResponseEntity.ok().body(service.countInactiveAcolhidos());
+    }
 }

@@ -16,6 +16,8 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -398,6 +400,63 @@ class AcolhidoControllerTest
         assertNull(response.getBody());
 
         Mockito.verify(service).deleteAcolhidoById(1L);
+    }
+
+    // Testes countAllAcolhidos
+    @ParameterizedTest
+    @ValueSource(longs = {0L, 1L, 10L})
+    void shouldReturnTotalAcolhidosCountSuccessfully(long total)
+    {
+        Mockito.when(service.countAllAcolhidos()).thenReturn(total);
+
+        ResponseEntity<Long> response = controller.countAllAcolhidos();
+
+        assertAll(
+                () -> assertEquals(HttpStatus.OK, response.getStatusCode()),
+                () -> assertEquals(total, response.getBody())
+        );
+
+        Mockito.verify(service).countAllAcolhidos();
+        Mockito.verifyNoMoreInteractions(service);
+        Mockito.verifyNoInteractions(responsavelService);
+    }
+
+    // Testes countActiveAcolhidos
+    @ParameterizedTest
+    @ValueSource(longs = {0L, 1L, 10L})
+    void shouldReturnActiveAcolhidosCountSuccessfully(long totalAtivos)
+    {
+        Mockito.when(service.countActiveAcolhidos()).thenReturn(totalAtivos);
+
+        ResponseEntity<Long> response = controller.countActiveAcolhidos();
+
+        assertAll(
+                () -> assertEquals(HttpStatus.OK, response.getStatusCode()),
+                () -> assertEquals(totalAtivos, response.getBody())
+        );
+
+        Mockito.verify(service).countActiveAcolhidos();
+        Mockito.verifyNoMoreInteractions(service);
+        Mockito.verifyNoInteractions(responsavelService);
+    }
+
+    // Testes countInactiveAcolhidos
+    @ParameterizedTest
+    @ValueSource(longs = {0L, 1L, 10L})
+    void shouldReturnInactiveAcolhidosCountSuccessfully(long totalInativos)
+    {
+        Mockito.when(service.countInactiveAcolhidos()).thenReturn(totalInativos);
+
+        ResponseEntity<Long> response = controller.countInactiveAcolhidos();
+
+        assertAll(
+                () -> assertEquals(HttpStatus.OK, response.getStatusCode()),
+                () -> assertEquals(totalInativos, response.getBody())
+        );
+
+        Mockito.verify(service).countInactiveAcolhidos();
+        Mockito.verifyNoMoreInteractions(service);
+        Mockito.verifyNoInteractions(responsavelService);
     }
 
 }
