@@ -122,4 +122,22 @@ public class FuncionarioController
 
         return ResponseEntity.noContent().build();
     }
+
+    @GetMapping("/report/count-all")
+    public ResponseEntity<Long> countAllFuncionarios()
+    {
+        return ResponseEntity.ok().body(service.countAllFuncionarios());
+    }
+
+    @GetMapping("/report/count-active")
+    public ResponseEntity<Long> countActiveFuncionarios()
+    {
+        return ResponseEntity.ok().body(service.countActiveFuncionarios());
+    }
+
+    @GetMapping("/report/count-inactive")
+    public ResponseEntity<Long> countInactiveFuncionarios()
+    {
+        return ResponseEntity.ok().body(service.countInactiveFuncionarios());
+    }
 }

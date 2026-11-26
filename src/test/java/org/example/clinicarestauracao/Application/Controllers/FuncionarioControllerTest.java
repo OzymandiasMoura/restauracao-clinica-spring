@@ -23,6 +23,8 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -405,6 +407,63 @@ class FuncionarioControllerTest
         assertNull(response.getBody());
 
         Mockito.verify(service).deleteFuncionarioById(id);
+        Mockito.verifyNoInteractions(cargoService, userService);
+    }
+
+    // Testes countAllFuncionarios
+    @ParameterizedTest
+    @ValueSource(longs = {0L, 1L, 10L})
+    void shouldReturnTotalFuncionariosCountSuccessfully(long total)
+    {
+        Mockito.when(service.countAllFuncionarios()).thenReturn(total);
+
+        ResponseEntity<Long> response = controller.countAllFuncionarios();
+
+        assertAll(
+                () -> assertEquals(HttpStatus.OK, response.getStatusCode()),
+                () -> assertEquals(total, response.getBody())
+        );
+
+        Mockito.verify(service).countAllFuncionarios();
+        Mockito.verifyNoMoreInteractions(service);
+        Mockito.verifyNoInteractions(cargoService, userService);
+    }
+
+    // Testes countActiveFuncionarios
+    @ParameterizedTest
+    @ValueSource(longs = {0L, 1L, 10L})
+    void shouldReturnActiveFuncionariosCountSuccessfully(long totalAtivos)
+    {
+        Mockito.when(service.countActiveFuncionarios()).thenReturn(totalAtivos);
+
+        ResponseEntity<Long> response = controller.countActiveFuncionarios();
+
+        assertAll(
+                () -> assertEquals(HttpStatus.OK, response.getStatusCode()),
+                () -> assertEquals(totalAtivos, response.getBody())
+        );
+
+        Mockito.verify(service).countActiveFuncionarios();
+        Mockito.verifyNoMoreInteractions(service);
+        Mockito.verifyNoInteractions(cargoService, userService);
+    }
+
+    // Testes countInactiveFuncionarios
+    @ParameterizedTest
+    @ValueSource(longs = {0L, 1L, 10L})
+    void shouldReturnInactiveFuncionariosCountSuccessfully(long totalInativos)
+    {
+        Mockito.when(service.countInactiveFuncionarios()).thenReturn(totalInativos);
+
+        ResponseEntity<Long> response = controller.countInactiveFuncionarios();
+
+        assertAll(
+                () -> assertEquals(HttpStatus.OK, response.getStatusCode()),
+                () -> assertEquals(totalInativos, response.getBody())
+        );
+
+        Mockito.verify(service).countInactiveFuncionarios();
+        Mockito.verifyNoMoreInteractions(service);
         Mockito.verifyNoInteractions(cargoService, userService);
     }
 

@@ -1264,4 +1264,49 @@ class FuncionarioServiceTest
         Mockito.verifyNoInteractions(repository, userService, auditContext);
     }
 
+    // Testes countAllFuncionarios
+    @ParameterizedTest
+    @ValueSource(longs = {0L, 1L, 12L})
+    void shouldReturnTotalFuncionariosCount(long total)
+    {
+        Mockito.when(repository.count()).thenReturn(total);
+
+        Long response = service.countAllFuncionarios();
+
+        assertEquals(total, response);
+        Mockito.verify(repository).count();
+        Mockito.verifyNoMoreInteractions(repository);
+        Mockito.verifyNoInteractions(userService, auditContext);
+    }
+
+    // Testes countActiveFuncionarios
+    @ParameterizedTest
+    @ValueSource(longs = {0L, 1L, 12L})
+    void shouldReturnActiveFuncionariosCount(long totalAtivos)
+    {
+        Mockito.when(repository.countFuncionarioByAtivoTrue()).thenReturn(totalAtivos);
+
+        Long response = service.countActiveFuncionarios();
+
+        assertEquals(totalAtivos, response);
+        Mockito.verify(repository).countFuncionarioByAtivoTrue();
+        Mockito.verifyNoMoreInteractions(repository);
+        Mockito.verifyNoInteractions(userService, auditContext);
+    }
+
+    // Testes countInactiveFuncionarios
+    @ParameterizedTest
+    @ValueSource(longs = {0L, 1L, 12L})
+    void shouldReturnInactiveFuncionariosCount(long totalInativos)
+    {
+        Mockito.when(repository.countFuncionarioByAtivoFalse()).thenReturn(totalInativos);
+
+        Long response = service.countInactiveFuncionarios();
+
+        assertEquals(totalInativos, response);
+        Mockito.verify(repository).countFuncionarioByAtivoFalse();
+        Mockito.verifyNoMoreInteractions(repository);
+        Mockito.verifyNoInteractions(userService, auditContext);
+    }
+
 }

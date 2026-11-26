@@ -258,4 +258,19 @@ public class FuncionarioService
             auditContext.clearActor();
         }
     }
+
+    public Long countAllFuncionarios()
+    {
+        return repository.count();
+    }
+
+    public Long countActiveFuncionarios()
+    {
+        return repository.countFuncionarioByAtivoTrue();
+    }
+
+    public Long countInactiveFuncionarios()
+    {
+        return repository.countFuncionarioByAtivoFalse();
+    }
 }
