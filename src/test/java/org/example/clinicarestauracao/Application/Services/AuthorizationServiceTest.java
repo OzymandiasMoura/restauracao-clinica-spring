@@ -18,7 +18,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @ExtendWith(MockitoExtension.class)
 class AuthorizationServiceTest
 {
-    private UserTestBuilder builder =  new UserTestBuilder();
+    private final UserTestBuilder builder =  new UserTestBuilder();
 
     @Mock
     private UserRepository repository;

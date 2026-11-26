@@ -7,7 +7,6 @@ import org.example.clinicarestauracao.Application.Exceptions.Funcionario.Funcion
 import org.example.clinicarestauracao.Application.Interfaces.FuncionarioRepository;
 import org.example.clinicarestauracao.Domain.Entities.Funcionario;
 import org.example.clinicarestauracao.Domain.Entities.User;
-import org.example.clinicarestauracao.Domain.Enums.UserRoles;
 import org.example.clinicarestauracao.Domain.Validation.CpfValidator;
 import org.example.clinicarestauracao.Domain.Validation.EmailValidator;
 import org.example.clinicarestauracao.Infrastruct.Database.Audit.DatabaseAuditContext;
