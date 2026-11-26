@@ -1,5 +1,7 @@
 package org.example.clinicarestauracao.Application.Controllers;
 
+
+import org.junit.jupiter.api.DisplayName;
 import org.example.clinicarestauracao.Application.Dtos.AcolhidoDtos.AcolhidoCreateRequestDto;
 import org.example.clinicarestauracao.Application.Dtos.AcolhidoDtos.AcolhidoResponseDto;
 import org.example.clinicarestauracao.Application.Dtos.AcolhidoDtos.AcolhidoUpdateRequestDto;
@@ -64,6 +66,7 @@ class AcolhidoControllerTest
 
     // Testes findAll
 
+    @DisplayName("Deve buscar todos os acolhidos com sucesso")
     @Test
     void shouldFindAllAcolhidosSuccessfully()
     {
@@ -100,6 +103,7 @@ class AcolhidoControllerTest
         Mockito.verify(service).findAllAcolhidos();
     }
 
+    @DisplayName("Deve retornar uma lista vazia quando não há acolhidos")
     @Test
     void shouldReturnEmptyListWhenThereAreNoAcolhidos()
     {
@@ -116,6 +120,7 @@ class AcolhidoControllerTest
 
 
     //Testes findById
+    @DisplayName("Deve buscar acolhido por ID com sucesso")
     @Test
     void shouldFindAcolhidoByIdSuccessfully()
     {
@@ -153,6 +158,7 @@ class AcolhidoControllerTest
 
     // Testes findByNome
 
+    @DisplayName("Deve buscar acolhidos por nome com sucesso")
     @Test
     void shouldFindAcolhidosByNomeSuccessfully()
     {
@@ -187,6 +193,7 @@ class AcolhidoControllerTest
 
     // Testes findByEmail
 
+    @DisplayName("Deve buscar acolhido por e-mail com sucesso")
     @Test
     void shouldFindAcolhidoByEmailSuccessfully()
     {
@@ -217,6 +224,7 @@ class AcolhidoControllerTest
 
     // Testes findByCpf
 
+    @DisplayName("Deve buscar acolhido por CPF com sucesso")
     @Test
     void shouldFindAcolhidoByCpfSuccessfully()
     {
@@ -247,6 +255,7 @@ class AcolhidoControllerTest
 
     // Testes create
 
+    @DisplayName("Deve criar acolhido com sucesso")
     @Test
     void shouldCreateAcolhidoSuccessfully()
     {
@@ -308,6 +317,7 @@ class AcolhidoControllerTest
 
     // Testes update
 
+    @DisplayName("Deve atualizar acolhido com sucesso")
     @Test
     void shouldUpdateAcolhidoSuccessfully()
     {
@@ -365,6 +375,7 @@ class AcolhidoControllerTest
 
     // Testes deactivate
 
+    @DisplayName("Deve desativar acolhido com sucesso")
     @Test
     void shouldDeactivateAcolhidoSuccessfully()
     {
@@ -378,6 +389,7 @@ class AcolhidoControllerTest
 
     // Testes reactivate
 
+    @DisplayName("Deve reativar acolhido com sucesso")
     @Test
     void shouldReactivateAcolhidoSuccessfully()
     {
@@ -391,6 +403,7 @@ class AcolhidoControllerTest
 
     // Testes delete
 
+    @DisplayName("Deve excluir acolhido com sucesso")
     @Test
     void shouldDeleteAcolhidoSuccessfully()
     {
@@ -403,6 +416,7 @@ class AcolhidoControllerTest
     }
 
     // Testes countAllAcolhidos
+    @DisplayName("Deve retornar a quantidade total de acolhidos")
     @ParameterizedTest
     @ValueSource(longs = {0L, 1L, 10L})
     void shouldReturnTotalAcolhidosCountSuccessfully(long total)
@@ -422,6 +436,7 @@ class AcolhidoControllerTest
     }
 
     // Testes countActiveAcolhidos
+    @DisplayName("Deve retornar a quantidade de acolhidos ativos")
     @ParameterizedTest
     @ValueSource(longs = {0L, 1L, 10L})
     void shouldReturnActiveAcolhidosCountSuccessfully(long totalAtivos)
@@ -441,6 +456,7 @@ class AcolhidoControllerTest
     }
 
     // Testes countInactiveAcolhidos
+    @DisplayName("Deve retornar a quantidade de acolhidos inativos")
     @ParameterizedTest
     @ValueSource(longs = {0L, 1L, 10L})
     void shouldReturnInactiveAcolhidosCountSuccessfully(long totalInativos)

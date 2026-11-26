@@ -1,5 +1,7 @@
 package org.example.clinicarestauracao.Application.Services;
 
+
+import org.junit.jupiter.api.DisplayName;
 import org.example.clinicarestauracao.Application.Exceptions.Cargo.CargoNotFoundException;
 import org.example.clinicarestauracao.Application.Exceptions.Cargo.CargoWithInvalidInformationException;
 import org.example.clinicarestauracao.Application.Interfaces.CargoRepository;
@@ -39,6 +41,7 @@ class CargoServiceTest
     //Testes para o createCargo
 
 
+    @DisplayName("Deve criar cargo com sucesso")
     @Test
     void shouldCreateCargoSuccessfully()
     {
@@ -67,6 +70,7 @@ class CargoServiceTest
         assertTrue(cargo.isAtivo());
     }
 
+    @DisplayName("Deve lançar exceção quando criando cargo com duplicado nome")
     @Test
     void shouldThrowExceptionWhenCreatingCargoWithDuplicatedName()
     {
@@ -83,6 +87,7 @@ class CargoServiceTest
         Mockito.verify(repository, Mockito.never()).save(Mockito.any(Cargo.class));
     }
 
+    @DisplayName("Deve rejeitar cargo nome duplicado ignorando caso")
     @Test
     void shouldRejectCargoNameDuplicatedIgnoringCase()
     {
@@ -102,6 +107,7 @@ class CargoServiceTest
 
     //Testes para findByNome
 
+    @DisplayName("Deve buscar cargo por nome com sucesso")
     @Test
     void shouldFindCargoByNameSuccessfully()
     {
@@ -120,6 +126,7 @@ class CargoServiceTest
         Mockito.verify(repository).findCargoByNomeIgnoreCase(name);
     }
 
+    @DisplayName("Deve lançar exceção quando cargo é não encontrado por nome")
     @Test
     void shouldThrowExceptionWhenCargoIsNotFoundByName()
     {
@@ -132,6 +139,7 @@ class CargoServiceTest
         Mockito.verify(repository).findCargoByNomeIgnoreCase("Monitor");
     }
 
+    @DisplayName("Deve normalizar nome quando buscando cargo por nome")
     @Test
     void shouldNormalizeNameWhenFindingCargoByName()
     {
@@ -146,6 +154,7 @@ class CargoServiceTest
 
     }
 
+    @DisplayName("Deve lançar exceção quando nome é nulo vazio ou em branco")
     @ParameterizedTest
     @NullSource
     @ValueSource(strings = {"", " ", "    "})
@@ -160,6 +169,7 @@ class CargoServiceTest
 
     //Testes findById
 
+    @DisplayName("Deve buscar cargo por ID com sucesso")
     @Test
     void shouldFindCargoByIdSuccessfully()
     {
@@ -173,6 +183,7 @@ class CargoServiceTest
         Mockito.verify(repository).findCargoById(1L);
     }
 
+    @DisplayName("Deve lançar exceção quando cargo é não encontrado por ID")
     @Test
     void shouldThrowExceptionWhenCargoIsNotFoundById()
     {
@@ -184,6 +195,7 @@ class CargoServiceTest
         Mockito.verify(repository).findCargoById(1L);
     }
 
+    @DisplayName("Deve lançar exceção quando cargo ID é inválido")
     @ParameterizedTest
     @NullSource
     @ValueSource(longs = {0, -1, -10})
@@ -195,6 +207,7 @@ class CargoServiceTest
         Mockito.verifyNoInteractions(repository);
     }
 
+    @DisplayName("Deve buscar todos os cargos com sucesso")
     @Test
     void shouldFindAllCargosSuccessfully()
     {
@@ -215,6 +228,7 @@ class CargoServiceTest
         Mockito.verify(repository).findAll();
     }
 
+    @DisplayName("Deve retornar uma lista vazia quando não há cargos")
     @Test
     void  shouldReturnEmptyListWhenThereAreNoCargos()
     {
@@ -231,6 +245,7 @@ class CargoServiceTest
     //Testes updateCargo
 
 
+    @DisplayName("Deve atualizar cargo com sucesso")
     @Test
     void shouldUpdateCargoSuccessfully()
     {
@@ -254,6 +269,7 @@ class CargoServiceTest
         Mockito.verify(repository).save(existing);
     }
 
+    @DisplayName("Deve lançar exceção quando atualizando cargo não encontrado")
     @Test
     void shouldThrowExceptionWhenUpdatingCargoNotFound()
     {
@@ -269,6 +285,7 @@ class CargoServiceTest
         Mockito.verify(repository, Mockito.never()).save(Mockito.any());
     }
 
+    @DisplayName("Deve lançar exceção quando atualizando cargo com ID inválido")
     @ParameterizedTest
     @NullSource
     @ValueSource(longs = {0, -1})
@@ -282,6 +299,7 @@ class CargoServiceTest
         Mockito.verifyNoInteractions(repository);
     }
 
+    @DisplayName("Deve lançar exceção quando atualizando cargo com nome usado por outro cargo")
     @Test
     void shouldThrowExceptionWhenUpdatingCargoWithNameUsedByAnotherCargo()
     {
@@ -302,6 +320,7 @@ class CargoServiceTest
         Mockito.verify(repository, Mockito.never()).save(Mockito.any());
     }
 
+    @DisplayName("Deve atualizar cargo quando nome pertence para mesmo cargo")
     @Test
     void shouldUpdateCargoWhenNameBelongsToSameCargo()
     {
@@ -324,6 +343,7 @@ class CargoServiceTest
         Mockito.verify(repository).save(existing);
     }
 
+    @DisplayName("Deve rejeitar atualizando cargo com nome usado por outro cargo ignorando caso")
     @Test
     void shouldRejectUpdatingCargoWithNameUsedByAnotherCargoIgnoringCase()
     {
@@ -344,6 +364,7 @@ class CargoServiceTest
 
     //Testes softDelete
 
+    @DisplayName("Deve desativar cargo com sucesso")
     @Test
     void shouldDeactivateCargoSuccessfully()
     {
@@ -365,6 +386,7 @@ class CargoServiceTest
     }
 
 
+    @DisplayName("Não deve salvar quando cargo é já inativo")
     @Test
     void shouldNotSaveWhenCargoIsAlreadyInactive()
     {
@@ -381,6 +403,7 @@ class CargoServiceTest
         Mockito.verify(repository, Mockito.never()).save(Mockito.any());
     }
 
+    @DisplayName("Deve lançar exceção quando lógica excluindo inexistente cargo")
     @Test
     void shouldThrowExceptionWhenSoftDeletingNonexistentCargo()
     {
@@ -394,6 +417,7 @@ class CargoServiceTest
         Mockito.verify(repository, Mockito.never()).save(Mockito.any());
     }
 
+    @DisplayName("Deve lançar exceção quando lógica excluindo cargo com ID inválido")
     @ParameterizedTest
     @NullSource
     @ValueSource(longs = {0, -1, -10})
@@ -407,6 +431,7 @@ class CargoServiceTest
 
     //Testes de reativação de cargo
 
+    @DisplayName("Deve reativar cargo com sucesso")
     @Test
     void shouldReactivateCargoSuccessfully()
     {
@@ -423,6 +448,7 @@ class CargoServiceTest
         Mockito.verify(repository).save(existing);
     }
 
+    @DisplayName("Não deve salvar quando cargo é já ativo")
     @Test
     void shouldNotSaveWhenCargoIsAlreadyActive()
     {
@@ -438,6 +464,7 @@ class CargoServiceTest
         Mockito.verify(repository, Mockito.never()).save(Mockito.any());
     }
 
+    @DisplayName("Deve lançar exceção quando reativando inexistente cargo")
     @Test
     void shouldThrowExceptionWhenReactivatingNonexistentCargo()
     {
@@ -451,6 +478,7 @@ class CargoServiceTest
         Mockito.verify(repository, Mockito.never()).save(Mockito.any());
     }
 
+    @DisplayName("Deve lançar exceção quando reativando cargo com ID inválido")
     @ParameterizedTest
     @NullSource
     @ValueSource(longs = {0, -1, -10})
@@ -462,6 +490,7 @@ class CargoServiceTest
         Mockito.verifyNoInteractions(repository);
     }
 
+    @DisplayName("Não deve desativar cargo com ativo funcionários")
     @Test
     void shouldNotDeactivateCargoWithActiveFuncionarios()
     {
@@ -482,6 +511,7 @@ class CargoServiceTest
 
     // Testes deleteCargo
 
+    @DisplayName("Deve excluir cargo sem vinculado funcionários")
     @ParameterizedTest
     @ValueSource(booleans = {true, false})
     void shouldDeleteCargoWithoutLinkedFuncionarios(boolean ativo)
@@ -503,6 +533,7 @@ class CargoServiceTest
         Mockito.verifyNoMoreInteractions(repository, funcionarioRepository, audit);
     }
 
+    @DisplayName("Deve limpar auditoria contexo quando cargo exclusão falha")
     @Test
     void shouldClearAuditContextWhenCargoDeletionFails()
     {
@@ -524,6 +555,7 @@ class CargoServiceTest
         Mockito.verifyNoMoreInteractions(repository, funcionarioRepository, audit);
     }
 
+    @DisplayName("Deve rejeitar excluindo cargo com vinculado funcionários")
     @ParameterizedTest
     @ValueSource(booleans = {true, false})
     void shouldRejectDeletingCargoWithLinkedFuncionarios(boolean ativo)
@@ -547,6 +579,7 @@ class CargoServiceTest
         Mockito.verifyNoMoreInteractions(repository, funcionarioRepository);
     }
 
+    @DisplayName("Deve rejeitar excluindo inexistente cargo")
     @Test
     void shouldRejectDeletingNonexistentCargo()
     {
@@ -561,6 +594,7 @@ class CargoServiceTest
         Mockito.verifyNoInteractions(funcionarioRepository, audit);
     }
 
+    @DisplayName("Deve rejeitar excluindo cargo com ID inválido")
     @ParameterizedTest
     @NullSource
     @ValueSource(longs = {0, -1, -10})

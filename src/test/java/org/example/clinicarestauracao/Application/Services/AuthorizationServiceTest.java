@@ -1,5 +1,7 @@
 package org.example.clinicarestauracao.Application.Services;
 
+
+import org.junit.jupiter.api.DisplayName;
 import org.example.clinicarestauracao.Application.Interfaces.UserRepository;
 import org.example.clinicarestauracao.Builders.UserTestBuilder;
 import org.example.clinicarestauracao.Domain.Entities.User;
@@ -24,6 +26,7 @@ class AuthorizationServiceTest
     @InjectMocks
     private AuthorizationService authorizationService;
 
+    @DisplayName("Deve carregar usuário por nome de usuário")
     @Test
     void shouldLoadUserByUsername()
     {
@@ -40,6 +43,7 @@ class AuthorizationServiceTest
     }
 
 
+    @DisplayName("Deve lançar exceção quando nome de usuário não existir")
     @Test
     void shouldThrowExceptionWhenUsernameDoesNotExist()
     {

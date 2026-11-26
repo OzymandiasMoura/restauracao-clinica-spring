@@ -1,5 +1,7 @@
 package org.example.clinicarestauracao.Application.Services;
 
+
+import org.junit.jupiter.api.DisplayName;
 import org.example.clinicarestauracao.Application.Exceptions.Responsavel.ResponsavelNotFoundException;
 import org.example.clinicarestauracao.Application.Exceptions.Responsavel.ResponsavelWithInvalidInformationException;
 import org.example.clinicarestauracao.Application.Interfaces.AcolhidoRepository;
@@ -39,6 +41,7 @@ class ResponsavelServiceTest
 
     // Testes do findAll
 
+    @DisplayName("Deve buscar todos os responsáveis com sucesso")
     @Test
     void shouldFindAllResponsaveisSuccessfully()
     {
@@ -60,6 +63,7 @@ class ResponsavelServiceTest
         Mockito.verify(repository).findAll();
     }
 
+    @DisplayName("Deve retornar uma lista vazia quando não há responsáveis")
     @Test
     void shouldReturnEmptyListWhenThereAreNoResponsaveis()
     {
@@ -78,6 +82,7 @@ class ResponsavelServiceTest
     }
     // Testes do findResponsavelById
 
+    @DisplayName("Deve buscar responsável por ID com sucesso")
     @Test
     void shouldFindResponsavelByIdSuccessfully()
     {
@@ -91,6 +96,7 @@ class ResponsavelServiceTest
         Mockito.verify(repository).findById(1L);
     }
 
+    @DisplayName("Deve lançar quando responsável não existir")
     @Test
     void shouldThrowWhenResponsavelDoesNotExist()
     {
@@ -103,6 +109,7 @@ class ResponsavelServiceTest
         Mockito.verify(repository).findById(1L);
     }
 
+    @DisplayName("Deve rejeitar ID inválido do responsável")
     @ParameterizedTest
     @NullSource
     @ValueSource(longs = {0, -1, -10})
@@ -117,6 +124,7 @@ class ResponsavelServiceTest
 
     // Testes do findResponsavelByNome
 
+    @DisplayName("Deve buscar responsáveis por nome parcial com sucesso")
     @Test
     void shouldFindResponsaveisByPartialNameSuccessfully()
     {
@@ -138,6 +146,7 @@ class ResponsavelServiceTest
         Mockito.verify(repository).findByNomeContainingIgnoreCase("maria");
     }
 
+    @DisplayName("Deve lançar exceção quando nenhum responsável corresponder ao nome informado")
     @Test
     void shouldThrowWhenNoResponsavelMatchesName()
     {
@@ -150,6 +159,7 @@ class ResponsavelServiceTest
         Mockito.verify(repository).findByNomeContainingIgnoreCase("Maria");
     }
 
+    @DisplayName("Deve rejeitar nome inválido do responsável")
     @ParameterizedTest
     @NullSource
     @ValueSource(strings = {"", " ", "   ", "\t", "\n"})
@@ -164,6 +174,7 @@ class ResponsavelServiceTest
 
     // Testes do findResponsavelByEmail
 
+    @DisplayName("Deve buscar responsável por normalizado e-mail com sucesso")
     @Test
     void shouldFindResponsavelByNormalizedEmailSuccessfully()
     {
@@ -178,6 +189,7 @@ class ResponsavelServiceTest
         Mockito.verify(repository).findByEmail("joao.silva@email.com");
     }
 
+    @DisplayName("Deve lançar quando responsável e-mail não existir")
     @Test
     void shouldThrowWhenResponsavelEmailDoesNotExist()
     {
@@ -190,6 +202,7 @@ class ResponsavelServiceTest
         Mockito.verify(repository).findByEmail("inexistente@email.com");
     }
 
+    @DisplayName("Deve rejeitar e-mail inválido do responsável")
     @ParameterizedTest
     @NullSource
     @ValueSource(strings = {"", " ", "   ", "\t", "\n"})
@@ -203,6 +216,7 @@ class ResponsavelServiceTest
     }
     // Testes do findResponsavelByCpf
 
+    @DisplayName("Deve buscar responsável por normalizado CPF com sucesso")
     @Test
     void shouldFindResponsavelByNormalizedCpfSuccessfully()
     {
@@ -217,6 +231,7 @@ class ResponsavelServiceTest
         Mockito.verify(repository).findByCpf("16899535009");
     }
 
+    @DisplayName("Deve lançar quando responsável CPF não existir")
     @Test
     void shouldThrowWhenResponsavelCpfDoesNotExist()
     {
@@ -229,6 +244,7 @@ class ResponsavelServiceTest
         Mockito.verify(repository).findByCpf("52998224725");
     }
 
+    @DisplayName("Deve rejeitar CPF inválido do responsável")
     @ParameterizedTest
     @NullSource
     @ValueSource(strings = {"", " ", "   ", "\t", "\n"})
@@ -244,6 +260,7 @@ class ResponsavelServiceTest
 
     // Testes do createResponsavel
 
+    @DisplayName("Deve criar responsável com sucesso")
     @Test
     void shouldCreateResponsavelSuccessfully()
     {
@@ -267,6 +284,7 @@ class ResponsavelServiceTest
         Mockito.verifyNoMoreInteractions(repository);
     }
 
+    @DisplayName("Deve rejeitar responsável nulo em criação")
     @Test
     void shouldRejectNullResponsavelOnCreation()
     {
@@ -277,6 +295,7 @@ class ResponsavelServiceTest
         Mockito.verifyNoInteractions(repository);
     }
 
+    @DisplayName("Deve rejeitar criação quando CPF é já cadastrado")
     @Test
     void shouldRejectCreationWhenCpfIsAlreadyRegistered()
     {
@@ -292,6 +311,7 @@ class ResponsavelServiceTest
         Mockito.verifyNoMoreInteractions(repository);
     }
 
+    @DisplayName("Deve rejeitar criação quando e-mail é já cadastrado")
     @Test
     void shouldRejectCreationWhenEmailIsAlreadyRegistered()
     {
@@ -313,6 +333,7 @@ class ResponsavelServiceTest
 
     // Testes do updateResponsavel
 
+    @DisplayName("Deve atualizar responsável com sucesso")
     @Test
     void shouldUpdateResponsavelSuccessfully()
     {
@@ -349,6 +370,7 @@ class ResponsavelServiceTest
         Mockito.verifyNoMoreInteractions(repository);
     }
 
+    @DisplayName("Deve rejeitar ID inválido ao atualizar responsável")
     @ParameterizedTest
     @NullSource
     @ValueSource(longs = {0, -1, -10})
@@ -363,6 +385,7 @@ class ResponsavelServiceTest
         Mockito.verifyNoInteractions(repository);
     }
 
+    @DisplayName("Deve rejeitar informações nulas ao atualizar responsável")
     @Test
     void shouldRejectNullInformationOnResponsavelUpdate()
     {
@@ -373,6 +396,7 @@ class ResponsavelServiceTest
         Mockito.verifyNoInteractions(repository);
     }
 
+    @DisplayName("Deve rejeitar a atualização quando responsável não existir")
     @Test
     void shouldRejectUpdateWhenResponsavelDoesNotExist()
     {
@@ -388,6 +412,7 @@ class ResponsavelServiceTest
         Mockito.verifyNoMoreInteractions(repository);
     }
 
+    @DisplayName("Deve rejeitar a atualização quando CPF pertence para outro responsável")
     @Test
     void shouldRejectUpdateWhenCpfBelongsToAnotherResponsavel()
     {
@@ -415,6 +440,7 @@ class ResponsavelServiceTest
         Mockito.verifyNoMoreInteractions(repository);
     }
 
+    @DisplayName("Deve rejeitar a atualização quando e-mail pertence para outro responsável")
     @Test
     void shouldRejectUpdateWhenEmailBelongsToAnotherResponsavel()
     {
@@ -444,6 +470,7 @@ class ResponsavelServiceTest
         Mockito.verifyNoMoreInteractions(repository);
     }
 
+    @DisplayName("Deve permitir atualizar mantendo próprio CPF e e-mail")
     @Test
     void shouldAllowUpdateKeepingOwnCpfAndEmail()
     {
@@ -473,6 +500,7 @@ class ResponsavelServiceTest
 
     // Testes do deactivateResponsavel
 
+    @DisplayName("Deve desativar responsável com sucesso quando não há ativo acolhidos")
     @Test
     void shouldDeactivateResponsavelSuccessfullyWhenThereAreNoActiveAcolhidos()
     {
@@ -499,6 +527,7 @@ class ResponsavelServiceTest
         Mockito.verifyNoMoreInteractions(repository, acolhidoRepository);
     }
 
+    @DisplayName("Deve rejeitar desativação quando responsável tem ativo acolhido")
     @Test
     void shouldRejectDeactivationWhenResponsavelHasActiveAcolhido()
     {
@@ -526,6 +555,7 @@ class ResponsavelServiceTest
         Mockito.verifyNoMoreInteractions(repository, acolhidoRepository);
     }
 
+    @DisplayName("Deve rejeitar a desativação de um responsável inativo")
     @Test
     void shouldRejectDeactivationOfInactiveResponsavel()
     {
@@ -546,6 +576,7 @@ class ResponsavelServiceTest
         Mockito.verifyNoMoreInteractions(repository, acolhidoRepository);
     }
 
+    @DisplayName("Não deve salvar quando desativando desconhecido responsável")
     @Test
     void shouldNotSaveWhenDeactivatingUnknownResponsavel()
     {
@@ -562,6 +593,7 @@ class ResponsavelServiceTest
 
     // Testes do reactivateResponsavel
 
+    @DisplayName("Deve reativar responsável com sucesso")
     @Test
     void shouldReactivateResponsavelSuccessfully()
     {
@@ -586,6 +618,7 @@ class ResponsavelServiceTest
         Mockito.verifyNoMoreInteractions(repository);
     }
 
+    @DisplayName("Deve rejeitar a reativação de um responsável ativo")
     @Test
     void shouldRejectReactivationOfActiveResponsavel()
     {
@@ -604,6 +637,7 @@ class ResponsavelServiceTest
         Mockito.verifyNoMoreInteractions(repository);
     }
 
+    @DisplayName("Não deve salvar quando reativando desconhecido responsável")
     @Test
     void shouldNotSaveWhenReactivatingUnknownResponsavel()
     {
@@ -619,6 +653,7 @@ class ResponsavelServiceTest
 
     // Testes do deleteResponsavel
 
+    @DisplayName("Deve excluir responsável com sucesso quando não há vinculado acolhidos")
     @Test
     void shouldDeleteResponsavelSuccessfullyWhenThereAreNoLinkedAcolhidos()
     {
@@ -641,6 +676,7 @@ class ResponsavelServiceTest
         Mockito.verifyNoMoreInteractions(repository, acolhidoRepository, audit);
     }
 
+    @DisplayName("Deve rejeitar exclusão quando responsável tem vinculado acolhido")
     @Test
     void shouldRejectDeletionWhenResponsavelHasLinkedAcolhido()
     {
@@ -666,6 +702,7 @@ class ResponsavelServiceTest
         Mockito.verifyNoMoreInteractions(repository, acolhidoRepository);
     }
 
+    @DisplayName("Não deve excluir desconhecido responsável")
     @Test
     void shouldNotDeleteUnknownResponsavel()
     {
@@ -680,6 +717,7 @@ class ResponsavelServiceTest
         Mockito.verifyNoMoreInteractions(repository);
     }
 
+    @DisplayName("Não deve excluir responsável quando o ID é inválido")
     @ParameterizedTest
     @NullSource
     @ValueSource(longs = {0, -1, -10})

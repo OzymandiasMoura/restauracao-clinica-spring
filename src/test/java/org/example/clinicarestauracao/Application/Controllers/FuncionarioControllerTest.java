@@ -1,5 +1,7 @@
 package org.example.clinicarestauracao.Application.Controllers;
 
+
+import org.junit.jupiter.api.DisplayName;
 import org.example.clinicarestauracao.Application.Controllers.Mappers.EnderecoMapper;
 import org.example.clinicarestauracao.Application.Dtos.FuncionarioDtos.FuncionarioDismissalRequestDto;
 import org.example.clinicarestauracao.Application.Dtos.FuncionarioDtos.FuncionarioCreateRequestDto;
@@ -74,6 +76,7 @@ class FuncionarioControllerTest
 
     //Teste endpoint FindAll
 
+    @DisplayName("Deve retornar todos os funcionários")
     @Test
     void shouldReturnAllFuncionarios()
     {
@@ -123,6 +126,7 @@ class FuncionarioControllerTest
         Mockito.verify(service).findAllFuncionarios();
     }
 
+    @DisplayName("Deve retornar uma lista vazia quando não há funcionários")
     @Test
     void shouldReturnEmptyListWhenThereAreNoFuncionarios()
     {
@@ -138,6 +142,7 @@ class FuncionarioControllerTest
     }
 
     //Testes findById
+    @DisplayName("Deve buscar funcionário por ID com sucesso")
     @Test
     void shouldFindFuncionarioByIdSuccessfully()
     {
@@ -167,6 +172,7 @@ class FuncionarioControllerTest
     }
 
     //Testes findByEmail
+    @DisplayName("Deve buscar funcionário por e-mail com sucesso")
     @Test
     void shouldFindFuncionarioByEmailSuccessfully()
     {
@@ -185,6 +191,7 @@ class FuncionarioControllerTest
     }
 
     //Testes findByCpf
+    @DisplayName("Deve buscar funcionário por CPF com sucesso")
     @Test
     void shouldFindFuncionarioByCpfSuccessfully()
     {
@@ -202,6 +209,7 @@ class FuncionarioControllerTest
     }
 
     //Testes create
+    @DisplayName("Deve criar funcionário e usuário com sucesso")
     @Test
     void shouldCreateFuncionarioAndUserSuccessfully()
     {
@@ -266,6 +274,7 @@ class FuncionarioControllerTest
     }
 
     //Testes update
+    @DisplayName("Deve atualizar funcionário e preservar usuário e demissão data")
     @Test
     void shouldUpdateFuncionarioAndPreserveUserAndDismissalDate()
     {
@@ -342,6 +351,7 @@ class FuncionarioControllerTest
     }
 
     //Testes dismissFuncionario
+    @DisplayName("Deve demitir funcionário com sucesso")
     @Test
     void shouldDismissFuncionarioSuccessfully()
     {
@@ -358,6 +368,7 @@ class FuncionarioControllerTest
         Mockito.verifyNoInteractions(cargoService, userService);
     }
 
+    @DisplayName("Deve reativar funcionário com sucesso")
     @Test
     void shouldReactivateFuncionarioSuccessfully()
     {
@@ -374,6 +385,7 @@ class FuncionarioControllerTest
 
     //Teste linkUser
 
+    @DisplayName("Deve definir funcionário usuário com sucesso")
     @Test
     void shouldSetFuncionarioUserSuccessfully()
     {
@@ -396,6 +408,7 @@ class FuncionarioControllerTest
         Mockito.verifyNoInteractions(cargoService);
     }
 
+    @DisplayName("Deve excluir funcionário com sucesso")
     @Test
     void shouldDeleteFuncionarioSuccessfully()
     {
@@ -411,6 +424,7 @@ class FuncionarioControllerTest
     }
 
     // Testes countAllFuncionarios
+    @DisplayName("Deve retornar a quantidade total de funcionários")
     @ParameterizedTest
     @ValueSource(longs = {0L, 1L, 10L})
     void shouldReturnTotalFuncionariosCountSuccessfully(long total)
@@ -430,6 +444,7 @@ class FuncionarioControllerTest
     }
 
     // Testes countActiveFuncionarios
+    @DisplayName("Deve retornar a quantidade de funcionários ativos")
     @ParameterizedTest
     @ValueSource(longs = {0L, 1L, 10L})
     void shouldReturnActiveFuncionariosCountSuccessfully(long totalAtivos)
@@ -449,6 +464,7 @@ class FuncionarioControllerTest
     }
 
     // Testes countInactiveFuncionarios
+    @DisplayName("Deve retornar a quantidade de funcionários inativos")
     @ParameterizedTest
     @ValueSource(longs = {0L, 1L, 10L})
     void shouldReturnInactiveFuncionariosCountSuccessfully(long totalInativos)

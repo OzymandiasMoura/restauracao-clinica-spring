@@ -1,5 +1,7 @@
 package org.example.clinicarestauracao.Application.Services;
 
+
+import org.junit.jupiter.api.DisplayName;
 import org.example.clinicarestauracao.Application.Exceptions.User.UserNotFoundException;
 import org.example.clinicarestauracao.Application.Exceptions.User.UserWithInvalidInformationException;
 import org.example.clinicarestauracao.Application.Exceptions.User.UsernameAlredyInUseException;
@@ -41,6 +43,7 @@ class UserServiceTest
     @InjectMocks
     private UserService service;
 
+    @DisplayName("Deve cadastrar e retornar novo usuário")
     @Test
     void shouldRegisterAndReturnNewUser()
     {
@@ -71,6 +74,7 @@ class UserServiceTest
     }
 
 
+    @DisplayName("Deve buscar usuário por ID com sucesso")
     @Test
     void shouldFindUserByIdSuccessfully()
     {
@@ -83,6 +87,7 @@ class UserServiceTest
         Mockito.verify(repository).findById(1L);
     }
 
+    @DisplayName("Deve lançar exceção quando o usuário não for encontrado quando usuário não existir")
     @Test
     void shouldThrowUserNotFoundExceptionWhenUserDoesNotExist()
     {
@@ -95,6 +100,7 @@ class UserServiceTest
         Mockito.verify(repository).findById(1L);
     }
 
+    @DisplayName("Deve lançar exceção quando o usuário não for encontrado quando o ID é inválido")
     @ParameterizedTest
     @NullSource
     @ValueSource(longs = {0, -1, -10})
@@ -107,6 +113,7 @@ class UserServiceTest
         Mockito.verifyNoInteractions(repository);
     }
 
+    @DisplayName("Deve rejeitar duplicado nome de usuário quando cadastrando usuário")
     @Test
     void shouldRejectDuplicatedUsernameWhenRegisteringUser()
     {
@@ -125,6 +132,7 @@ class UserServiceTest
                 .save(Mockito.any());
     }
 
+    @DisplayName("Deve atualizar nome de usuário e preservar senha e acesso estado")
     @Test
     void shouldUpdateUsernameAndPreservePasswordAndAccessState()
     {
@@ -151,6 +159,7 @@ class UserServiceTest
         Mockito.verifyNoInteractions(passwordEncoder);
     }
 
+    @DisplayName("Deve rejeitar nome de usuário pertencente por outro usuário")
     @Test
     void shouldRejectUsernameOwnedByAnotherUser()
     {
@@ -172,6 +181,7 @@ class UserServiceTest
         Mockito.verifyNoInteractions(passwordEncoder);
     }
 
+    @DisplayName("Deve permitir nome de usuário pertencente por mesmo usuário quando atualizando nome de usuário")
     @Test
     void shouldAllowUsernameOwnedBySameUserWhenUpdatingUsername()
     {
@@ -193,6 +203,7 @@ class UserServiceTest
         Mockito.verifyNoInteractions(passwordEncoder);
     }
 
+    @DisplayName("Deve rejeitar nome de usuário atualizar quando usuário não existir")
     @Test
     void shouldRejectUsernameUpdateWhenUserDoesNotExist()
     {
@@ -208,6 +219,7 @@ class UserServiceTest
         Mockito.verifyNoInteractions(passwordEncoder);
     }
 
+    @DisplayName("Deve rejeitar inválido usuário ID quando atualizando nome de usuário")
     @ParameterizedTest
     @NullSource
     @ValueSource(longs = {0, -1, -10})
@@ -220,6 +232,7 @@ class UserServiceTest
         Mockito.verifyNoInteractions(repository, passwordEncoder);
     }
 
+    @DisplayName("Deve rejeitar nome inválido de usuário quando atualizando nome de usuário")
     @ParameterizedTest
     @NullSource
     @ValueSource(strings = {"", " ", "Pe"})
@@ -241,6 +254,7 @@ class UserServiceTest
 
     //Testes para updatePassword
 
+    @DisplayName("Deve atualizar senha com sucesso")
     @Test
     void shouldUpdatePasswordSuccessfully()
     {
@@ -264,6 +278,7 @@ class UserServiceTest
         Mockito.verify(repository).save(user);
     }
 
+    @DisplayName("Deve atualizar senha sem reativando usuário")
     @Test
     void shouldUpdatePasswordWithoutReactivatingUser()
     {
@@ -290,6 +305,7 @@ class UserServiceTest
         verify(repository).save(user);
     }
 
+    @DisplayName("Deve rejeitar inválido senha quando atualizando senha")
     @ParameterizedTest
     @NullSource
     @ValueSource(strings = {"", " ", "12"})
@@ -309,6 +325,7 @@ class UserServiceTest
         Mockito.verify(repository, Mockito.never()).save(Mockito.any());
     }
 
+    @DisplayName("Deve rejeitar senha atualizar quando usuário não existir")
     @Test
     void shouldRejectPasswordUpdateWhenUserDoesNotExist()
     {
@@ -323,6 +340,7 @@ class UserServiceTest
         Mockito.verify(repository, Mockito.never()).save(Mockito.any());
     }
 
+    @DisplayName("Deve rejeitar inválido usuário ID quando atualizando senha")
     @ParameterizedTest
     @NullSource
     @ValueSource(longs = {0, -1, -10})
@@ -335,6 +353,7 @@ class UserServiceTest
         Mockito.verifyNoInteractions(repository, passwordEncoder);
     }
 
+    @DisplayName("Deve preservar senha quando senha codificação falha")
     @Test
     void shouldPreservePasswordWhenPasswordEncodingFails()
     {
@@ -358,6 +377,7 @@ class UserServiceTest
     //Testes updateRole
 
 
+    @DisplayName("Deve atualizar perfil com sucesso")
     @Test
     void shouldUpdateRoleSuccessfully()
     {
@@ -380,6 +400,7 @@ class UserServiceTest
         Mockito.verifyNoInteractions(passwordEncoder);
     }
 
+    @DisplayName("Não deve salvar quando perfil é já atribuído")
     @Test
     void shouldNotSaveWhenRoleIsAlreadyAssigned()
     {
@@ -398,6 +419,7 @@ class UserServiceTest
         Mockito.verifyNoInteractions(passwordEncoder);
     }
 
+    @DisplayName("Deve rejeitar nenhum acesso como novo perfil")
     @Test
     void shouldRejectNoAccessAsNewRole()
     {
@@ -416,6 +438,7 @@ class UserServiceTest
         Mockito.verifyNoInteractions(passwordEncoder);
     }
 
+    @DisplayName("Deve rejeitar perfil atualizar quando usuário é desabilitado")
     @Test
     void shouldRejectRoleUpdateWhenUserIsDisabled()
     {
@@ -436,6 +459,7 @@ class UserServiceTest
         Mockito.verifyNoInteractions(passwordEncoder);
     }
 
+    @DisplayName("Deve rejeitar mesmo nenhum acesso perfil antes idempotente retornar")
     @Test
     void shouldRejectSameNoAccessRoleBeforeIdempotentReturn()
     {
@@ -455,6 +479,7 @@ class UserServiceTest
         Mockito.verifyNoInteractions(passwordEncoder);
     }
 
+    @DisplayName("Deve rejeitar nulo perfil")
     @Test
     void shouldRejectNullRole()
     {
@@ -473,6 +498,7 @@ class UserServiceTest
         Mockito.verifyNoInteractions(passwordEncoder);
     }
 
+    @DisplayName("Deve rejeitar perfil atualizar quando usuário não existir")
     @Test
     void shouldRejectRoleUpdateWhenUserDoesNotExist()
     {
@@ -487,6 +513,7 @@ class UserServiceTest
         Mockito.verifyNoInteractions(passwordEncoder);
     }
 
+    @DisplayName("Deve rejeitar inválido usuário ID quando atualizando perfil")
     @ParameterizedTest
     @NullSource
     @ValueSource(longs = {0, -1, -10})
@@ -499,6 +526,7 @@ class UserServiceTest
         Mockito.verifyNoInteractions(repository, passwordEncoder);
     }
 
+    @DisplayName("Deve excluir usuário quando nenhum funcionário é vinculado")
     @Test
     void shouldDeleteUserWhenNoFuncionarioIsLinked()
     {
@@ -520,6 +548,7 @@ class UserServiceTest
         Mockito.verifyNoInteractions(passwordEncoder);
     }
 
+    @DisplayName("Deve rejeitar excluindo usuário quando funcionário é vinculado")
     @Test
     void shouldRejectDeletingUserWhenFuncionarioIsLinked()
     {
@@ -546,6 +575,7 @@ class UserServiceTest
         Mockito.verifyNoInteractions(passwordEncoder);
     }
 
+    @DisplayName("Deve rejeitar excluindo usuário que não existir")
     @Test
     void shouldRejectDeletingUserThatDoesNotExist()
     {
@@ -563,6 +593,7 @@ class UserServiceTest
         Mockito.verifyNoInteractions(funcionarioRepository, passwordEncoder, audit);
     }
 
+    @DisplayName("Deve rejeitar excluindo usuário com ID inválido")
     @ParameterizedTest
     @NullSource
     @ValueSource(longs = {0, -1, -10})

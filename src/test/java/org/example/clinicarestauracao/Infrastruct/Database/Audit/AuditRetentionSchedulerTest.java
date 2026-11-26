@@ -1,6 +1,8 @@
 package org.example.clinicarestauracao.Infrastruct.Database.Audit;
 
 
+
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -22,6 +24,7 @@ class AuditRetentionSchedulerTest
     @Mock
     private JdbcTemplate jdbcTemplate;
 
+    @DisplayName("Deve excluir registros de auditoria com mais de um ano")
     @Test
     void shouldDeleteAuditRecordsOlderThanOneYear()
     {
@@ -44,6 +47,7 @@ class AuditRetentionSchedulerTest
         assertEquals(ZoneOffset.UTC, cutoff.getOffset());
     }
 
+    @DisplayName("Deve excluir expirado auditoria registros quando aplicação é pronto")
     @Test
     void shouldDeleteExpiredAuditRecordsWhenApplicationIsReady()
     {

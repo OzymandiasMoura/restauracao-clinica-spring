@@ -1,5 +1,7 @@
 package org.example.clinicarestauracao.Domain.Entities;
 
+
+import org.junit.jupiter.api.DisplayName;
 import org.example.clinicarestauracao.Application.Exceptions.Internacao.InternacaoWithInvalidInformationException;
 import org.example.clinicarestauracao.Builders.AcolhidoTestBuilder;
 import org.example.clinicarestauracao.Builders.ConvenioTestBuilder;
@@ -20,6 +22,7 @@ class InternacaoTest
 {
     // Testes do construtor de criação
 
+    @DisplayName("Deve criar internação com fornecido informações")
     @Test
     void shouldCreateInternacaoWithProvidedInformation()
     {
@@ -45,6 +48,7 @@ class InternacaoTest
         );
     }
 
+    @DisplayName("Deve sempre criar internação como ativo")
     @Test
     void shouldAlwaysCreateInternacaoAsActive()
     {
@@ -55,6 +59,7 @@ class InternacaoTest
 
     // Testes do construtor de recuperação
 
+    @DisplayName("Deve restaurar existente internação com fornecido informações")
     @Test
     void shouldRestoreExistingInternacaoWithProvidedInformation()
     {
@@ -82,6 +87,7 @@ class InternacaoTest
     }
 
 
+    @DisplayName("Deve rejeitar ID inválido")
     @ParameterizedTest
     @NullSource
     @ValueSource(longs = {0, -1})
@@ -92,6 +98,7 @@ class InternacaoTest
         assertEquals("Id da internação é inválido.", exception.getMessage());
     }
 
+    @DisplayName("Deve rejeitar nulo ativo quando restaurando internação")
     @Test
     void shouldRejectNullActiveWhenRestoringInternacao()
     {
@@ -105,6 +112,7 @@ class InternacaoTest
 
     // Testes para acolhido
 
+    @DisplayName("Deve rejeitar acolhido nulo")
     @Test
     void shouldRejectNullAcolhido()
     {
@@ -113,6 +121,7 @@ class InternacaoTest
         assertEquals("Acolhido é obrigatório.", exception.getMessage());
     }
 
+    @DisplayName("Deve rejeitar inativo acolhido quando criando internação")
     @Test
     void shouldRejectInactiveAcolhidoWhenCreatingInternacao()
     {
@@ -124,6 +133,7 @@ class InternacaoTest
         assertEquals("Acolhido não pode estar desativado.", exception.getMessage());
     }
 
+    @DisplayName("Deve permitir inativo acolhido quando restaurando existente internação")
     @Test
     void shouldAllowInactiveAcolhidoWhenRestoringExistingInternacao()
     {
@@ -137,6 +147,7 @@ class InternacaoTest
 
     // Testes para convênio
 
+    @DisplayName("Deve rejeitar convênio nulo")
     @Test
     void shouldRejectNullConvenio()
     {
@@ -145,6 +156,7 @@ class InternacaoTest
         assertEquals("Convênio é obrigatório.", exception.getMessage());
     }
 
+    @DisplayName("Deve rejeitar inativo convênio quando criando internação")
     @Test
     void shouldRejectInactiveConvenioWhenCreatingInternacao()
     {
@@ -155,6 +167,7 @@ class InternacaoTest
         assertEquals("Convênio não pode estar desativado.", exception.getMessage());
     }
 
+    @DisplayName("Deve rejeitar convênio sem vagas ao criar uma internação")
     @Test
     void shouldRejectConvenioWithZeroMaxVagasWhenCreatingInternacao()
     {
@@ -166,6 +179,7 @@ class InternacaoTest
     }
 
 
+    @DisplayName("Deve permitir inativo convênio quando restaurando existente internação")
     @Test
     void shouldAllowInactiveConvenioWhenRestoringExistingInternacao()
     {
@@ -179,6 +193,7 @@ class InternacaoTest
 
     // Testes para data de entrada
 
+    @DisplayName("Deve definir uma data de entrada válida")
     @Test
     void shouldSetValidEntryDate()
     {
@@ -189,6 +204,7 @@ class InternacaoTest
         assertEquals(dataEntrada, internacao.getDataEntrada());
     }
 
+    @DisplayName("Deve aceitar a data atual como data de entrada")
     @Test
     void shouldAcceptCurrentDateAsEntryDate()
     {
@@ -199,6 +215,7 @@ class InternacaoTest
         assertEquals(dataEntrada, internacao.getDataEntrada());
     }
 
+    @DisplayName("Deve aceitar data de entrada igual à data de nascimento do acolhido")
     @Test
     void shouldAcceptEntryDateEqualToAcolhidoBirthDate()
     {
@@ -209,6 +226,7 @@ class InternacaoTest
         assertEquals(dataNascimento, internacao.getDataEntrada());
     }
 
+    @DisplayName("Deve rejeitar data de entrada nula")
     @Test
     void shouldRejectNullEntryDate()
     {
@@ -217,6 +235,7 @@ class InternacaoTest
         assertEquals("Data de entrada é obrigatória.", exception.getMessage());
     }
 
+    @DisplayName("Deve rejeitar uma data de entrada futura")
     @Test
     void shouldRejectFutureEntryDate()
     {
@@ -227,6 +246,7 @@ class InternacaoTest
         assertEquals("Data de entrada não pode ser futura.", exception.getMessage());
     }
 
+    @DisplayName("Deve rejeitar data de entrada anterior à data de nascimento do acolhido")
     @Test
     void shouldRejectEntryDateBeforeAcolhidoBirthDate()
     {
@@ -241,6 +261,7 @@ class InternacaoTest
 
     // Testes para data de saída prevista
 
+    @DisplayName("Deve definir inicialmente a data de saída prevista para nove meses após a data de entrada")
     @Test
     void shouldInitiallySetExpectedExitDateNineMonthsAfterEntryDate()
     {
@@ -251,6 +272,7 @@ class InternacaoTest
         assertEquals(LocalDate.of(2026, 10, 10), internacao.getDataSaidaPrevista());
     }
 
+    @DisplayName("Deve ajustar a data de saída prevista para o último dia válido do mês")
     @Test
     void shouldAdjustExpectedExitDateToLastValidDayOfMonth()
     {
@@ -261,6 +283,7 @@ class InternacaoTest
         assertEquals(LocalDate.of(2027, 2, 28), internacao.getDataSaidaPrevista());
     }
 
+    @DisplayName("Deve definir uma data de saída prevista válida")
     @Test
     void shouldSetValidExpectedExitDate()
     {
@@ -274,6 +297,7 @@ class InternacaoTest
         assertEquals(novaDataSaidaPrevista, internacao.getDataSaidaPrevista());
     }
 
+    @DisplayName("Deve aceitar data de saída prevista igual à data de entrada")
     @Test
     void shouldAcceptExpectedExitDateEqualToEntryDate()
     {
@@ -284,6 +308,7 @@ class InternacaoTest
         assertEquals(dataEntrada, internacao.getDataSaidaPrevista());
     }
 
+    @DisplayName("Deve rejeitar data de saída prevista nula e preservar atual valor")
     @Test
     void shouldRejectNullExpectedExitDateAndPreserveCurrentValue()
     {
@@ -298,6 +323,7 @@ class InternacaoTest
                 () -> assertEquals(dataSaidaPrevistaAtual, internacao.getDataSaidaPrevista()));
     }
 
+    @DisplayName("Deve rejeitar data de saída prevista anterior à data de entrada e preservar o valor atual")
     @Test
     void shouldRejectExpectedExitDateBeforeEntryDateAndPreserveCurrentValue()
     {
@@ -316,6 +342,7 @@ class InternacaoTest
 
 // Testes para data de saída
 
+    @DisplayName("Deve permitir data de saída e tipo de alta nulos ao restaurar uma internação ativa")
     @Test
     void shouldAllowNullExitDateAndAltaWhenRestoringActiveInternacao()
     {
@@ -328,6 +355,7 @@ class InternacaoTest
         );
     }
 
+    @DisplayName("Deve aceitar a data atual como data de saída")
     @Test
     void shouldAcceptCurrentDateAsExitDate()
     {
@@ -345,6 +373,7 @@ class InternacaoTest
         );
     }
 
+    @DisplayName("Deve rejeitar uma data de saída futura e preservar o estado atual")
     @Test
     void shouldRejectFutureExitDateAndPreserveCurrentState()
     {
@@ -363,6 +392,7 @@ class InternacaoTest
         );
     }
 
+    @DisplayName("Deve rejeitar data de saída anterior à data de entrada e preservar o estado atual")
     @Test
     void shouldRejectExitDateBeforeEntryDateAndPreserveCurrentState()
     {
@@ -381,6 +411,7 @@ class InternacaoTest
         );
     }
 
+    @DisplayName("Deve rejeitar data de saída nula ao encerrar a internação e preservar o estado atual")
     @Test
     void shouldRejectNullExitDateWhenEndingInternacaoAndPreserveCurrentState()
     {
@@ -397,6 +428,7 @@ class InternacaoTest
         );
     }
 
+    @DisplayName("Deve rejeitar nulo alta quando encerramento internação e preservar atual estado")
     @Test
     void shouldRejectNullAltaWhenEndingInternacaoAndPreserveCurrentState()
     {
@@ -416,6 +448,7 @@ class InternacaoTest
         );
     }
 
+    @DisplayName("Deve aceitar data de saída igual à data de entrada")
     @Test
     void shouldAcceptExitDateEqualToEntryDate()
     {
@@ -432,6 +465,7 @@ class InternacaoTest
         );
     }
 
+    @DisplayName("Deve completar uma internação inativa quando a data de saída e o tipo de alta estão ausentes")
     @Test
     void shouldCompleteInactiveInternacaoWhenExitDateAndAltaAreMissing()
     {
@@ -455,6 +489,7 @@ class InternacaoTest
         );
     }
 
+    @DisplayName("Deve completar uma internação inativa quando somente a data de saída está ausente")
     @Test
     void shouldCompleteInactiveInternacaoWhenOnlyExitDateIsMissing()
     {
@@ -478,6 +513,7 @@ class InternacaoTest
         );
     }
 
+    @DisplayName("Deve completar uma internação inativa quando somente alta é ausente")
     @Test
     void shouldCompleteInactiveInternacaoWhenOnlyAltaIsMissing()
     {
@@ -501,6 +537,7 @@ class InternacaoTest
         );
     }
 
+    @DisplayName("Deve rejeitar encerramento completo internação novamente e preservar original estado")
     @Test
     void shouldRejectEndingCompleteInternacaoAgainAndPreserveOriginalState()
     {
@@ -527,6 +564,7 @@ class InternacaoTest
         );
     }
 
+    @DisplayName("Deve relatório já encerrado antes validando novo encerrar informações")
     @Test
     void shouldReportAlreadyEndedBeforeValidatingNewEndInformation()
     {
@@ -555,6 +593,7 @@ class InternacaoTest
 
     // Testes para valor da mensalidade
 
+    @DisplayName("Deve aceitar positivo mensalidade pagamento para pago convênio")
     @Test
     void shouldAcceptPositiveMonthlyPaymentForPaidConvenio()
     {
@@ -565,6 +604,7 @@ class InternacaoTest
         assertEquals(valorMensalidade, internacao.getValorMensalidade());
     }
 
+    @DisplayName("Deve arredondar mensalidade pagamento metade acima para dois decimal casas")
     @Test
     void shouldRoundMonthlyPaymentHalfUpToTwoDecimalPlaces()
     {
@@ -573,6 +613,7 @@ class InternacaoTest
         assertEquals(new BigDecimal("11.00"), internacao.getValorMensalidade());
     }
 
+    @DisplayName("Deve aceitar pago mensalidade pagamento que arredonda para um centavos")
     @Test
     void shouldAcceptPaidMonthlyPaymentThatRoundsToOneCent()
     {
@@ -581,6 +622,7 @@ class InternacaoTest
         assertEquals(new BigDecimal("0.01"), internacao.getValorMensalidade());
     }
 
+    @DisplayName("Deve rejeitar valor de mensalidade nulo e preservar atual valor")
     @Test
     void shouldRejectNullMonthlyPaymentAndPreserveCurrentValue()
     {
@@ -594,6 +636,7 @@ class InternacaoTest
                 () -> assertEquals(valorAtual, internacao.getValorMensalidade()));
     }
 
+    @DisplayName("Deve rejeitar não positivo arredondado mensalidade pagamento para pago convênio")
     @ParameterizedTest
     @ValueSource(strings = {"0.00", "-10.00", "0.004"})
     void shouldRejectNonPositiveRoundedMonthlyPaymentForPaidConvenio(String valorInformado)
@@ -603,6 +646,7 @@ class InternacaoTest
         assertEquals("Valor da mensalidade deve ser maior que zero.", exception.getMessage());
     }
 
+    @DisplayName("Deve aceitar zero mensalidade pagamento para gratuito convênio usando valor construtor")
     @Test
     void shouldAcceptZeroMonthlyPaymentForFreeConvenioUsingValueConstructor()
     {
@@ -613,6 +657,7 @@ class InternacaoTest
         assertEquals(new BigDecimal("0.00"), internacao.getValorMensalidade());
     }
 
+    @DisplayName("Deve criar uma internação gratuita sem pagamento mensal")
     @Test
     void shouldCreateFreeInternacaoWithoutMonthlyPayment()
     {
@@ -623,6 +668,7 @@ class InternacaoTest
         assertEquals(new BigDecimal("0.00"), internacao.getValorMensalidade());
     }
 
+    @DisplayName("Deve aceitar valor que arredonda para zero para gratuito convênio")
     @ParameterizedTest
     @ValueSource(strings = {"0.004", "-0.004"})
     void shouldAcceptValueThatRoundsToZeroForFreeConvenio(String valorInformado)
@@ -634,6 +680,7 @@ class InternacaoTest
         assertEquals(new BigDecimal("0.00"), internacao.getValorMensalidade());
     }
 
+    @DisplayName("Deve rejeitar valor que arredonda para não zero para gratuito convênio")
     @ParameterizedTest
     @ValueSource(strings = {"0.005", "-0.005", "10.00"})
     void shouldRejectValueThatRoundsToNonZeroForFreeConvenio(String valorInformado)
@@ -645,6 +692,7 @@ class InternacaoTest
         assertEquals("Convênio não aceita valor da mensalidade da internação diferente de 0", exception.getMessage());
     }
 
+    @DisplayName("Deve rejeitar pago convênio quando mensalidade pagamento é omitido")
     @Test
     void shouldRejectPaidConvenioWhenMonthlyPaymentIsOmitted()
     {
@@ -653,6 +701,7 @@ class InternacaoTest
         assertEquals("Convênio exige valor de mensalidade.", exception.getMessage());
     }
 
+    @DisplayName("Deve preservar mensalidade pagamento após uma atualização inválida")
     @Test
     void shouldPreserveMonthlyPaymentAfterInvalidUpdate()
     {
@@ -666,6 +715,7 @@ class InternacaoTest
                 () -> assertEquals(valorAtual, internacao.getValorMensalidade()));
     }
 
+    @DisplayName("Deve aceitar mensalidade pagamento igual para máximo valor")
     @Test
     void shouldAcceptMonthlyPaymentEqualToMaximumValue()
     {
@@ -676,6 +726,7 @@ class InternacaoTest
         assertEquals(valorMaximo, internacao.getValorMensalidade());
     }
 
+    @DisplayName("Deve aceitar mensalidade pagamento que arredonda para máximo valor")
     @Test
     void shouldAcceptMonthlyPaymentThatRoundsToMaximumValue()
     {
@@ -684,6 +735,7 @@ class InternacaoTest
         assertEquals(new BigDecimal("1000000.00"), internacao.getValorMensalidade());
     }
 
+    @DisplayName("Deve rejeitar mensalidade pagamento acima máximo depois arredondamento e preservar atual valor")
     @Test
     void shouldRejectMonthlyPaymentAboveMaximumAfterRoundingAndPreserveCurrentValue()
     {
@@ -700,6 +752,7 @@ class InternacaoTest
 
     // Testes updateTreatmentStage
 
+    @DisplayName("Deve rejeitar nulo referência data e preservar tratamento etapa")
     @Test
     void shouldRejectNullReferenceDateAndPreserveTreatmentStage()
     {
@@ -712,6 +765,7 @@ class InternacaoTest
         );
     }
 
+    @DisplayName("Não deve atualizar tratamento etapa quando internação é inativo")
     @Test
     void shouldNotUpdateTreatmentStageWhenInternacaoIsInactive()
     {
@@ -722,6 +776,7 @@ class InternacaoTest
         assertEquals(TreatmentStage.ALTA_CONCEDIDA, internacao.getEtapaTratamento());
     }
 
+    @DisplayName("Deve definir a etapa do tratamento como alta vencida quando a data de saída prevista já passou")
     @Test
     void shouldSetTreatmentStageAsExpiredWhenExpectedExitDateHasPassed()
     {
@@ -733,6 +788,7 @@ class InternacaoTest
         assertEquals(TreatmentStage.ALTA_VENCIDA, internacao.getEtapaTratamento());
     }
 
+    @DisplayName("Deve definir tratamento etapa como próxima alta quando há são em maioria trinta dias restante")
     @ParameterizedTest
     @ValueSource(longs = {30, 29, 1, 0})
     void shouldSetTreatmentStageAsUpcomingDischargeWhenThereAreAtMostThirtyDaysRemaining(long diasAntesDaSaida)
@@ -746,6 +802,7 @@ class InternacaoTest
         assertEquals(TreatmentStage.PROXIMO_ALTA, internacao.getEtapaTratamento());
     }
 
+    @DisplayName("Deve manter tratamento etapa como em tratamento quando mais que trinta dias permanecer")
     @Test
     void shouldKeepTreatmentStageAsInTreatmentWhenMoreThanThirtyDaysRemain()
     {

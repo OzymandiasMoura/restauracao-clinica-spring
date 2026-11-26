@@ -1,5 +1,7 @@
 package org.example.clinicarestauracao.Domain.Validation;
 
+
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
@@ -9,6 +11,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class EmailValidatorTest
 {
+    @DisplayName("Deve aceitar e-mail válido")
     @ParameterizedTest
     @ValueSource(strings = {
             "pedro@email.com",
@@ -21,6 +24,7 @@ class EmailValidatorTest
         assertTrue(EmailValidator.validate(email));
     }
 
+    @DisplayName("Deve rejeitar e-mail inválido")
     @ParameterizedTest
     @NullAndEmptySource
     @ValueSource(strings = {
@@ -38,6 +42,7 @@ class EmailValidatorTest
         assertFalse(EmailValidator.validate(email));
     }
 
+    @DisplayName("Deve normalizar e-mail")
     @Test
     void shouldNormalizeEmail()
     {
@@ -46,6 +51,7 @@ class EmailValidatorTest
         assertEquals("pedro.moura@email.com", result);
     }
 
+    @DisplayName("Deve retornar nulo ao normalizar uma entrada nula")
     @Test
     void shouldReturnNullWhenNormalizingNull()
     {

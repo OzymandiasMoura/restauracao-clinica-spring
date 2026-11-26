@@ -1,5 +1,7 @@
 package org.example.clinicarestauracao.Infrastruct.Security;
 
+
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -18,6 +20,7 @@ class CorsConfigTest
         config = new CorsConfig();
     }
 
+    @DisplayName("Deve configurar origens permitidas")
     @Test
     void shouldConfigureAllowedOrigins()
     {
@@ -29,6 +32,7 @@ class CorsConfigTest
         assertEquals(List.of("http://localhost:4200"), configuration.getAllowedOrigins());
     }
 
+    @DisplayName("Deve configurar métodos e cabeçalhos permitidos")
     @Test
     void shouldConfigureAllowedMethodsAndHeaders()
     {
@@ -40,6 +44,7 @@ class CorsConfigTest
         assertEquals(3600L, configuration.getMaxAge());
     }
 
+    @DisplayName("Deve ignorar origens vazias e remover espaços excedentes")
     @Test
     void shouldIgnoreBlankOriginsAndTrimSpaces()
     {

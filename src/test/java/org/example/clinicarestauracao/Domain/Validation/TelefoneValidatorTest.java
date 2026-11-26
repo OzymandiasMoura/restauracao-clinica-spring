@@ -1,5 +1,7 @@
 package org.example.clinicarestauracao.Domain.Validation;
 
+
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -15,6 +17,7 @@ class TelefoneValidatorTest
 {
     //Testes para validate
 
+    @DisplayName("Deve aceitar telefone válido")
     @ParameterizedTest
     @ValueSource(strings = {
             "11999999999",
@@ -27,6 +30,7 @@ class TelefoneValidatorTest
         assertTrue(TelefoneValidator.validate(telefone));
     }
 
+    @DisplayName("Deve rejeitar telefone inválido")
     @ParameterizedTest
     @NullAndEmptySource
     @ValueSource(strings = {
@@ -47,6 +51,7 @@ class TelefoneValidatorTest
 
     //Testes para normalize
 
+    @DisplayName("Deve normalizar telefone")
     @ParameterizedTest
     @CsvSource({
             "'(11) 99999-9999', 11999999999",
@@ -58,18 +63,21 @@ class TelefoneValidatorTest
         assertEquals(esperado, TelefoneValidator.normalize(telefone));
     }
 
+    @DisplayName("Deve preservar caracteres que pertencer para validação")
     @Test
     void shouldPreserveCharactersThatBelongToValidation()
     {
         assertEquals("+5511999999999", TelefoneValidator.normalize("+55 (11) 99999-9999"));
     }
 
+    @DisplayName("Deve retornar texto vazio quando normalizando em branco valor")
     @Test
     void shouldReturnEmptyStringWhenNormalizingBlankValue()
     {
         assertEquals("", TelefoneValidator.normalize("   "));
     }
 
+    @DisplayName("Deve retornar nulo ao normalizar uma entrada nula")
     @Test
     void shouldReturnNullWhenNormalizingNull()
     {

@@ -1,5 +1,7 @@
 package org.example.clinicarestauracao.Domain.Entities;
 
+
+import org.junit.jupiter.api.DisplayName;
 import org.example.clinicarestauracao.Application.Exceptions.Convenio.ConvenioWithInvalidInformationException;
 import org.example.clinicarestauracao.Builders.ConvenioTestBuilder;
 import org.junit.jupiter.api.Test;
@@ -12,6 +14,7 @@ class ConvenioTest
 {
     ConvenioTestBuilder builder = new ConvenioTestBuilder();
 
+    @DisplayName("Deve criar um convênio válido")
     @Test
     void shouldCreateValidConvenio()
     {
@@ -25,6 +28,7 @@ class ConvenioTest
         assertTrue(convenio.isPagamento());
     }
 
+    @DisplayName("Deve criar novo convênio como ativo")
     @Test
     void shouldCreateNewConvenioAsActive()
     {
@@ -33,6 +37,7 @@ class ConvenioTest
         assertTrue(convenio.isAtivo());
     }
 
+    @DisplayName("Deve preservar ativo e pagamento valores")
     @Test
     void shouldPreserveActiveAndPaymentValues()
     {
@@ -42,6 +47,7 @@ class ConvenioTest
         assertTrue(convenio.isPagamento());
     }
 
+    @DisplayName("Deve normalizar fornecido CNPJ")
     @Test
     void shouldNormalizeProvidedCnpj()
     {
@@ -50,6 +56,7 @@ class ConvenioTest
         assertEquals("11222333000181", convenio.getCnpj());
     }
 
+    @DisplayName("Deve rejeitar CNPJ fornecido inválido")
     @ParameterizedTest
     @ValueSource(strings = {
             "123",
@@ -63,6 +70,7 @@ class ConvenioTest
         assertEquals("CNPJ é invalido.", exception.getMessage());
     }
 
+    @DisplayName("Deve rejeitar ausente descrição")
     @Test
     void shouldRejectMissingDescription()
     {
@@ -71,6 +79,7 @@ class ConvenioTest
         assertEquals("Descrição não pode ser nulo ou vazia", exception.getMessage());
     }
 
+    @DisplayName("Deve rejeitar em branco descrição")
     @Test
     void shouldRejectBlankDescription()
     {
@@ -79,6 +88,7 @@ class ConvenioTest
         assertEquals("Descrição não pode ser nulo ou vazia", exception.getMessage());
     }
 
+    @DisplayName("Deve rejeitar descrição com menor que três caracteres")
     @Test
     void shouldRejectDescriptionWithLessThanThreeCharacters()
     {
@@ -87,6 +97,7 @@ class ConvenioTest
         assertEquals("Descrição não pode ter menos de 3 caracteres", exception.getMessage());
     }
 
+    @DisplayName("Deve aceitar zero como número máximo de vagas")
     @Test
     void shouldAcceptZeroAsMaximumVacancies()
     {
@@ -95,6 +106,7 @@ class ConvenioTest
         assertEquals(0, convenio.getMaxVagas());
     }
 
+    @DisplayName("Deve rejeitar número máximo de vagas negativo")
     @Test
     void shouldRejectNegativeMaximumVacancies()
     {
@@ -103,6 +115,7 @@ class ConvenioTest
         assertEquals("Numero de vagas deve ser 0 ou mais.", exception.getMessage());
     }
 
+    @DisplayName("Deve normalizar hexadecimal cor")
     @Test
     void shouldNormalizeHexadecimalColor()
     {
@@ -111,12 +124,14 @@ class ConvenioTest
         assertEquals("#ABCDEF", convenio.getCor());
     }
 
+    @DisplayName("Deve lançar exceção quando cor é inválido")
     @Test
     void shouldThrowExceptionWhenColorIsInvalid()
     {
         assertThrows(ConvenioWithInvalidInformationException.class, () -> new ConvenioTestBuilder().setCor("azul").build());
     }
 
+    @DisplayName("Deve rejeitar cor inválido")
     @ParameterizedTest
     @ValueSource(strings = {"FFFFFF", "#FFFF", "#FFFFFFFF", "#GGGGGG", "azul"})
     void shouldRejectInvalidColor(String cor)
@@ -125,6 +140,7 @@ class ConvenioTest
 
         assertEquals("Cor deve estar no formato hexadecimal #RRGGBB.", exception.getMessage());
     }
+    @DisplayName("Deve rejeitar ausente cor")
     @ParameterizedTest
     @ValueSource(strings = {"   "})
     void shouldRejectMissingColor(String cor)
@@ -134,6 +150,7 @@ class ConvenioTest
         assertEquals("Cor não pode ser nula ou vazia.", exception.getMessage());
     }
 
+    @DisplayName("Deve remover espaços iniciais e finais de descrição")
     @Test
     void shouldNormalizeLeadingAndTrailingSpacesFromDescricao()
     {
@@ -142,6 +159,7 @@ class ConvenioTest
         assertEquals("Pilates", convenio.getDescricao());
     }
 
+    @DisplayName("Deve rejeitar descrição com menor que três caracteres após a normalização")
     @Test
     void shouldRejectDescricaoWithLessThanThreeCharactersAfterNormalization()
     {
@@ -150,6 +168,7 @@ class ConvenioTest
         assertEquals("Descrição não pode ter menos de 3 caracteres", exception.getMessage());
     }
 
+    @DisplayName("Deve rejeitar número máximo de vagas nulo")
     @Test
     void shouldRejectNullMaximumVacancies()
     {

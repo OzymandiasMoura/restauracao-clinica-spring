@@ -1,5 +1,7 @@
 package org.example.clinicarestauracao.Application.Services;
 
+
+import org.junit.jupiter.api.DisplayName;
 import org.example.clinicarestauracao.Application.Exceptions.Medicamento.MedicamentoNotFoundException;
 import org.example.clinicarestauracao.Application.Exceptions.Medicamento.MedicamentoWithInvalidInformationException;
 import org.example.clinicarestauracao.Application.Interfaces.MedicamentoRepository;
@@ -33,6 +35,7 @@ class MedicamentoServiceTest
     @InjectMocks
     private MedicamentoService service;
 
+    @DisplayName("Deve auditoria exclusão de medicamento")
     @Test
     void shouldAuditDeletionOfMedicamento()
     {
@@ -52,6 +55,7 @@ class MedicamentoServiceTest
         Mockito.verifyNoMoreInteractions(repository, movimentacaoRepository, audit);
     }
 
+    @DisplayName("Não deve definir auditoria ator quando medicamento não existir")
     @Test
     void shouldNotSetAuditActorWhenMedicamentoDoesNotExist()
     {
@@ -65,6 +69,7 @@ class MedicamentoServiceTest
         Mockito.verifyNoInteractions(audit);
     }
 
+    @DisplayName("Não deve excluir medicamento com movimentações")
     @Test
     void shouldNotDeleteMedicamentoWithMovements()
     {
@@ -81,6 +86,7 @@ class MedicamentoServiceTest
         Mockito.verifyNoInteractions(audit);
     }
 
+    @DisplayName("Deve limpar auditoria contexto quando medicamento exclusão falha")
     @Test
     void shouldClearAuditContextWhenMedicamentoDeletionFails()
     {

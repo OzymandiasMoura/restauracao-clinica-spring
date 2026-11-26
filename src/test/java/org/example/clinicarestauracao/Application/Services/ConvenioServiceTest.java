@@ -1,5 +1,7 @@
 package org.example.clinicarestauracao.Application.Services;
 
+
+import org.junit.jupiter.api.DisplayName;
 import org.example.clinicarestauracao.Application.Exceptions.Convenio.ConvenioNotFoundException;
 import org.example.clinicarestauracao.Application.Exceptions.Convenio.ConvenioWithInvalidInformationException;
 import org.example.clinicarestauracao.Application.Exceptions.Convenio.ConvenioWithInconsistentAvailableVacanciesException;
@@ -38,6 +40,7 @@ class ConvenioServiceTest
     @InjectMocks
     private ConvenioService service;
 
+    @DisplayName("Deve criar convênio com sucesso")
     @Test
     void shouldCreateConvenioSuccessfully()
     {
@@ -68,6 +71,7 @@ class ConvenioServiceTest
         Mockito.verify(repository).findConvenioByCor(entrada.getCor());
     }
 
+    @DisplayName("Deve lançar exceção quando CNPJ existe")
     @Test
     void shouldThrowExceptionWhenCNPJExists()
     {
@@ -85,6 +89,7 @@ class ConvenioServiceTest
         Mockito.verify(repository, Mockito.never()).save(Mockito.any(Convenio.class));
     }
 
+    @DisplayName("Deve lançar exceção quando descrição existe")
     @Test
     void shouldThrowExceptionWhenDescricaoExists()
     {
@@ -103,6 +108,7 @@ class ConvenioServiceTest
         Mockito.verify(repository, Mockito.never()).save(Mockito.any(Convenio.class));
     }
 
+    @DisplayName("Deve rejeitar duplicado descrição ignorando caso")
     @Test
     void shouldRejectDuplicatedDescricaoIgnoringCase()
     {
@@ -126,6 +132,7 @@ class ConvenioServiceTest
         Mockito.verify(repository, Mockito.never()).save(Mockito.any());
     }
 
+    @DisplayName("Deve criar convênio sem CNPJ com sucesso")
     @Test
     void shouldCreateConvenioWithoutCnpjSuccessfully()
     {
@@ -149,6 +156,7 @@ class ConvenioServiceTest
         Mockito.verify(repository).findConvenioByCor(entrada.getCor());
     }
 
+    @DisplayName("Deve buscar convênio por ID com sucesso")
     @Test
     void shouldFindConvenioByIdSuccessfully()
     {
@@ -165,6 +173,7 @@ class ConvenioServiceTest
         Mockito.verify(repository).findById(entrada.getId());
     }
 
+    @DisplayName("Deve lançar exceção quando convênio é não encontrado por ID")
     @Test
     void shouldThrowExceptionWhenConvenioIsNotFoundById()
     {
@@ -179,6 +188,7 @@ class ConvenioServiceTest
         Mockito.verify(repository).findById(entrada.getId());
     }
 
+    @DisplayName("Deve rejeitar ID inválido sem acessando repositório")
     @ParameterizedTest
     @NullSource
     @ValueSource(longs = {0, -1, -10})
@@ -191,6 +201,7 @@ class ConvenioServiceTest
     }
 
 
+    @DisplayName("Deve buscar todos os convênios com sucesso")
     @Test
     void shouldFindAllConveniosSuccessfully()
     {
@@ -212,6 +223,7 @@ class ConvenioServiceTest
         Mockito.verify(repository).findAll();
     }
 
+    @DisplayName("Deve retornar uma lista vazia quando não houver convênios")
     @Test
     void shouldReturnEmptyListWhenNoConveniosExist()
     {
@@ -225,6 +237,7 @@ class ConvenioServiceTest
         Mockito.verify(repository).findAll();
     }
 
+    @DisplayName("Deve atualizar convênio com sucesso")
     @Test
     void shouldUpdateConvenioSuccessfully()
     {
@@ -255,6 +268,7 @@ class ConvenioServiceTest
         Mockito.verify(repository).save(Mockito.same(existente));
     }
 
+    @DisplayName("Deve lançar exceção quando o ID é inválido")
     @Test
     void shouldThrowExceptionWhenIdIsInvalid()
     {
@@ -273,6 +287,7 @@ class ConvenioServiceTest
         Mockito.verify(repository, Mockito.never()).save(Mockito.any(Convenio.class));
     }
 
+    @DisplayName("Deve lançar exceção quando atualizado descrição já existe")
     @Test
     void shouldThrowExceptionWhenUpdatedDescricaoAlreadyExists()
     {
@@ -294,6 +309,7 @@ class ConvenioServiceTest
         Mockito.verify(repository, Mockito.never()).save(Mockito.any(Convenio.class));
     }
 
+    @DisplayName("Deve rejeitar atualizando descrição usado por outro convênio ignorando caso")
     @Test
     void shouldRejectUpdatingDescricaoUsedByAnotherConvenioIgnoringCase()
     {
@@ -323,6 +339,7 @@ class ConvenioServiceTest
         Mockito.verify(repository, Mockito.never()).save(Mockito.any());
     }
 
+    @DisplayName("Deve permitir alterando somente descrição caso para mesmo convênio")
     @Test
     void shouldAllowChangingOnlyDescricaoCaseForSameConvenio()
     {
@@ -347,6 +364,7 @@ class ConvenioServiceTest
         Mockito.verify(repository).save(existente);
     }
 
+    @DisplayName("Deve lançar exceção quando atualizado CNPJ já existe")
     @Test
     void shouldThrowExceptionWhenUpdatedCnpjAlreadyExists()
     {
@@ -369,6 +387,7 @@ class ConvenioServiceTest
         Mockito.verify(repository, Mockito.never()).save(Mockito.any(Convenio.class));
     }
 
+    @DisplayName("Deve lançar exceção quando atualizando para duplicado cor")
     @Test
     void shouldThrowExceptionWhenUpdatingToDuplicatedColor()
     {
@@ -387,6 +406,7 @@ class ConvenioServiceTest
         Mockito.verify(repository).findConvenioByCor("#FF5733");
     }
 
+    @DisplayName("Deve lançar exceção quando criando convênio com duplicado cor")
     @Test
     void shouldThrowExceptionWhenCreatingConvenioWithDuplicatedColor()
     {
@@ -405,6 +425,7 @@ class ConvenioServiceTest
         Mockito.verify(repository, Mockito.never()).save(Mockito.any(Convenio.class));
     }
 
+    @DisplayName("Não deve buscar duplicado cor quando cor é inalterado")
     @Test
     void shouldNotSearchDuplicatedColorWhenColorIsUnchanged()
     {
@@ -422,6 +443,7 @@ class ConvenioServiceTest
         Mockito.verify(repository).save(existente);
     }
 
+    @DisplayName("Deve atualizar máximo vagas e pagamento sem verificando duplicados")
     @Test
     void shouldUpdateMaxVagasAndPagamentoWithoutCheckingDuplicates()
     {
@@ -447,6 +469,7 @@ class ConvenioServiceTest
         Mockito.verifyNoInteractions(internacaoRepository);
     }
 
+    @DisplayName("Deve permitir reduzindo máximo vagas para número de ativo internações")
     @Test
     void shouldAllowReducingMaxVagasToNumberOfActiveInternacoes()
     {
@@ -468,6 +491,7 @@ class ConvenioServiceTest
         Mockito.verify(repository).save(Mockito.same(existente));
     }
 
+    @DisplayName("Deve rejeitar reduzindo máximo vagas abaixo ativo internações e preservar atual estado")
     @Test
     void shouldRejectReducingMaxVagasBelowActiveInternacoesAndPreserveCurrentState()
     {
@@ -504,6 +528,7 @@ class ConvenioServiceTest
     }
 
 
+    @DisplayName("Deve remover CNPJ com sucesso")
     @Test
     void shouldRemoveCnpjSuccessfully()
     {
@@ -528,6 +553,7 @@ class ConvenioServiceTest
         Mockito.verify(repository).save(Mockito.same(existente));
     }
 
+    @DisplayName("Deve adicionar CNPJ com sucesso")
     @Test
     void shouldAddCnpjSuccessfully()
     {
@@ -553,6 +579,7 @@ class ConvenioServiceTest
         Mockito.verify(repository).save(Mockito.same(existente));
     }
 
+    @DisplayName("Deve atualizar convênio sem alterando inativo estado")
     @Test
     void shouldUpdateConvenioWithoutChangingInactiveStatus()
     {
@@ -574,6 +601,7 @@ class ConvenioServiceTest
         Mockito.verify(repository).save(Mockito.same(existente));
     }
 
+    @DisplayName("Deve manter CNPJ nulo sem verificando duplicados")
     @Test
     void shouldKeepCnpjNullWithoutCheckingDuplicates()
     {
@@ -596,6 +624,7 @@ class ConvenioServiceTest
         Mockito.verify(repository).save(Mockito.same(existente));
     }
 
+    @DisplayName("Deve atualizar somente descrição com sucesso")
     @Test
     void shouldUpdateOnlyDescricaoSuccessfully()
     {
@@ -622,6 +651,7 @@ class ConvenioServiceTest
         Mockito.verifyNoInteractions(internacaoRepository);
     }
 
+    @DisplayName("Deve atualizar somente CNPJ com sucesso")
     @Test
     void shouldUpdateOnlyCnpjSuccessfully()
     {
@@ -647,6 +677,7 @@ class ConvenioServiceTest
         Mockito.verify(repository).save(Mockito.same(existente));
     }
 
+    @DisplayName("Não deve parcialmente atualizar convênio quando CNPJ já existe")
     @Test
     void shouldNotPartiallyUpdateConvenioWhenCnpjAlreadyExists()
     {
@@ -671,6 +702,7 @@ class ConvenioServiceTest
         Mockito.verify(repository, Mockito.never()).save(Mockito.any(Convenio.class));
     }
 
+    @DisplayName("Deve desativar convênio quando não há ativo internações")
     @Test
     void shouldDeactivateConvenioWhenThereAreNoActiveInternacoes()
     {
@@ -691,6 +723,7 @@ class ConvenioServiceTest
     }
 
 
+    @DisplayName("Não deve consultar internações quando convênio é já inativo")
     @Test
     void shouldNotConsultInternacoesWhenConvenioIsAlreadyInactive()
     {
@@ -707,6 +740,7 @@ class ConvenioServiceTest
         Mockito.verifyNoInteractions(internacaoRepository);
     }
 
+    @DisplayName("Não deve desativar convênio quando há são ativo internações")
     @Test
     void shouldNotDeactivateConvenioWhenThereAreActiveInternacoes()
     {
@@ -729,6 +763,7 @@ class ConvenioServiceTest
         Mockito.verify(repository, Mockito.never()).save(Mockito.any(Convenio.class));
     }
 
+    @DisplayName("Deve lançar exceção quando excluindo inexistente convênio")
     @Test
     void shouldThrowExceptionWhenDeletingNonexistentConvenio()
     {
@@ -749,6 +784,7 @@ class ConvenioServiceTest
         );
     }
 
+    @DisplayName("Deve reabrir inativo convênio com sucesso")
     @Test
     void shouldReopenInactiveConvenioSuccessfully()
     {
@@ -764,6 +800,7 @@ class ConvenioServiceTest
         Mockito.verify(repository).save(Mockito.same(existente));
     }
 
+    @DisplayName("Não deve salvar quando convênio é já ativo")
     @Test
     void shouldNotSaveWhenConvenioIsAlreadyActive()
     {
@@ -779,6 +816,7 @@ class ConvenioServiceTest
         Mockito.verify(repository, Mockito.never()).save(Mockito.any(Convenio.class));
     }
 
+    @DisplayName("Deve lançar exceção quando reabertura inexistente convênio")
     @Test
     void shouldThrowExceptionWhenReopeningNonexistentConvenio()
     {
@@ -794,6 +832,7 @@ class ConvenioServiceTest
         Mockito.verify(repository, Mockito.never()).save(Mockito.any(Convenio.class));
     }
 
+    @DisplayName("Deve buscar convênio por CNPJ com sucesso")
     @Test
     void shouldFindConvenioByCnpjSuccessfully()
     {
@@ -811,6 +850,7 @@ class ConvenioServiceTest
         Mockito.verify(repository).findConvenioByCnpj(cnpj);
     }
 
+    @DisplayName("Deve lançar exceção quando convênio é não encontrado por CNPJ")
     @Test
     void shouldThrowExceptionWhenConvenioIsNotFoundByCnpj()
     {
@@ -825,6 +865,7 @@ class ConvenioServiceTest
         Mockito.verify(repository).findConvenioByCnpj(cnpj);
     }
 
+    @DisplayName("Deve buscar convênio por descrição ignorando caso")
     @Test
     void shouldFindConvenioByDescricaoIgnoringCase()
     {
@@ -842,6 +883,7 @@ class ConvenioServiceTest
         Mockito.verify(repository).findConvenioByDescricaoIgnoreCase(descricaoPesquisada);
     }
 
+    @DisplayName("Deve lançar exceção quando convênio é não encontrado por descrição")
     @Test
     void shouldThrowExceptionWhenConvenioIsNotFoundByDescricao()
     {
@@ -856,6 +898,7 @@ class ConvenioServiceTest
         Mockito.verify(repository).findConvenioByDescricaoIgnoreCase(descricao);
     }
 
+    @DisplayName("Deve buscar convênio por cor com sucesso")
     @Test
     void shouldFindConvenioByCorSuccessfully()
     {
@@ -872,6 +915,7 @@ class ConvenioServiceTest
         Mockito.verify(repository).findConvenioByCor("#2E86C1");
     }
 
+    @DisplayName("Deve lançar exceção quando convênio é não encontrado por cor")
     @Test
     void shouldThrowExceptionWhenConvenioIsNotFoundByCor()
     {
@@ -888,6 +932,7 @@ class ConvenioServiceTest
 
     // Testes delete físico
 
+    @DisplayName("Deve excluir ativo convênio quando não há vinculado registros")
     @Test
     void shouldDeleteActiveConvenioWhenThereAreNoLinkedRecords()
     {
@@ -915,6 +960,7 @@ class ConvenioServiceTest
     }
 
 
+    @DisplayName("Deve excluir inativo convênio quando não há vinculado registros")
     @Test
     void shouldDeleteInactiveConvenioWhenThereAreNoLinkedRecords()
     {
@@ -940,6 +986,7 @@ class ConvenioServiceTest
         Mockito.verify(repository, Mockito.never()).save(Mockito.any(Convenio.class));
     }
 
+    @DisplayName("Não deve excluir convênio quando há são internações")
     @Test
     void shouldNotDeleteConvenioWhenThereAreInternacoes()
     {
@@ -966,6 +1013,7 @@ class ConvenioServiceTest
         Mockito.verify(repository, Mockito.never()).save(Mockito.any(Convenio.class));
     }
 
+    @DisplayName("Não deve excluir convênio quando há são triagens")
     @Test
     void shouldNotDeleteConvenioWhenThereAreTriagens()
     {
@@ -990,6 +1038,7 @@ class ConvenioServiceTest
         Mockito.verifyNoInteractions(audit);
     }
 
+    @DisplayName("Deve retornar disponível vagas quando capacidade excede ativo internações")
     @Test
     void shouldReturnAvailableVacanciesWhenCapacityExceedsActiveInternacoes()
     {
@@ -1005,6 +1054,7 @@ class ConvenioServiceTest
         Mockito.verifyNoInteractions(triagemRepository, audit);
     }
 
+    @DisplayName("Deve retornar zero disponível vagas quando capacidade é completamente ocupado")
     @Test
     void shouldReturnZeroAvailableVacanciesWhenCapacityIsFullyOccupied()
     {
@@ -1020,6 +1070,7 @@ class ConvenioServiceTest
         Mockito.verifyNoInteractions(triagemRepository, audit);
     }
 
+    @DisplayName("Deve lançar inconsistente disponível vagas exceção quando ativo internações exceder capacidade")
     @Test
     void shouldThrowInconsistentAvailableVacanciesExceptionWhenActiveInternacoesExceedCapacity()
     {
@@ -1041,6 +1092,7 @@ class ConvenioServiceTest
         Mockito.verifyNoInteractions(triagemRepository, audit);
     }
 
+    @DisplayName("Deve retornar total vagas de ativo convênios")
     @ParameterizedTest
     @ValueSource(longs = {0L, 12L, 25L})
     void shouldReturnTotalVacanciesOfActiveConvenios(long totalVagas)
@@ -1055,6 +1107,7 @@ class ConvenioServiceTest
         Mockito.verifyNoInteractions(internacaoRepository, triagemRepository, audit);
     }
 
+    @DisplayName("Deve retornar ocupado vagas de ativo internações")
     @ParameterizedTest
     @ValueSource(longs = {0L, 1L, 8L})
     void shouldReturnOccupiedVacanciesFromActiveInternacoes(long occupiedVacancies)
@@ -1069,6 +1122,7 @@ class ConvenioServiceTest
         Mockito.verifyNoInteractions(repository, triagemRepository, audit);
     }
 
+    @DisplayName("Deve retornar contar de ativo convênios")
     @ParameterizedTest
     @ValueSource(longs = {0L, 1L, 8L})
     void shouldReturnCountOfActiveConvenios(long totalAtivos)

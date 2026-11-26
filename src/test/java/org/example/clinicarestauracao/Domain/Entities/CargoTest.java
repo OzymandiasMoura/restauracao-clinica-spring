@@ -1,5 +1,7 @@
 package org.example.clinicarestauracao.Domain.Entities;
 
+
+import org.junit.jupiter.api.DisplayName;
 import org.example.clinicarestauracao.Application.Exceptions.Cargo.CargoWithInvalidInformationException;
 import org.example.clinicarestauracao.Builders.CargoTestBuilder;
 import org.junit.jupiter.api.Test;
@@ -12,6 +14,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class CargoTest
 {
+    @DisplayName("Deve criar cargo com ID e nome válidos")
     @Test
     void shouldCreateCargoWithIdAndValidName()
     {
@@ -22,6 +25,7 @@ class CargoTest
         assertTrue(cargo.isAtivo());
     }
 
+    @DisplayName("Deve criar cargo sem ID")
     @Test
     void shouldCreateCargoWithoutId()
     {
@@ -32,6 +36,7 @@ class CargoTest
         assertTrue(cargo.isAtivo());
     }
 
+    @DisplayName("Deve criar inativo cargo")
     @Test
     void shouldCreateInactiveCargo()
     {
@@ -40,6 +45,7 @@ class CargoTest
         assertFalse(cargo.isAtivo());
     }
 
+    @DisplayName("Deve rejeitar nome nulo")
     @Test
     void shouldRejectNullName()
     {
@@ -48,6 +54,7 @@ class CargoTest
         assertEquals("Nome do cargo não pode ser nulo ou vazio.", ex.getMessage());
     }
 
+    @DisplayName("Deve rejeitar vazio ou em branco nome")
     @ParameterizedTest
     @NullSource
     @ValueSource(strings = {
@@ -62,6 +69,7 @@ class CargoTest
         assertEquals("Nome do cargo não pode ser nulo ou vazio.", ex.getMessage());
     }
 
+    @DisplayName("Deve rejeitar nome com menos de três caracteres")
     @ParameterizedTest
     @ValueSource(strings = {
             "As",
@@ -76,6 +84,7 @@ class CargoTest
         assertEquals("Nome deve ter pelo menos 3 caracteres.", ex.getMessage());
     }
 
+    @DisplayName("Deve rejeitar nome com mais de 250 caracteres")
     @Test
     void shouldRejectNameWithMoreThan250Characters()
     {
@@ -89,6 +98,7 @@ class CargoTest
         assertEquals("Nome deve ter no máximo 250 caracteres.", exception.getMessage());
     }
 
+    @DisplayName("Deve aceitar nome com exatamente três caracteres")
     @ParameterizedTest
     @ValueSource(strings = {
             "asa",
@@ -101,6 +111,7 @@ class CargoTest
         assertEquals("asa", cargo.getNome());
     }
 
+    @DisplayName("Deve remover espaços nome")
     @Test
     void shouldTrimName()
     {
@@ -109,6 +120,7 @@ class CargoTest
         assertEquals("Monitor", cargo.getNome());
     }
 
+    @DisplayName("Deve atualizar cargo com válido nome")
     @Test
     void shouldUpdateCargoWithValidName()
     {
@@ -119,6 +131,7 @@ class CargoTest
         assertEquals("Medico", cargo.getNome());
     }
 
+    @DisplayName("Deve rejeitar nome inválido quando atualizando cargo")
     @ParameterizedTest
     @CsvSource({
             "'', 'Nome do cargo não pode ser nulo ou vazio.'",
@@ -135,6 +148,7 @@ class CargoTest
         assertEquals("Monitor", cargo.getNome());
     }
 
+    @DisplayName("Deve desativar cargo")
     @Test
     void shouldDeactivateCargo()
     {
@@ -145,6 +159,7 @@ class CargoTest
         assertFalse(cargo.isAtivo());
     }
 
+    @DisplayName("Deve ativar cargo")
     @Test
     void shouldActivateCargo()
     {
@@ -155,6 +170,7 @@ class CargoTest
         assertTrue(cargo.isAtivo());
     }
 
+    @DisplayName("Deve permanecer inativo quando desativado mais que uma vez")
     @Test
     void shouldRemainInactiveWhenDeactivatedMoreThanOnce()
     {

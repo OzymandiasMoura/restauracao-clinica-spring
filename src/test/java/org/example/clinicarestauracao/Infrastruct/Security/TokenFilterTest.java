@@ -1,5 +1,7 @@
 package org.example.clinicarestauracao.Infrastruct.Security;
 
+
+import org.junit.jupiter.api.DisplayName;
 import jakarta.servlet.FilterChain;
 import org.example.clinicarestauracao.Application.Interfaces.UserRepository;
 import org.example.clinicarestauracao.Builders.UserTestBuilder;
@@ -52,6 +54,7 @@ class TokenFilterTest
         SecurityContextHolder.clearContext();
     }
 
+    @DisplayName("Deve continuar a cadeia de filtros quando não houver autenticação")
     @Test
     void shouldContinueFilterChainWhenAuthenticationIsMissing() throws Exception
     {
@@ -64,6 +67,7 @@ class TokenFilterTest
         verify(chain).doFilter(request, response);
     }
 
+    @DisplayName("Deve continuar a cadeia de filtros quando o cabeçalho de autorização não usar Bearer")
     @Test
     void shouldContinueFilterChainWhenAuthorizationHeaderIsNotBearer() throws Exception
     {
@@ -78,6 +82,7 @@ class TokenFilterTest
         verify(chain).doFilter(request, response);
     }
 
+    @DisplayName("Deve autenticar usuário quando token é válido")
     @Test
     void shouldAuthenticateUserWhenTokenIsValid() throws Exception
     {
@@ -105,6 +110,7 @@ class TokenFilterTest
         verify(chain).doFilter(request, response);
     }
 
+    @DisplayName("Deve remover o prefixo Bearer antes de validar o token")
     @Test
     void shouldRemoveBearerPrefixBeforeValidatingToken() throws Exception
     {
@@ -120,6 +126,7 @@ class TokenFilterTest
         verify(chain).doFilter(request, response);
     }
 
+    @DisplayName("Não deve autenticar quando token é inválido")
     @Test
     void shouldNotAuthenticateWhenTokenIsInvalid() throws Exception
     {
@@ -136,6 +143,7 @@ class TokenFilterTest
         verify(chain).doFilter(request, response);
     }
 
+    @DisplayName("Não deve autenticar quando o usuário não for encontrado")
     @Test
     void shouldNotAuthenticateWhenUserIsNotFound() throws Exception
     {
@@ -156,6 +164,7 @@ class TokenFilterTest
         verify(chain).doFilter(request, response);
     }
 
+    @DisplayName("Não deve autenticar usuário desabilitado, mesmo com token válido")
     @Test
     void shouldNotAuthenticateDisabledUserWithValidToken() throws Exception
     {

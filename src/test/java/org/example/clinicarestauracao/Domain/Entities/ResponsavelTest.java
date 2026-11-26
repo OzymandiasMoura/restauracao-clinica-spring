@@ -1,5 +1,7 @@
 package org.example.clinicarestauracao.Domain.Entities;
 
+
+import org.junit.jupiter.api.DisplayName;
 import org.example.clinicarestauracao.Application.Exceptions.Responsavel.ResponsavelWithInvalidInformationException;
 import org.example.clinicarestauracao.Builders.EnderecoTestBuilder;
 import org.example.clinicarestauracao.Builders.ResponsavelTestBuilder;
@@ -16,6 +18,7 @@ class ResponsavelTest
 {
     // Testes dos construtores
 
+    @DisplayName("Deve criar responsável com informações válidas")
     @Test
     void shouldCreateResponsavelWithValidInformation()
     {
@@ -35,6 +38,7 @@ class ResponsavelTest
         );
     }
 
+    @DisplayName("Deve reativar o responsável inativo com ID válido")
     @Test
     void shouldRestoreInactiveResponsavelWithValidId()
     {
@@ -51,6 +55,7 @@ class ResponsavelTest
 
     // Testes do ID
 
+    @DisplayName("Deve rejeitar ID inválido")
     @ParameterizedTest
     @NullSource
     @ValueSource(longs = {0, -1, -10})
@@ -63,6 +68,7 @@ class ResponsavelTest
 
     // Testes do nome
 
+    @DisplayName("Deve normalizar o nome do responsável")
     @Test
     void shouldNormalizeResponsavelName()
     {
@@ -71,6 +77,7 @@ class ResponsavelTest
         assertEquals("João da Silva", responsavel.getNome());
     }
 
+    @DisplayName("Deve rejeitar nome nulo ou em branco")
     @ParameterizedTest
     @NullSource
     @ValueSource(strings = {"", " ", "\t", "\n"})
@@ -81,6 +88,7 @@ class ResponsavelTest
         assertEquals("Nome não pode ser nulo ou vazio", exception.getMessage());
     }
 
+    @DisplayName("Deve rejeitar nome menor que três caracteres após a normalização")
     @ParameterizedTest
     @ValueSource(strings = {"A", "AB", " A ", " AB "})
     void shouldRejectNameShorterThanThreeCharactersAfterNormalization(
@@ -91,6 +99,7 @@ class ResponsavelTest
         assertEquals("Nome do responsável deve ter no mínimo 3 caracteres.", exception.getMessage());
     }
 
+    @DisplayName("Deve aceitar nome com exatamente três caracteres")
     @Test
     void shouldAcceptNameWithExactlyThreeCharacters()
     {
@@ -99,6 +108,7 @@ class ResponsavelTest
         assertEquals("Ana", responsavel.getNome());
     }
 
+    @DisplayName("Deve aceitar nome com exatamente 250 caracteres")
     @Test
     void shouldAcceptNameWithExactlyTwoHundredAndFiftyCharacters()
     {
@@ -109,6 +119,7 @@ class ResponsavelTest
         assertEquals(nome, responsavel.getNome());
     }
 
+    @DisplayName("Deve rejeitar nome com mais de 250 caracteres")
     @Test
     void shouldRejectNameLongerThanTwoHundredAndFiftyCharacters()
     {
@@ -119,6 +130,7 @@ class ResponsavelTest
         assertEquals("Nome do responsável deve ter no máximo 250 caracteres.", exception.getMessage());
     }
 
+    @DisplayName("Deve preservar o nome atual após uma atualização inválida")
     @Test
     void shouldPreserveCurrentNameAfterInvalidUpdate()
     {
@@ -134,6 +146,7 @@ class ResponsavelTest
 
     // Testes do email
 
+    @DisplayName("Deve normalizar responsável e-mail")
     @Test
     void shouldNormalizeResponsavelEmail()
     {
@@ -142,6 +155,7 @@ class ResponsavelTest
         assertEquals("joao.silva@email.com", responsavel.getEmail());
     }
 
+    @DisplayName("Deve rejeitar e-mail nulo ou em branco")
     @ParameterizedTest
     @NullSource
     @ValueSource(strings = {"", " ", "   ", "\t", "\n"})
@@ -152,6 +166,7 @@ class ResponsavelTest
         assertEquals("Email do responsável não pode ser nulo ou vazio", exception.getMessage());
     }
 
+    @DisplayName("Deve rejeitar e-mail inválido")
     @ParameterizedTest
     @ValueSource(strings = {
             "joao@email",
@@ -168,6 +183,7 @@ class ResponsavelTest
         assertEquals("Email é inválido.", exception.getMessage());
     }
 
+    @DisplayName("Deve aceitar e-mail com exatamente 254 caracteres")
     @Test
     void shouldAcceptEmailWithExactlyTwoHundredAndFiftyFourCharacters()
     {
@@ -178,6 +194,7 @@ class ResponsavelTest
         assertEquals(email, responsavel.getEmail());
     }
 
+    @DisplayName("Deve rejeitar e-mail com mais de 254 caracteres")
     @Test
     void shouldRejectEmailLongerThanTwoHundredAndFiftyFourCharacters()
     {
@@ -188,6 +205,7 @@ class ResponsavelTest
         assertEquals("Email é inválido.", exception.getMessage());
     }
 
+    @DisplayName("Deve preservar o e-mail atual após uma atualização inválida")
     @Test
     void shouldPreserveCurrentEmailAfterInvalidUpdate()
     {
@@ -203,6 +221,7 @@ class ResponsavelTest
 
     // Testes do CPF
 
+    @DisplayName("Deve normalizar responsável CPF")
     @ParameterizedTest
     @ValueSource(strings = {
             "168.995.350-09",
@@ -216,6 +235,7 @@ class ResponsavelTest
         assertEquals("16899535009", responsavel.getCpf());
     }
 
+    @DisplayName("Deve rejeitar CPF nulo ou em branco")
     @ParameterizedTest
     @NullSource
     @ValueSource(strings = {"", " ", "   ", "\t", "\n"})
@@ -226,6 +246,7 @@ class ResponsavelTest
         assertEquals("CPF do responsável não pode ser nulo ou vazio", exception.getMessage());
     }
 
+    @DisplayName("Deve rejeitar CPF inválido")
     @ParameterizedTest
     @ValueSource(strings = {
             "16899535008",
@@ -241,6 +262,7 @@ class ResponsavelTest
         assertEquals("CPF inválido.", exception.getMessage());
     }
 
+    @DisplayName("Deve preservar o CPF atual após uma atualização inválida")
     @Test
     void shouldPreserveCurrentCpfAfterInvalidUpdate()
     {
@@ -257,6 +279,7 @@ class ResponsavelTest
 
     // Testes do telefone
 
+    @DisplayName("Deve normalizar responsável telefone")
     @ParameterizedTest
     @CsvSource({
             "'(11) 99999-9999', '11999999999'",
@@ -270,6 +293,7 @@ class ResponsavelTest
         assertEquals(telefoneEsperado, responsavel.getTelefone());
     }
 
+    @DisplayName("Deve rejeitar telefone nulo ou em branco")
     @ParameterizedTest
     @NullSource
     @ValueSource(strings = {"", " ", "   ", "\t", "\n"})
@@ -280,6 +304,7 @@ class ResponsavelTest
         assertEquals("Telefone não pode ser nulo ou vazio", exception.getMessage());
     }
 
+    @DisplayName("Deve rejeitar telefone inválido")
     @ParameterizedTest
     @ValueSource(strings = {
             "119999999",
@@ -296,6 +321,7 @@ class ResponsavelTest
         assertEquals("Telefone inválido.", exception.getMessage());
     }
 
+    @DisplayName("Deve preservar o telefone atual após uma atualização inválida")
     @Test
     void shouldPreserveCurrentTelefoneAfterInvalidUpdate()
     {
@@ -311,6 +337,7 @@ class ResponsavelTest
 
     // Testes do endereço
 
+    @DisplayName("Deve aceitar endereço válido")
     @Test
     void shouldAcceptValidEndereco()
     {
@@ -322,6 +349,7 @@ class ResponsavelTest
         assertSame(novoEndereco, responsavel.getEndereco());
     }
 
+    @DisplayName("Deve rejeitar endereço nulo")
     @Test
     void shouldRejectNullEndereco()
     {
@@ -330,6 +358,7 @@ class ResponsavelTest
         assertEquals("Endereço do responsável não pode ser nulo.", exception.getMessage());
     }
 
+    @DisplayName("Deve preservar o endereço atual depois nulo atualizar")
     @Test
     void shouldPreserveCurrentEnderecoAfterNullUpdate()
     {
@@ -346,6 +375,7 @@ class ResponsavelTest
 
     // Testes do CEP
 
+    @DisplayName("Deve normalizar responsável CEP")
     @ParameterizedTest
     @CsvSource({
             "'01001-000', '01001000'",
@@ -359,6 +389,7 @@ class ResponsavelTest
         assertEquals(cepEsperado, responsavel.getCep());
     }
 
+    @DisplayName("Deve rejeitar CEP nulo ou em branco")
     @ParameterizedTest
     @NullSource
     @ValueSource(strings = {"", " ", "   ", "\t", "\n"})
@@ -369,6 +400,7 @@ class ResponsavelTest
         assertEquals("CEP não pode ser nulo ou vazio.", exception.getMessage());
     }
 
+    @DisplayName("Deve rejeitar CEP inválido")
     @ParameterizedTest
     @ValueSource(strings = {
             "0100100",
@@ -384,6 +416,7 @@ class ResponsavelTest
         assertEquals("CEP inválido.", exception.getMessage());
     }
 
+    @DisplayName("Deve preservar atual CEP após uma atualização inválida")
     @Test
     void shouldPreserveCurrentCepAfterInvalidUpdate()
     {
@@ -399,6 +432,7 @@ class ResponsavelTest
 
     // Testes de desativação e reativação
 
+    @DisplayName("Deve desativar ativo responsável")
     @Test
     void shouldDeactivateActiveResponsavel()
     {
@@ -409,6 +443,7 @@ class ResponsavelTest
         assertFalse(responsavel.isAtivo());
     }
 
+    @DisplayName("Deve rejeitar a desativação de um responsável inativo")
     @Test
     void shouldRejectDeactivationOfInactiveResponsavel()
     {
@@ -422,6 +457,7 @@ class ResponsavelTest
         );
     }
 
+    @DisplayName("Deve reativar inativo responsável")
     @Test
     void shouldReactivateInactiveResponsavel()
     {
@@ -432,6 +468,7 @@ class ResponsavelTest
         assertTrue(responsavel.isAtivo());
     }
 
+    @DisplayName("Deve rejeitar a reativação de um responsável ativo")
     @Test
     void shouldRejectReactivationOfActiveResponsavel()
     {

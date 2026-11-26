@@ -1,5 +1,7 @@
 package org.example.clinicarestauracao.Application.Services;
 
+
+import org.junit.jupiter.api.DisplayName;
 import org.example.clinicarestauracao.Application.Exceptions.Convenio.ConvenioNotFoundException;
 import org.example.clinicarestauracao.Application.Exceptions.Internacao.InternacaoInvalidQueryException;
 import org.example.clinicarestauracao.Application.Exceptions.Internacao.InternacaoNotFoundException;
@@ -59,6 +61,7 @@ class InternacaoServiceTest
 
     // Testes findById
 
+    @DisplayName("Deve buscar internação por ID com sucesso")
     @Test
     void shouldFindInternacaoByIdSuccessfully()
     {
@@ -73,6 +76,7 @@ class InternacaoServiceTest
         Mockito.verify(repository).findById(1L);
     }
 
+    @DisplayName("Deve lançar exceção quando a internação não for encontrada quando internação não existir")
     @Test
     void shouldThrowInternacaoNotFoundExceptionWhenInternacaoDoesNotExist()
     {
@@ -85,6 +89,7 @@ class InternacaoServiceTest
         Mockito.verify(repository).findById(1L);
     }
 
+    @DisplayName("Deve lançar exceção quando a internação não for encontrada quando o ID é inválido")
     @ParameterizedTest
     @NullSource
     @ValueSource(longs = {0, -1, -10})
@@ -99,6 +104,7 @@ class InternacaoServiceTest
 
     // Testes findAll
 
+    @DisplayName("Deve buscar todas as internações com sucesso")
     @Test
     void shouldFindAllInternacoesSuccessfully()
     {
@@ -120,6 +126,7 @@ class InternacaoServiceTest
         Mockito.verify(repository).findAll();
     }
 
+    @DisplayName("Deve retornar uma lista vazia quando não há internações")
     @Test
     void shouldReturnEmptyListWhenThereAreNoInternacoes()
     {
@@ -139,6 +146,7 @@ class InternacaoServiceTest
 
     // Testes findByAcolhidoId
 
+    @DisplayName("Deve buscar internações pelo ID do acolhido com sucesso")
     @Test
     void shouldFindInternacoesByAcolhidoIdSuccessfully()
     {
@@ -163,6 +171,7 @@ class InternacaoServiceTest
         Mockito.verify(repository).findByAcolhido(acolhido);
     }
 
+    @DisplayName("Deve retornar uma lista vazia quando o acolhido não tem internações")
     @Test
     void shouldReturnEmptyListWhenAcolhidoHasNoInternacoes()
     {
@@ -184,6 +193,7 @@ class InternacaoServiceTest
         Mockito.verify(repository).findByAcolhido(acolhido);
     }
 
+    @DisplayName("Deve rejeitar ID inválido do acolhido quando buscando internações")
     @ParameterizedTest
     @NullSource
     @ValueSource(longs = {0, -1, -10})
@@ -198,6 +208,7 @@ class InternacaoServiceTest
 
     // Testes findByConvenioId
 
+    @DisplayName("Deve buscar internações pelo ID do convênio com sucesso")
     @Test
     void shouldFindInternacoesByConvenioIdSuccessfully()
     {
@@ -222,6 +233,7 @@ class InternacaoServiceTest
         Mockito.verify(repository).findByConvenio(convenio);
     }
 
+    @DisplayName("Deve retornar uma lista vazia quando o convênio não tem internações")
     @Test
     void shouldReturnEmptyListWhenConvenioHasNoInternacoes()
     {
@@ -242,6 +254,7 @@ class InternacaoServiceTest
         Mockito.verify(repository).findByConvenio(convenio);
     }
 
+    @DisplayName("Deve rejeitar ID inválido do convênio quando buscando internações")
     @ParameterizedTest
     @NullSource
     @ValueSource(longs = {0, -1, -10})
@@ -256,6 +269,7 @@ class InternacaoServiceTest
 
     // Testes create
 
+    @DisplayName("Deve criar internação com sucesso")
     @Test
     void shouldCreateInternacaoSuccessfully()
     {
@@ -285,6 +299,7 @@ class InternacaoServiceTest
         Mockito.verify(repository).save(Mockito.same(internacao));
     }
 
+    @DisplayName("Deve rejeitar a criação da internação quando o acolhido tiver recebido alta por óbito")
     @Test
     void shouldRejectCreatingInternacaoWhenAcolhidoHasDeathDischarge()
     {
@@ -317,6 +332,7 @@ class InternacaoServiceTest
         Mockito.verifyNoMoreInteractions(repository);
     }
 
+    @DisplayName("Deve rejeitar internação nula sem interagir com as dependências")
     @Test
     void shouldRejectNullInternacaoWithoutInteractingWithDependencies()
     {
@@ -327,6 +343,7 @@ class InternacaoServiceTest
         Mockito.verifyNoInteractions(repository, acolhidoService, convenioService);
     }
 
+    @DisplayName("Deve rejeitar internação quando convênio persistido é inativo")
     @Test
     void shouldRejectInternacaoWhenPersistedConvenioIsInactive()
     {
@@ -349,6 +366,7 @@ class InternacaoServiceTest
         Mockito.verifyNoMoreInteractions(repository);
     }
 
+    @DisplayName("Deve rejeitar internação quando acolhido persistido é inativo")
     @Test
     void shouldRejectInternacaoWhenPersistedAcolhidoIsInactive()
     {
@@ -372,6 +390,7 @@ class InternacaoServiceTest
         Mockito.verifyNoMoreInteractions(repository);
     }
 
+    @DisplayName("Deve rejeitar internação quando acolhido já tem internação ativa")
     @Test
     void shouldRejectInternacaoWhenAcolhidoAlreadyHasActiveInternacao()
     {
@@ -398,6 +417,7 @@ class InternacaoServiceTest
         Mockito.verify(repository, Mockito.never()).save(Mockito.any(Internacao.class));
     }
 
+    @DisplayName("Deve rejeitar a internação quando o convênio atingir ou exceder a capacidade máxima")
     @ParameterizedTest
     @ValueSource(longs = {20L, 21L})
     void shouldRejectInternacaoWhenConvenioHasReachedOrExceededMaximumCapacity(long numeroInternacoesAtivas)
@@ -431,6 +451,7 @@ class InternacaoServiceTest
 
     // Testes update
 
+    @DisplayName("Deve atualizar internação com sucesso e preservar a data imutável")
     @Test
     void shouldUpdateInternacaoSuccessfullyAndPreserveImmutableData()
     {
@@ -464,6 +485,7 @@ class InternacaoServiceTest
         Mockito.verifyNoInteractions(acolhidoService, convenioService);
     }
 
+    @DisplayName("Deve rejeitar a atualização quando internação é inativo")
     @Test
     void shouldRejectUpdateWhenInternacaoIsInactive()
     {
@@ -482,6 +504,7 @@ class InternacaoServiceTest
         Mockito.verifyNoInteractions(acolhidoService, convenioService);
     }
 
+    @DisplayName("Deve rejeitar data de saída prevista nula durante a atualização")
     @Test
     void shouldRejectNullExpectedExitDateWhenUpdating()
     {
@@ -498,6 +521,7 @@ class InternacaoServiceTest
         Mockito.verifyNoInteractions(acolhidoService, convenioService);
     }
 
+    @DisplayName("Deve rejeitar valor de mensalidade nulo durante a atualização")
     @Test
     void shouldRejectNullMonthlyPaymentWhenUpdating()
     {
@@ -514,6 +538,7 @@ class InternacaoServiceTest
         Mockito.verifyNoInteractions(acolhidoService, convenioService);
     }
 
+    @DisplayName("Deve rejeitar a atualização quando a internação não existir")
     @Test
     void shouldRejectUpdateWhenInternacaoDoesNotExist()
     {
@@ -530,6 +555,7 @@ class InternacaoServiceTest
 
     // Testes endInternacao
 
+    @DisplayName("Deve encerrar internação com sucesso")
     @Test
     void shouldEndInternacaoSuccessfully()
     {
@@ -554,6 +580,7 @@ class InternacaoServiceTest
         Mockito.verifyNoInteractions(acolhidoService, convenioService);
     }
 
+    @DisplayName("Deve completar uma internação inativa com informações de encerramento ausentes")
     @Test
     void shouldCompleteInactiveInternacaoWithMissingEndInformation()
     {
@@ -578,6 +605,7 @@ class InternacaoServiceTest
         Mockito.verifyNoInteractions(acolhidoService, convenioService);
     }
 
+    @DisplayName("Não deve salvar internação quando isso é já encerrado")
     @Test
     void shouldNotSaveInternacaoWhenItIsAlreadyEnded()
     {
@@ -606,6 +634,7 @@ class InternacaoServiceTest
         Mockito.verifyNoInteractions(acolhidoService, convenioService);
     }
 
+    @DisplayName("Não deve salvar a internação quando a data de saída é nula")
     @Test
     void shouldNotSaveInternacaoWhenExitDateIsNull()
     {
@@ -627,6 +656,7 @@ class InternacaoServiceTest
         Mockito.verifyNoInteractions(acolhidoService, convenioService);
     }
 
+    @DisplayName("Não deve salvar internação quando alta é nulo")
     @Test
     void shouldNotSaveInternacaoWhenAltaIsNull()
     {
@@ -649,6 +679,7 @@ class InternacaoServiceTest
         Mockito.verifyNoInteractions(acolhidoService, convenioService);
     }
 
+    @DisplayName("Deve rejeitar encerramento internação quando isso não existir")
     @Test
     void shouldRejectEndingInternacaoWhenItDoesNotExist()
     {
@@ -663,6 +694,7 @@ class InternacaoServiceTest
         Mockito.verifyNoInteractions(acolhidoService, convenioService);
     }
 
+    @DisplayName("Deve rejeitar encerramento internação quando o ID é inválido")
     @ParameterizedTest
     @NullSource
     @ValueSource(longs = {0, -1, -10})
@@ -677,6 +709,7 @@ class InternacaoServiceTest
 
     // Testes delete
 
+    @DisplayName("Deve excluir internação ativa com sucesso")
     @Test
     void shouldDeleteActiveInternacaoSuccessfully()
     {
@@ -698,6 +731,7 @@ class InternacaoServiceTest
         Mockito.verifyNoInteractions(acolhidoService, convenioService);
     }
 
+    @DisplayName("Deve excluir encerrado internação com sucesso")
     @Test
     void shouldDeleteEndedInternacaoSuccessfully()
     {
@@ -722,6 +756,7 @@ class InternacaoServiceTest
         Mockito.verifyNoInteractions(acolhidoService, convenioService);
     }
 
+    @DisplayName("Deve rejeitar excluindo internação quando isso tem vinculado pagamentos")
     @Test
     void shouldRejectDeletingInternacaoWhenItHasLinkedPayments()
     {
@@ -746,6 +781,7 @@ class InternacaoServiceTest
         Mockito.verifyNoInteractions(audit, acolhidoService, convenioService);
     }
 
+    @DisplayName("Deve rejeitar excluindo internação quando isso não existir")
     @Test
     void shouldRejectDeletingInternacaoWhenItDoesNotExist()
     {
@@ -762,6 +798,7 @@ class InternacaoServiceTest
         Mockito.verifyNoInteractions(acolhidoService, convenioService);
     }
 
+    @DisplayName("Deve rejeitar excluindo internação quando o ID é inválido")
     @ParameterizedTest
     @NullSource
     @ValueSource(longs = {0, -1, -10})
@@ -776,6 +813,7 @@ class InternacaoServiceTest
 
     // Testes updateTreatmentStage
 
+    @DisplayName("Deve atualizar tratamento etapa de todos ativo internações")
     @Test
     void shouldUpdateTreatmentStageOfAllActiveInternacoes()
     {
@@ -797,6 +835,7 @@ class InternacaoServiceTest
         Mockito.verifyNoInteractions(acolhidoService, convenioService);
     }
 
+    @DisplayName("Deve salvar vazio listar quando não há ativo internações")
     @Test
     void shouldSaveEmptyListWhenThereAreNoActiveInternacoes()
     {
@@ -813,6 +852,7 @@ class InternacaoServiceTest
         Mockito.verifyNoInteractions(acolhidoService, convenioService);
     }
 
+    @DisplayName("Deve rejeitar nulo referência data sem interagir com as dependências")
     @Test
     void shouldRejectNullReferenceDateWithoutInteractingWithDependencies()
     {
@@ -825,6 +865,7 @@ class InternacaoServiceTest
 
     // Testes countInternacoesAtivasByConvenio
 
+    @DisplayName("Deve contar ativo internações por convênio")
     @ParameterizedTest
     @ValueSource(longs = {0, 1, 15})
     void shouldCountActiveInternacoesByConvenio(Long quantidade)
@@ -844,6 +885,7 @@ class InternacaoServiceTest
         Mockito.verifyNoInteractions(acolhidoService);
     }
 
+    @DisplayName("Deve contar ativo internações para inativo convênio")
     @Test
     void shouldCountActiveInternacoesForInactiveConvenio()
     {
@@ -862,6 +904,7 @@ class InternacaoServiceTest
         Mockito.verifyNoInteractions(acolhidoService);
     }
 
+    @DisplayName("Não deve contar quando convênio não existir")
     @Test
     void shouldNotCountWhenConvenioDoesNotExist()
     {
@@ -878,6 +921,7 @@ class InternacaoServiceTest
         Mockito.verifyNoInteractions(repository, acolhidoService);
     }
 
+    @DisplayName("Não deve contar quando convênio ID é inválido")
     @ParameterizedTest
     @NullSource
     @ValueSource(longs = {0, -1, -10})
@@ -896,6 +940,7 @@ class InternacaoServiceTest
 
     // Testes countTotalInternacao
 
+    @DisplayName("Deve retornar total internação contar de repositório")
     @ParameterizedTest
     @ValueSource(longs = {0L, 1L, 12L})
     void shouldReturnTotalInternacaoCountFromRepository(long quantidade)
@@ -910,6 +955,7 @@ class InternacaoServiceTest
         Mockito.verifyNoInteractions(pagamentoRepository, acolhidoService, convenioService, audit);
     }
 
+    @DisplayName("Deve retornar internação ativa contar de repositório")
     @ParameterizedTest
     @ValueSource(longs = {0L, 1L, 12L})
     void shouldReturnActiveInternacaoCountFromRepository(long quantidade)
@@ -924,6 +970,7 @@ class InternacaoServiceTest
         Mockito.verifyNoInteractions(pagamentoRepository, acolhidoService, convenioService, audit);
     }
 
+    @DisplayName("Deve retornar internação ativa contar por tratamento etapa")
     @ParameterizedTest
     @EnumSource(TreatmentStage.class)
     void shouldReturnActiveInternacaoCountByTreatmentStage(TreatmentStage stage)
@@ -938,6 +985,7 @@ class InternacaoServiceTest
         Mockito.verifyNoInteractions(pagamentoRepository, acolhidoService, convenioService, audit);
     }
 
+    @DisplayName("Deve lançar internação inválido consulta exceção quando contagem por nulo tratamento etapa")
     @Test
     void shouldThrowInternacaoInvalidQueryExceptionWhenCountingByNullTreatmentStage()
     {
@@ -952,6 +1000,7 @@ class InternacaoServiceTest
 
     // Testes findReportMonthlyMovement
 
+    @DisplayName("Deve combinar mensalidade entradas e altas e incluir meses sem movimentação")
     @Test
     void shouldCombineMonthlyEntriesAndDischargesAndIncludeMonthsWithoutMovement()
     {
@@ -982,6 +1031,7 @@ class InternacaoServiceTest
         Mockito.verifyNoInteractions(pagamentoRepository, acolhidoService, convenioService, audit);
     }
 
+    @DisplayName("Deve retornar todos meses com zero conta quando não há mensalidade movimentações")
     @Test
     void shouldReturnAllMonthsWithZeroCountsWhenThereAreNoMonthlyMovements()
     {
@@ -1005,6 +1055,7 @@ class InternacaoServiceTest
         Mockito.verifyNoInteractions(pagamentoRepository, acolhidoService, convenioService, audit);
     }
 
+    @DisplayName("Deve lançar internação inválido consulta exceção quando mensalidade movimentação período contém nulo")
     @Test
     void shouldThrowInternacaoInvalidQueryExceptionWhenMonthlyMovementPeriodContainsNull()
     {
@@ -1026,6 +1077,7 @@ class InternacaoServiceTest
         Mockito.verifyNoInteractions(repository);
     }
 
+    @DisplayName("Deve lançar internação inválido consulta exceção quando mensalidade movimentação inicia antes 1900")
     @Test
     void shouldThrowInternacaoInvalidQueryExceptionWhenMonthlyMovementStartsBefore1900()
     {
@@ -1041,6 +1093,7 @@ class InternacaoServiceTest
         Mockito.verifyNoInteractions(repository);
     }
 
+    @DisplayName("Deve lançar internação inválido consulta exceção quando mensalidade movimentação iniciar é depois encerrar")
     @Test
     void shouldThrowInternacaoInvalidQueryExceptionWhenMonthlyMovementStartIsAfterEnd()
     {
@@ -1058,6 +1111,7 @@ class InternacaoServiceTest
 
     // Testes findRelatorioInternacoesAtivasPorConvenio
 
+    @DisplayName("Deve buscar ativo internações relatório por convênio")
     @Test
     void shouldFindActiveInternacoesReportByConvenio()
     {
@@ -1077,6 +1131,7 @@ class InternacaoServiceTest
         Mockito.verifyNoInteractions(acolhidoService, convenioService);
     }
 
+    @DisplayName("Deve retornar vazio relatório quando não há convênios")
     @Test
     void shouldReturnEmptyReportWhenThereAreNoConvenios()
     {
@@ -1093,6 +1148,7 @@ class InternacaoServiceTest
 
     // Testes findRelatorioSituacaoInternacoesPorConvenio
 
+    @DisplayName("Deve buscar internações situação relatório por convênio")
     @Test
     void shouldFindInternacoesSituationReportByConvenio()
     {
@@ -1112,6 +1168,7 @@ class InternacaoServiceTest
         Mockito.verifyNoInteractions(acolhidoService, convenioService);
     }
 
+    @DisplayName("Deve retornar vazio situação relatório quando não há convênios")
     @Test
     void shouldReturnEmptySituationReportWhenThereAreNoConvenios()
     {
@@ -1128,6 +1185,7 @@ class InternacaoServiceTest
 
     // Testes findInternacaoByAcolhidoName
 
+    @DisplayName("Deve buscar internações por acolhido nome e retornar página")
     @Test
     void shouldFindInternacoesByAcolhidoNameAndReturnPage()
     {
@@ -1152,6 +1210,7 @@ class InternacaoServiceTest
         Mockito.verifyNoMoreInteractions(repository);
     }
 
+    @DisplayName("Deve lançar exceção quando a internação não for encontrada quando acolhido nome é nulo ou em branco")
     @ParameterizedTest
     @NullSource
     @ValueSource(strings = {"", " ", "\t"})
@@ -1163,6 +1222,7 @@ class InternacaoServiceTest
         Mockito.verifyNoInteractions(repository);
     }
 
+    @DisplayName("Deve retornar uma página vazia quando nenhuma internação corresponder ao nome do acolhido")
     @Test
     void shouldReturnEmptyPageWhenNoInternacoesMatchAcolhidoName()
     {
@@ -1186,6 +1246,7 @@ class InternacaoServiceTest
 
     // Testes findInternacaoByAcolhidoCpf
 
+    @DisplayName("Deve buscar internações por parcial acolhido CPF e retornar página")
     @Test
     void shouldFindInternacoesByPartialAcolhidoCpfAndReturnPage()
     {
@@ -1211,6 +1272,7 @@ class InternacaoServiceTest
         Mockito.verifyNoMoreInteractions(repository);
     }
 
+    @DisplayName("Deve lançar exceção quando a internação não for encontrada quando acolhido CPF é nulo em branco ou normaliza para em branco")
     @ParameterizedTest
     @NullSource
     @ValueSource(strings = {"", " ", "\t", ".", "-", " .- "})
@@ -1222,6 +1284,7 @@ class InternacaoServiceTest
         Mockito.verifyNoInteractions(repository);
     }
 
+    @DisplayName("Deve retornar uma página vazia quando nenhuma internação corresponder ao CPF do acolhido")
     @Test
     void shouldReturnEmptyPageWhenNoInternacoesMatchAcolhidoCpf()
     {
@@ -1246,6 +1309,7 @@ class InternacaoServiceTest
 
     // Testes findInternacaoByTreatmentStage
 
+    @DisplayName("Deve buscar internações por tratamento etapa e retornar página")
     @Test
     void shouldFindInternacoesByTreatmentStageAndReturnPage()
     {
@@ -1275,6 +1339,7 @@ class InternacaoServiceTest
         Mockito.verifyNoMoreInteractions(repository);
     }
 
+    @DisplayName("Deve lançar internação inválido consulta exceção quando tratamento etapa é nulo")
     @Test
     void shouldThrowInternacaoInvalidQueryExceptionWhenTreatmentStageIsNull()
     {
@@ -1287,6 +1352,7 @@ class InternacaoServiceTest
         Mockito.verifyNoInteractions(repository);
     }
 
+    @DisplayName("Deve retornar uma página vazia quando nenhuma internação corresponder à etapa do tratamento")
     @Test
     void shouldReturnEmptyPageWhenNoInternacoesMatchTreatmentStage()
     {
@@ -1311,6 +1377,7 @@ class InternacaoServiceTest
 
     // Testes findInternacaoByDataEntrada
 
+    @DisplayName("Deve buscar internações dentro data entrada intervalo e retornar página")
     @Test
     void shouldFindInternacoesWithinDataEntradaRangeAndReturnPage()
     {
@@ -1341,6 +1408,7 @@ class InternacaoServiceTest
         Mockito.verifyNoMoreInteractions(repository);
     }
 
+    @DisplayName("Deve lançar internação inválido consulta exceção quando data intervalo contém nulo")
     @Test
     void shouldThrowInternacaoInvalidQueryExceptionWhenDateRangeContainsNull()
     {
@@ -1363,6 +1431,7 @@ class InternacaoServiceTest
         Mockito.verifyNoInteractions(repository);
     }
 
+    @DisplayName("Deve lançar internação inválido consulta exceção quando iniciar data é antes 1900")
     @Test
     void shouldThrowInternacaoInvalidQueryExceptionWhenStartDateIsBefore1900()
     {
@@ -1378,6 +1447,7 @@ class InternacaoServiceTest
         Mockito.verifyNoInteractions(repository);
     }
 
+    @DisplayName("Deve lançar internação inválido consulta exceção quando iniciar data é depois encerrar data")
     @Test
     void shouldThrowInternacaoInvalidQueryExceptionWhenStartDateIsAfterEndDate()
     {
@@ -1393,6 +1463,7 @@ class InternacaoServiceTest
         Mockito.verifyNoInteractions(repository);
     }
 
+    @DisplayName("Deve retornar uma página vazia quando nenhuma internação corresponder ao intervalo de datas de entrada")
     @Test
     void shouldReturnEmptyPageWhenNoInternacoesMatchDataEntradaRange()
     {

@@ -1,5 +1,7 @@
 package org.example.clinicarestauracao.Application.Controllers;
 
+
+import org.junit.jupiter.api.DisplayName;
 import org.example.clinicarestauracao.Application.Dtos.TriagemDtos.TriagemReagendamentoDto;
 import org.example.clinicarestauracao.Application.Dtos.TriagemDtos.TriagemRequestDto;
 import org.example.clinicarestauracao.Application.Dtos.TriagemDtos.TriagemResponseDto;
@@ -59,6 +61,7 @@ class TriagemControllerTest
 
     // Testes do findAll
 
+    @DisplayName("Deve buscar todas as triagens com sucesso")
     @Test
     void shouldFindAllTriagensSuccessfully()
     {
@@ -82,6 +85,7 @@ class TriagemControllerTest
         Mockito.verifyNoInteractions(convenioService);
     }
 
+    @DisplayName("Deve retornar uma lista vazia quando não há triagens")
     @Test
     void shouldReturnEmptyListWhenThereAreNoTriagens()
     {
@@ -101,6 +105,7 @@ class TriagemControllerTest
 
     // Testes do findById
 
+    @DisplayName("Deve buscar triagem por ID com sucesso")
     @Test
     void shouldFindTriagemByIdSuccessfully()
     {
@@ -119,6 +124,7 @@ class TriagemControllerTest
 
     // Testes do findByName
 
+    @DisplayName("Deve buscar triagens por nome com sucesso")
     @Test
     void shouldFindTriagensByNameSuccessfully()
     {
@@ -141,6 +147,7 @@ class TriagemControllerTest
 
     // Testes do findByStatus
 
+    @DisplayName("Deve buscar triagens por estado com sucesso")
     @Test
     void shouldFindTriagensByStatusSuccessfully()
     {
@@ -162,6 +169,7 @@ class TriagemControllerTest
 
     // Testes do createTriagem
 
+    @DisplayName("Deve criar triagem com sucesso")
     @Test
     void shouldCreateTriagemSuccessfully()
     {
@@ -213,6 +221,7 @@ class TriagemControllerTest
 
     // Testes do update
 
+    @DisplayName("Deve atualizar triagem com sucesso")
     @Test
     void shouldUpdateTriagemSuccessfully()
     {
@@ -262,6 +271,7 @@ class TriagemControllerTest
 
     // Testes do delete
 
+    @DisplayName("Deve excluir triagem com sucesso")
     @Test
     void shouldDeleteTriagemSuccessfully()
     {
@@ -278,6 +288,7 @@ class TriagemControllerTest
 
     // Testes da conclusão
 
+    @DisplayName("Deve concluir triagem com sucesso")
     @Test
     void shouldConcludeTriagemSuccessfully()
     {
@@ -296,6 +307,7 @@ class TriagemControllerTest
 
     // Testes da desconclusão
 
+    @DisplayName("Deve reabrir a triagem concluída com sucesso")
     @Test
     void shouldUndoTriagemConclusionSuccessfully()
     {
@@ -314,6 +326,7 @@ class TriagemControllerTest
 
     // Testes do reagendamento
 
+    @DisplayName("Deve reagendar triagem com sucesso")
     @Test
     void shouldRescheduleTriagemSuccessfully()
     {
@@ -334,6 +347,7 @@ class TriagemControllerTest
 
     // Testes do cancelamento
 
+    @DisplayName("Deve cancelar triagem com sucesso")
     @Test
     void shouldCancelTriagemSuccessfully()
     {
@@ -352,6 +366,7 @@ class TriagemControllerTest
 
     // Testes do descancelamento
 
+    @DisplayName("Deve desfazer triagem cancelamento com sucesso")
     @Test
     void shouldUndoTriagemCancellationSuccessfully()
     {

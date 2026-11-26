@@ -1,5 +1,7 @@
 package org.example.clinicarestauracao.Domain.Entities;
 
+
+import org.junit.jupiter.api.DisplayName;
 import org.example.clinicarestauracao.Application.Exceptions.Acolhido.AcolhidoWithInvalidInformationException;
 import org.example.clinicarestauracao.Builders.AcolhidoTestBuilder;
 import org.example.clinicarestauracao.Builders.EnderecoTestBuilder;
@@ -19,6 +21,7 @@ class AcolhidoTest
 {
     // Testes para nome
 
+    @DisplayName("Deve normalizar nome")
     @ParameterizedTest
     @CsvSource({"'   Maria Silva   ', 'Maria Silva'", "' Ana', 'Ana'", "'João ', 'João'"})
     void shouldNormalizeName(String receivedName, String expectedName)
@@ -28,6 +31,7 @@ class AcolhidoTest
         assertEquals(expectedName, acolhido.getNome());
     }
 
+    @DisplayName("Deve rejeitar nome nulo ou em branco")
     @ParameterizedTest
     @NullAndEmptySource
     @ValueSource(strings = {" ", "   "})
@@ -38,6 +42,7 @@ class AcolhidoTest
         assertEquals("Nome do acolhido não pode ser nulo ou vazio.", exception.getMessage());
     }
 
+    @DisplayName("Deve rejeitar nome com menos de três caracteres após a normalização")
     @ParameterizedTest
     @ValueSource(strings = {"A", "Pe", "  Pe  "})
     void shouldRejectNameWithLessThanThreeCharactersAfterNormalization(String nome)
@@ -47,6 +52,7 @@ class AcolhidoTest
         assertEquals("Nome do acolhido deve ter no mínimo 3 caracteres.", exception.getMessage());
     }
 
+    @DisplayName("Deve aceitar nome em permitido comprimento limites")
     @ParameterizedTest
     @ValueSource(ints = {3, 250})
     void shouldAcceptNameAtAllowedLengthLimits(int length)
@@ -58,6 +64,7 @@ class AcolhidoTest
         assertEquals(nome, acolhido.getNome());
     }
 
+    @DisplayName("Deve rejeitar nome com mais de 250 caracteres após a normalização")
     @Test
     void shouldRejectNameWithMoreThan250CharactersAfterNormalization()
     {
@@ -70,6 +77,7 @@ class AcolhidoTest
 
     // Testes para e-mail
 
+    @DisplayName("Deve normalizar e-mail")
     @Test
     void shouldNormalizeEmail()
     {
@@ -78,6 +86,7 @@ class AcolhidoTest
         assertEquals("maria@email.com", acolhido.getEmail());
     }
 
+    @DisplayName("Deve rejeitar e-mail nulo ou em branco")
     @ParameterizedTest
     @NullAndEmptySource
     @ValueSource(strings = {" ", "   "})
@@ -88,6 +97,7 @@ class AcolhidoTest
         assertEquals("Email do acolhido não pode ser nulo ou vazio.", exception.getMessage());
     }
 
+    @DisplayName("Deve rejeitar e-mail inválido")
     @ParameterizedTest
     @ValueSource(strings = {"maria@email", "maria.com", "maria@@email.com", "maria..silva@email.com"})
     void shouldRejectInvalidEmail(String email)
@@ -99,6 +109,7 @@ class AcolhidoTest
 
     // Testes para CPF
 
+    @DisplayName("Deve normalizar CPF")
     @ParameterizedTest
     @CsvSource({"'529.982.247-25', '52998224725'", "'  529.982.247-25  ', '52998224725'", "'529 982 247 25', '52998224725'"})
     void shouldNormalizeCpf(String receivedCpf, String expectedCpf)
@@ -108,6 +119,7 @@ class AcolhidoTest
         assertEquals(expectedCpf, acolhido.getCpf());
     }
 
+    @DisplayName("Deve rejeitar CPF nulo ou em branco")
     @ParameterizedTest
     @NullAndEmptySource
     @ValueSource(strings = {" ", "   "})
@@ -118,6 +130,7 @@ class AcolhidoTest
         assertEquals("CPF do acolhido não pode ser nulo ou vazio.", exception.getMessage());
     }
 
+    @DisplayName("Deve rejeitar CPF inválido")
     @ParameterizedTest
     @ValueSource(strings = {"529.982.247-24", "111.111.111-11", "123"})
     void shouldRejectInvalidCpf(String cpf)
@@ -130,6 +143,7 @@ class AcolhidoTest
 
 // Testes para CEP
 
+    @DisplayName("Deve normalizar CEP")
     @ParameterizedTest
     @CsvSource({"'01310-100', '01310100'", "'  01310-100  ', '01310100'", "'01310100', '01310100'"})
     void shouldNormalizeCep(String receivedCep, String expectedCep)
@@ -139,6 +153,7 @@ class AcolhidoTest
         assertEquals(expectedCep, acolhido.getCep());
     }
 
+    @DisplayName("Deve rejeitar CEP nulo ou em branco")
     @ParameterizedTest
     @NullAndEmptySource
     @ValueSource(strings = {" ", "   "})
@@ -149,6 +164,7 @@ class AcolhidoTest
         assertEquals("CEP do acolhido não pode ser nulo ou vazio.", exception.getMessage());
     }
 
+    @DisplayName("Deve rejeitar CEP inválido")
     @ParameterizedTest
     @ValueSource(strings = {"1234567", "123456789", "12345-67A", "12345 678", "12345@678"})
     void shouldRejectInvalidCep(String cep)
@@ -160,6 +176,7 @@ class AcolhidoTest
 
     // Testes para endereço
 
+    @DisplayName("Deve definir endereço com sucesso")
     @Test
     void shouldSetEnderecoSuccessfully()
     {
@@ -170,6 +187,7 @@ class AcolhidoTest
         assertEquals(endereco, acolhido.getEndereco());
     }
 
+    @DisplayName("Deve rejeitar endereço nulo")
     @Test
     void shouldRejectNullEndereco()
     {
@@ -180,6 +198,7 @@ class AcolhidoTest
 
     // Testes para telefone
 
+    @DisplayName("Deve normalizar telefone")
     @ParameterizedTest
     @CsvSource({"'(11) 99999-9999', '11999999999'", "'(11) 3333-4444', '1133334444'", "'  11999999999  ', '11999999999'"})
     void shouldNormalizeTelefone(String receivedTelefone, String expectedTelefone)
@@ -189,6 +208,7 @@ class AcolhidoTest
         assertEquals(expectedTelefone, acolhido.getTelefone());
     }
 
+    @DisplayName("Deve rejeitar telefone nulo ou em branco")
     @ParameterizedTest
     @NullAndEmptySource
     @ValueSource(strings = {" ", "   "})
@@ -199,6 +219,7 @@ class AcolhidoTest
         assertEquals("Telefone do acolhido não pode ser nulo ou vazio.", exception.getMessage());
     }
 
+    @DisplayName("Deve rejeitar telefone inválido")
     @ParameterizedTest
     @ValueSource(strings = {"119999999", "119999999999", "11899999999", "1199999999", "+55 (11) 99999-9999", "1199999999A"})
     void shouldRejectInvalidTelefone(String telefone)
@@ -210,6 +231,7 @@ class AcolhidoTest
 
     // Testes para data de nascimento
 
+    @DisplayName("Deve definir uma data de nascimento válida")
     @Test
     void shouldSetValidBirthDate()
     {
@@ -220,6 +242,7 @@ class AcolhidoTest
         assertEquals(dataNascimento, acolhido.getDataNascimento());
     }
 
+    @DisplayName("Deve rejeitar data de nascimento nula")
     @Test
     void shouldRejectNullBirthDate()
     {
@@ -228,6 +251,7 @@ class AcolhidoTest
         assertEquals("É necessário definir a data de nascimento.", exception.getMessage());
     }
 
+    @DisplayName("Deve rejeitar data de nascimento futura")
     @Test
     void shouldRejectFutureBirthDate()
     {
@@ -238,6 +262,7 @@ class AcolhidoTest
         assertEquals("Data de nascimento não pode ser futura.", exception.getMessage());
     }
 
+    @DisplayName("Deve rejeitar data de nascimento anterior a 1900")
     @Test
     void shouldRejectBirthDateBefore1900()
     {
@@ -248,6 +273,7 @@ class AcolhidoTest
         assertEquals("Data de nascimento não pode ser anterior a 1900.", exception.getMessage());
     }
 
+    @DisplayName("Deve aceitar a data mínima de nascimento permitida")
     @Test
     void shouldAcceptBirthDateAtMinimumLimit()
     {
@@ -258,6 +284,7 @@ class AcolhidoTest
         assertEquals(birthDate, acolhido.getDataNascimento());
     }
 
+    @DisplayName("Deve rejeitar a data de nascimento quando o acolhido tem menos de 18 anos")
     @Test
     void shouldRejectBirthDateWhenAcolhidoIsUnderEighteen()
     {
@@ -270,6 +297,7 @@ class AcolhidoTest
 
     // Testes para responsável
 
+    @DisplayName("Deve definir ativo responsável")
     @Test
     void shouldSetActiveResponsavel()
     {
@@ -280,6 +308,7 @@ class AcolhidoTest
         assertSame(responsavel, acolhido.getResponsavel());
     }
 
+    @DisplayName("Deve rejeitar responsável nulo")
     @Test
     void shouldRejectNullResponsavel()
     {
@@ -291,6 +320,7 @@ class AcolhidoTest
         assertEquals("Responsável do acolhido não pode ser nulo.", exception.getMessage());
     }
 
+    @DisplayName("Deve rejeitar inativo responsável")
     @Test
     void shouldRejectInactiveResponsavel()
     {
@@ -304,6 +334,7 @@ class AcolhidoTest
         assertEquals("Responsável do acolhido não pode ser inativo.", exception.getMessage());
     }
 
+    @DisplayName("Deve preservar atual responsável após uma atualização inválida")
     @Test
     void shouldPreserveCurrentResponsavelAfterInvalidUpdate()
     {
@@ -321,6 +352,7 @@ class AcolhidoTest
 
     // Testes para estado ativo
 
+    @DisplayName("Deve criar ativo acolhido com ID")
     @Test
     void shouldCreateActiveAcolhidoWithId()
     {
@@ -329,6 +361,7 @@ class AcolhidoTest
         assertTrue(acolhido.getAtivo());
     }
 
+    @DisplayName("Deve criar ativo acolhido sem ID")
     @Test
     void shouldCreateActiveAcolhidoWithoutId()
     {
@@ -337,6 +370,7 @@ class AcolhidoTest
         assertTrue(acolhido.getAtivo());
     }
 
+    @DisplayName("Deve desativar acolhido")
     @Test
     void shouldDeactivateAcolhido()
     {
@@ -347,6 +381,7 @@ class AcolhidoTest
         assertFalse(acolhido.getAtivo());
     }
 
+    @DisplayName("Deve reativar acolhido")
     @Test
     void shouldReactivateAcolhido()
     {
@@ -358,6 +393,7 @@ class AcolhidoTest
         assertTrue(acolhido.getAtivo());
     }
 
+    @DisplayName("Deve rejeitar desativando já inativo acolhido")
     @Test
     void shouldRejectDeactivatingAlreadyInactiveAcolhido()
     {
@@ -371,6 +407,7 @@ class AcolhidoTest
         assertFalse(acolhido.getAtivo());
     }
 
+    @DisplayName("Deve rejeitar reativando já ativo acolhido")
     @Test
     void shouldRejectReactivatingAlreadyActiveAcolhido()
     {

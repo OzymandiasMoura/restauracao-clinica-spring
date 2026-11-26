@@ -1,5 +1,7 @@
 package org.example.clinicarestauracao.Application.Controllers;
 
+
+import org.junit.jupiter.api.DisplayName;
 import org.example.clinicarestauracao.Application.Dtos.CargoDtos.CargoRequestDto;
 import org.example.clinicarestauracao.Application.Dtos.CargoDtos.CargoResponseDto;
 import org.example.clinicarestauracao.Application.Services.CargoService;
@@ -52,6 +54,7 @@ class CargoControllerTest
         RequestContextHolder.resetRequestAttributes();
     }
 
+    @DisplayName("Deve criar um cargo e retornar HTTP 201")
     @Test
     void shouldCreateCargoAndReturnCreated()
     {
@@ -80,6 +83,7 @@ class CargoControllerTest
 
     //Testes findAll
 
+    @DisplayName("Deve retornar todos os cargos")
     @Test
     void shouldReturnAllCargos()
     {
@@ -107,6 +111,7 @@ class CargoControllerTest
         Mockito.verify(service).findAllCargo();
     }
 
+    @DisplayName("Deve retornar uma lista vazia quando não há cargos")
     @Test
     void shouldReturnEmptyListWhenThereAreNoCargos()
     {
@@ -123,6 +128,7 @@ class CargoControllerTest
 
     //Testes FindById
 
+    @DisplayName("Deve buscar cargo por ID com sucesso")
     @Test
     void shouldFindCargoByIdSuccessfully()
     {
@@ -143,6 +149,7 @@ class CargoControllerTest
 
     //Teste FindByName
 
+    @DisplayName("Deve buscar cargo por nome com sucesso")
     @Test
     void shouldFindCargoByNameSuccessfully()
     {
@@ -161,6 +168,7 @@ class CargoControllerTest
         Mockito.verify(service).findCargoByNome("Monitor");
     }
 
+    @DisplayName("Deve atualizar cargo com sucesso")
     @Test
     void shouldUpdateCargoSuccessfully()
     {
@@ -190,6 +198,7 @@ class CargoControllerTest
 
     //Teste softDelete
 
+    @DisplayName("Deve desativar o cargo e retornar HTTP 204")
     @Test
     void shouldSoftDeleteCargoAndReturnNoContent()
     {
@@ -204,6 +213,7 @@ class CargoControllerTest
 
     //Teste activateCargo
 
+    @DisplayName("Deve reativar o cargo e retornar HTTP 204")
     @Test
     void shouldActivateCargoAndReturnNoContent()
     {
@@ -218,6 +228,7 @@ class CargoControllerTest
 
     // Teste deleteCargo
 
+    @DisplayName("Deve excluir o cargo e retornar HTTP 204")
     @Test
     void shouldDeleteCargoAndReturnNoContent()
     {

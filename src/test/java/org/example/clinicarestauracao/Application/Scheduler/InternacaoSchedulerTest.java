@@ -1,5 +1,7 @@
 package org.example.clinicarestauracao.Application.Scheduler;
 
+
+import org.junit.jupiter.api.DisplayName;
 import org.example.clinicarestauracao.Application.Services.InternacaoService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -24,6 +26,7 @@ class InternacaoSchedulerTest
     @InjectMocks
     private InternacaoScheduler scheduler;
 
+    @DisplayName("Deve atualizar tratamento etapas usando atual São Paulo data")
     @Test
     void shouldUpdateTreatmentStagesUsingCurrentSaoPauloDate()
     {

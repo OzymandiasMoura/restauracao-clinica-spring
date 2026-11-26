@@ -1,5 +1,7 @@
 package org.example.clinicarestauracao.Application.Exceptions;
 
+
+import org.junit.jupiter.api.DisplayName;
 import org.example.clinicarestauracao.Application.Dtos.SecurityDtos.ErrorResponseDto;
 import org.example.clinicarestauracao.Application.Exceptions.Acolhido.AcolhidoNotFoundException;
 import org.example.clinicarestauracao.Application.Exceptions.Acolhido.AcolhidoWithInvalidInformationException;
@@ -30,6 +32,7 @@ class GlobalExceptionHandlerTest
     private final GlobalExceptionHandler handler =
             new GlobalExceptionHandler();
 
+    @DisplayName("Deve retornar HTTP 401 quando as credenciais forem inválidas")
     @Test
     void shouldReturnUnauthorizedWhenCredentialsAreInvalid()
     {
@@ -42,6 +45,7 @@ class GlobalExceptionHandlerTest
         assertEquals("Usuário ou senha inválidos.", response.getBody().message());
     }
 
+    @DisplayName("Deve retornar HTTP 409 quando o nome de usuário já estiver em uso")
     @Test
     void shouldReturnConflictWhenUsernameIsInUse()
     {
@@ -54,6 +58,7 @@ class GlobalExceptionHandlerTest
         assertEquals("mensagem interna", response.getBody().message());
     }
 
+    @DisplayName("Deve retornar HTTP 400 quando as informações do usuário forem inválidas")
     @Test
     void shouldReturnBadRequestWhenUserInformationIsInvalid()
     {
@@ -66,6 +71,7 @@ class GlobalExceptionHandlerTest
         assertEquals("Nome de usuário não pode ser vazio.", response.getBody().message());
     }
 
+    @DisplayName("Deve retornar HTTP 404 quando o convênio não existir")
     @Test
     void shouldReturnNotFoundWhenConvenioDoesNotExist()
     {
@@ -77,6 +83,7 @@ class GlobalExceptionHandlerTest
         assertNotNull(response.getBody());
         assertEquals("Convênio não encontrado.", response.getBody().message());
     }
+    @DisplayName("Deve retornar HTTP 400 quando as informações do funcionário forem inválidas")
     @Test
     void shouldReturnBadRequestWhenFuncionarioInformationIsInvalid()
     {
@@ -89,6 +96,7 @@ class GlobalExceptionHandlerTest
         assertEquals("Nome do funcionário não pode ser vazio.", response.getBody().message());
     }
 
+    @DisplayName("Deve retornar HTTP 400 quando as informações do convênio forem inválidas")
     @Test
     void shouldReturnBadRequestWhenConvenioInformationIsInvalid()
     {
@@ -101,6 +109,7 @@ class GlobalExceptionHandlerTest
         assertEquals("Nome do convênio não pode ser vazio.", response.getBody().message());
     }
 
+    @DisplayName("Deve retornar HTTP 400 quando as informações do cargo forem inválidas")
     @Test
     void shouldReturnBadRequestWhenCargoInformationIsInvalid()
     {
@@ -113,6 +122,7 @@ class GlobalExceptionHandlerTest
         assertEquals("Nome do cargo não pode ser nulo ou vazio.", response.getBody().message());
     }
 
+    @DisplayName("Deve retornar HTTP 404 quando o cargo não for encontrado")
     @Test
     void shouldNotFoundRequestWhenCargoNotFound()
     {
@@ -125,6 +135,7 @@ class GlobalExceptionHandlerTest
         assertEquals("Cargo não encontrado.", response.getBody().message());
     }
 
+    @DisplayName("Deve retornar HTTP 404 quando o funcionário não existir")
     @Test
     void shouldReturnNotFoundWhenFuncionarioDoesNotExist()
     {
@@ -137,6 +148,7 @@ class GlobalExceptionHandlerTest
         assertEquals("Funcionário não encontrado.", response.getBody().message());
     }
 
+    @DisplayName("Deve retornar HTTP 404 quando o usuário não existir")
     @Test
     void shouldReturnNotFoundWhenUserDoesNotExist()
     {
@@ -149,6 +161,7 @@ class GlobalExceptionHandlerTest
         assertEquals("Usuário não encontrado.", response.getBody().message());
     }
 
+    @DisplayName("Deve retornar HTTP 400 quando as informações do endereço forem inválidas")
     @Test
     void shouldReturnBadRequestWhenEnderecoWithInvalidInformation()
     {
@@ -161,6 +174,7 @@ class GlobalExceptionHandlerTest
         assertEquals("Endereço com campos inválidos.",  response.getBody().message());
     }
 
+    @DisplayName("Deve retornar HTTP 400 quando as informações do acolhido forem inválidas")
     @Test
     void shouldReturnBadRequestWhenAcolhidoInformationIsInvalid()
     {
@@ -173,6 +187,7 @@ class GlobalExceptionHandlerTest
         assertEquals("CPF já cadastrado.", response.getBody().message());
     }
 
+    @DisplayName("Deve retornar HTTP 404 quando o acolhido não existir")
     @Test
     void shouldReturnNotFoundWhenAcolhidoDoesNotExist()
     {
@@ -185,6 +200,7 @@ class GlobalExceptionHandlerTest
         assertEquals("Acolhido não encontrado.", response.getBody().message());
     }
 
+    @DisplayName("Deve retornar HTTP 400 quando as informações da internação forem inválidas")
     @Test
     void shouldReturnBadRequestWhenInternacaoInformationIsInvalid()
     {
@@ -199,6 +215,7 @@ class GlobalExceptionHandlerTest
         );
     }
 
+    @DisplayName("Deve retornar HTTP 404 quando a internação não existir")
     @Test
     void shouldReturnNotFoundWhenInternacaoDoesNotExist()
     {
@@ -213,6 +230,7 @@ class GlobalExceptionHandlerTest
         );
     }
 
+    @DisplayName("Deve retornar HTTP 400 quando a consulta de internação for inválida")
     @Test
     void shouldReturnBadRequestWhenInternacaoQueryIsInvalid()
     {
@@ -227,6 +245,7 @@ class GlobalExceptionHandlerTest
         );
     }
 
+    @DisplayName("Deve retornar HTTP 400 quando as informações do responsável forem inválidas")
     @Test
     void shouldReturnBadRequestWhenResponsavelInformationIsInvalid()
     {
@@ -241,6 +260,7 @@ class GlobalExceptionHandlerTest
         );
     }
 
+    @DisplayName("Deve retornar não encontrado quando responsável não existir")
     @Test
     void shouldReturnNotFoundWhenResponsavelDoesNotExist()
     {

@@ -1,5 +1,7 @@
 package org.example.clinicarestauracao.Infrastruct.Security;
 
+
+import org.junit.jupiter.api.DisplayName;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
@@ -29,6 +31,7 @@ class TokenServiceTest
         user = (User) builder.build();
     }
 
+    @DisplayName("Deve gerar um token com o usuário como assunto")
     @Test
     void shouldGenerateTokenWithUserASSubject()
     {
@@ -43,6 +46,7 @@ class TokenServiceTest
         assertNotNull(decodedToken.getExpiresAt());
     }
 
+    @DisplayName("Deve retornar o nome de usuário quando token é válido")
     @Test
     void shouldReturnUsernameWhenTokenIsValid()
     {
@@ -53,6 +57,7 @@ class TokenServiceTest
         assertEquals(user.getUsername(), subject);
     }
 
+    @DisplayName("Deve retornar texto vazio quando token é inválido")
     @Test
     void shouldReturnEmptyStringWhenTokenIsInvalid()
     {
@@ -61,6 +66,7 @@ class TokenServiceTest
         assertEquals("", token);
     }
 
+    @DisplayName("Deve retornar texto vazio quando o segredo for inválido")
     @Test
     void shouldReturnEmptyStringWhenSecretIsInvalid()
     {
@@ -70,6 +76,7 @@ class TokenServiceTest
         assertEquals("", subject);
     }
 
+    @DisplayName("Deve retornar texto vazio quando o token estiver expirado")
     @Test
     void shouldReturnEmptyStringWhenTokenIsExpired()
     {
@@ -80,6 +87,7 @@ class TokenServiceTest
         assertEquals("", subject);
     }
 
+    @DisplayName("Deve retornar texto vazio quando o emissor for inválido")
     @Test
     void shouldReturnEmptyStringWhenIssuerIsInvalid()
     {
@@ -88,6 +96,7 @@ class TokenServiceTest
         assertEquals("", subject);
     }
 
+    @DisplayName("Deve gerar token com usuário perfil")
     @Test
     void shouldGenerateTokenWithUserRole()
     {

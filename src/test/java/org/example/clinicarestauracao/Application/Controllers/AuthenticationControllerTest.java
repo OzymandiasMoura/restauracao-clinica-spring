@@ -1,4 +1,6 @@
 package org.example.clinicarestauracao.Application.Controllers;
+
+import org.junit.jupiter.api.DisplayName;
 import org.example.clinicarestauracao.Application.Dtos.SecurityDtos.AuthenticationDto;
 import org.example.clinicarestauracao.Application.Dtos.SecurityDtos.LoginResponseDto;
 import org.example.clinicarestauracao.Application.Dtos.SecurityDtos.RegisterDto;
@@ -35,6 +37,7 @@ class AuthenticationControllerTest
     @InjectMocks
     private AuthenticationController controller;
 
+    @DisplayName("Deve cadastrar usuário e retornar HTTP 200")
     @Test
     void shouldRegisterUserAndReturnOk()
     {
@@ -56,6 +59,7 @@ class AuthenticationControllerTest
         assertEquals(dto.role(), userSentToService.getRole());
     }
 
+    @DisplayName("Deve realizar login e retornar o token")
     @Test
     void shouldLoginAndReturnToken()
     {
@@ -86,6 +90,7 @@ class AuthenticationControllerTest
         assertEquals("1234", credentials.getCredentials());
     }
 
+    @DisplayName("Deve lançar exceção de credenciais inválidas quando o login for inválido")
     @Test
     void shouldThrowBadCredentialsExceptionWhenLoginIsInvalid()
     {

@@ -1,5 +1,7 @@
 package org.example.clinicarestauracao.Application.Controllers;
 
+
+import org.junit.jupiter.api.DisplayName;
 import org.example.clinicarestauracao.Application.Dtos.UserDtos.UserPasswordUpdateRequestDto;
 import org.example.clinicarestauracao.Application.Dtos.UserDtos.UserRoleUpdateRequestDto;
 import org.example.clinicarestauracao.Application.Services.UserService;
@@ -26,6 +28,7 @@ class UserControllerTest
     @InjectMocks
     private UserController controller;
 
+    @DisplayName("Deve atualizar senha e retornar HTTP 200")
     @Test
     void shouldUpdatePasswordAndReturnOk()
     {
@@ -40,6 +43,7 @@ class UserControllerTest
         Mockito.verify(service).updatePassword(userId, "nova-senha");
     }
 
+    @DisplayName("Deve atualizar perfil e retornar HTTP 200")
     @Test
     void shouldUpdateRoleAndReturnOk()
     {
@@ -54,6 +58,7 @@ class UserControllerTest
         Mockito.verify(service).updateRole(userId, UserRoles.ADMIN);
     }
 
+    @DisplayName("Deve retornar os perfis disponíveis")
     @Test
     void shouldReturnAssignableRoles()
     {
@@ -65,6 +70,7 @@ class UserControllerTest
         Mockito.verifyNoInteractions(service);
     }
 
+    @DisplayName("Deve excluir o usuário e retornar HTTP 204")
     @Test
     void shouldDeleteUserAndReturnNoContent()
     {

@@ -1,5 +1,7 @@
 package org.example.clinicarestauracao.Application.Services;
 
+
+import org.junit.jupiter.api.DisplayName;
 import org.example.clinicarestauracao.Application.Exceptions.Funcionario.FuncionarioNotFoundException;
 import org.example.clinicarestauracao.Application.Exceptions.Funcionario.FuncionarioWithInvalidInformationException;
 import org.example.clinicarestauracao.Application.Exceptions.User.UserWithInvalidInformationException;
@@ -45,6 +47,7 @@ class FuncionarioServiceTest
     @InjectMocks
     private FuncionarioService service;
 
+    @DisplayName("Deve rejeitar funcionário sem usuário")
     @Test
     void shouldRejectFuncionarioWithoutUser()
     {
@@ -61,6 +64,7 @@ class FuncionarioServiceTest
         Mockito.verify(repository, Mockito.never()).save(Mockito.any());
     }
 
+    @DisplayName("Deve criar funcionário e usuário com sucesso")
     @Test
     void shouldCreateFuncionarioAndUserSuccessfully()
     {
@@ -93,6 +97,7 @@ class FuncionarioServiceTest
     }
 
 
+    @DisplayName("Deve rejeitar funcionário com duplicado CPF")
     @Test
     void shouldRejectFuncionarioWithDuplicatedCpf()
     {
@@ -110,6 +115,7 @@ class FuncionarioServiceTest
         Mockito.verify(repository, Mockito.never()).save(Mockito.any());
     }
 
+    @DisplayName("Deve rejeitar funcionário com duplicado e-mail")
     @Test
     void shouldRejectFuncionarioWithDuplicatedEmail()
     {
@@ -127,6 +133,7 @@ class FuncionarioServiceTest
         Mockito.verifyNoInteractions(userService);
     }
 
+    @DisplayName("Deve buscar funcionário por ID com sucesso")
     @Test
     void shouldFindFuncionarioByIdSuccessfully()
     {
@@ -141,6 +148,7 @@ class FuncionarioServiceTest
         Mockito.verify(repository).findFuncionarioById(func.getId());
     }
 
+    @DisplayName("Deve lançar exceção quando o funcionário não for encontrado quando funcionário não existir")
     @Test
     void shouldThrowFuncionarioNotFoundExceptionWhenFuncionarioDoesNotExist()
     {
@@ -154,6 +162,7 @@ class FuncionarioServiceTest
         Mockito.verify(repository).findFuncionarioById(id);
     }
 
+    @DisplayName("Deve lançar exceção quando o funcionário não for encontrado quando funcionário ID é inválido")
     @ParameterizedTest
     @NullSource
     @ValueSource(longs = {0, -1, -10})
@@ -166,6 +175,7 @@ class FuncionarioServiceTest
         Mockito.verifyNoInteractions(repository);
     }
 
+    @DisplayName("Deve buscar funcionário por e-mail com sucesso")
     @Test
     void shouldFindFuncionarioByEmailSuccessfully()
     {
@@ -182,6 +192,7 @@ class FuncionarioServiceTest
         Mockito.verify(repository).findFuncionarioByEmail(formatedEmail);
     }
 
+    @DisplayName("Deve lançar exceção quando o funcionário não for encontrado quando e-mail não existir")
     @Test
     void shouldThrowFuncionarioNotFoundExceptionWhenEmailDoesNotExist()
     {
@@ -195,6 +206,7 @@ class FuncionarioServiceTest
         Mockito.verify(repository).findFuncionarioByEmail(entryEmail);
     }
 
+    @DisplayName("Deve lançar exceção quando o funcionário não for encontrado quando e-mail é inválido")
     @ParameterizedTest
     @NullSource
     @ValueSource(strings = {"", " ", "    "})
@@ -207,6 +219,7 @@ class FuncionarioServiceTest
         Mockito.verifyNoInteractions(repository);
     }
 
+    @DisplayName("Deve buscar funcionário por CPF com sucesso")
     @Test
     void shouldFindFuncionarioByCpfSuccessfully()
     {
@@ -223,6 +236,7 @@ class FuncionarioServiceTest
         Mockito.verify(repository).findFuncionarioByCpf(formatedCpf);
     }
 
+    @DisplayName("Deve lançar exceção quando o funcionário não for encontrado quando CPF não existir")
     @Test
     void shouldThrowFuncionarioNotFoundExceptionWhenCpfDoesNotExist()
     {
@@ -237,6 +251,7 @@ class FuncionarioServiceTest
         Mockito.verify(repository).findFuncionarioByCpf(entryCpf);
     }
 
+    @DisplayName("Deve lançar exceção quando o funcionário não for encontrado quando CPF é inválido")
     @ParameterizedTest
     @NullSource
     @ValueSource(strings = {"", " ", "   ", " . - "})
@@ -249,6 +264,7 @@ class FuncionarioServiceTest
         Mockito.verifyNoInteractions(repository);
     }
 
+    @DisplayName("Deve buscar todos os funcionários com sucesso")
     @Test
     void shouldFindAllFuncionariosSuccessfully()
     {
@@ -268,6 +284,7 @@ class FuncionarioServiceTest
         Mockito.verify(repository).findAll();
     }
 
+    @DisplayName("Deve retornar uma lista vazia quando nenhum funcionários existir")
     @Test
     void shouldReturnEmptyListWhenNoFuncionariosExist()
     {
@@ -281,6 +298,7 @@ class FuncionarioServiceTest
         Mockito.verify(repository).findAll();
     }
 
+    @DisplayName("Deve rejeitar a atualização quando funcionário tem nenhum usuário")
     @Test
     void shouldRejectUpdateWhenFuncionarioHasNoUser()
     {
@@ -302,6 +320,7 @@ class FuncionarioServiceTest
         Mockito.verify(repository, Mockito.never()).save(Mockito.any());
     }
 
+    @DisplayName("Deve atualizar funcionário quando único data pertence para mesmo funcionário")
     @Test
     void shouldUpdateFuncionarioWhenUniqueDataBelongsToSameFuncionario()
     {
@@ -336,6 +355,7 @@ class FuncionarioServiceTest
         Mockito.verify(repository).save(existing);
     }
 
+    @DisplayName("Deve preservar existente senha quando atualizando funcionário")
     @Test
     void shouldPreserveExistingPasswordWhenUpdatingFuncionario()
     {
@@ -359,6 +379,7 @@ class FuncionarioServiceTest
         Mockito.verify(repository).save(existing);
     }
 
+    @DisplayName("Deve rejeitar a atualização quando usuário data é ausente")
     @Test
     void shouldRejectUpdateWhenUserDataIsMissing()
     {
@@ -381,6 +402,7 @@ class FuncionarioServiceTest
         Mockito.verifyNoInteractions(userService);
     }
 
+    @DisplayName("Não deve salvar funcionário quando atualizando nome de usuário falha")
     @Test
     void shouldNotSaveFuncionarioWhenUpdatingUsernameFails()
     {
@@ -404,6 +426,7 @@ class FuncionarioServiceTest
         Mockito.verify(repository, Mockito.never()).save(Mockito.any());
     }
 
+    @DisplayName("Deve lançar exceção quando o funcionário não for encontrado quando atualizando inexistente funcionário")
     @Test
     void shouldThrowFuncionarioNotFoundExceptionWhenUpdatingNonexistentFuncionario()
     {
@@ -425,6 +448,7 @@ class FuncionarioServiceTest
         Mockito.verify(repository, Mockito.never()).save(Mockito.any());
     }
 
+    @DisplayName("Deve rejeitar a atualização quando CPF pertence para outro funcionário")
     @Test
     void shouldRejectUpdateWhenCpfBelongsToAnotherFuncionario()
     {
@@ -446,6 +470,7 @@ class FuncionarioServiceTest
         Mockito.verify(repository, Mockito.never()).save(Mockito.any());
     }
 
+    @DisplayName("Deve rejeitar a atualização quando e-mail pertence para outro funcionário")
     @Test
     void shouldRejectUpdateWhenEmailBelongsToAnotherFuncionario()
     {
@@ -468,6 +493,7 @@ class FuncionarioServiceTest
         Mockito.verify(repository, Mockito.never()).save(Mockito.any());
     }
 
+    @DisplayName("Deve preservar existente usuário quando atualizando funcionário")
     @Test
     void shouldPreserveExistingUserWhenUpdatingFuncionario()
     {
@@ -496,6 +522,7 @@ class FuncionarioServiceTest
         Mockito.verify(repository).save(existing);
     }
 
+    @DisplayName("Deve preservar existente usuário quando atualizar contém diferente usuário")
     @Test
     void shouldPreserveExistingUserWhenUpdateContainsDifferentUser()
     {
@@ -525,6 +552,7 @@ class FuncionarioServiceTest
         Mockito.verify(repository).save(existing);
     }
 
+    @DisplayName("Deve rejeitar a atualização quando existente funcionário tem nenhum usuário")
     @Test
     void shouldRejectUpdateWhenExistingFuncionarioHasNoUser()
     {
@@ -545,6 +573,7 @@ class FuncionarioServiceTest
         Mockito.verify(repository, Mockito.never()).save(Mockito.any());
     }
 
+    @DisplayName("Deve atualizar admissão e preservar demissão quando atualizando funcionário")
     @Test
     void shouldUpdateAdmissionAndPreserveDismissalWhenUpdatingFuncionario()
     {
@@ -577,6 +606,7 @@ class FuncionarioServiceTest
         Mockito.verify(repository).save(existing);
     }
 
+    @DisplayName("Deve rejeitar a atualização quando admissão é não antes demissão")
     @Test
     void shouldRejectUpdateWhenAdmissionIsNotBeforeDismissal()
     {
@@ -632,6 +662,7 @@ class FuncionarioServiceTest
         Mockito.verifyNoInteractions(userService);
     }
 
+    @DisplayName("Deve lançar exceção quando o funcionário não for encontrado quando atualizando com ID inválido")
     @ParameterizedTest
     @NullSource
     @ValueSource(longs = {0, -1, -10})
@@ -645,6 +676,7 @@ class FuncionarioServiceTest
         Mockito.verifyNoInteractions(repository);
     }
 
+    @DisplayName("Deve demitir funcionário e desativar usuário")
     @ParameterizedTest
     @EnumSource(
             value = UserRoles.class,
@@ -671,6 +703,7 @@ class FuncionarioServiceTest
     }
 
 
+    @DisplayName("Deve atualizar a data de demissão mesmo quando o funcionário já está inativo")
     @Test
     void shouldUpdateDismissalDateWhenFuncionarioIsAlreadyInactive()
     {
@@ -694,6 +727,7 @@ class FuncionarioServiceTest
         Mockito.verify(repository).save(existing);
     }
 
+    @DisplayName("Não deve salvar funcionário quando demissão data é nulo")
     @Test
     void shouldNotSaveFuncionarioWhenDismissalDateIsNull()
     {
@@ -716,6 +750,7 @@ class FuncionarioServiceTest
         Mockito.verify(repository, Mockito.never()).save(Mockito.any());
     }
 
+    @DisplayName("Não deve salvar funcionário quando demissão data é inválido")
     @Test
     void shouldNotSaveFuncionarioWhenDismissalDateIsInvalid()
     {
@@ -738,6 +773,7 @@ class FuncionarioServiceTest
         Mockito.verify(repository, Mockito.never()).save(Mockito.any());
     }
 
+    @DisplayName("Deve lançar exceção quando o funcionário não for encontrado quando demitindo inexistente funcionário")
     @Test
     void shouldThrowFuncionarioNotFoundExceptionWhenDismissingNonexistentFuncionario()
     {
@@ -752,6 +788,7 @@ class FuncionarioServiceTest
         Mockito.verify(repository, Mockito.never()).save(Mockito.any());
     }
 
+    @DisplayName("Deve lançar exceção quando o funcionário não for encontrado quando demitindo com ID inválido")
     @ParameterizedTest
     @NullSource
     @ValueSource(longs = {0, -1, -10})
@@ -764,6 +801,7 @@ class FuncionarioServiceTest
         Mockito.verifyNoInteractions(repository);
     }
 
+    @DisplayName("Deve reativar funcionário e restaurar usuário perfil")
     @ParameterizedTest
     @EnumSource(value = UserRoles.class, names = {"USER", "ADMIN"})
     void shouldReactivateFuncionarioAndRestoreUserRole(UserRoles originalRole)
@@ -793,6 +831,7 @@ class FuncionarioServiceTest
     }
 
 
+    @DisplayName("Não deve salvar quando funcionário e usuário são já ativo")
     @Test
     void shouldNotSaveWhenFuncionarioAndUserAreAlreadyActive()
     {
@@ -812,6 +851,7 @@ class FuncionarioServiceTest
         Mockito.verify(repository, Mockito.never()).save(Mockito.any());
     }
 
+    @DisplayName("Não deve demitir funcionário sem usuário")
     @Test
     void shouldNotDismissFuncionarioWithoutUser()
     {
@@ -828,6 +868,7 @@ class FuncionarioServiceTest
                 .save(Mockito.any());
     }
 
+    @DisplayName("Deve lançar exceção quando o funcionário não for encontrado quando reativando inexistente funcionário")
     @Test
     void shouldThrowFuncionarioNotFoundExceptionWhenReactivatingNonexistentFuncionario()
     {
@@ -841,6 +882,7 @@ class FuncionarioServiceTest
         Mockito.verify(repository, Mockito.never()).save(Mockito.any());
     }
 
+    @DisplayName("Deve lançar exceção quando o funcionário não for encontrado quando reativando com ID inválido")
     @ParameterizedTest
     @NullSource
     @ValueSource(longs = {0, -1, -10})
@@ -853,6 +895,7 @@ class FuncionarioServiceTest
         Mockito.verifyNoInteractions(repository);
     }
 
+    @DisplayName("Deve substituir existente usuário e desativar anterior usuário")
     @ParameterizedTest
     @EnumSource(
             value = UserRoles.class,
@@ -879,6 +922,7 @@ class FuncionarioServiceTest
         Mockito.verify(repository).save(existing);
     }
 
+    @DisplayName("Deve desativar novo usuário quando substituindo usuário de inativo funcionário")
     @ParameterizedTest
     @EnumSource(
             value = UserRoles.class,
@@ -915,6 +959,7 @@ class FuncionarioServiceTest
         Mockito.verify(repository).save(existing);
     }
 
+    @DisplayName("Não deve salvar quando mesmo usuário é já vinculado para funcionário")
     @Test
     void shouldNotSaveWhenSameUserIsAlreadyLinkedToFuncionario()
     {
@@ -934,6 +979,7 @@ class FuncionarioServiceTest
         Mockito.verify(repository, Mockito.never()).save(Mockito.any());
     }
 
+    @DisplayName("Deve rejeitar usuário já vinculado para outro funcionário quando vinculando")
     @Test
     void shouldRejectUserAlreadyLinkedToAnotherFuncionarioWhenLinking()
     {
@@ -957,6 +1003,7 @@ class FuncionarioServiceTest
         Mockito.verify(repository, Mockito.never()).save(Mockito.any());
     }
 
+    @DisplayName("Deve rejeitar nulo usuário quando vinculando para funcionário")
     @Test
     void shouldRejectNullUserWhenLinkingToFuncionario()
     {
@@ -967,6 +1014,7 @@ class FuncionarioServiceTest
         Mockito.verifyNoInteractions(repository);
     }
 
+    @DisplayName("Deve lançar exceção quando o funcionário não for encontrado quando vinculando usuário para inexistente funcionário")
     @Test
     void shouldThrowFuncionarioNotFoundExceptionWhenLinkingUserToNonexistentFuncionario()
     {
@@ -983,6 +1031,7 @@ class FuncionarioServiceTest
         Mockito.verify(repository, Mockito.never()).save(Mockito.any());
     }
 
+    @DisplayName("Deve lançar exceção quando o funcionário não for encontrado quando vinculando usuário com inválido funcionário ID")
     @ParameterizedTest
     @NullSource
     @ValueSource(longs = {0, -1, -10})
@@ -997,6 +1046,7 @@ class FuncionarioServiceTest
         Mockito.verifyNoInteractions(repository);
     }
 
+    @DisplayName("Deve demitir funcionário e desativar usuário")
     @Test
     void shouldDismissFuncionarioAndDeactivateUser()
     {
@@ -1018,6 +1068,7 @@ class FuncionarioServiceTest
         Mockito.verify(repository).save(existing);
     }
 
+    @DisplayName("Não deve reativar funcionário sem usuário")
     @Test
     void shouldNotReactivateFuncionarioWithoutUser()
     {
@@ -1036,6 +1087,7 @@ class FuncionarioServiceTest
         Mockito.verify(repository, Mockito.never()).save(Mockito.any());
     }
 
+    @DisplayName("Não deve reativar funcionário quando o usuário não tem anterior perfil")
     @Test
     void shouldNotReactivateFuncionarioWhenUserHasNoPreviousRole()
     {
@@ -1057,6 +1109,7 @@ class FuncionarioServiceTest
         Mockito.verify(repository, Mockito.never()).save(Mockito.any());
     }
 
+    @DisplayName("Não deve salvar funcionário quando usuário cadastro falha")
     @Test
     void shouldNotSaveFuncionarioWhenUserRegistrationFails()
     {
@@ -1074,6 +1127,7 @@ class FuncionarioServiceTest
         Mockito.verify(repository, Mockito.never()).save(Mockito.any());
     }
 
+    @DisplayName("Deve reativar novo usuário quando substituindo usuário de ativo funcionário")
     @ParameterizedTest
     @EnumSource(value = UserRoles.class, names = {"USER", "ADMIN"})
     void shouldReactivateNewUserWhenReplacingUserOfActiveFuncionario(UserRoles previousRole)
@@ -1102,6 +1156,7 @@ class FuncionarioServiceTest
         Mockito.verify(repository).save(existing);
     }
 
+    @DisplayName("Não deve alterar anterior usuário ou vincular quando novo usuário não pode ser reativado")
     @Test
     void shouldNotChangePreviousUserOrLinkWhenNewUserCannotBeReactivated()
     {
@@ -1130,6 +1185,7 @@ class FuncionarioServiceTest
 
     // Testes deleteFuncionarioById
 
+    @DisplayName("Deve excluir funcionário e desativar usuário")
     @ParameterizedTest
     @EnumSource(value = UserRoles.class, names = {"USER", "ADMIN"})
     void shouldDeleteFuncionarioAndDeactivateUser(UserRoles role)
@@ -1162,6 +1218,7 @@ class FuncionarioServiceTest
         Mockito.verifyNoInteractions(userService);
     }
 
+    @DisplayName("Deve excluir demitido funcionário sem alterando bloqueado usuário")
     @ParameterizedTest
     @EnumSource(value = UserRoles.class, names = {"USER", "ADMIN"})
     void shouldDeleteDismissedFuncionarioWithoutChangingBlockedUser(UserRoles previousRole)
@@ -1195,6 +1252,7 @@ class FuncionarioServiceTest
         Mockito.verifyNoInteractions(userService);
     }
 
+    @DisplayName("Deve excluir funcionário com legado bloqueado usuário sem anterior perfil")
     @Test
     void shouldDeleteFuncionarioWithLegacyBlockedUserWithoutPreviousRole()
     {
@@ -1222,6 +1280,7 @@ class FuncionarioServiceTest
         Mockito.verifyNoInteractions(userService);
     }
 
+    @DisplayName("Deve rejeitar excluindo funcionário sem usuário")
     @Test
     void shouldRejectDeletingFuncionarioWithoutUser()
     {
@@ -1238,6 +1297,7 @@ class FuncionarioServiceTest
         Mockito.verifyNoInteractions(userService, auditContext);
     }
 
+    @DisplayName("Deve rejeitar excluindo inexistente funcionário")
     @Test
     void shouldRejectDeletingNonexistentFuncionario()
     {
@@ -1252,6 +1312,7 @@ class FuncionarioServiceTest
         Mockito.verifyNoInteractions(userService, auditContext);
     }
 
+    @DisplayName("Deve rejeitar excluindo funcionário com ID inválido")
     @ParameterizedTest
     @NullSource
     @ValueSource(longs = {0, -1, -10})
@@ -1265,6 +1326,7 @@ class FuncionarioServiceTest
     }
 
     // Testes countAllFuncionarios
+    @DisplayName("Deve retornar total funcionários contar")
     @ParameterizedTest
     @ValueSource(longs = {0L, 1L, 12L})
     void shouldReturnTotalFuncionariosCount(long total)
@@ -1280,6 +1342,7 @@ class FuncionarioServiceTest
     }
 
     // Testes countActiveFuncionarios
+    @DisplayName("Deve retornar ativo funcionários contar")
     @ParameterizedTest
     @ValueSource(longs = {0L, 1L, 12L})
     void shouldReturnActiveFuncionariosCount(long totalAtivos)
@@ -1295,6 +1358,7 @@ class FuncionarioServiceTest
     }
 
     // Testes countInactiveFuncionarios
+    @DisplayName("Deve retornar inativo funcionários contar")
     @ParameterizedTest
     @ValueSource(longs = {0L, 1L, 12L})
     void shouldReturnInactiveFuncionariosCount(long totalInativos)

@@ -1,5 +1,7 @@
 package org.example.clinicarestauracao.Application.Controllers;
 
+
+import org.junit.jupiter.api.DisplayName;
 import org.example.clinicarestauracao.Application.Dtos.ConvenioDtos.ConvenioRequestDto;
 import org.example.clinicarestauracao.Application.Dtos.ConvenioDtos.ConvenioResponseDto;
 import org.example.clinicarestauracao.Application.Exceptions.Convenio.ConvenioWithInvalidInformationException;
@@ -55,6 +57,7 @@ class ConvenioControllerTest
         RequestContextHolder.resetRequestAttributes();
     }
 
+    @DisplayName("Deve criar um convênio e retornar HTTP 201")
     @Test
     void shouldCreateConvenioAndReturnCreated()
     {
@@ -91,6 +94,7 @@ class ConvenioControllerTest
         assertEquals(request.cor(), enviadaAoService.getCor());
     }
 
+    @DisplayName("Deve criar convênio sem CNPJ")
     @Test
     void shouldCreateConvenioWithoutCnpj()
     {
@@ -112,6 +116,7 @@ class ConvenioControllerTest
         assertNull(captor.getValue().getCnpj());
     }
 
+    @DisplayName("Deve buscar todos os convênios e retornar HTTP 200")
     @Test
     void shouldFindAllConveniosAndReturnOk()
     {
@@ -144,6 +149,7 @@ class ConvenioControllerTest
         Mockito.verify(service).findAllConvenios();
     }
 
+    @DisplayName("Deve retornar uma lista vazia quando não houver convênios")
     @Test
     void shouldReturnEmptyListWhenNoConveniosExist()
     {
@@ -157,6 +163,7 @@ class ConvenioControllerTest
         Mockito.verify(service).findAllConvenios();
     }
 
+    @DisplayName("Deve buscar convênio por ID e retornar HTTP 200")
     @Test
     void shouldFindConvenioByIdAndReturnOk()
     {
@@ -181,6 +188,7 @@ class ConvenioControllerTest
         Mockito.verify(service).findConvenioById(convenio.getId());
     }
 
+    @DisplayName("Deve atualizar convênio e retornar HTTP 200")
     @Test
     void shouldUpdateConvenioAndReturnOk()
     {
@@ -219,6 +227,7 @@ class ConvenioControllerTest
         Mockito.verifyNoMoreInteractions(service);
     }
 
+    @DisplayName("Deve desativar o convênio e retornar HTTP 204")
     @Test
     void shouldDeactivateConvenioAndReturnNoContent()
     {
@@ -233,6 +242,7 @@ class ConvenioControllerTest
         Mockito.verifyNoMoreInteractions(service);
     }
 
+    @DisplayName("Deve reativar o convênio e retornar HTTP 204")
     @Test
     void shouldReactivateConvenioAndReturnNoContent()
     {
@@ -247,6 +257,7 @@ class ConvenioControllerTest
         Mockito.verifyNoMoreInteractions(service);
     }
 
+    @DisplayName("Deve buscar convênio por descrição")
     @Test
     void shouldFindConvenioByDescricao()
     {
@@ -274,6 +285,7 @@ class ConvenioControllerTest
         Mockito.verifyNoMoreInteractions(service);
     }
 
+    @DisplayName("Não deve criar convênio quando máximo vagas é nulo")
     @Test
     void shouldNotCreateConvenioWhenMaximumVacanciesIsNull()
     {
@@ -291,6 +303,7 @@ class ConvenioControllerTest
         Mockito.verifyNoInteractions(service);
     }
 
+    @DisplayName("Deve excluir o convênio e retornar HTTP 204")
     @Test
     void shouldDeleteConvenioAndReturnNoContent()
     {
@@ -307,6 +320,7 @@ class ConvenioControllerTest
         Mockito.verifyNoMoreInteractions(service);
     }
 
+    @DisplayName("Deve retornar a quantidade de vagas disponíveis")
     @Test
     void shouldReturnAvailableVacanciesAndReturnOk()
     {
@@ -323,6 +337,7 @@ class ConvenioControllerTest
         Mockito.verifyNoMoreInteractions(service);
     }
 
+    @DisplayName("Deve retornar zero vagas disponíveis")
     @Test
     void shouldReturnZeroAvailableVacanciesAndReturnOk()
     {
@@ -339,6 +354,7 @@ class ConvenioControllerTest
         Mockito.verifyNoMoreInteractions(service);
     }
 
+    @DisplayName("Deve retornar a quantidade total de vagas dos convênios ativos")
     @ParameterizedTest
     @ValueSource(longs = {0L, 12L})
     void shouldReturnTotalActiveConvenioVacanciesAndReturnOk(long totalVagas)
@@ -356,6 +372,7 @@ class ConvenioControllerTest
         Mockito.verifyNoMoreInteractions(service);
     }
 
+    @DisplayName("Deve retornar a quantidade de vagas ocupadas")
     @ParameterizedTest
     @ValueSource(longs = {0L, 5L})
     void shouldReturnOccupiedVacanciesAndReturnOk(long occupiedVacancies)
@@ -373,6 +390,7 @@ class ConvenioControllerTest
         Mockito.verifyNoMoreInteractions(service);
     }
 
+    @DisplayName("Deve retornar a quantidade de convênios ativos")
     @ParameterizedTest
     @ValueSource(longs = {0L, 4L})
     void shouldReturnActiveConveniosCountAndReturnOk(long totalAtivos)

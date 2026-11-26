@@ -1,5 +1,7 @@
 package org.example.clinicarestauracao.Application.Services;
 
+
+import org.junit.jupiter.api.DisplayName;
 import org.example.clinicarestauracao.Application.Exceptions.Triagem.TriagemNotFoundException;
 import org.example.clinicarestauracao.Application.Exceptions.Triagem.TriagemWithInvalidInformationException;
 import org.example.clinicarestauracao.Application.Interfaces.TriagemRepository;
@@ -42,6 +44,7 @@ class TriagemServiceTest
 
     // Testes do findAllTriagens
 
+    @DisplayName("Deve buscar todas as triagens com sucesso")
     @Test
     void shouldFindAllTriagensSuccessfully()
     {
@@ -62,6 +65,7 @@ class TriagemServiceTest
         Mockito.verify(repository).findAll();
     }
 
+    @DisplayName("Deve retornar uma lista vazia quando não há triagens")
     @Test
     void shouldReturnEmptyListWhenThereAreNoTriagens()
     {
@@ -77,6 +81,7 @@ class TriagemServiceTest
 
     // Testes do findTriagemById
 
+    @DisplayName("Deve buscar triagem por ID com sucesso")
     @Test
     void shouldFindTriagemByIdSuccessfully()
     {
@@ -89,6 +94,7 @@ class TriagemServiceTest
         Mockito.verify(repository).findById(1L);
     }
 
+    @DisplayName("Deve lançar quando triagem não existir")
     @Test
     void shouldThrowWhenTriagemDoesNotExist()
     {
@@ -103,6 +109,7 @@ class TriagemServiceTest
         Mockito.verify(repository).findById(1L);
     }
 
+    @DisplayName("Deve rejeitar inválido triagem ID")
     @ParameterizedTest
     @NullSource
     @ValueSource(longs = {0, -1, -10})
@@ -119,6 +126,7 @@ class TriagemServiceTest
 
     // Testes do findByName
 
+    @DisplayName("Deve buscar triagens por normalizado parcial nome com sucesso")
     @Test
     void shouldFindTriagensByNormalizedPartialNameSuccessfully()
     {
@@ -138,6 +146,7 @@ class TriagemServiceTest
         Mockito.verify(repository).findByNomePossivelAcolhidoContainingIgnoreCase("maria");
     }
 
+    @DisplayName("Deve lançar quando nenhum triagem corresponde nome")
     @Test
     void shouldThrowWhenNoTriagemMatchesName()
     {
@@ -152,6 +161,7 @@ class TriagemServiceTest
         Mockito.verify(repository).findByNomePossivelAcolhidoContainingIgnoreCase("Maria");
     }
 
+    @DisplayName("Deve rejeitar inválido triagem nome")
     @ParameterizedTest
     @NullSource
     @ValueSource(strings = {"", " ", "   ", "\t", "\n"})
@@ -168,6 +178,7 @@ class TriagemServiceTest
 
     // Testes do findByStatus
 
+    @DisplayName("Deve buscar triagens por estado com sucesso")
     @Test
     void shouldFindTriagensByStatusSuccessfully()
     {
@@ -183,6 +194,7 @@ class TriagemServiceTest
         Mockito.verify(repository).findByStatus(Status.AGENDADA);
     }
 
+    @DisplayName("Deve lançar quando nenhum triagem corresponde estado")
     @Test
     void shouldThrowWhenNoTriagemMatchesStatus()
     {
@@ -197,6 +209,7 @@ class TriagemServiceTest
         Mockito.verify(repository).findByStatus(Status.AGENDADA);
     }
 
+    @DisplayName("Deve rejeitar estado nulo")
     @Test
     void shouldRejectNullStatus()
     {
@@ -211,6 +224,7 @@ class TriagemServiceTest
 
     // Testes do createTriagem
 
+    @DisplayName("Deve criar triagem com sucesso")
     @Test
     void shouldCreateTriagemSuccessfully()
     {
@@ -224,6 +238,7 @@ class TriagemServiceTest
         Mockito.verify(repository).save(toCreate);
     }
 
+    @DisplayName("Deve rejeitar nulo triagem quando criando")
     @Test
     void shouldRejectNullTriagemWhenCreating()
     {
@@ -238,6 +253,7 @@ class TriagemServiceTest
 
     // Testes do updateTriagem
 
+    @DisplayName("Deve atualizar triagem com sucesso")
     @Test
     void shouldUpdateTriagemSuccessfully()
     {
@@ -273,6 +289,7 @@ class TriagemServiceTest
         Mockito.verify(repository).save(existing);
     }
 
+    @DisplayName("Deve rejeitar nulo triagem quando atualizando")
     @Test
     void shouldRejectNullTriagemWhenUpdating()
     {
@@ -285,6 +302,7 @@ class TriagemServiceTest
         Mockito.verifyNoInteractions(repository);
     }
 
+    @DisplayName("Deve rejeitar ID inválido quando atualizando")
     @ParameterizedTest
     @NullSource
     @ValueSource(longs = {0, -1})
@@ -301,6 +319,7 @@ class TriagemServiceTest
         Mockito.verifyNoInteractions(repository);
     }
 
+    @DisplayName("Deve lançar quando triagem para atualizar não existir")
     @Test
     void shouldThrowWhenTriagemToUpdateDoesNotExist()
     {
@@ -313,6 +332,7 @@ class TriagemServiceTest
         Mockito.verify(repository, Mockito.never()).save(any());
     }
 
+    @DisplayName("Deve rejeitar a atualização de concluído triagem")
     @Test
     void shouldRejectUpdateOfConcludedTriagem()
     {
@@ -335,6 +355,7 @@ class TriagemServiceTest
         Mockito.verify(repository, Mockito.never()).save(any());
     }
 
+    @DisplayName("Deve rejeitar a atualização de cancelado triagem")
     @Test
     void shouldRejectUpdateOfCancelledTriagem()
     {
@@ -357,6 +378,7 @@ class TriagemServiceTest
 
     // Testes do deleteTriagem
 
+    @DisplayName("Deve excluir triagem com sucesso")
     @Test
     void shouldDeleteTriagemSuccessfully()
     {
@@ -373,6 +395,7 @@ class TriagemServiceTest
         inOrder.verify(audit).clearActor();
     }
 
+    @DisplayName("Deve rejeitar ID inválido quando excluindo")
     @ParameterizedTest
     @NullSource
     @ValueSource(longs = {0, -1})
@@ -387,6 +410,7 @@ class TriagemServiceTest
         Mockito.verifyNoInteractions(repository, audit);
     }
 
+    @DisplayName("Deve lançar quando triagem para excluir não existir")
     @Test
     void shouldThrowWhenTriagemToDeleteDoesNotExist()
     {
@@ -401,6 +425,7 @@ class TriagemServiceTest
 
     // Testes da conclusão
 
+    @DisplayName("Deve concluir triagem com atual data com sucesso")
     @Test
     void shouldConcludeTriagemWithCurrentDateSuccessfully()
     {
@@ -424,6 +449,7 @@ class TriagemServiceTest
         Mockito.verify(repository).save(triagem);
     }
 
+    @DisplayName("Deve concluir triagem com fornecido data com sucesso")
     @Test
     void shouldConcludeTriagemWithProvidedDateSuccessfully()
     {
@@ -444,6 +470,7 @@ class TriagemServiceTest
         Mockito.verify(repository).save(triagem);
     }
 
+    @DisplayName("Não deve salvar quando conclusão é rejeitado")
     @Test
     void shouldNotSaveWhenConclusionIsRejected()
     {
@@ -458,6 +485,7 @@ class TriagemServiceTest
 
     // Testes da desconclusão
 
+    @DisplayName("Deve reabrir a triagem concluída com sucesso")
     @Test
     void shouldUndoTriagemConclusionSuccessfully()
     {
@@ -476,6 +504,7 @@ class TriagemServiceTest
         Mockito.verify(repository).save(triagem);
     }
 
+    @DisplayName("Não deve salvar quando desfazer conclusão é rejeitado")
     @Test
     void shouldNotSaveWhenUndoConclusionIsRejected()
     {
@@ -490,6 +519,7 @@ class TriagemServiceTest
 
     // Testes do reagendamento
 
+    @DisplayName("Deve reagendar triagem com sucesso")
     @Test
     void shouldRescheduleTriagemSuccessfully()
     {
@@ -509,6 +539,7 @@ class TriagemServiceTest
         Mockito.verify(repository).save(triagem);
     }
 
+    @DisplayName("Não deve salvar quando reagendamento final triagem é rejeitado")
     @ParameterizedTest
     @EnumSource(value = Status.class, names = {"CONCLUIDA", "CANCELADA"})
     void shouldNotSaveWhenReschedulingFinalTriagemIsRejected(Status status)
@@ -527,6 +558,7 @@ class TriagemServiceTest
 
     // Testes do cancelamento
 
+    @DisplayName("Deve cancelar triagem com sucesso")
     @Test
     void shouldCancelTriagemSuccessfully()
     {
@@ -542,6 +574,7 @@ class TriagemServiceTest
         Mockito.verify(repository).save(triagem);
     }
 
+    @DisplayName("Não deve salvar quando cancelamento é rejeitado")
     @ParameterizedTest
     @EnumSource(value = Status.class, names = {"CONCLUIDA", "CANCELADA"})
     void shouldNotSaveWhenCancellationIsRejected(Status status)
@@ -557,6 +590,7 @@ class TriagemServiceTest
 
     // Testes do descancelamento
 
+    @DisplayName("Deve desfazer cancelamento como agendado com sucesso")
     @Test
     void shouldUndoCancellationAsScheduledSuccessfully()
     {
@@ -572,6 +606,7 @@ class TriagemServiceTest
         Mockito.verify(repository).save(triagem);
     }
 
+    @DisplayName("Deve desfazer cancelamento como vencida com sucesso")
     @Test
     void shouldUndoCancellationAsOverdueSuccessfully()
     {
@@ -590,6 +625,7 @@ class TriagemServiceTest
         Mockito.verify(repository).save(triagem);
     }
 
+    @DisplayName("Não deve salvar quando desfazer cancelamento é rejeitado")
     @ParameterizedTest
     @EnumSource(value = Status.class, names = {"AGENDADA", "ATRASADA", "CONCLUIDA"})
     void shouldNotSaveWhenUndoCancellationIsRejected(Status status)
@@ -605,6 +641,7 @@ class TriagemServiceTest
 
     // Testes da atualização de triagens vencidas
 
+    @DisplayName("Deve atualizar todos vencida triagens com sucesso")
     @Test
     void shouldUpdateAllOverdueTriagensSuccessfully()
     {
@@ -630,6 +667,7 @@ class TriagemServiceTest
         Mockito.verify(repository).saveAll(triagens);
     }
 
+    @DisplayName("Deve salvar vazio listar quando não há vencida triagens")
     @Test
     void shouldSaveEmptyListWhenThereAreNoOverdueTriagens()
     {

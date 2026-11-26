@@ -1,5 +1,7 @@
 package org.example.clinicarestauracao.Application.Controllers;
 
+
+import org.junit.jupiter.api.DisplayName;
 import org.example.clinicarestauracao.Application.Dtos.InternacaoDtos.*;
 import org.example.clinicarestauracao.Application.Reports.InternacoesAtivasByConvenio;
 import org.example.clinicarestauracao.Application.Reports.InternacaoMonthlyMovement;
@@ -77,6 +79,7 @@ class InternacaoControllerTest
 
     // Testes findAll
 
+    @DisplayName("Deve buscar todas as internações com sucesso")
     @Test
     void shouldFindAllInternacoesSuccessfully()
     {
@@ -130,6 +133,7 @@ class InternacaoControllerTest
         Mockito.verifyNoMoreInteractions(service);
     }
 
+    @DisplayName("Deve retornar uma lista vazia quando não há internações")
     @Test
     void shouldReturnEmptyListWhenThereAreNoInternacoes()
     {
@@ -149,6 +153,7 @@ class InternacaoControllerTest
 
     // Testes findById
 
+    @DisplayName("Deve buscar internação por ID com sucesso")
     @Test
     void shouldFindInternacaoByIdSuccessfully()
     {
@@ -189,6 +194,7 @@ class InternacaoControllerTest
 
     // Testes findInternacaoByAcolhidoId
 
+    @DisplayName("Deve buscar internações pelo ID do acolhido com sucesso")
     @Test
     void shouldFindInternacoesByAcolhidoIdSuccessfully()
     {
@@ -223,6 +229,7 @@ class InternacaoControllerTest
         Mockito.verifyNoMoreInteractions(service);
     }
 
+    @DisplayName("Deve retornar uma lista vazia quando o acolhido não tem internações")
     @Test
     void shouldReturnEmptyListWhenAcolhidoHasNoInternacoes()
     {
@@ -244,6 +251,7 @@ class InternacaoControllerTest
 
     // Testes findInternacaoByConvenioId
 
+    @DisplayName("Deve buscar internações pelo ID do convênio com sucesso")
     @Test
     void shouldFindInternacoesByConvenioIdSuccessfully()
     {
@@ -278,6 +286,7 @@ class InternacaoControllerTest
         Mockito.verifyNoMoreInteractions(service);
     }
 
+    @DisplayName("Deve retornar uma lista vazia quando o convênio não tem internações")
     @Test
     void shouldReturnEmptyListWhenConvenioHasNoInternacoes()
     {
@@ -299,6 +308,7 @@ class InternacaoControllerTest
 
     // Testes createInternacao
 
+    @DisplayName("Deve criar pago internação com sucesso")
     @Test
     void shouldCreatePaidInternacaoSuccessfully()
     {
@@ -360,6 +370,7 @@ class InternacaoControllerTest
         Mockito.verifyNoMoreInteractions(service, acolhidoService, convenioService);
     }
 
+    @DisplayName("Deve criar uma internação gratuita sem pagamento mensal")
     @Test
     void shouldCreateFreeInternacaoWithoutMonthlyPayment()
     {
@@ -406,6 +417,7 @@ class InternacaoControllerTest
 
     // Testes updateInternacao
 
+    @DisplayName("Deve atualizar internação com sucesso")
     @Test
     void shouldUpdateInternacaoSuccessfully()
     {
@@ -448,6 +460,7 @@ class InternacaoControllerTest
 
     // Testes endInternacao
 
+    @DisplayName("Deve encerrar internação com sucesso")
     @Test
     void shouldEndInternacaoSuccessfully()
     {
@@ -487,6 +500,7 @@ class InternacaoControllerTest
 
 // Testes deleteInternacao
 
+    @DisplayName("Deve excluir internação com sucesso")
     @Test
     void shouldDeleteInternacaoSuccessfully()
     {
@@ -506,6 +520,7 @@ class InternacaoControllerTest
 
     // Testes countInternacoesAtivasByConvenio
 
+    @DisplayName("Deve contar ativo internações por convênio com sucesso")
     @Test
     void shouldCountActiveInternacoesByConvenioSuccessfully()
     {
@@ -525,6 +540,7 @@ class InternacaoControllerTest
         Mockito.verifyNoInteractions(acolhidoService, convenioService);
     }
 
+    @DisplayName("Deve retornar zero quando o convênio não tiver internações ativas")
     @Test
     void shouldReturnZeroWhenConvenioHasNoActiveInternacoes()
     {
@@ -546,6 +562,7 @@ class InternacaoControllerTest
 
     // Testes countTotalInternacao
 
+    @DisplayName("Deve retornar a quantidade total de internações")
     @ParameterizedTest
     @ValueSource(longs = {0L, 5L})
     void shouldReturnTotalInternacaoCountSuccessfully(long total)
@@ -564,6 +581,7 @@ class InternacaoControllerTest
         Mockito.verifyNoInteractions(acolhidoService, convenioService);
     }
 
+    @DisplayName("Deve retornar a quantidade de internações ativas")
     @ParameterizedTest
     @ValueSource(longs = {0L, 5L})
     void shouldReturnActiveInternacaoCountSuccessfully(long total)
@@ -582,6 +600,7 @@ class InternacaoControllerTest
         Mockito.verifyNoInteractions(acolhidoService, convenioService);
     }
 
+    @DisplayName("Deve retornar a quantidade de internações por etapa de tratamento")
     @ParameterizedTest
     @EnumSource(TreatmentStage.class)
     void shouldReturnActiveInternacaoCountByTreatmentStageSuccessfully(TreatmentStage stage)
@@ -600,6 +619,7 @@ class InternacaoControllerTest
         Mockito.verifyNoInteractions(acolhidoService, convenioService);
     }
 
+    @DisplayName("Deve retornar o relatório mensal de entradas e saídas de internações")
     @Test
     void shouldReturnMonthlyMovementReportSuccessfully()
     {
@@ -624,6 +644,7 @@ class InternacaoControllerTest
         Mockito.verifyNoInteractions(acolhidoService, convenioService);
     }
 
+    @DisplayName("Deve retornar o relatório mensal vazio quando não há movimentações")
     @Test
     void shouldReturnEmptyMonthlyMovementReportSuccessfully()
     {
@@ -645,6 +666,7 @@ class InternacaoControllerTest
 
     // Testes findRelatorioInternacoesAtivasPorConvenio
 
+    @DisplayName("Deve buscar ativo internações relatório por convênio com sucesso")
     @Test
     void shouldFindActiveInternacoesReportByConvenioSuccessfully()
     {
@@ -670,6 +692,7 @@ class InternacaoControllerTest
         Mockito.verifyNoInteractions(acolhidoService, convenioService);
     }
 
+    @DisplayName("Deve retornar uma lista vazia quando o relatório não tiver convênios")
     @Test
     void shouldReturnEmptyListWhenReportHasNoConvenios()
     {
@@ -688,6 +711,7 @@ class InternacaoControllerTest
 
     // Testes findRelatorioTreatmentStageByConvenio
 
+    @DisplayName("Deve buscar tratamento etapa relatório por convênio com sucesso")
     @Test
     void shouldFindTreatmentStageReportByConvenioSuccessfully()
     {
@@ -714,6 +738,7 @@ class InternacaoControllerTest
         Mockito.verifyNoInteractions(acolhidoService, convenioService);
     }
 
+    @DisplayName("Deve retornar uma lista vazia quando o relatório por etapa não tiver convênios")
     @Test
     void shouldReturnEmptyListWhenTreatmentStageReportHasNoConvenios()
     {
@@ -732,6 +757,7 @@ class InternacaoControllerTest
 
     // Testes findInternacaoByAcolhidoName
 
+    @DisplayName("Deve buscar internações pelo nome do acolhido e retornar os metadados da página")
     @Test
     void shouldFindInternacoesByAcolhidoNameAndReturnPageMetadata()
     {
@@ -770,6 +796,7 @@ class InternacaoControllerTest
         Mockito.verifyNoInteractions(acolhidoService, convenioService);
     }
 
+    @DisplayName("Deve retornar uma página vazia quando nenhuma internação corresponder ao nome do acolhido")
     @Test
     void shouldReturnEmptyPageWhenNoInternacoesMatchAcolhidoName()
     {
@@ -803,6 +830,7 @@ class InternacaoControllerTest
 
     // Testes findInternacaoByAcolhidoCpf
 
+    @DisplayName("Deve buscar internações pelo CPF do acolhido e retornar os metadados da página")
     @Test
     void shouldFindInternacoesByAcolhidoCpfAndReturnPageMetadata()
     {
@@ -841,6 +869,7 @@ class InternacaoControllerTest
         Mockito.verifyNoInteractions(acolhidoService, convenioService);
     }
 
+    @DisplayName("Deve retornar uma página vazia quando nenhuma internação corresponder ao CPF do acolhido")
     @Test
     void shouldReturnEmptyPageWhenNoInternacoesMatchAcolhidoCpf()
     {
@@ -874,6 +903,7 @@ class InternacaoControllerTest
 
     // Testes findInternacaoByTreatmentStage
 
+    @DisplayName("Deve buscar internações pela etapa do tratamento e retornar os metadados da página")
     @Test
     void shouldFindInternacoesByTreatmentStageAndReturnPageMetadata()
     {
@@ -914,6 +944,7 @@ class InternacaoControllerTest
         Mockito.verifyNoInteractions(acolhidoService, convenioService);
     }
 
+    @DisplayName("Deve retornar uma página vazia quando nenhuma internação corresponder à etapa do tratamento")
     @Test
     void shouldReturnEmptyPageWhenNoInternacoesMatchTreatmentStage()
     {
@@ -947,6 +978,7 @@ class InternacaoControllerTest
 
     // Testes findInternacaoByDataEntrada
 
+    @DisplayName("Deve buscar internações pelo intervalo de datas de entrada e retornar os metadados da página")
     @Test
     void shouldFindInternacoesByDataEntradaRangeAndReturnPageMetadata()
     {
@@ -988,6 +1020,7 @@ class InternacaoControllerTest
         Mockito.verifyNoInteractions(acolhidoService, convenioService);
     }
 
+    @DisplayName("Deve retornar uma página vazia quando nenhuma internação corresponder ao intervalo de datas de entrada")
     @Test
     void shouldReturnEmptyPageWhenNoInternacoesMatchDataEntradaRange()
     {

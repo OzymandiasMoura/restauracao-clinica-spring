@@ -1,5 +1,7 @@
 package org.example.clinicarestauracao.Domain.Entities;
 
+
+import org.junit.jupiter.api.DisplayName;
 import org.example.clinicarestauracao.Application.Exceptions.Funcionario.FuncionarioWithInvalidInformationException;
 import org.example.clinicarestauracao.Builders.CargoTestBuilder;
 import org.example.clinicarestauracao.Builders.EnderecoTestBuilder;
@@ -21,6 +23,7 @@ class FuncionarioTest
 {
     //Testes para o nome
 
+    @DisplayName("Deve remover espaços iniciais e finais")
     @ParameterizedTest
     @CsvSource({
             "'       Pedro      ', 'Pedro'",
@@ -34,6 +37,7 @@ class FuncionarioTest
         assertEquals(nomeEsperado, funcionario.getNome());
     }
 
+    @DisplayName("Deve rejeitar nome nulo ou em branco")
     @ParameterizedTest
     @NullAndEmptySource
     @ValueSource(strings = {" ", "   "})
@@ -44,6 +48,7 @@ class FuncionarioTest
         assertEquals("Funcionário não pode ter o nome vazio ou em branco.", exception.getMessage());
     }
 
+    @DisplayName("Deve rejeitar nome com menos de três caracteres")
     @ParameterizedTest
     @ValueSource(strings = {"A", "Pe"})
     void shouldRejectNameWithLessThanThreeCharacters(String nome)
@@ -53,6 +58,7 @@ class FuncionarioTest
         assertEquals("Nome deve ter no mínimo 3 caracteres.", exception.getMessage());
     }
 
+    @DisplayName("Deve criar funcionário com nome válido")
     @Test
     void shouldCreateFuncionarioWithValidName()
     {
@@ -61,6 +67,7 @@ class FuncionarioTest
         assertEquals("Pedro Moura", funcionario.getNome());
     }
 
+    @DisplayName("Deve rejeitar nome com menos de três caracteres após a normalização")
     @Test
     void shouldRejectShortNameAfterNormalization()
     {
@@ -69,6 +76,7 @@ class FuncionarioTest
         assertEquals("Nome deve ter no mínimo 3 caracteres.", exception.getMessage());
     }
 
+    @DisplayName("Deve rejeitar nome com mais de 250 caracteres")
     @Test
     void shouldRejectNameWithMoreThan250Characters()
     {
@@ -79,6 +87,7 @@ class FuncionarioTest
         assertEquals("Nome deve ter no máximo 250 caracteres.", exception.getMessage());
     }
 
+    @DisplayName("Deve aceitar nome com exatamente 250 caracteres")
     @Test
     void shouldAcceptNameWithExactly250Characters()
     {
@@ -89,6 +98,7 @@ class FuncionarioTest
         assertEquals(nome, funcionario.getNome());
     }
 
+    @DisplayName("Deve validar o comprimento máximo do nome após a normalização")
     @Test
     void shouldValidateMaximumNameLengthAfterNormalization()
     {
@@ -101,6 +111,7 @@ class FuncionarioTest
 
     //Testes para o CPF
 
+    @DisplayName("Deve normalizar CPF")
     @Test
     void shouldNormalizeCpf()
     {
@@ -109,6 +120,7 @@ class FuncionarioTest
         assertEquals("52998224725", funcionario.getCpf());
     }
 
+    @DisplayName("Deve rejeitar CPF nulo ou em branco")
     @ParameterizedTest
     @NullSource
     @ValueSource(strings = {" ", ""})
@@ -119,6 +131,7 @@ class FuncionarioTest
         assertEquals("CPF não pode ser vazio ou em branco.", exception.getMessage());
     }
 
+    @DisplayName("Deve rejeitar CPF inválido")
     @Test
     void shouldRejectInvalidCpf()
     {
@@ -129,6 +142,7 @@ class FuncionarioTest
 
     //Testes de email
 
+    @DisplayName("Deve normalizar e-mail")
     @Test
     void shouldNormalizeEmail()
     {
@@ -137,6 +151,7 @@ class FuncionarioTest
         assertEquals("pedro@email.com", funcionario.getEmail());
     }
 
+    @DisplayName("Deve rejeitar e-mail nulo ou em branco")
     @ParameterizedTest
     @NullAndEmptySource
     @ValueSource(strings = {" "})
@@ -147,6 +162,7 @@ class FuncionarioTest
         assertEquals("E-mail não pode ser vazio ou em branco.", exception.getMessage());
     }
 
+    @DisplayName("Deve rejeitar e-mail inválido")
     @Test
     void shouldRejectInvalidEmail()
     {
@@ -157,6 +173,7 @@ class FuncionarioTest
 
     //Testes para dataNascimento
 
+    @DisplayName("Deve criar funcionário com data de nascimento válida")
     @Test
     void shouldCreateFuncionarioWithValidBirthDate()
     {
@@ -167,6 +184,7 @@ class FuncionarioTest
         assertEquals(dataNascimento, funcionario.getDataNascimento());
     }
 
+    @DisplayName("Deve rejeitar data de nascimento nula")
     @Test
     void shouldRejectNullBirthDate()
     {
@@ -175,6 +193,7 @@ class FuncionarioTest
         assertEquals("É necessário definir a data de nascimento.", ex.getMessage());
     }
 
+    @DisplayName("Deve rejeitar data de nascimento futura")
     @Test
     void shouldRejectFutureBirthDate()
     {
@@ -185,6 +204,7 @@ class FuncionarioTest
         assertEquals("Data de nascimento não pode ser futura.", exception.getMessage());
     }
 
+    @DisplayName("Deve rejeitar data de nascimento posterior à data de admissão")
     @Test
     void shouldRejectBirthDateAfterAdmissionDate()
     {
@@ -197,6 +217,7 @@ class FuncionarioTest
         assertEquals("Data de admissão não pode ser anterior ao nascimento.", exception.getMessage());
     }
 
+    @DisplayName("Deve rejeitar data de nascimento anterior a 1900")
     @Test
     void shouldRejectBirthDateBefore1900()
     {
@@ -207,6 +228,7 @@ class FuncionarioTest
         assertEquals("Data de nascimento não pode ser anterior a 1900.", exception.getMessage());
     }
 
+    @DisplayName("Deve aceitar a data mínima de nascimento permitida")
     @Test
     void shouldAcceptBirthDateAtMinimumAllowedDate()
     {
@@ -219,6 +241,7 @@ class FuncionarioTest
 
     //Testes de endereço
 
+    @DisplayName("Deve definir endereço com sucesso")
     @Test
     void shouldSetEnderecoSuccessfully()
     {
@@ -229,6 +252,7 @@ class FuncionarioTest
         assertEquals(endereco, funcionario.getEndereco());
     }
 
+    @DisplayName("Deve rejeitar endereço nulo")
     @Test
     void shouldRejectNullAddress()
     {
@@ -239,6 +263,7 @@ class FuncionarioTest
 
     //Testes para CEP
 
+    @DisplayName("Deve normalizar CEP")
     @ParameterizedTest
     @CsvSource({
             "'12345678', '12345678'",
@@ -252,6 +277,7 @@ class FuncionarioTest
         assertEquals(cepEsperado, funcionario.getCep());
     }
 
+    @DisplayName("Deve rejeitar CEP nulo ou em branco")
     @ParameterizedTest
     @NullAndEmptySource
     @ValueSource(strings = {" ", "   "})
@@ -262,6 +288,7 @@ class FuncionarioTest
         assertEquals("CEP não pode ser nulo ou vazio.", ex.getMessage());
     }
 
+    @DisplayName("Deve rejeitar CEP inválido")
     @ParameterizedTest
     @ValueSource(strings = {
             "1234567",
@@ -279,6 +306,7 @@ class FuncionarioTest
 
     //Testes para User
 
+    @DisplayName("Deve associar usuário com funcionário")
     @Test
     void shouldAssociateUserWithFuncionario()
     {
@@ -289,6 +317,7 @@ class FuncionarioTest
         assertSame(user, funcionario.getUser());
     }
 
+    @DisplayName("Deve rejeitar funcionário sem usuário")
     @Test
     void shouldRejectFuncionarioWithoutUser()
     {
@@ -297,6 +326,7 @@ class FuncionarioTest
         assertEquals("Usuário não pode ser nulo.", exception.getMessage());
     }
 
+    @DisplayName("Deve rejeitar novo funcionário sem usuário")
     @Test
     void shouldRejectNewFuncionarioWithoutUser()
     {
@@ -306,6 +336,7 @@ class FuncionarioTest
     }
 
     //Testar ativo
+    @DisplayName("Deve criar novo funcionário como ativo")
     @Test
     void shouldCreateNewFuncionarioAsActive()
     {
@@ -314,6 +345,7 @@ class FuncionarioTest
         assertTrue(funcionario.isAtivo());
     }
 
+    @DisplayName("Deve preservar o estado ativo quando reconstruindo funcionário")
     @ParameterizedTest
     @ValueSource(booleans = {true, false})
     void shouldPreserveActiveStatusWhenRebuildingFuncionario(boolean ativo)
@@ -323,6 +355,7 @@ class FuncionarioTest
         assertEquals(ativo, funcionario.isAtivo());
     }
 
+    @DisplayName("Deve associar cargo com funcionário")
     @Test
     void shouldAssociateCargoWithFuncionario()
     {
@@ -332,6 +365,7 @@ class FuncionarioTest
         assertSame(cargo, funcionario.getCargo());
     }
 
+    @DisplayName("Deve rejeitar cargo nulo")
     @Test
     void shouldRejectNullCargo()
     {
@@ -341,6 +375,7 @@ class FuncionarioTest
 
     // Testes para dataAdmissao
 
+    @DisplayName("Deve criar funcionário com data de admissão válida")
     @Test
     void shouldCreateFuncionarioWithValidAdmissionDate()
     {
@@ -350,6 +385,7 @@ class FuncionarioTest
         assertEquals(dataAdmissao, funcionario.getDataAdmissao());
     }
 
+    @DisplayName("Deve rejeitar data de admissão nula")
     @Test
     void shouldRejectNullAdmissionDate()
     {
@@ -358,6 +394,7 @@ class FuncionarioTest
         assertEquals("Data de admissão não pode ser nula.", exception.getMessage());
     }
 
+    @DisplayName("Deve rejeitar futuro admissão data")
     @Test
     void shouldRejectFutureAdmissionDate()
     {
@@ -367,6 +404,7 @@ class FuncionarioTest
         assertEquals("Data de admissão não pode ser futura.", exception.getMessage());
     }
 
+    @DisplayName("Deve rejeitar data de admissão anterior à data de nascimento")
     @Test
     void shouldRejectAdmissionDateBeforeBirthDate()
     {
@@ -378,6 +416,7 @@ class FuncionarioTest
         assertEquals("Data de admissão não pode ser anterior ao nascimento.", exception.getMessage());
     }
 
+    @DisplayName("Deve atualizar nascimento e admissão datas juntos")
     @Test
     void shouldUpdateBirthAndAdmissionDatesTogether()
     {
@@ -392,6 +431,7 @@ class FuncionarioTest
         assertEquals(novaDataAdmissao, funcionario.getDataAdmissao());
     }
 
+    @DisplayName("Deve preservar as datas quando a atualização for inválida")
     @Test
     void shouldPreserveDatesWhenUpdatedDatesAreInvalid()
     {
@@ -420,6 +460,7 @@ class FuncionarioTest
         assertEquals(dataAdmissaoExistente, funcionario.getDataAdmissao());
     }
 
+    @DisplayName("Deve preservar as datas quando a nova admissão não for anterior à demissão")
     @Test
     void shouldPreserveDatesWhenNewAdmissionIsNotBeforeDismissal()
     {
@@ -452,6 +493,7 @@ class FuncionarioTest
         assertEquals(dataDemissaoExistente, funcionario.getDataDemissao());
     }
 
+    @DisplayName("Deve rejeitar data de admissão anterior a 1900")
     @Test
     void shouldRejectAdmissionDateBefore1900()
     {
@@ -462,6 +504,7 @@ class FuncionarioTest
         assertEquals("Data de admissão não pode ser anterior a 1900.", exception.getMessage());
     }
 
+    @DisplayName("Deve aceitar a data mínima de admissão permitida")
     @Test
     void shouldAcceptAdmissionDateAtMinimumAllowedDate()
     {
@@ -473,6 +516,7 @@ class FuncionarioTest
     }
     // Testes para dataDemissao
 
+    @DisplayName("Deve demitir o funcionário ativo com uma data válida")
     @Test
     void shouldDismissActiveFuncionarioWithValidDate()
     {
@@ -487,6 +531,7 @@ class FuncionarioTest
         assertEquals(hoje, funcionario.getDataDemissao());
     }
 
+    @DisplayName("Deve rejeitar demissão sem data")
     @Test
     void shouldRejectDismissalWithoutDate()
     {
@@ -499,6 +544,7 @@ class FuncionarioTest
         assertNull(funcionario.getDataDemissao());
     }
 
+    @DisplayName("Deve rejeitar data de demissão anterior à data de admissão")
     @Test
     void shouldRejectDismissalDateBeforeAdmissionDate()
     {
@@ -514,6 +560,7 @@ class FuncionarioTest
         assertNull(funcionario.getDataDemissao());
     }
 
+    @DisplayName("Deve rejeitar data de demissão igual à data de admissão")
     @Test
     void shouldRejectDismissalDateEqualToAdmissionDate()
     {
@@ -528,6 +575,7 @@ class FuncionarioTest
         assertNull(funcionario.getDataDemissao());
     }
 
+    @DisplayName("Deve rejeitar futuro demissão data")
     @Test
     void shouldRejectFutureDismissalDate()
     {
@@ -544,6 +592,7 @@ class FuncionarioTest
         assertNull(funcionario.getDataDemissao());
     }
 
+    @DisplayName("Deve preservar a data de demissão quando a nova data for inválida")
     @Test
     void shouldPreserveDismissalDateWhenNewDismissalDateIsInvalid()
     {
@@ -560,6 +609,7 @@ class FuncionarioTest
         assertEquals(primeiraDemissao, funcionario.getDataDemissao());
     }
 
+    @DisplayName("Deve atualizar a data de demissão mesmo quando o funcionário já está inativo")
     @Test
     void shouldUpdateDismissalDateWhenFuncionarioIsAlreadyInactive()
     {
@@ -577,6 +627,7 @@ class FuncionarioTest
     }
 
     //Testes para reactivate
+    @DisplayName("Deve reativar demitido funcionário")
     @Test
     void shouldReactivateDismissedFuncionario()
     {
@@ -595,6 +646,7 @@ class FuncionarioTest
 
     //Testes para cargo
 
+    @DisplayName("Deve rejeitar inativo cargo")
     @Test
     void shouldRejectInactiveCargo()
     {
@@ -605,6 +657,7 @@ class FuncionarioTest
         assertEquals("Cargo não pode estar inativo.", exception.getMessage());
     }
 
+    @DisplayName("Deve preservar atual cargo quando novo cargo é inativo")
     @Test
     void shouldPreserveCurrentCargoWhenNewCargoIsInactive()
     {
@@ -620,6 +673,7 @@ class FuncionarioTest
 
     //Testes para setTelefone
 
+    @DisplayName("Deve normalizar telefone")
     @ParameterizedTest
     @CsvSource({
             "'(11) 99999-9999', '11999999999'",
@@ -635,6 +689,7 @@ class FuncionarioTest
         assertEquals(telefoneEsperado, funcionario.getTelefone());
     }
 
+    @DisplayName("Deve rejeitar telefone nulo ou em branco")
     @ParameterizedTest
     @NullAndEmptySource
     @ValueSource(strings = {" ", "   "})
@@ -651,6 +706,7 @@ class FuncionarioTest
         assertEquals("Telefone deve ser válido.", exception.getMessage());
     }
 
+    @DisplayName("Deve rejeitar telefone inválido")
     @ParameterizedTest
     @ValueSource(strings = {
             "119999999",

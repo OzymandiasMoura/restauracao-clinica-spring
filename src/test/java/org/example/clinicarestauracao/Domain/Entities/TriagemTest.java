@@ -1,5 +1,7 @@
 package org.example.clinicarestauracao.Domain.Entities;
 
+
+import org.junit.jupiter.api.DisplayName;
 import org.example.clinicarestauracao.Application.Exceptions.Triagem.TriagemWithInvalidInformationException;
 import org.example.clinicarestauracao.Builders.ConvenioTestBuilder;
 import org.example.clinicarestauracao.Builders.TriagemTestBuilder;
@@ -18,6 +20,7 @@ class TriagemTest
 {
     // Testes do construtor de criação
 
+    @DisplayName("Deve criar triagem com informações válidas")
     @Test
     void shouldCreateTriagemWithValidInformation()
     {
@@ -46,6 +49,7 @@ class TriagemTest
 
     // Testes do construtor de recuperação
 
+    @DisplayName("Deve restaurar concluído triagem com informações válidas")
     @Test
     void shouldRestoreConcludedTriagemWithValidInformation()
     {
@@ -70,6 +74,7 @@ class TriagemTest
         );
     }
 
+    @DisplayName("Deve rejeitar ID inválido")
     @ParameterizedTest
     @NullSource
     @ValueSource(longs = {0, -1, -10})
@@ -85,6 +90,7 @@ class TriagemTest
 
     // Testes do convênio
 
+    @DisplayName("Deve rejeitar convênio nulo quando criando triagem")
     @Test
     void shouldRejectNullConvenioWhenCreatingTriagem()
     {
@@ -96,6 +102,7 @@ class TriagemTest
         assertEquals("A triagem precisa estar vinculada a um convenio.", exception.getMessage());
     }
 
+    @DisplayName("Deve rejeitar convênio nulo quando restaurando triagem")
     @Test
     void shouldRejectNullConvenioWhenRestoringTriagem()
     {
@@ -107,6 +114,7 @@ class TriagemTest
         assertEquals("A triagem precisa estar vinculada a um convenio.", exception.getMessage());
     }
 
+    @DisplayName("Deve rejeitar inativo convênio quando criando triagem")
     @Test
     void shouldRejectInactiveConvenioWhenCreatingTriagem()
     {
@@ -120,6 +128,7 @@ class TriagemTest
         assertEquals("Não é possível agendar triagem para um convenio inativo.", exception.getMessage());
     }
 
+    @DisplayName("Deve permitir inativo convênio quando restaurando triagem")
     @Test
     void shouldAllowInactiveConvenioWhenRestoringTriagem()
     {
@@ -131,6 +140,7 @@ class TriagemTest
         assertFalse(triagem.getConvenio().isAtivo());
     }
 
+    @DisplayName("Deve atualizar convênio quando triagem pode ser alterado")
     @Test
     void shouldUpdateConvenioWhenTriagemCanBeChanged()
     {
@@ -142,6 +152,7 @@ class TriagemTest
         assertSame(novoConvenio, triagem.getConvenio());
     }
 
+    @DisplayName("Deve preservar convênio após uma atualização inválida")
     @Test
     void shouldPreserveConvenioAfterInvalidUpdate()
     {
@@ -162,6 +173,7 @@ class TriagemTest
 
     // Testes do nome
 
+    @DisplayName("Deve normalizar possível acolhido nome")
     @Test
     void shouldNormalizePossibleAcolhidoName()
     {
@@ -172,6 +184,7 @@ class TriagemTest
         assertEquals("Maria da Silva", triagem.getNomePossivelAcolhido());
     }
 
+    @DisplayName("Deve rejeitar o nome do possível acolhido quando nulo ou em branco")
     @ParameterizedTest
     @NullSource
     @ValueSource(strings = {"", " ", "\t", "\n"})
@@ -185,6 +198,7 @@ class TriagemTest
         assertEquals("O nome não pode ser nulo ou vazio.", exception.getMessage());
     }
 
+    @DisplayName("Deve rejeitar possível acolhido nome menor que três caracteres")
     @ParameterizedTest
     @ValueSource(strings = {"A", "AB", " A ", " AB "})
     void shouldRejectPossibleAcolhidoNameShorterThanThreeCharacters(String nome)
@@ -197,6 +211,7 @@ class TriagemTest
         assertEquals("O nome do possível acolhido deve ter pelo menos 3 caracteres.", exception.getMessage());
     }
 
+    @DisplayName("Deve aceitar possível acolhido nome com exatamente três caracteres")
     @Test
     void shouldAcceptPossibleAcolhidoNameWithExactlyThreeCharacters()
     {
@@ -205,6 +220,7 @@ class TriagemTest
         assertEquals("Ana", triagem.getNomePossivelAcolhido());
     }
 
+    @DisplayName("Deve aceitar possível acolhido nome com exatamente duzentos e cinquenta cinco caracteres")
     @Test
     void shouldAcceptPossibleAcolhidoNameWithExactlyTwoHundredAndFiftyFiveCharacters()
     {
@@ -215,6 +231,7 @@ class TriagemTest
         assertEquals(nome, triagem.getNomePossivelAcolhido());
     }
 
+    @DisplayName("Deve rejeitar possível acolhido nome maior que duzentos e cinquenta cinco caracteres")
     @Test
     void shouldRejectPossibleAcolhidoNameLongerThanTwoHundredAndFiftyFiveCharacters()
     {
@@ -228,6 +245,7 @@ class TriagemTest
         assertEquals("O nome do possível acolhido não pode ultrapassar 255 caracteres.", exception.getMessage());
     }
 
+    @DisplayName("Deve preservar o nome do possível acolhido após uma atualização inválida")
     @Test
     void shouldPreservePossibleAcolhidoNameAfterInvalidUpdate()
     {
@@ -243,6 +261,7 @@ class TriagemTest
 
     // Testes do telefone
 
+    @DisplayName("Deve normalizar telefone")
     @Test
     void shouldNormalizeTelefone()
     {
@@ -251,6 +270,7 @@ class TriagemTest
         assertEquals("11999999999", triagem.getTelefone());
     }
 
+    @DisplayName("Deve rejeitar telefone nulo ou em branco")
     @ParameterizedTest
     @NullSource
     @ValueSource(strings = {"", " ", "\t", "\n"})
@@ -264,6 +284,7 @@ class TriagemTest
         assertEquals("O telefone é obrigatório.", exception.getMessage());
     }
 
+    @DisplayName("Deve rejeitar telefone inválido")
     @ParameterizedTest
     @ValueSource(strings = {"119999999", "1169999999", "119999999999", "telefone"})
     void shouldRejectInvalidTelefone(String telefone)
@@ -276,6 +297,7 @@ class TriagemTest
         assertEquals("Telefone inválido.", exception.getMessage());
     }
 
+    @DisplayName("Deve preservar telefone após uma atualização inválida")
     @Test
     void shouldPreserveTelefoneAfterInvalidUpdate()
     {
@@ -291,6 +313,7 @@ class TriagemTest
 
     // Testes da data agendada
 
+    @DisplayName("Deve rejeitar data agendada nula quando criando triagem")
     @Test
     void shouldRejectNullScheduledDateWhenCreatingTriagem()
     {
@@ -302,6 +325,7 @@ class TriagemTest
         assertEquals("A data agendada não pode ser nula.", exception.getMessage());
     }
 
+    @DisplayName("Deve rejeitar agendado data que é não em o futuro quando criando triagem")
     @Test
     void shouldRejectScheduledDateThatIsNotInTheFutureWhenCreatingTriagem()
     {
@@ -315,6 +339,7 @@ class TriagemTest
         assertEquals("A data agendada deve estar no futuro.", exception.getMessage());
     }
 
+    @DisplayName("Deve rejeitar data agendada nula quando restaurando triagem")
     @Test
     void shouldRejectNullScheduledDateWhenRestoringTriagem()
     {
@@ -326,6 +351,7 @@ class TriagemTest
         assertEquals("A data agendada não pode ser nula.", exception.getMessage());
     }
 
+    @DisplayName("Deve permitir passado agendado data quando restaurando triagem")
     @Test
     void shouldAllowPastScheduledDateWhenRestoringTriagem()
     {
@@ -339,6 +365,7 @@ class TriagemTest
 
     // Testes da observação
 
+    @DisplayName("Deve permitir observação da entrevista nula")
     @Test
     void shouldAllowNullInterviewObservation()
     {
@@ -347,6 +374,7 @@ class TriagemTest
         assertNull(triagem.getObservacaoEntrevista());
     }
 
+    @DisplayName("Deve normalizar entrevista observação")
     @Test
     void shouldNormalizeInterviewObservation()
     {
@@ -357,6 +385,7 @@ class TriagemTest
         assertEquals("Entrevista inicial", triagem.getObservacaoEntrevista());
     }
 
+    @DisplayName("Deve aceitar entrevista observação com exatamente um mil caracteres")
     @Test
     void shouldAcceptInterviewObservationWithExactlyOneThousandCharacters()
     {
@@ -367,6 +396,7 @@ class TriagemTest
         assertEquals(observacao, triagem.getObservacaoEntrevista());
     }
 
+    @DisplayName("Deve rejeitar entrevista observação maior que um mil caracteres")
     @Test
     void shouldRejectInterviewObservationLongerThanOneThousandCharacters()
     {
@@ -380,6 +410,7 @@ class TriagemTest
         assertEquals("A observação da entrevista não pode ultrapassar 1000 caracteres.", exception.getMessage());
     }
 
+    @DisplayName("Deve preservar entrevista observação após uma atualização inválida")
     @Test
     void shouldPreserveInterviewObservationAfterInvalidUpdate()
     {
@@ -395,6 +426,7 @@ class TriagemTest
 
     // Testes da coerência entre status e data de conclusão
 
+    @DisplayName("Deve rejeitar estado nulo quando restaurando triagem")
     @Test
     void shouldRejectNullStatusWhenRestoringTriagem()
     {
@@ -406,6 +438,7 @@ class TriagemTest
         assertEquals("Status da triagem não pode ser nulo.", exception.getMessage());
     }
 
+    @DisplayName("Deve rejeitar concluído triagem sem conclusão data")
     @Test
     void shouldRejectConcludedTriagemWithoutCompletionDate()
     {
@@ -417,6 +450,7 @@ class TriagemTest
         assertEquals("Triagem concluída deve possuir data de conclusão.", exception.getMessage());
     }
 
+    @DisplayName("Deve rejeitar conclusão data para não concluído triagem")
     @ParameterizedTest
     @EnumSource(value = Status.class, names = {"AGENDADA", "ATRASADA", "CANCELADA"})
     void shouldRejectCompletionDateForNonConcludedTriagem(Status status)
@@ -432,6 +466,7 @@ class TriagemTest
         assertEquals("Triagem não concluída não pode possuir data de conclusão.", exception.getMessage());
     }
 
+    @DisplayName("Deve rejeitar conclusão data antes agendado data")
     @Test
     void shouldRejectCompletionDateBeforeScheduledDate()
     {
@@ -450,6 +485,7 @@ class TriagemTest
         assertEquals("Data de conclusão não pode ser anterior a data de agendamento.", exception.getMessage());
     }
 
+    @DisplayName("Deve rejeitar futuro conclusão data")
     @Test
     void shouldRejectFutureCompletionDate()
     {
@@ -468,6 +504,7 @@ class TriagemTest
         assertEquals("Data de concluão não pode ser futura.", exception.getMessage());
     }
 
+    @DisplayName("Deve permitir conclusão em agendado data")
     @Test
     void shouldAllowCompletionAtScheduledDate()
     {
@@ -484,6 +521,7 @@ class TriagemTest
 
     // Testes da proteção contra alterações em estados finais
 
+    @DisplayName("Deve rejeitar convênio atualizar para final estado")
     @ParameterizedTest
     @EnumSource(value = Status.class, names = {"CONCLUIDA", "CANCELADA"})
     void shouldRejectConvenioUpdateForFinalStatus(Status status)
@@ -503,6 +541,7 @@ class TriagemTest
         );
     }
 
+    @DisplayName("Deve rejeitar nome atualizar para final estado")
     @ParameterizedTest
     @EnumSource(value = Status.class, names = {"CONCLUIDA", "CANCELADA"})
     void shouldRejectNameUpdateForFinalStatus(Status status)
@@ -521,6 +560,7 @@ class TriagemTest
         );
     }
 
+    @DisplayName("Deve rejeitar telefone atualizar para final estado")
     @ParameterizedTest
     @EnumSource(value = Status.class, names = {"CONCLUIDA", "CANCELADA"})
     void shouldRejectTelefoneUpdateForFinalStatus(Status status)
@@ -539,6 +579,7 @@ class TriagemTest
         );
     }
 
+    @DisplayName("Deve rejeitar observação atualizar para final estado")
     @ParameterizedTest
     @EnumSource(value = Status.class, names = {"CONCLUIDA", "CANCELADA"})
     void shouldRejectObservationUpdateForFinalStatus(Status status)
@@ -559,6 +600,7 @@ class TriagemTest
 
     // Testes da conclusão
 
+    @DisplayName("Deve concluir triagem com fornecido conclusão data")
     @Test
     void shouldConcludeTriagemWithProvidedCompletionDate()
     {
@@ -574,6 +616,7 @@ class TriagemTest
         );
     }
 
+    @DisplayName("Deve concluir triagem com atual data")
     @Test
     void shouldConcludeTriagemWithCurrentDate()
     {
@@ -592,6 +635,7 @@ class TriagemTest
         );
     }
 
+    @DisplayName("Deve rejeitar conclusão para final estado")
     @ParameterizedTest
     @EnumSource(value = Status.class, names = {"CONCLUIDA", "CANCELADA"})
     void shouldRejectConclusionForFinalStatus(Status status)
@@ -611,6 +655,7 @@ class TriagemTest
         );
     }
 
+    @DisplayName("Deve rejeitar data de conclusão nula quando concluindo triagem")
     @Test
     void shouldRejectNullCompletionDateWhenConcludingTriagem()
     {
@@ -630,6 +675,7 @@ class TriagemTest
         );
     }
 
+    @DisplayName("Deve preservar triagem depois conclusão data antes agendado data")
     @Test
     void shouldPreserveTriagemAfterCompletionDateBeforeScheduledDate()
     {
@@ -647,6 +693,7 @@ class TriagemTest
         );
     }
 
+    @DisplayName("Deve preservar triagem depois futuro conclusão data")
     @Test
     void shouldPreserveTriagemAfterFutureCompletionDate()
     {
@@ -667,6 +714,7 @@ class TriagemTest
 
     // Testes da desconclusão
 
+    @DisplayName("Deve reabrir a triagem e marcá-la como vencida")
     @Test
     void shouldUndoConclusionAndMarkTriagemAsOverdue()
     {
@@ -680,6 +728,7 @@ class TriagemTest
         );
     }
 
+    @DisplayName("Deve rejeitar a reabertura quando a triagem não estiver concluída")
     @ParameterizedTest
     @EnumSource(value = Status.class, names = {"AGENDADA", "ATRASADA", "CANCELADA"})
     void shouldRejectUndoConclusionWhenTriagemIsNotConcluded(Status status)
@@ -700,6 +749,7 @@ class TriagemTest
 
     // Testes do cancelamento
 
+    @DisplayName("Deve cancelar uma triagem em estado editável")
     @ParameterizedTest
     @EnumSource(value = Status.class, names = {"AGENDADA", "ATRASADA"})
     void shouldCancelEditableTriagem(Status status)
@@ -714,6 +764,7 @@ class TriagemTest
         );
     }
 
+    @DisplayName("Deve rejeitar o cancelamento de uma triagem concluída")
     @Test
     void shouldRejectCancellationOfConcludedTriagem()
     {
@@ -732,6 +783,7 @@ class TriagemTest
         );
     }
 
+    @DisplayName("Deve rejeitar o cancelamento de uma triagem já cancelada")
     @Test
     void shouldRejectCancellationOfAlreadyCancelledTriagem()
     {
@@ -750,6 +802,7 @@ class TriagemTest
 
     // Testes do descancelamento
 
+    @DisplayName("Deve restaurar a triagem cancelada como agendada quando a data agendada estiver no futuro")
     @Test
     void shouldRestoreCancelledTriagemAsScheduledWhenScheduledDateIsInTheFuture()
     {
@@ -763,6 +816,7 @@ class TriagemTest
         );
     }
 
+    @DisplayName("Deve restaurar a triagem cancelada como vencida quando a data agendada já tiver passado")
     @Test
     void shouldRestoreCancelledTriagemAsOverdueWhenScheduledDateHasPassed()
     {
@@ -781,6 +835,7 @@ class TriagemTest
         );
     }
 
+    @DisplayName("Deve rejeitar o cancelamento desfeito quando a triagem não estiver cancelada")
     @ParameterizedTest
     @EnumSource(value = Status.class, names = {"AGENDADA", "ATRASADA", "CONCLUIDA"})
     void shouldRejectUndoCancellationWhenTriagemIsNotCancelled(Status status)
@@ -802,6 +857,7 @@ class TriagemTest
 
     // Testes da marcação como atrasada
 
+    @DisplayName("Deve marcar a triagem agendada como vencida quando a data agendada já tiver passado")
     @Test
     void shouldMarkScheduledTriagemAsOverdueWhenScheduledDateHasPassed()
     {
@@ -814,6 +870,7 @@ class TriagemTest
         assertEquals(Status.ATRASADA, triagem.getStatus());
     }
 
+    @DisplayName("Deve manter a triagem agendada quando a data agendada estiver no futuro")
     @Test
     void shouldKeepScheduledTriagemWhenScheduledDateIsInTheFuture()
     {
@@ -824,6 +881,7 @@ class TriagemTest
         assertEquals(Status.AGENDADA, triagem.getStatus());
     }
 
+    @DisplayName("Não deve alterar uma triagem não agendada ao marcá-la como vencida")
     @ParameterizedTest
     @EnumSource(value = Status.class, names = {"ATRASADA", "CONCLUIDA", "CANCELADA"})
     void shouldNotChangeNonScheduledTriagemWhenMarkingAsOverdue(Status status)
@@ -841,6 +899,7 @@ class TriagemTest
 
     // Testes do reagendamento
 
+    @DisplayName("Deve reagendar uma triagem em estado editável")
     @ParameterizedTest
     @EnumSource(value = Status.class, names = {"AGENDADA", "ATRASADA"})
     void shouldRescheduleEditableTriagem(Status status)
@@ -856,6 +915,7 @@ class TriagemTest
         );
     }
 
+    @DisplayName("Deve rejeitar uma data nula ao reagendar a triagem")
     @Test
     void shouldRejectNullDateWhenReschedulingTriagem()
     {
@@ -874,6 +934,7 @@ class TriagemTest
         );
     }
 
+    @DisplayName("Deve rejeitar uma data passada ao reagendar a triagem")
     @Test
     void shouldRejectPastDateWhenReschedulingTriagem()
     {
@@ -892,6 +953,7 @@ class TriagemTest
         );
     }
 
+    @DisplayName("Deve rejeitar o reagendamento de uma triagem em estado final")
     @ParameterizedTest
     @EnumSource(value = Status.class, names = {"CONCLUIDA", "CANCELADA"})
     void shouldRejectReschedulingForFinalStatus(Status status)

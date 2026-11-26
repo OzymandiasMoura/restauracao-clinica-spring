@@ -1,5 +1,7 @@
 package org.example.clinicarestauracao.Infrastruct.Database.Converters;
 
+
+import org.junit.jupiter.api.DisplayName;
 import org.example.clinicarestauracao.Builders.EnderecoTestBuilder;
 import org.example.clinicarestauracao.Domain.ValueObjects.Endereco;
 import org.junit.jupiter.api.Test;
@@ -11,6 +13,7 @@ class EnderecoConverterTest
 {
     private final EnderecoConverter converter = new EnderecoConverter();
 
+    @DisplayName("Deve converter endereço para banco de dados coluna")
     @Test
     void shouldConvertEnderecoToDatabaseColumn()
     {
@@ -21,6 +24,7 @@ class EnderecoConverterTest
         assertEquals("Rua das Flores, 123 - Centro - São Paulo/SP - Apartamento 42", resultado);
     }
 
+    @DisplayName("Deve retornar nulo para a coluna do banco de dados quando endereço é nulo")
     @Test
     void shouldReturnNullDatabaseColumnWhenEnderecoIsNull()
     {
@@ -29,6 +33,7 @@ class EnderecoConverterTest
         assertNull(resultado);
     }
 
+    @DisplayName("Deve converter banco de dados coluna para endereço")
     @Test
     void shouldConvertDatabaseColumnToEndereco()
     {
@@ -40,6 +45,7 @@ class EnderecoConverterTest
         assertEquals(enderecoEsperado, resultado);
     }
 
+    @DisplayName("Deve retornar endereço nulo quando a coluna do banco de dados é nula")
     @Test
     void shouldReturnNullEnderecoWhenDatabaseColumnIsNull()
     {

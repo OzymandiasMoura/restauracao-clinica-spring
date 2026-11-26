@@ -1,5 +1,7 @@
 package org.example.clinicarestauracao.Domain.ValueObjects;
 
+
+import org.junit.jupiter.api.DisplayName;
 import org.example.clinicarestauracao.Application.Exceptions.Endereco.EnderecoWithInvalidInformationException;
 import org.example.clinicarestauracao.Builders.EnderecoTestBuilder;
 import org.junit.jupiter.api.Test;
@@ -13,6 +15,7 @@ class EnderecoTest
 {
     //Testes setLogradouro
 
+    @DisplayName("Deve definir logradouro com sucesso")
     @Test
     void shouldSetLogradouroSuccessfully()
     {
@@ -23,6 +26,7 @@ class EnderecoTest
         assertEquals("Rua do Mato", endereco.getLogradouro());
     }
 
+    @DisplayName("Deve remover espaços excedentes do logradouro")
     @Test
     void shouldTrimLogradouro()
     {
@@ -31,6 +35,7 @@ class EnderecoTest
         assertEquals("Rua do Mato", endereco.getLogradouro());
     }
 
+    @DisplayName("Deve remover hífen e barra de logradouro")
     @Test
     void shouldRemoveHyphenAndSlashFromLogradouro()
     {
@@ -39,6 +44,7 @@ class EnderecoTest
         assertEquals("RuadasFlores", endereco.getLogradouro());
     }
 
+    @DisplayName("Deve rejeitar logradouro nulo ou em branco")
     @ParameterizedTest
     @NullSource
     @ValueSource(strings = {"", " ", "    "})
@@ -49,6 +55,7 @@ class EnderecoTest
         assertEquals("Logradouro não pode ser nulo ou vazio.", exception.getMessage());
     }
 
+    @DisplayName("Deve rejeitar logradouro com menos de três caracteres após remover os espaços")
     @ParameterizedTest
     @ValueSource(strings = {"Ru", " Ru ", "   Ru   "})
     void shouldRejectLogradouroShorterThanThreeCharactersAfterTrim(String logradouro)
@@ -58,6 +65,7 @@ class EnderecoTest
         assertEquals( "Logradouro deve ter no mínimo 3 caracteres.", exception.getMessage());
     }
 
+    @DisplayName("Deve aceitar logradouro com exatamente três caracteres")
     @Test
     void shouldAcceptLogradouroWithExactlyThreeCharacters()
     {
@@ -66,6 +74,7 @@ class EnderecoTest
         assertEquals("Rua", endereco.getLogradouro());
     }
 
+    @DisplayName("Deve rejeitar logradouro com mais de 250 caracteres após remover os espaços")
     @Test
     void shouldRejectLogradouroLongerThanTwoHundredFiftyCharactersAfterTrim()
     {
@@ -75,6 +84,7 @@ class EnderecoTest
         assertEquals("Logradouro pode ter no máximo 250 caracteres.",  exception.getMessage());
     }
 
+    @DisplayName("Deve aceitar logradouro com exatamente duzentos e cinquenta caracteres")
     @Test
     void shouldAcceptLogradouroWithExactlyTwoHundredFiftyCharacters()
     {
@@ -87,6 +97,7 @@ class EnderecoTest
 
     //Testes setNumero
 
+    @DisplayName("Deve definir número com sucesso")
     @Test
     void shouldSetNumeroSuccessfully()
     {
@@ -95,6 +106,7 @@ class EnderecoTest
         assertEquals(200, endereco.getNumero());
     }
 
+    @DisplayName("Deve rejeitar número nulo")
     @Test
     void shouldRejectNullNumero()
     {
@@ -103,6 +115,7 @@ class EnderecoTest
         assertEquals("Numero não pode ser nulo.", exception.getMessage());
     }
 
+    @DisplayName("Deve rejeitar número não positivo")
     @ParameterizedTest
     @ValueSource(ints = {0, -1, -10})
     void shouldRejectNonPositiveNumero(Integer numero)
@@ -112,6 +125,7 @@ class EnderecoTest
         assertEquals("Numero não pode ser menor ou igual a zero.", exception.getMessage());
     }
 
+    @DisplayName("Deve aceitar o número um")
     @Test
     void shouldAcceptNumeroEqualToOne()
     {
@@ -120,6 +134,7 @@ class EnderecoTest
         assertEquals(1, endereco.getNumero());
     }
 
+    @DisplayName("Deve aceitar número igual ao limite máximo")
     @Test
     void shouldAcceptNumeroEqualToMaximumLimit()
     {
@@ -128,6 +143,7 @@ class EnderecoTest
         assertEquals(10000, endereco.getNumero());
     }
 
+    @DisplayName("Deve rejeitar número maior que o limite máximo")
     @Test
     void shouldRejectNumeroGreaterThanMaximumLimit()
     {
@@ -136,6 +152,7 @@ class EnderecoTest
         assertEquals("Numero de endereço não pode ser maior que 10.000", exception.getMessage());
     }
 
+    @DisplayName("Deve preservar o número após rejeitar um valor acima do limite máximo")
     @Test
     void shouldPreserveNumeroAfterRejectingValueGreaterThanMaximumLimit()
     {
@@ -148,6 +165,7 @@ class EnderecoTest
 
     //Testes setBairro
 
+    @DisplayName("Deve definir bairro com sucesso")
     @Test
     void shouldSetBairroSuccessfully()
     {
@@ -156,6 +174,7 @@ class EnderecoTest
         assertEquals("Vila Madalena", endereco.getBairro());
     }
 
+    @DisplayName("Deve remover espaços excedentes do bairro")
     @Test
     void shouldTrimBairro()
     {
@@ -164,6 +183,7 @@ class EnderecoTest
         assertEquals("Vila Madalena", endereco.getBairro());
     }
 
+    @DisplayName("Deve remover hífen e barra de bairro")
     @Test
     void shouldRemoveHyphenAndSlashFromBairro()
     {
@@ -172,6 +192,7 @@ class EnderecoTest
         assertEquals("CentroSulOeste", endereco.getBairro());
     }
 
+    @DisplayName("Deve rejeitar bairro nulo ou em branco")
     @ParameterizedTest
     @NullSource
     @ValueSource(strings = {"", " ", "   "})
@@ -182,6 +203,7 @@ class EnderecoTest
         assertEquals("Bairro não pode ser nulo ou vazio.", exception.getMessage());
     }
 
+    @DisplayName("Deve rejeitar bairro menor que três caracteres depois remover espaços")
     @ParameterizedTest
     @ValueSource(strings = {"VM", " VM ", "    VM", "VM     "})
     void shouldRejectBairroShorterThanThreeCharactersAfterTrim(String bairro)
@@ -191,6 +213,7 @@ class EnderecoTest
         assertEquals("Bairro deve ter no mínimo 3 caracteres.", exception.getMessage());
     }
 
+    @DisplayName("Deve aceitar bairro com exatamente três caracteres sem espaços")
     @ParameterizedTest
     @ValueSource(strings = {"VMA", "VMA  ", " VMa "})
     void shouldAcceptBairroWithExactlyThreeCharactersWithoutSpaces(String bairro)
@@ -201,6 +224,7 @@ class EnderecoTest
         assertEquals(3, endereco.getBairro().length());
     }
 
+    @DisplayName("Deve rejeitar bairro maior que duzentos e cinquenta caracteres depois remover espaços")
     @Test
     void shouldRejectBairroLongerThanTwoHundredFiftyCharactersAfterTrim()
     {
@@ -210,6 +234,7 @@ class EnderecoTest
         assertEquals("Bairro pode ter no máximo 250 caracteres.", exception.getMessage());
     }
 
+    @DisplayName("Deve aceitar bairro com exatamente duzentos e cinquenta caracteres")
     @Test
     void shouldAcceptBairroWithExactlyTwoHundredFiftyCharacters()
     {
@@ -221,6 +246,7 @@ class EnderecoTest
     }
 
     //Testes setCidade
+    @DisplayName("Deve definir cidade com sucesso")
     @Test
     void shouldSetCidadeSuccessfully()
     {
@@ -229,6 +255,7 @@ class EnderecoTest
         assertEquals("São Paulo", endereco.getCidade());
     }
 
+    @DisplayName("Deve remover espaços excedentes da cidade")
     @Test
     void shouldTrimCidade()
     {
@@ -237,6 +264,7 @@ class EnderecoTest
         assertEquals("São Paulo", endereco.getCidade());
     }
 
+    @DisplayName("Deve remover hífen e barra de cidade")
     @Test
     void shouldRemoveHyphenAndSlashFromCidade()
     {
@@ -245,6 +273,7 @@ class EnderecoTest
         assertEquals("SãoJosédo Rio", endereco.getCidade());
     }
 
+    @DisplayName("Deve rejeitar cidade nula ou em branco")
     @ParameterizedTest
     @NullSource
     @ValueSource(strings = {"", " ", "   "})
@@ -255,6 +284,7 @@ class EnderecoTest
         assertEquals("Cidade não pode ser nulo ou vazio.", exception.getMessage());
     }
 
+    @DisplayName("Deve rejeitar cidade menor que três caracteres depois remover espaços")
     @ParameterizedTest
     @ValueSource(strings = {"Sp", " Sp ", " Sp", "Sp "})
     void shouldRejectCidadeShorterThanThreeCharactersAfterTrim(String cidade)
@@ -264,6 +294,7 @@ class EnderecoTest
         assertEquals("Cidade deve ter no mínimo 3 caracteres.", exception.getMessage());
     }
 
+    @DisplayName("Deve aceitar cidade com exatamente três caracteres depois remover espaços")
     @ParameterizedTest
     @ValueSource(strings = {"Spa", " Spa ", " Spa", "Spa "})
     void shouldAcceptCidadeWithExactlyThreeCharactersAfterTrim(String cidade)
@@ -274,6 +305,7 @@ class EnderecoTest
         assertEquals(3, endereco.getCidade().length());
     }
 
+    @DisplayName("Deve rejeitar cidade maior que duzentos e cinquenta caracteres depois remover espaços")
     @Test
     void shouldRejectCidadeLongerThanTwoHundredFiftyCharactersAfterTrim()
     {
@@ -284,6 +316,7 @@ class EnderecoTest
         assertEquals("Cidade pode ter no máximo 250 caracteres.", exception.getMessage());
     }
 
+    @DisplayName("Deve aceitar cidade com exatamente duzentos e cinquenta caracteres")
     @Test
     void shouldAcceptCidadeWithExactlyTwoHundredFiftyCharacters()
     {
@@ -296,6 +329,7 @@ class EnderecoTest
 
     //Testes setEstado
 
+    @DisplayName("Deve definir estado com sucesso")
     @Test
     void shouldSetEstadoSuccessfully()
     {
@@ -304,6 +338,7 @@ class EnderecoTest
         assertEquals("SP", endereco.getEstado());
     }
 
+    @DisplayName("Deve remover espaços excedentes do estado")
     @Test
     void shouldTrimEstado()
     {
@@ -312,6 +347,7 @@ class EnderecoTest
         assertEquals("SP", endereco.getEstado());
     }
 
+    @DisplayName("Deve normalizar estado para maiúsculas caso")
     @Test
     void shouldNormalizeEstadoToUpperCase()
     {
@@ -320,6 +356,7 @@ class EnderecoTest
         assertEquals("SP", endereco.getEstado());
     }
 
+    @DisplayName("Deve remover hífen e barra de estado")
     @Test
     void shouldRemoveHyphenAndSlashFromEstado()
     {
@@ -328,6 +365,7 @@ class EnderecoTest
         assertEquals("SP", endereco.getEstado());
     }
 
+    @DisplayName("Deve rejeitar estado nulo ou em branco")
     @ParameterizedTest
     @NullSource
     @ValueSource(strings = {"", " ", "    "})
@@ -338,6 +376,7 @@ class EnderecoTest
         assertEquals("Estado não pode ser nulo ou vazio.", exception.getMessage());
     }
 
+    @DisplayName("Deve rejeitar estado com comprimento diferente de dois depois remover espaços")
     @ParameterizedTest
     @ValueSource(strings = {"Spa", " Spa ", "S", " S "})
     void shouldRejectEstadoWithLengthDifferentFromTwoAfterTrim(String estado)
@@ -347,6 +386,7 @@ class EnderecoTest
         assertEquals("Estado deve ter 2 caracteres.", exception.getMessage());
     }
 
+    @DisplayName("Deve aceitar estado com exatamente dois caracteres depois remover espaços")
     @ParameterizedTest
     @ValueSource(strings = {"Sp", " SP ", " Sp", " SP "})
     void shouldAcceptEstadoWithExactlyTwoCharactersAfterTrim(String estado)
@@ -357,6 +397,7 @@ class EnderecoTest
 
     //Testes setComplemento
 
+    @DisplayName("Deve definir complemento com sucesso")
     @Test
     void shouldSetComplementoSuccessfully()
     {
@@ -365,6 +406,7 @@ class EnderecoTest
         assertEquals("Apartamento 215", endereco.getComplemento());
     }
 
+    @DisplayName("Deve remover espaços complemento")
     @Test
     void shouldTrimComplemento()
     {
@@ -373,6 +415,7 @@ class EnderecoTest
         assertEquals("Apartamento 215", endereco.getComplemento());
     }
 
+    @DisplayName("Deve remover hífen e barra de complemento")
     @Test
     void shouldRemoveHyphenAndSlashFromComplemento()
     {
@@ -381,6 +424,7 @@ class EnderecoTest
         assertEquals("Apartamento42", endereco.getComplemento());
     }
 
+    @DisplayName("Deve definir complemento como nulo quando contiver somente hífens e barras")
     @Test
     void shouldSetComplementoToNullWhenItContainsOnlyHyphensAndSlashes()
     {
@@ -389,6 +433,7 @@ class EnderecoTest
         assertNull(endereco.getComplemento());
     }
 
+    @DisplayName("Deve definir complemento como nulo quando for nulo ou estiver em branco")
     @ParameterizedTest
     @NullSource
     @ValueSource(strings = {"", " ", "   "})
@@ -399,6 +444,7 @@ class EnderecoTest
         assertNull(endereco.getComplemento());
     }
 
+    @DisplayName("Deve rejeitar complemento menor que três caracteres depois remover espaços")
     @ParameterizedTest
     @ValueSource(strings = {"Ap", " Ap ", " Ap", "Ap "})
     void shouldRejectComplementoShorterThanThreeCharactersAfterTrim(String complemento)
@@ -408,6 +454,7 @@ class EnderecoTest
         assertEquals("Complemento deve ter no mínimo 3 caracteres.", exception.getMessage());
     }
 
+    @DisplayName("Deve aceitar complemento com exatamente três caracteres depois remover espaços")
     @ParameterizedTest
     @ValueSource(strings= {"Apt", " Apt ", "Apt ", " Apt"})
     void shouldAcceptComplementoWithExactlyThreeCharactersAfterTrim(String complemento)
@@ -417,6 +464,7 @@ class EnderecoTest
         assertEquals(complemento.strip(), endereco.getComplemento());
     }
 
+    @DisplayName("Deve rejeitar complemento maior que duzentos e cinquenta caracteres depois remover espaços")
     @Test
     void shouldRejectComplementoLongerThanTwoHundredFiftyCharactersAfterTrim()
     {
@@ -427,6 +475,7 @@ class EnderecoTest
         assertEquals("Complemento pode ter no máximo 250 caracteres.", exception.getMessage());
     }
 
+    @DisplayName("Deve aceitar complemento com exatamente duzentos e cinquenta caracteres")
     @Test
     void shouldAcceptComplementoWithExactlyTwoHundredFiftyCharacters()
     {
@@ -437,6 +486,7 @@ class EnderecoTest
         assertEquals(complemento.strip(), endereco.getComplemento());
     }
 
+    @DisplayName("Deve criar endereço sem complemento")
     @Test
     void shouldCreateEnderecoWithoutComplemento()
     {
@@ -447,6 +497,7 @@ class EnderecoTest
 
     //Testes toDatabaseString
 
+    @DisplayName("Deve converter endereço para banco de dados texto com complemento")
     @Test
     void shouldConvertEnderecoToDatabaseStringWithComplemento()
     {
@@ -457,6 +508,7 @@ class EnderecoTest
         assertEquals("Rua das Flores, 123 - Centro - São Paulo/SP - Apartamento 42", resultado);
     }
 
+    @DisplayName("Deve converter endereço para banco de dados texto sem complemento")
     @Test
     void shouldConvertEnderecoToDatabaseStringWithoutComplemento()
     {
@@ -467,6 +519,7 @@ class EnderecoTest
         assertEquals("Rua das Flores, 123 - Centro - São Paulo/SP", resultado);
     }
 
+    @DisplayName("Deve remover reservado caracteres antes convertendo endereço para banco de dados texto")
     @Test
     void shouldRemoveReservedCharactersBeforeConvertingEnderecoToDatabaseString()
     {
@@ -486,6 +539,7 @@ class EnderecoTest
 
     //Testes fromDatabaseString
 
+    @DisplayName("Deve criar endereço de banco de dados texto com complemento")
     @Test
     void shouldCreateEnderecoFromDatabaseStringWithComplemento()
     {
@@ -501,6 +555,7 @@ class EnderecoTest
         );
     }
 
+    @DisplayName("Deve criar endereço de banco de dados texto sem complemento")
     @Test
     void shouldCreateEnderecoFromDatabaseStringWithoutComplemento()
     {
@@ -516,6 +571,7 @@ class EnderecoTest
         );
     }
 
+    @DisplayName("Deve rejeitar texto nulo ou em branco vindo do banco de dados")
     @ParameterizedTest
     @NullSource
     @ValueSource(strings = {"", " ", "   "})
@@ -529,6 +585,7 @@ class EnderecoTest
         assertEquals("Endereço em formato inválido.", exception.getMessage());
     }
 
+    @DisplayName("Deve rejeitar texto do banco de dados com formato inválido")
     @ParameterizedTest
     @ValueSource(strings = {
             "Rua das Flores - Centro - São Paulo/SP",

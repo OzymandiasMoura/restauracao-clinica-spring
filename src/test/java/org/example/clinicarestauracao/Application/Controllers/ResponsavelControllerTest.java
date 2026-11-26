@@ -1,5 +1,7 @@
 package org.example.clinicarestauracao.Application.Controllers;
 
+
+import org.junit.jupiter.api.DisplayName;
 import org.example.clinicarestauracao.Application.Dtos.EnderecoDtos.EnderecoDto;
 import org.example.clinicarestauracao.Application.Dtos.ResponsavelDtos.ResponsavelCreateRequestDto;
 import org.example.clinicarestauracao.Application.Dtos.ResponsavelDtos.ResponsavelResponseDto;
@@ -56,6 +58,7 @@ class ResponsavelControllerTest
 
     // Testes do findAllResponsaveis
 
+    @DisplayName("Deve buscar todos os responsáveis com sucesso")
     @Test
     void shouldFindAllResponsaveisSuccessfully()
     {
@@ -87,6 +90,7 @@ class ResponsavelControllerTest
         Mockito.verifyNoMoreInteractions(service);
     }
 
+    @DisplayName("Deve retornar uma lista vazia quando não há responsáveis")
     @Test
     void shouldReturnEmptyListWhenThereAreNoResponsaveis()
     {
@@ -107,6 +111,7 @@ class ResponsavelControllerTest
 
     // Testes do findResponsavelById
 
+    @DisplayName("Deve buscar responsável por ID com sucesso")
     @Test
     void shouldFindResponsavelByIdSuccessfully()
     {
@@ -144,6 +149,7 @@ class ResponsavelControllerTest
 
     // Testes do findResponsavelByEmail
 
+    @DisplayName("Deve buscar responsável por e-mail com sucesso")
     @Test
     void shouldFindResponsavelByEmailSuccessfully()
     {
@@ -173,6 +179,7 @@ class ResponsavelControllerTest
 
     // Testes do findResponsavelByCpf
 
+    @DisplayName("Deve buscar responsável por CPF com sucesso")
     @Test
     void shouldFindResponsavelByCpfSuccessfully()
     {
@@ -203,6 +210,7 @@ class ResponsavelControllerTest
 
     // Testes do findResponsaveisByNome
 
+    @DisplayName("Deve buscar responsáveis por nome com sucesso")
     @Test
     void shouldFindResponsaveisByNomeSuccessfully()
     {
@@ -239,6 +247,7 @@ class ResponsavelControllerTest
 
     // Testes do createResponsavel
 
+    @DisplayName("Deve criar responsável com sucesso")
     @Test
     void shouldCreateResponsavelSuccessfully()
     {
@@ -295,6 +304,7 @@ class ResponsavelControllerTest
 
     // Testes do updateResponsavel
 
+    @DisplayName("Deve atualizar responsável com sucesso")
     @Test
     void shouldUpdateResponsavelSuccessfully()
     {
@@ -350,6 +360,7 @@ class ResponsavelControllerTest
 
     // Testes do deactivateResponsavel
 
+    @DisplayName("Deve desativar responsável com sucesso")
     @Test
     void shouldDeactivateResponsavelSuccessfully()
     {
@@ -379,6 +390,7 @@ class ResponsavelControllerTest
 
     // Testes do reactivateResponsavel
 
+    @DisplayName("Deve reativar responsável com sucesso")
     @Test
     void shouldReactivateResponsavelSuccessfully()
     {
@@ -408,6 +420,7 @@ class ResponsavelControllerTest
 
     // Testes do deleteResponsavel
 
+    @DisplayName("Deve excluir responsável com sucesso")
     @Test
     void shouldDeleteResponsavelSuccessfully()
     {

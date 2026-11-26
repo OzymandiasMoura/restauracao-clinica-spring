@@ -1,5 +1,7 @@
 package org.example.clinicarestauracao.Domain.Entities;
 
+
+import org.junit.jupiter.api.DisplayName;
 import org.example.clinicarestauracao.Application.Exceptions.User.UserWithInvalidInformationException;
 import org.example.clinicarestauracao.Builders.UserTestBuilder;
 import org.example.clinicarestauracao.Domain.Enums.UserRoles;
@@ -19,6 +21,7 @@ class UserTest
 {
     private final UserTestBuilder builder = new UserTestBuilder();
 
+    @DisplayName("Deve retornar usuário perfil")
     @Test
     void shouldReturnUserRole()
     {
@@ -29,6 +32,7 @@ class UserTest
         assertThat(authorities).containsExactly("ROLE_USER");
     }
 
+    @DisplayName("Deve retornar usuário e administrador perfis")
     @Test
     void shouldReturnUserAndAdminRoles()
     {
@@ -39,6 +43,7 @@ class UserTest
         assertThat(authorities).containsExactly("ROLE_ADMIN", "ROLE_USER");
     }
 
+    @DisplayName("Deve lançar exceção quando as informações do usuário são nulas")
     @ParameterizedTest(name = "{index}")
     @MethodSource(value = "dataProvider")
     void shouldThrowExceptionWhenUserHasNullInformation(String username, String password, UserRoles role, String message)
@@ -49,6 +54,7 @@ class UserTest
         assertThat(e.getMessage()).isEqualTo(message);
     }
 
+    @DisplayName("Deve lançar exceção quando usuário tem em branco informações")
     @ParameterizedTest(name = "{index}")
     @MethodSource(value = "dataProvider2")
     void shouldThrowExceptionWhenUserHasBlankInformation(String username, String password, UserRoles role, String message)
@@ -58,6 +64,7 @@ class UserTest
         assertThat(e.getMessage()).isEqualTo(message);
     }
 
+    @DisplayName("Deve lançar exceção quando nome de usuário ou senha tem menor que 3")
     @ParameterizedTest(name = "{index}")
     @MethodSource(value = "dataProvider3")
     void shouldThrowExceptionWhenUsernameOrPasswordHasLessThan3(String username, String password, UserRoles role, String message)
@@ -67,6 +74,7 @@ class UserTest
         assertThat(e.getMessage()).isEqualTo(message);
     }
 
+    @DisplayName("Deve remover espaços nome de usuário")
     @Test
     void shouldTrimUsername()
     {
@@ -75,6 +83,7 @@ class UserTest
         assertEquals("Pedro", user.getUsername());
     }
 
+    @DisplayName("Deve validar nome de usuário comprimento depois remover espaços")
     @Test
     void shouldValidateUsernameLengthAfterTrim()
     {
@@ -83,6 +92,7 @@ class UserTest
         assertEquals("Nome de usuário deve ter no mínimo 3 caracteres.", exception.getMessage());
     }
 
+    @DisplayName("Deve rejeitar criação com o perfil NO_ACCESS")
     @Test
     void shouldRejectCreationWithNoAccessRole()
     {
@@ -92,6 +102,7 @@ class UserTest
     }
 
 
+    @DisplayName("Deve retornar uma lista vazia de autoridades quando o usuário não tiver acesso")
     @Test
     void shouldReturnNoAuthoritiesWhenUserHasNoAccess()
     {
@@ -100,6 +111,7 @@ class UserTest
         assertThat(user.getAuthorities()).isEmpty();
     }
 
+    @DisplayName("Deve criar ativo usuário sem anterior perfil")
     @Test
     void shouldCreateActiveUserWithoutPreviousRole()
     {
@@ -109,6 +121,7 @@ class UserTest
         assertNull(user.getPreviousRole());
     }
 
+    @DisplayName("Deve desativar usuário e preservar anterior perfil")
     @ParameterizedTest
     @EnumSource(
             value = UserRoles.class,
@@ -125,6 +138,7 @@ class UserTest
         assertThat(user.getAuthorities()).isEmpty();
     }
 
+    @DisplayName("Não deve sobrescrever anterior perfil quando usuário é já desativado")
     @Test
     void shouldNotOverwritePreviousRoleWhenUserIsAlreadyDeactivated()
     {
@@ -138,6 +152,7 @@ class UserTest
         assertEquals("Usuário já está desativado.", exception.getMessage());
     }
 
+    @DisplayName("Deve reativar usuário restaurando anterior perfil")
     @ParameterizedTest
     @EnumSource(
             value = UserRoles.class,
@@ -154,6 +169,7 @@ class UserTest
         assertNull(user.getPreviousRole());
     }
 
+    @DisplayName("Deve lançar exceção quando usuário é não desativado")
     @Test
     void shouldThrowExceptionWhenUserIsNotDeactivated()
     {
@@ -166,6 +182,7 @@ class UserTest
         assertNull(user.getPreviousRole());
     }
 
+    @DisplayName("Deve lançar exceção quando o usuário não tem perfil anterior válido")
     @Test
     void shouldThrowExceptionWhenUserHasNoValidPreviousRole()
     {
@@ -178,6 +195,7 @@ class UserTest
         assertNull(user.getPreviousRole());
     }
 
+    @DisplayName("Deve ser habilitado quando usuário tem acesso")
     @ParameterizedTest
     @EnumSource(
             value = UserRoles.class,
@@ -190,6 +208,7 @@ class UserTest
         assertTrue(user.isEnabled());
     }
 
+    @DisplayName("Deve ser desabilitado quando o usuário não tem acesso")
     @Test
     void shouldBeDisabledWhenUserHasNoAccess()
     {
@@ -226,6 +245,7 @@ class UserTest
         );
     }
 
+    @DisplayName("Deve criar usuário para nome de usuário atualizar")
     @Test
     void shouldCreateUserForUsernameUpdate()
     {
@@ -239,6 +259,7 @@ class UserTest
 
     //Testes para updateRole
 
+    @DisplayName("Deve atualizar perfil entre ativo perfis")
     @ParameterizedTest
     @MethodSource("validRoleUpdates")
     void shouldUpdateRoleBetweenActiveRoles(UserRoles currentRole, UserRoles newRole)
@@ -252,6 +273,7 @@ class UserTest
         assertTrue(user.isEnabled());
     }
 
+    @DisplayName("Deve manter mesmo perfil de forma idempotente")
     @ParameterizedTest
     @EnumSource(value = UserRoles.class, names = {"USER", "ADMIN"})
     void shouldKeepSameRoleIdempotently(UserRoles role)
@@ -265,6 +287,7 @@ class UserTest
         assertTrue(user.isEnabled());
     }
 
+    @DisplayName("Deve rejeitar perfil de destino inválido")
     @ParameterizedTest
     @MethodSource("invalidTargetRoles")
     void shouldRejectInvalidTargetRole(UserRoles invalidRole)
@@ -279,6 +302,7 @@ class UserTest
         assertTrue(user.isEnabled());
     }
 
+    @DisplayName("Deve rejeitar perfil atualizar quando usuário é desativado")
     @ParameterizedTest
     @EnumSource(value = UserRoles.class, names = {"USER", "ADMIN"})
     void shouldRejectRoleUpdateWhenUserIsDeactivated(UserRoles newRole)

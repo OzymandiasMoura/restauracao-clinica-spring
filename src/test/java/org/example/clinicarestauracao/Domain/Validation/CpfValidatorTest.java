@@ -1,5 +1,7 @@
 package org.example.clinicarestauracao.Domain.Validation;
 
+
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
@@ -7,6 +9,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class CpfValidatorTest
 {
+    @DisplayName("Deve aceitar CPF válido")
     @ParameterizedTest
     @ValueSource(strings = {
             "529.982.247-25",
@@ -18,6 +21,7 @@ class CpfValidatorTest
         assertTrue(CpfValidator.validate(cpf));
     }
 
+    @DisplayName("Deve rejeitar CPF inválido")
     @ParameterizedTest
     @ValueSource(strings = {
             " ",

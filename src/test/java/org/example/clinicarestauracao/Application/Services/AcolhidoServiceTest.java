@@ -1,5 +1,7 @@
 package org.example.clinicarestauracao.Application.Services;
 
+
+import org.junit.jupiter.api.DisplayName;
 import org.example.clinicarestauracao.Application.Exceptions.Acolhido.AcolhidoNotFoundException;
 import org.example.clinicarestauracao.Application.Exceptions.Acolhido.AcolhidoWithInvalidInformationException;
 import org.example.clinicarestauracao.Application.Interfaces.AcolhidoRepository;
@@ -48,6 +50,7 @@ class AcolhidoServiceTest
 
     // Testes findAll
 
+    @DisplayName("Deve buscar todos os acolhidos com sucesso")
     @Test
     void shouldFindAllAcolhidosSuccessfully()
     {
@@ -67,6 +70,7 @@ class AcolhidoServiceTest
         Mockito.verify(repository).findAll();
     }
 
+    @DisplayName("Deve retornar uma lista vazia quando não há acolhidos")
     @Test
     void shouldReturnEmptyListWhenThereAreNoAcolhidos()
     {
@@ -84,6 +88,7 @@ class AcolhidoServiceTest
 
     //Testes findById
 
+    @DisplayName("Deve buscar acolhido por ID com sucesso")
     @Test
     void shouldFindAcolhidoByIdSuccessfully()
     {
@@ -98,6 +103,7 @@ class AcolhidoServiceTest
         Mockito.verify(repository).findById(1L);
     }
 
+    @DisplayName("Deve lançar exceção quando o acolhido não for encontrado quando acolhido não existir")
     @Test
     void shouldThrowAcolhidoNotFoundExceptionWhenAcolhidoDoesNotExist()
     {
@@ -110,6 +116,7 @@ class AcolhidoServiceTest
         Mockito.verify(repository).findById(1L);
     }
 
+    @DisplayName("Deve lançar exceção quando o acolhido não for encontrado quando o ID é inválido")
     @ParameterizedTest
     @NullSource
     @ValueSource(longs = {0, -1, -10})
@@ -124,6 +131,7 @@ class AcolhidoServiceTest
 
     // Testes findByNome
 
+    @DisplayName("Deve buscar acolhidos por nome parcial com sucesso")
     @Test
     void shouldFindAcolhidosByPartialNameSuccessfully()
     {
@@ -141,6 +149,7 @@ class AcolhidoServiceTest
         Mockito.verify(repository).findAcolhidoByNomeContainingIgnoreCase("maria");
     }
 
+    @DisplayName("Deve lançar exceção quando nenhum acolhido corresponder ao nome informado")
     @Test
     void shouldThrowAcolhidoNotFoundExceptionWhenNoAcolhidoMatchesName()
     {
@@ -153,6 +162,7 @@ class AcolhidoServiceTest
         Mockito.verify(repository).findAcolhidoByNomeContainingIgnoreCase("Maria");
     }
 
+    @DisplayName("Deve lançar exceção quando o acolhido não for encontrado quando o nome é inválido")
     @ParameterizedTest
     @NullSource
     @ValueSource(strings = {"", " ", "   ", "\t"})
@@ -167,6 +177,7 @@ class AcolhidoServiceTest
 
     // Testes findByEmail
 
+    @DisplayName("Deve buscar acolhido por e-mail com sucesso")
     @Test
     void shouldFindAcolhidoByEmailSuccessfully()
     {
@@ -181,6 +192,7 @@ class AcolhidoServiceTest
         Mockito.verify(repository).findAcolhidoByEmail("maria@email.com");
     }
 
+    @DisplayName("Deve lançar exceção quando o acolhido não for encontrado quando e-mail não existir")
     @Test
     void shouldThrowAcolhidoNotFoundExceptionWhenEmailDoesNotExist()
     {
@@ -193,6 +205,7 @@ class AcolhidoServiceTest
         Mockito.verify(repository).findAcolhidoByEmail("inexistente@email.com");
     }
 
+    @DisplayName("Deve lançar exceção quando o acolhido não for encontrado quando e-mail é inválido")
     @ParameterizedTest
     @NullSource
     @ValueSource(strings = {"", " ", "   ", "\t"})
@@ -207,6 +220,7 @@ class AcolhidoServiceTest
 
     // Testes findByCpf
 
+    @DisplayName("Deve buscar acolhido por CPF com sucesso")
     @Test
     void shouldFindAcolhidoByCpfSuccessfully()
     {
@@ -221,6 +235,7 @@ class AcolhidoServiceTest
         Mockito.verify(repository).findAcolhidoByCpf("52998224725");
     }
 
+    @DisplayName("Deve lançar exceção quando o acolhido não for encontrado quando CPF não existir")
     @Test
     void shouldThrowAcolhidoNotFoundExceptionWhenCpfDoesNotExist()
     {
@@ -233,6 +248,7 @@ class AcolhidoServiceTest
         Mockito.verify(repository).findAcolhidoByCpf("11144477735");
     }
 
+    @DisplayName("Deve lançar exceção quando o acolhido não for encontrado quando CPF é inválido")
     @ParameterizedTest
     @NullSource
     @ValueSource(strings = {"", " ", "\t", "...", "---", ". -"})
@@ -247,6 +263,7 @@ class AcolhidoServiceTest
 
     // Testes createAcolhido
 
+    @DisplayName("Deve criar acolhido com sucesso")
     @Test
     void shouldCreateAcolhidoSuccessfully()
     {
@@ -266,6 +283,7 @@ class AcolhidoServiceTest
         Mockito.verify(repository).save(receivedAcolhido);
     }
 
+    @DisplayName("Deve rejeitar duplicado CPF quando criando acolhido")
     @Test
     void shouldRejectDuplicatedCpfWhenCreatingAcolhido()
     {
@@ -283,6 +301,7 @@ class AcolhidoServiceTest
         Mockito.verify(repository, Mockito.never()).save(Mockito.any(Acolhido.class));
     }
 
+    @DisplayName("Deve rejeitar duplicado e-mail quando criando acolhido")
     @Test
     void shouldRejectDuplicatedEmailWhenCreatingAcolhido()
     {
@@ -303,6 +322,7 @@ class AcolhidoServiceTest
 
     // Testes updateAcolhido
 
+    @DisplayName("Deve atualizar acolhido com sucesso")
     @Test
     void shouldUpdateAcolhidoSuccessfully()
     {
@@ -337,6 +357,7 @@ class AcolhidoServiceTest
         Mockito.verify(repository).save(existingAcolhido);
     }
 
+    @DisplayName("Deve substituir o responsável ao atualizar o acolhido")
     @Test
     void shouldReplaceResponsavelWhenUpdatingAcolhido()
     {
@@ -363,6 +384,7 @@ class AcolhidoServiceTest
         Mockito.verify(repository).save(existingAcolhido);
     }
 
+    @DisplayName("Deve permitir mantendo próprio CPF e e-mail e preservar inativo estado")
     @Test
     void shouldAllowKeepingOwnCpfAndEmailAndPreserveInactiveState()
     {
@@ -388,6 +410,7 @@ class AcolhidoServiceTest
         Mockito.verify(repository).save(existingAcolhido);
     }
 
+    @DisplayName("Deve rejeitar o CPF já pertencente a outro acolhido durante a atualização")
     @Test
     void shouldRejectCpfBelongingToAnotherAcolhidoWhenUpdating()
     {
@@ -410,6 +433,7 @@ class AcolhidoServiceTest
         Mockito.verify(repository, Mockito.never()).save(Mockito.any(Acolhido.class));
     }
 
+    @DisplayName("Deve rejeitar o e-mail já pertencente a outro acolhido durante a atualização")
     @Test
     void shouldRejectEmailBelongingToAnotherAcolhidoWhenUpdating()
     {
@@ -433,6 +457,7 @@ class AcolhidoServiceTest
         Mockito.verify(repository, Mockito.never()).save(Mockito.any(Acolhido.class));
     }
 
+    @DisplayName("Deve lançar exceção ao atualizar um acolhido com ID desconhecido")
     @Test
     void shouldThrowAcolhidoNotFoundExceptionWhenUpdatingUnknownId()
     {
@@ -452,6 +477,7 @@ class AcolhidoServiceTest
 
     // Testes deactivateAcolhido
 
+    @DisplayName("Deve desativar o responsável quando não houver outro acolhido ativo")
     @Test
     void shouldDeactivateAcolhidoAndResponsavelWhenThereIsNoOtherActiveAcolhido()
     {
@@ -476,6 +502,7 @@ class AcolhidoServiceTest
         Mockito.verify(repository).save(Mockito.same(acolhido));
     }
 
+    @DisplayName("Deve desativar somente acolhido quando responsável tem outro ativo acolhido")
     @Test
     void shouldDeactivateOnlyAcolhidoWhenResponsavelHasAnotherActiveAcolhido()
     {
@@ -498,6 +525,7 @@ class AcolhidoServiceTest
         Mockito.verify(repository).save(Mockito.same(acolhido));
     }
 
+    @DisplayName("Não deve desativar já inativo responsável novamente")
     @Test
     void shouldNotDeactivateAlreadyInactiveResponsavelAgain()
     {
@@ -520,6 +548,7 @@ class AcolhidoServiceTest
         Mockito.verify(repository).save(Mockito.same(acolhido));
     }
 
+    @DisplayName("Deve rejeitar desativação quando acolhido tem internação ativa")
     @Test
     void shouldRejectDeactivationWhenAcolhidoHasActiveInternacao()
     {
@@ -542,6 +571,7 @@ class AcolhidoServiceTest
         Mockito.verify(repository, Mockito.never()).save(Mockito.any(Acolhido.class));
     }
 
+    @DisplayName("Não deve verificar internações ou salvar quando acolhido é já inativo")
     @Test
     void shouldNotCheckInternacoesOrSaveWhenAcolhidoIsAlreadyInactive()
     {
@@ -565,6 +595,7 @@ class AcolhidoServiceTest
     }
 
 
+    @DisplayName("Não deve salvar quando desativando desconhecido acolhido")
     @Test
     void shouldNotSaveWhenDeactivatingUnknownAcolhido()
     {
@@ -581,6 +612,7 @@ class AcolhidoServiceTest
 
     // Testes reactivateAcolhido
 
+    @DisplayName("Deve reativar acolhido e inativo responsável")
     @Test
     void shouldReactivateAcolhidoAndInactiveResponsavel()
     {
@@ -603,6 +635,7 @@ class AcolhidoServiceTest
         Mockito.verify(repository).save(Mockito.same(acolhido));
     }
 
+    @DisplayName("Deve reativar somente acolhido quando responsável é já ativo")
     @Test
     void shouldReactivateOnlyAcolhidoWhenResponsavelIsAlreadyActive()
     {
@@ -624,6 +657,7 @@ class AcolhidoServiceTest
         Mockito.verify(repository).save(acolhido);
     }
 
+    @DisplayName("Não deve salvar quando reativando já ativo acolhido")
     @Test
     void shouldNotSaveWhenReactivatingAlreadyActiveAcolhido()
     {
@@ -641,6 +675,7 @@ class AcolhidoServiceTest
         Mockito.verify(repository, Mockito.never()).save(Mockito.any(Acolhido.class));
     }
 
+    @DisplayName("Não deve salvar quando reativando desconhecido acolhido")
     @Test
     void shouldNotSaveWhenReactivatingUnknownAcolhido()
     {
@@ -657,6 +692,7 @@ class AcolhidoServiceTest
 
     // Testes deleteAcolhidoById
 
+    @DisplayName("Deve excluir acolhido e desativar responsável quando não há outro ativo acolhidos")
     @Test
     void shouldDeleteAcolhidoAndDeactivateResponsavelWhenThereAreNoOtherActiveAcolhidos()
     {
@@ -682,6 +718,7 @@ class AcolhidoServiceTest
         inOrder.verify(audit).clearActor();
     }
 
+    @DisplayName("Deve excluir acolhido sem desativando responsável quando há é outro ativo acolhido")
     @Test
     void shouldDeleteAcolhidoWithoutDeactivatingResponsavelWhenThereIsAnotherActiveAcolhido()
     {
@@ -707,6 +744,7 @@ class AcolhidoServiceTest
         Mockito.verifyNoInteractions(responsavelRepository);
     }
 
+    @DisplayName("Não deve excluir desconhecido acolhido")
     @Test
     void shouldNotDeleteUnknownAcolhido()
     {
@@ -721,6 +759,7 @@ class AcolhidoServiceTest
         Mockito.verifyNoInteractions(internacaoRepository, responsavelRepository, audit);
     }
 
+    @DisplayName("Não deve excluir acolhido quando o ID é inválido")
     @ParameterizedTest
     @NullSource
     @ValueSource(longs = {0, -1, -10})
@@ -733,6 +772,7 @@ class AcolhidoServiceTest
         Mockito.verifyNoInteractions(repository, internacaoRepository, responsavelRepository, audit);
     }
 
+    @DisplayName("Não deve excluir acolhido quando há são internações")
     @Test
     void shouldNotDeleteAcolhidoWhenThereAreInternacoes()
     {
@@ -754,6 +794,7 @@ class AcolhidoServiceTest
     }
 
     // Testes countAllAcolhidos
+    @DisplayName("Deve retornar total acolhidos contar")
     @ParameterizedTest
     @ValueSource(longs = {0L, 1L, 10L})
     void shouldReturnTotalAcolhidosCount(long total)
@@ -769,6 +810,7 @@ class AcolhidoServiceTest
     }
 
     // Testes countActiveAcolhidos
+    @DisplayName("Deve retornar ativo acolhidos contar")
     @ParameterizedTest
     @ValueSource(longs = {0L, 1L, 10L})
     void shouldReturnActiveAcolhidosCount(long totalAtivos)
@@ -784,6 +826,7 @@ class AcolhidoServiceTest
     }
 
     // Testes countInactiveAcolhidos
+    @DisplayName("Deve retornar inativo acolhidos contar")
     @ParameterizedTest
     @ValueSource(longs = {0L, 1L, 10L})
     void shouldReturnInactiveAcolhidosCount(long totalInativos)

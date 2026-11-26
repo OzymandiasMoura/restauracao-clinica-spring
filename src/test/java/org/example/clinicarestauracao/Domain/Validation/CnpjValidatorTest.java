@@ -1,5 +1,7 @@
 package org.example.clinicarestauracao.Domain.Validation;
 
+
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -11,6 +13,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class CnpjValidatorTest
 {
+    @DisplayName("Deve aceitar CNPJ válido")
     @ParameterizedTest
     @ValueSource(strings = {
             "11.222.333/0001-81",
@@ -26,6 +29,7 @@ class CnpjValidatorTest
         assertTrue(result);
     }
 
+    @DisplayName("Deve rejeitar CNPJ inválido")
     @ParameterizedTest
     @NullAndEmptySource
     @ValueSource(strings = {
@@ -45,6 +49,7 @@ class CnpjValidatorTest
         assertFalse(result);
     }
 
+    @DisplayName("Deve rejeitar CNPJ com comprimento inválido")
     @ParameterizedTest
     @ValueSource(strings = {
             "1122233300018",
@@ -55,6 +60,7 @@ class CnpjValidatorTest
         assertThat(CnpjValidator.validate(cnpj)).isFalse();
     }
 
+    @DisplayName("Deve rejeitar CNPJ com dígitos verificadores inválidos")
     @ParameterizedTest
     @ValueSource(strings = {
             "11222333000101", // primeiro dígito alterado
@@ -67,6 +73,7 @@ class CnpjValidatorTest
         assertThat(CnpjValidator.validate(cnpj)).isFalse();
     }
 
+    @DisplayName("Deve rejeitar letras em verificar dígitos")
     @ParameterizedTest
     @ValueSource(strings = {
             "12ABC34501DEA5",
@@ -78,6 +85,7 @@ class CnpjValidatorTest
         assertThat(CnpjValidator.validate(cnpj)).isFalse();
     }
 
+    @DisplayName("Deve rejeitar inesperado especial caracteres")
     @ParameterizedTest
     @ValueSource(strings = {
             "12@ABC34501DE35",
@@ -90,12 +98,14 @@ class CnpjValidatorTest
         assertThat(CnpjValidator.validate(cnpj)).isFalse();
     }
 
+    @DisplayName("Deve aceitar minúsculas letras")
     @Test
     void shouldAcceptLowercaseLetters()
     {
         assertTrue(CnpjValidator.validate("12.abc.345/01de-35"));
     }
 
+    @DisplayName("Deve normalizar CNPJ")
     @ParameterizedTest
     @CsvSource({
             "'11.222.333/0001-81', '11222333000181'",
@@ -108,12 +118,14 @@ class CnpjValidatorTest
         assertThat(CnpjValidator.normalize(input)).isEqualTo(expected);
     }
 
+    @DisplayName("Deve retornar nulo ao normalizar uma entrada nula")
     @Test
     void shouldReturnNullWhenNormalizingNull()
     {
         assertThat(CnpjValidator.normalize(null)).isNull();
     }
 
+    @DisplayName("Deve rejeitar entrada contendo somente formatar caracteres")
     @ParameterizedTest
     @ValueSource(strings = {
             ".../--",
@@ -125,6 +137,7 @@ class CnpjValidatorTest
         assertThat(CnpjValidator.validate(cnpj)).isFalse();
     }
 
+    @DisplayName("Deve rejeitar repetido numérico sequências")
     @ParameterizedTest
     @ValueSource(strings = {
             "00000000000000",
@@ -137,6 +150,7 @@ class CnpjValidatorTest
         assertThat(CnpjValidator.validate(cnpj)).isFalse();
     }
 
+    @DisplayName("Deve aceitar CNPJ com espaços")
     @Test
     void shouldAcceptCnpjWithSpaces()
     {
