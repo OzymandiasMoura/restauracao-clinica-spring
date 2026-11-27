@@ -12,6 +12,7 @@ import org.example.clinicarestauracao.Builders.EnderecoTestBuilder;
 import org.example.clinicarestauracao.Builders.ResponsavelTestBuilder;
 import org.example.clinicarestauracao.Domain.Entities.Acolhido;
 import org.example.clinicarestauracao.Domain.Entities.Responsavel;
+import org.example.clinicarestauracao.Domain.Enums.Etnia;
 import org.example.clinicarestauracao.Domain.ValueObjects.Endereco;
 import org.example.clinicarestauracao.Infrastruct.Database.Audit.DatabaseAuditContext;
 import org.junit.jupiter.api.Test;
@@ -283,6 +284,27 @@ class AcolhidoServiceTest
         Mockito.verify(repository).save(receivedAcolhido);
     }
 
+    @DisplayName("Deve criar acolhido com e-mail nulo sem consultar duplicidade de e-mail")
+    @Test
+    void shouldCreateAcolhidoWithNullEmailWithoutCheckingEmailDuplicates()
+    {
+        Acolhido receivedAcolhido = AcolhidoTestBuilder.newAcolhido()
+                .setEmail(null)
+                .buildForCreate();
+
+        Mockito.when(repository.findAcolhidoByCpf(receivedAcolhido.getCpf())).thenReturn(Optional.empty());
+        Mockito.when(repository.save(receivedAcolhido)).thenReturn(receivedAcolhido);
+
+        Acolhido response = service.createAcolhido(receivedAcolhido);
+
+        assertSame(receivedAcolhido, response);
+        assertNull(response.getEmail());
+
+        Mockito.verify(repository).findAcolhidoByCpf(receivedAcolhido.getCpf());
+        Mockito.verify(repository, Mockito.never()).findAcolhidoByEmail(null);
+        Mockito.verify(repository).save(receivedAcolhido);
+    }
+
     @DisplayName("Deve rejeitar duplicado CPF quando criando acolhido")
     @Test
     void shouldRejectDuplicatedCpfWhenCreatingAcolhido()
@@ -327,10 +349,23 @@ class AcolhidoServiceTest
     void shouldUpdateAcolhidoSuccessfully()
     {
         Responsavel responsavelAtual = ResponsavelTestBuilder.newResponsavel().setId(1L).build();
-        Responsavel responsavelRecebido = ResponsavelTestBuilder.newResponsavel().setId(2L).build();
         Acolhido existingAcolhido = AcolhidoTestBuilder.newAcolhido().setResponsavel(responsavelAtual).build();
         Endereco updatedEndereco = EnderecoTestBuilder.newEndereco().setLogradouro("Avenida Paulista").setNumero(1000).setBairro("Bela Vista").setCidade("São Paulo").setEstado("SP").setComplemento("Sala 10").build();
-        Acolhido receivedAcolhido = AcolhidoTestBuilder.newAcolhido().setNome("Maria Atualizada").setEmail("maria.atualizada@email.com").setCpf("11144477735").setCep("01310100").setEndereco(updatedEndereco).setTelefone("1133334444").setDataNascimento(LocalDate.of(1990, 1, 10)).setResponsavel(responsavelRecebido).buildForCreate();
+        Acolhido receivedAcolhido = AcolhidoTestBuilder.newAcolhido()
+                .setNome("Maria Atualizada")
+                .setEmail("maria.atualizada@email.com")
+                .setCpf("11144477735")
+                .setCep("01310100")
+                .setEndereco(updatedEndereco)
+                .setTelefone("1133334444")
+                .setTelefone2("11999999999")
+                .setDataNascimento(LocalDate.of(1990, 1, 10))
+                .setEtnia(Etnia.PARDO)
+                .setGenero("Feminino")
+                .setOrientacaoSexual("Bissexual")
+                .setResponsavel(responsavelAtual)
+                .setGrauParentesco("Neta")
+                .buildForCreate();
 
         Mockito.when(repository.findById(1L)).thenReturn(Optional.of(existingAcolhido));
         Mockito.when(repository.findAcolhidoByCpf(receivedAcolhido.getCpf())).thenReturn(Optional.empty());
@@ -347,14 +382,108 @@ class AcolhidoServiceTest
         assertEquals("01310100", response.getCep());
         assertSame(updatedEndereco, response.getEndereco());
         assertEquals("1133334444", response.getTelefone());
+        assertEquals("11999999999", response.getTelefone2());
         assertEquals(LocalDate.of(1990, 1, 10), response.getDataNascimento());
-        assertSame(responsavelRecebido, response.getResponsavel());
+        assertEquals(Etnia.PARDO, response.getEtnia());
+        assertEquals("Feminino", response.getGenero());
+        assertEquals("Bissexual", response.getOrientacaoSexual());
+        assertEquals("Neta", response.getGrauParentesco());
+        assertSame(responsavelAtual, response.getResponsavel());
         assertTrue(response.getAtivo());
 
         Mockito.verify(repository).findById(1L);
         Mockito.verify(repository).findAcolhidoByCpf(receivedAcolhido.getCpf());
         Mockito.verify(repository).findAcolhidoByEmail(receivedAcolhido.getEmail());
+        Mockito.verify(repository, Mockito.never()).existsByResponsavelIdAndAtivoTrueAndIdNot(Mockito.anyLong(), Mockito.anyLong());
         Mockito.verify(repository).save(existingAcolhido);
+        Mockito.verifyNoInteractions(responsavelRepository);
+    }
+
+    @DisplayName("Deve permitir trocar os telefones principal e secundário durante a atualização")
+    @Test
+    void shouldAllowSwappingTelefonesWhenUpdatingAcolhido()
+    {
+        Responsavel responsavel = ResponsavelTestBuilder.newResponsavel().setId(1L).build();
+        Acolhido existingAcolhido = AcolhidoTestBuilder.newAcolhido()
+                .setResponsavel(responsavel)
+                .setTelefone("11999999999")
+                .setTelefone2("1133334444")
+                .build();
+        Acolhido receivedAcolhido = AcolhidoTestBuilder.newAcolhido()
+                .setResponsavel(responsavel)
+                .setTelefone("1133334444")
+                .setTelefone2("11999999999")
+                .buildForCreate();
+
+        Mockito.when(repository.findById(1L)).thenReturn(Optional.of(existingAcolhido));
+        Mockito.when(repository.findAcolhidoByCpf(receivedAcolhido.getCpf())).thenReturn(Optional.of(existingAcolhido));
+        Mockito.when(repository.findAcolhidoByEmail(receivedAcolhido.getEmail())).thenReturn(Optional.of(existingAcolhido));
+        Mockito.when(repository.save(existingAcolhido)).thenReturn(existingAcolhido);
+
+        Acolhido response = service.updateAcolhido(1L, receivedAcolhido);
+
+        assertAll(
+                () -> assertSame(existingAcolhido, response),
+                () -> assertEquals("1133334444", response.getTelefone()),
+                () -> assertEquals("11999999999", response.getTelefone2())
+        );
+
+        Mockito.verify(repository).save(existingAcolhido);
+        Mockito.verifyNoInteractions(responsavelRepository);
+    }
+
+    @DisplayName("Deve atualizar a moradia para situação de rua")
+    @Test
+    void shouldUpdateHousingStatusToLivingOnStreet()
+    {
+        Acolhido existingAcolhido = AcolhidoTestBuilder.newAcolhido().build();
+        Acolhido receivedAcolhido = AcolhidoTestBuilder.newAcolhido()
+                .setMoradorRua(true)
+                .setCep(null)
+                .setEndereco(null)
+                .setResponsavel(existingAcolhido.getResponsavel())
+                .buildForCreate();
+
+        Mockito.when(repository.findById(1L)).thenReturn(Optional.of(existingAcolhido));
+        Mockito.when(repository.findAcolhidoByCpf(receivedAcolhido.getCpf())).thenReturn(Optional.of(existingAcolhido));
+        Mockito.when(repository.findAcolhidoByEmail(receivedAcolhido.getEmail())).thenReturn(Optional.of(existingAcolhido));
+        Mockito.when(repository.save(existingAcolhido)).thenReturn(existingAcolhido);
+
+        Acolhido response = service.updateAcolhido(1L, receivedAcolhido);
+
+        assertAll(
+                () -> assertTrue(response.getMoradorRua()),
+                () -> assertNull(response.getCep()),
+                () -> assertNull(response.getEndereco())
+        );
+
+        Mockito.verify(repository, Mockito.never()).existsByResponsavelIdAndAtivoTrueAndIdNot(Mockito.anyLong(), Mockito.anyLong());
+        Mockito.verify(repository).save(existingAcolhido);
+        Mockito.verifyNoInteractions(responsavelRepository);
+    }
+
+    @DisplayName("Deve atualizar acolhido com e-mail nulo sem consultar duplicidade de e-mail")
+    @Test
+    void shouldUpdateAcolhidoWithNullEmailWithoutCheckingEmailDuplicates()
+    {
+        Acolhido existingAcolhido = AcolhidoTestBuilder.newAcolhido().build();
+        Acolhido receivedAcolhido = AcolhidoTestBuilder.newAcolhido()
+                .setEmail(null)
+                .setResponsavel(existingAcolhido.getResponsavel())
+                .buildForCreate();
+
+        Mockito.when(repository.findById(1L)).thenReturn(Optional.of(existingAcolhido));
+        Mockito.when(repository.findAcolhidoByCpf(receivedAcolhido.getCpf())).thenReturn(Optional.of(existingAcolhido));
+        Mockito.when(repository.save(existingAcolhido)).thenReturn(existingAcolhido);
+
+        Acolhido response = service.updateAcolhido(1L, receivedAcolhido);
+
+        assertNull(response.getEmail());
+
+        Mockito.verify(repository).findAcolhidoByCpf(receivedAcolhido.getCpf());
+        Mockito.verify(repository, Mockito.never()).findAcolhidoByEmail(null);
+        Mockito.verify(repository).save(existingAcolhido);
+        Mockito.verifyNoInteractions(responsavelRepository);
     }
 
     @DisplayName("Deve substituir o responsável ao atualizar o acolhido")
@@ -369,19 +498,89 @@ class AcolhidoServiceTest
         Mockito.when(repository.findById(1L)).thenReturn(Optional.of(existingAcolhido));
         Mockito.when(repository.findAcolhidoByCpf(receivedAcolhido.getCpf())).thenReturn(Optional.of(existingAcolhido));
         Mockito.when(repository.findAcolhidoByEmail(receivedAcolhido.getEmail())).thenReturn(Optional.of(existingAcolhido));
+        Mockito.when(repository.existsByResponsavelIdAndAtivoTrueAndIdNot(1L, 1L)).thenReturn(false);
         Mockito.when(repository.save(existingAcolhido)).thenReturn(existingAcolhido);
 
         Acolhido response = service.updateAcolhido(1L, receivedAcolhido);
 
         assertAll(
                 () -> assertSame(existingAcolhido, response),
-                () -> assertSame(novoResponsavel, response.getResponsavel())
+                () -> assertSame(novoResponsavel, response.getResponsavel()),
+                () -> assertFalse(responsavelAtual.isAtivo())
         );
 
         Mockito.verify(repository).findById(1L);
         Mockito.verify(repository).findAcolhidoByCpf(receivedAcolhido.getCpf());
         Mockito.verify(repository).findAcolhidoByEmail(receivedAcolhido.getEmail());
+        Mockito.verify(repository).existsByResponsavelIdAndAtivoTrueAndIdNot(1L, 1L);
+        Mockito.verify(responsavelRepository).save(responsavelAtual);
         Mockito.verify(repository).save(existingAcolhido);
+    }
+
+    @DisplayName("Deve manter responsável anterior ativo quando houver outro acolhido ativo")
+    @Test
+    void shouldKeepPreviousResponsavelActiveWhenAnotherActiveAcolhidoExists()
+    {
+        Responsavel responsavelAtual = ResponsavelTestBuilder.newResponsavel().setId(1L).build();
+        Responsavel novoResponsavel = ResponsavelTestBuilder.newResponsavel().setId(2L).build();
+        Acolhido existingAcolhido = AcolhidoTestBuilder.newAcolhido()
+                .setResponsavel(responsavelAtual)
+                .build();
+        Acolhido receivedAcolhido = AcolhidoTestBuilder.newAcolhido()
+                .setResponsavel(novoResponsavel)
+                .buildForCreate();
+
+        Mockito.when(repository.findById(1L)).thenReturn(Optional.of(existingAcolhido));
+        Mockito.when(repository.findAcolhidoByCpf(receivedAcolhido.getCpf())).thenReturn(Optional.of(existingAcolhido));
+        Mockito.when(repository.findAcolhidoByEmail(receivedAcolhido.getEmail())).thenReturn(Optional.of(existingAcolhido));
+        Mockito.when(repository.existsByResponsavelIdAndAtivoTrueAndIdNot(1L, 1L)).thenReturn(true);
+        Mockito.when(repository.save(existingAcolhido)).thenReturn(existingAcolhido);
+
+        Acolhido response = service.updateAcolhido(1L, receivedAcolhido);
+
+        assertAll(
+                () -> assertSame(novoResponsavel, response.getResponsavel()),
+                () -> assertTrue(responsavelAtual.isAtivo())
+        );
+
+        Mockito.verify(repository).existsByResponsavelIdAndAtivoTrueAndIdNot(1L, 1L);
+        Mockito.verify(responsavelRepository, Mockito.never()).save(Mockito.any(Responsavel.class));
+        Mockito.verify(repository).save(existingAcolhido);
+    }
+
+    @DisplayName("Deve rejeitar novo responsável inativo antes de alterar o acolhido")
+    @Test
+    void shouldRejectInactiveNewResponsavelBeforeUpdatingAcolhido()
+    {
+        Responsavel responsavelAtual = ResponsavelTestBuilder.newResponsavel().setId(1L).build();
+        Responsavel responsavelInativo = ResponsavelTestBuilder.newResponsavel()
+                .setId(2L)
+                .setAtivo(false)
+                .build();
+        Acolhido existingAcolhido = AcolhidoTestBuilder.newAcolhido()
+                .setResponsavel(responsavelAtual)
+                .build();
+        Acolhido receivedAcolhido = AcolhidoTestBuilder.newAcolhido()
+                .setNome("Nome que não deve ser aplicado")
+                .setResponsavel(responsavelInativo)
+                .build();
+
+        Mockito.when(repository.findById(1L)).thenReturn(Optional.of(existingAcolhido));
+        Mockito.when(repository.findAcolhidoByCpf(receivedAcolhido.getCpf())).thenReturn(Optional.of(existingAcolhido));
+        Mockito.when(repository.findAcolhidoByEmail(receivedAcolhido.getEmail())).thenReturn(Optional.of(existingAcolhido));
+
+        AcolhidoWithInvalidInformationException exception = assertThrows(
+                AcolhidoWithInvalidInformationException.class,
+                () -> service.updateAcolhido(1L, receivedAcolhido));
+
+        assertEquals("Responsável do acolhido não pode ser inativo.", exception.getMessage());
+        assertEquals("Maria Silva", existingAcolhido.getNome());
+        assertSame(responsavelAtual, existingAcolhido.getResponsavel());
+        assertTrue(responsavelAtual.isAtivo());
+
+        Mockito.verify(repository, Mockito.never()).existsByResponsavelIdAndAtivoTrueAndIdNot(Mockito.anyLong(), Mockito.anyLong());
+        Mockito.verify(responsavelRepository, Mockito.never()).save(Mockito.any(Responsavel.class));
+        Mockito.verify(repository, Mockito.never()).save(Mockito.any(Acolhido.class));
     }
 
     @DisplayName("Deve permitir mantendo próprio CPF e e-mail e preservar inativo estado")

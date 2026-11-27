@@ -96,10 +96,13 @@ public class AcolhidoService
         {
             throw new AcolhidoWithInvalidInformationException("CPF já cadastrado.");
         }
-        boolean sameEmail = repository.findAcolhidoByEmail(acolhido.getEmail()).isPresent();
-        if (sameEmail)
+        if (acolhido.getEmail() != null)
         {
-            throw new AcolhidoWithInvalidInformationException("Email já cadastrado.");
+            boolean sameEmail = repository.findAcolhidoByEmail(acolhido.getEmail()).isPresent();
+            if (sameEmail)
+            {
+                throw new AcolhidoWithInvalidInformationException("Email já cadastrado.");
+            }
         }
 
         return repository.save(acolhido);
@@ -115,20 +118,41 @@ public class AcolhidoService
         {
             throw new AcolhidoWithInvalidInformationException("CPF já cadastrado.");
         }
-        Optional<Acolhido> sameEmail = repository.findAcolhidoByEmail(acolhido.getEmail());
-        if (sameEmail.isPresent() && !sameEmail.get().getId().equals(acolhidoToUpdate.getId()))
+        if (acolhido.getEmail() != null)
         {
-            throw new AcolhidoWithInvalidInformationException("Email já cadastrado.");
+            Optional<Acolhido> sameEmail = repository.findAcolhidoByEmail(acolhido.getEmail());
+            if (sameEmail.isPresent() && !sameEmail.get().getId().equals(acolhidoToUpdate.getId()))
+            {
+                throw new AcolhidoWithInvalidInformationException("Email já cadastrado.");
+            }
+        }
+
+        Responsavel responsavelAnterior = acolhidoToUpdate.getResponsavel();
+        Responsavel novoResponsavel = acolhido.getResponsavel();
+        boolean houveTroca = !responsavelAnterior.getId().equals(novoResponsavel.getId());
+
+        if (houveTroca)
+        {
+            acolhidoToUpdate.setResponsavelCreate(acolhido.getResponsavel());
         }
 
         acolhidoToUpdate.setNome(acolhido.getNome());
         acolhidoToUpdate.setEmail(acolhido.getEmail());
         acolhidoToUpdate.setCpf(acolhido.getCpf());
-        acolhidoToUpdate.setCep(acolhido.getCep());
-        acolhidoToUpdate.setEndereco(acolhido.getEndereco());
-        acolhidoToUpdate.setTelefone(acolhido.getTelefone());
+        acolhidoToUpdate.updateHousingStatus(acolhido.getMoradorRua(), acolhido.getCep(), acolhido.getEndereco());
+        acolhidoToUpdate.updateTelefones(acolhido.getTelefone(), acolhido.getTelefone2());
         acolhidoToUpdate.setDataNascimento(acolhido.getDataNascimento());
-        acolhidoToUpdate.setResponsavel(acolhido.getResponsavel());
+        acolhidoToUpdate.setEtnia(acolhido.getEtnia());
+        acolhidoToUpdate.setOrientacaoSexual(acolhido.getOrientacaoSexual());
+        acolhidoToUpdate.setGenero(acolhido.getGenero());
+        acolhidoToUpdate.setGrauParentesco(acolhido.getGrauParentesco());
+
+
+        if (houveTroca && responsavelAnterior.isAtivo() && !repository.existsByResponsavelIdAndAtivoTrueAndIdNot(responsavelAnterior.getId(), acolhidoToUpdate.getId()))
+        {
+            responsavelAnterior.deactivateResponsavel();
+            responsavelRepository.save(responsavelAnterior);
+        }
 
         return repository.save(acolhidoToUpdate);
     }

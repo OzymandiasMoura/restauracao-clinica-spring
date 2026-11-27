@@ -13,6 +13,7 @@ import org.example.clinicarestauracao.Builders.EnderecoTestBuilder;
 import org.example.clinicarestauracao.Builders.ResponsavelTestBuilder;
 import org.example.clinicarestauracao.Domain.Entities.Acolhido;
 import org.example.clinicarestauracao.Domain.Entities.Responsavel;
+import org.example.clinicarestauracao.Domain.Enums.Etnia;
 import org.example.clinicarestauracao.Domain.ValueObjects.Endereco;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -263,9 +264,9 @@ class AcolhidoControllerTest
         EnderecoDto enderecoDto = new EnderecoDto(endereco.getLogradouro(), endereco.getNumero(), endereco.getBairro(), endereco.getCidade(), endereco.getEstado(), endereco.getComplemento());
         LocalDate dataNascimento = LocalDate.of(1999, 9, 9);
         Responsavel responsavel = ResponsavelTestBuilder.newResponsavel().setId(5L).build();
-        AcolhidoCreateRequestDto requestDto = new AcolhidoCreateRequestDto("Maria Silva", "52998224725", "maria@email.com", dataNascimento, enderecoDto, "01001000", "11999999999", responsavel.getId());
+        AcolhidoCreateRequestDto requestDto = new AcolhidoCreateRequestDto("Maria Silva", "52998224725", "maria@email.com", dataNascimento, enderecoDto, "01001000", "11999999999", responsavel.getId(), false, "1133334444", Etnia.PARDO, "Feminino", "Bissexual", "Filha");
 
-        Acolhido acolhidoCriado = AcolhidoTestBuilder.newAcolhido().setId(10L).setNome(requestDto.nome()).setCpf(requestDto.cpf()).setEmail(requestDto.email()).setDataNascimento(requestDto.dataNascimento()).setEndereco(endereco).setCep(requestDto.cep()).setTelefone(requestDto.telefone()).setResponsavel(responsavel).build();
+        Acolhido acolhidoCriado = AcolhidoTestBuilder.newAcolhido().setId(10L).setNome(requestDto.nome()).setCpf(requestDto.cpf()).setEmail(requestDto.email()).setDataNascimento(requestDto.dataNascimento()).setMoradorRua(requestDto.moradorRua()).setEndereco(endereco).setCep(requestDto.cep()).setTelefone(requestDto.telefone()).setTelefone2(requestDto.telefone2()).setEtnia(requestDto.etnia()).setGenero(requestDto.genero()).setOrientacaoSexual(requestDto.orientacaoSexual()).setGrauParentesco(requestDto.grauParentesco()).setResponsavel(responsavel).build();
 
         Mockito.when(responsavelService.findResponsavelById(requestDto.responsavelId())).thenReturn(responsavel);
         Mockito.when(service.createAcolhido(Mockito.any(Acolhido.class))).thenReturn(acolhidoCriado);
@@ -279,12 +280,19 @@ class AcolhidoControllerTest
         AcolhidoResponseDto responseBody = response.getBody();
 
         assertEquals(acolhidoCriado.getId(), responseBody.id());
+        assertEquals(acolhidoCriado.getDataCriacao(), responseBody.dataCriacao());
         assertEquals(acolhidoCriado.getNome(), responseBody.nome());
         assertEquals(acolhidoCriado.getCpf(), responseBody.cpf());
         assertEquals(acolhidoCriado.getEmail(), responseBody.email());
         assertEquals(acolhidoCriado.getDataNascimento(), responseBody.dataNascimento());
+        assertEquals(acolhidoCriado.getMoradorRua(), responseBody.moradorRua());
         assertEquals(acolhidoCriado.getCep(), responseBody.cep());
         assertEquals(acolhidoCriado.getTelefone(), responseBody.telefone());
+        assertEquals(acolhidoCriado.getTelefone2(), responseBody.telefone2());
+        assertEquals(acolhidoCriado.getEtnia(), responseBody.etnia());
+        assertEquals(acolhidoCriado.getGenero(), responseBody.genero());
+        assertEquals(acolhidoCriado.getOrientacaoSexual(), responseBody.orientacaoSexual());
+        assertEquals(acolhidoCriado.getGrauParentesco(), responseBody.grauParentesco());
         assertTrue(responseBody.ativo());
         assertNotNull(responseBody.endereco());
         assertNotNull(responseBody.responsavel());
@@ -301,8 +309,14 @@ class AcolhidoControllerTest
         assertEquals(requestDto.cpf(), acolhidoEnviado.getCpf());
         assertEquals(requestDto.email(), acolhidoEnviado.getEmail());
         assertEquals(requestDto.dataNascimento(), acolhidoEnviado.getDataNascimento());
+        assertEquals(requestDto.moradorRua(), acolhidoEnviado.getMoradorRua());
         assertEquals(requestDto.cep(), acolhidoEnviado.getCep());
         assertEquals(requestDto.telefone(), acolhidoEnviado.getTelefone());
+        assertEquals(requestDto.telefone2(), acolhidoEnviado.getTelefone2());
+        assertEquals(requestDto.etnia(), acolhidoEnviado.getEtnia());
+        assertEquals(requestDto.genero(), acolhidoEnviado.getGenero());
+        assertEquals(requestDto.orientacaoSexual(), acolhidoEnviado.getOrientacaoSexual());
+        assertEquals(requestDto.grauParentesco(), acolhidoEnviado.getGrauParentesco());
         assertTrue(acolhidoEnviado.getAtivo());
         assertSame(responsavel, acolhidoEnviado.getResponsavel());
         assertNotNull(acolhidoEnviado.getEndereco());
@@ -324,8 +338,8 @@ class AcolhidoControllerTest
         Endereco endereco = EnderecoTestBuilder.newEndereco().setLogradouro("Avenida Paulista").setNumero(1000).setBairro("Bela Vista").setCidade("São Paulo").setEstado("SP").setComplemento("Apartamento 10").build();
         EnderecoDto enderecoDto = new EnderecoDto(endereco.getLogradouro(), endereco.getNumero(), endereco.getBairro(), endereco.getCidade(), endereco.getEstado(), endereco.getComplemento());
         Responsavel responsavel = ResponsavelTestBuilder.newResponsavel().setId(5L).build();
-        AcolhidoUpdateRequestDto requestDto = new AcolhidoUpdateRequestDto("Maria Souza", "11144477735", "maria.souza@email.com", LocalDate.of(1998, 5, 20), enderecoDto, "01310100", "11988887777", responsavel.getId());
-        Acolhido acolhidoAtualizado = AcolhidoTestBuilder.newAcolhido().setId(1L).setNome(requestDto.nome()).setCpf(requestDto.cpf()).setEmail(requestDto.email()).setDataNascimento(requestDto.dataNascimento()).setEndereco(endereco).setCep(requestDto.cep()).setTelefone(requestDto.telefone()).setResponsavel(responsavel).build();
+        AcolhidoUpdateRequestDto requestDto = new AcolhidoUpdateRequestDto("Maria Souza", "11144477735", "maria.souza@email.com", LocalDate.of(1998, 5, 20), enderecoDto, "01310100", "11988887777", responsavel.getId(), false, "1133334444", Etnia.BRANCO, "Feminino", "Heterossexual", "Filha");
+        Acolhido acolhidoAtualizado = AcolhidoTestBuilder.newAcolhido().setId(1L).setNome(requestDto.nome()).setCpf(requestDto.cpf()).setEmail(requestDto.email()).setDataNascimento(requestDto.dataNascimento()).setMoradorRua(requestDto.moradorRua()).setEndereco(endereco).setCep(requestDto.cep()).setTelefone(requestDto.telefone()).setTelefone2(requestDto.telefone2()).setEtnia(requestDto.etnia()).setGenero(requestDto.genero()).setOrientacaoSexual(requestDto.orientacaoSexual()).setGrauParentesco(requestDto.grauParentesco()).setResponsavel(responsavel).build();
 
         Mockito.when(responsavelService.findResponsavelById(requestDto.responsavelId())).thenReturn(responsavel);
         Mockito.when(service.updateAcolhido(Mockito.eq(1L), Mockito.any(Acolhido.class))).thenReturn(acolhidoAtualizado);
@@ -338,12 +352,19 @@ class AcolhidoControllerTest
         AcolhidoResponseDto responseBody = response.getBody();
 
         assertEquals(acolhidoAtualizado.getId(), responseBody.id());
+        assertEquals(acolhidoAtualizado.getDataCriacao(), responseBody.dataCriacao());
         assertEquals(acolhidoAtualizado.getNome(), responseBody.nome());
         assertEquals(acolhidoAtualizado.getCpf(), responseBody.cpf());
         assertEquals(acolhidoAtualizado.getEmail(), responseBody.email());
         assertEquals(acolhidoAtualizado.getDataNascimento(), responseBody.dataNascimento());
+        assertEquals(acolhidoAtualizado.getMoradorRua(), responseBody.moradorRua());
         assertEquals(acolhidoAtualizado.getCep(), responseBody.cep());
         assertEquals(acolhidoAtualizado.getTelefone(), responseBody.telefone());
+        assertEquals(acolhidoAtualizado.getTelefone2(), responseBody.telefone2());
+        assertEquals(acolhidoAtualizado.getEtnia(), responseBody.etnia());
+        assertEquals(acolhidoAtualizado.getGenero(), responseBody.genero());
+        assertEquals(acolhidoAtualizado.getOrientacaoSexual(), responseBody.orientacaoSexual());
+        assertEquals(acolhidoAtualizado.getGrauParentesco(), responseBody.grauParentesco());
         assertEquals(acolhidoAtualizado.getAtivo(), responseBody.ativo());
         assertNotNull(responseBody.endereco());
         assertNotNull(responseBody.responsavel());
@@ -360,8 +381,14 @@ class AcolhidoControllerTest
         assertEquals(requestDto.cpf(), acolhidoEnviado.getCpf());
         assertEquals(requestDto.email(), acolhidoEnviado.getEmail());
         assertEquals(requestDto.dataNascimento(), acolhidoEnviado.getDataNascimento());
+        assertEquals(requestDto.moradorRua(), acolhidoEnviado.getMoradorRua());
         assertEquals(requestDto.cep(), acolhidoEnviado.getCep());
         assertEquals(requestDto.telefone(), acolhidoEnviado.getTelefone());
+        assertEquals(requestDto.telefone2(), acolhidoEnviado.getTelefone2());
+        assertEquals(requestDto.etnia(), acolhidoEnviado.getEtnia());
+        assertEquals(requestDto.genero(), acolhidoEnviado.getGenero());
+        assertEquals(requestDto.orientacaoSexual(), acolhidoEnviado.getOrientacaoSexual());
+        assertEquals(requestDto.grauParentesco(), acolhidoEnviado.getGrauParentesco());
         assertSame(responsavel, acolhidoEnviado.getResponsavel());
         assertNotNull(acolhidoEnviado.getEndereco());
         assertEquals(enderecoDto.logradouro(), acolhidoEnviado.getEndereco().getLogradouro());
