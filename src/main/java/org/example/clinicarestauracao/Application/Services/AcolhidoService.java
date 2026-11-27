@@ -69,7 +69,7 @@ public class AcolhidoService
 
         String emailNormalizado = EmailValidator.normalize(email);
 
-        if (emailNormalizado == null || emailNormalizado.isBlank())
+        if (emailNormalizado.isBlank())
         {
             throw new AcolhidoNotFoundException("Acolhido não encontrado.");
         }
