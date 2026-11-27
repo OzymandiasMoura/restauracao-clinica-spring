@@ -221,7 +221,7 @@ public class Acolhido
             this.endereco = null;
             return;
         }
-        if (endereco == null && !moradorRua)
+        if (endereco == null)
         {
             throw new AcolhidoWithInvalidInformationException("Endereço do acolhido não pode ser nulo ou vazio.");
         }
